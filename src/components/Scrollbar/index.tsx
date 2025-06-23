@@ -1,6 +1,5 @@
 import { FC, ReactNode } from 'react';
-import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars-2';
+import { Scrollbars } from 'replace-custom-scrollbars';
 
 import { Box, useTheme } from '@mui/material';
 
@@ -37,11 +36,6 @@ const Scrollbar: FC<ScrollbarProps> = ({ className, children, ...rest }) => {
       {children}
     </Scrollbars>
   );
-};
-
-Scrollbar.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string
 };
 
 export default Scrollbar;

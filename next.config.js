@@ -9,7 +9,13 @@ const redirects = {
         permanent: true
       }
     ];
-  }
+  },
+  transpilePackages: [
+    '@mui/material',
+    '@mui/x-date-pickers',
+    '@mui/lab',
+    '@mui/icons-material'
+  ]
 };
 
 module.exports = withImages(redirects);

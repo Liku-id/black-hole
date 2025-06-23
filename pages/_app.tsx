@@ -11,8 +11,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from 'src/createEmotionCache';
 import { SidebarProvider } from 'src/contexts/SidebarContext';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useEffect, useState } from 'react';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -28,10 +29,19 @@ interface TokyoAppProps extends AppProps {
 function TokyoApp(props: TokyoAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page) => page);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   Router.events.on('routeChangeStart', nProgress.start);
   Router.events.on('routeChangeError', nProgress.done);
   Router.events.on('routeChangeComplete', nProgress.done);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <CacheProvider value={emotionCache}>
@@ -44,7 +54,7 @@ function TokyoApp(props: TokyoAppProps) {
       </Head>
       <SidebarProvider>
         <ThemeProvider>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <CssBaseline />
             {getLayout(<Component {...pageProps} />)}
           </LocalizationProvider>
