@@ -197,10 +197,10 @@ function SidebarMenu() {
           <SubMenuWrapper>
             <List component="div">
               <ListItem component="div">
-                <NextLink href="/management/transactions" passHref>
+                <NextLink href="/events" passHref>
                   <Button
                     className={
-                      currentRoute === '/management/transactions'
+                      currentRoute === '/events'
                         ? 'active'
                         : ''
                     }
@@ -214,17 +214,17 @@ function SidebarMenu() {
                 </NextLink>
               </ListItem>
               <ListItem component="div">
-                <NextLink href="/components/buttons" passHref>
+                <NextLink href="/organizers" passHref>
                   <Button
                     className={
-                      currentRoute === '/components/buttons' ? 'active' : ''
+                      currentRoute === '/organizers' ? 'active' : ''
                     }
                     disableRipple
                     component="a"
                     onClick={closeSidebar}
                     startIcon={<BallotTwoToneIcon />}
                   >
-                    Organizer
+                    Organizers
                   </Button>
                 </NextLink>
               </ListItem>

@@ -1,18 +1,17 @@
 import Head from 'next/head';
-
 import SidebarLayout from '@/layouts/SidebarLayout';
-
-import PageHeader from '@/content/Dashboards/Crypto/PageHeader';
+import PageHeader from '@/content/Events/PageHeader';
 import PageTitleWrapper from '@/components/PageTitleWrapper';
-import { Container, Grid } from '@mui/material';
+import { Grid, Container } from '@mui/material';
 import Footer from '@/components/Footer';
 
+import RecentOrders from '@/content/Management/Transactions/RecentOrders';
 
-function DashboardCrypto() {
+function ApplicationsTransactions() {
   return (
     <>
       <Head>
-        <title>Crypto Dashboard</title>
+        <title>Events - TMS</title>
       </Head>
       <PageTitleWrapper>
         <PageHeader />
@@ -23,12 +22,11 @@ function DashboardCrypto() {
           direction="row"
           justifyContent="center"
           alignItems="stretch"
-          spacing={4}
+          spacing={3}
         >
           <Grid item xs={12}>
-          
+            <RecentOrders />
           </Grid>
-        
         </Grid>
       </Container>
       <Footer />
@@ -36,6 +34,8 @@ function DashboardCrypto() {
   );
 }
 
-DashboardCrypto.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
+ApplicationsTransactions.getLayout = (page) => (
+  <SidebarLayout>{page}</SidebarLayout>
+);
 
-export default DashboardCrypto;
+export default ApplicationsTransactions;
