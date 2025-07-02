@@ -16,9 +16,11 @@
 ![license](https://img.shields.io/badge/license-MIT-blue.svg)
 
 <a href="https://bloomui.com/product/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard/"><img src="https://bloomui.s3.us-east-2.amazonaws.com/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard.jpg" /></a>
+
 </div>
 
 <a href="https://bloomui.com/product/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard/"><h3>Free Material-UI Next.js Typescript Dashboard Template with Dark Color Scheme</h3></a>
+
 <p>
     Tokyo Free White Next.js Typescript Dashboard is built using the latest industry standards and features a clean and premium design style, making use of colors and accents to improve the user experience for all included flows and pages.
 </p>
@@ -33,6 +35,7 @@ To discover all the features that this free React admin template has to offer, w
 <p>There is also a free Javascript version available, if that is what you prefer working with.</p>
 
 ---
+
 <h3>Updrade to PRO</h3>
 
 <p>The premium version of this template comes with a lot more components, features and options making it a very powerful friend in your development endeavors. You can download a copy of it from <a href="https://bloomui.com">bloomui.com</a></p>
