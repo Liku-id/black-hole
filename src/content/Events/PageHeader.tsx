@@ -1,10 +1,8 @@
-import { Typography, Button, Grid } from '@mui/material';
-
-import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import { Typography, Grid } from '@mui/material';
 
 function PageHeader() {
   const user = {
-    name: 'Catherine Pike',
+    name: 'Admin',
     avatar: '/static/images/avatars/1.jpg'
   };
   return (
@@ -14,17 +12,8 @@ function PageHeader() {
           Events List
         </Typography>
         <Typography variant="subtitle2">
-          {user.name}, these are your recent transactions
+          {user.name}, these are list of events
         </Typography>
-      </Grid>
-      <Grid item>
-        <Button
-          sx={{ mt: { xs: 2, md: 0 } }}
-          variant="contained"
-          startIcon={<AddTwoToneIcon fontSize="small" />}
-        >
-          Create transaction
-        </Button>
       </Grid>
     </Grid>
   );

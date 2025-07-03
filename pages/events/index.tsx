@@ -5,9 +5,9 @@ import PageTitleWrapper from '@/components/PageTitleWrapper';
 import { Grid, Container } from '@mui/material';
 import Footer from '@/components/Footer';
 
-import RecentOrders from '@/content/Management/Transactions/RecentOrders';
+import EventsList from '@/content/Events/EventsList';
 
-function ApplicationsTransactions() {
+function EventsPage() {
   return (
     <>
       <Head>
@@ -25,7 +25,7 @@ function ApplicationsTransactions() {
           spacing={3}
         >
           <Grid item xs={12}>
-            <RecentOrders />
+            <EventsList />
           </Grid>
         </Grid>
       </Container>
@@ -34,8 +34,6 @@ function ApplicationsTransactions() {
   );
 }
 
-ApplicationsTransactions.getLayout = (page) => (
-  <SidebarLayout>{page}</SidebarLayout>
-);
+EventsPage.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
 
-export default ApplicationsTransactions;
+export default EventsPage;

@@ -1,7 +1,6 @@
 import { FC, ChangeEvent, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Divider,
   Box,
   Card,
   Table,
@@ -11,8 +10,7 @@ import {
   TablePagination,
   TableRow,
   TableContainer,
-  Typography,
-  CardHeader
+  Typography
 } from '@mui/material';
 
 import { EventOrganizer } from '@/models/organizer';
@@ -124,8 +122,6 @@ const OrganizersListTabel: FC<OrganizersListTabelProps> = ({
 
   return (
     <Card>
-      {<CardHeader title="Event Organizers" />}
-      <Divider />
       <TableContainer>
         <Table>
           <TableHead>
