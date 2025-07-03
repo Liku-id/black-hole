@@ -1,16 +1,15 @@
+import { AuthUser, LoginDto } from '@/models/user';
+import { userService } from '@/services/userService';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
-interface User {
-  username: string;
-  name: string;
-  email: string;
-}
-
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoggedIn: boolean;
-  login: (userData?: User) => void;
+  isLoading: boolean;
+  login: (loginData: LoginDto) => Promise<string | null>;
   logout: () => void;
+  hasRole: (roleName: string) => boolean;
+  isAdmin: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,14 +19,15 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     // Check if user is logged in on mount
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
@@ -35,28 +35,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoggedIn(true);
       } catch (error) {
         console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('user');
+        localStorage.removeItem('authUser');
       }
     }
+    setIsLoading(false);
   }, []);
 
-  const login = (userData?: User) => {
-    const defaultUser: User = {
-      username: 'admin',
-      name: 'Administrator',
-      email: 'admin@example.com'
-    };
-    
-    const userToStore = userData || defaultUser;
-    setUser(userToStore);
-    setIsLoggedIn(true);
-    localStorage.setItem('user', JSON.stringify(userToStore));
+  const login = async (loginData: LoginDto): Promise<string | null> => {
+    setIsLoading(true);
+    try {
+      const { user, error } = await userService.authenticate(loginData);
+      if (error) return error;
+      setUser(user!);
+      setIsLoggedIn(true);
+      localStorage.setItem('authUser', JSON.stringify(user));
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
     setUser(null);
     setIsLoggedIn(false);
-    localStorage.removeItem('user');
+    localStorage.removeItem('authUser');
+  };
+
+  const hasRole = (roleName: string): boolean => {
+    if (!user) return false;
+    return userService.hasRole(user, roleName);
+  };
+
+  const isAdmin = (): boolean => {
+    if (!user) return false;
+    return userService.isAdmin(user);
   };
 
   if (!mounted) {
@@ -64,7 +76,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoggedIn, 
+      isLoading, 
+      login, 
+      logout, 
+      hasRole, 
+      isAdmin 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,40 +1,52 @@
-import { AuthGate } from '@/components/AuthGate';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Container,
-    TextField,
-    Typography
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Container,
+  TextField,
+  Typography
 } from '@mui/material';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-const MOCK_USER = {
-  username: 'admin',
-  password: 'password123'
-};
-
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, isLoading } = useAuth();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === MOCK_USER.username && password === MOCK_USER.password) {
-      setError('');
-      login();
-    } else {
-      setError('Invalid username or password');
+    setError('');
+    setIsSubmitting(true);
+
+    // Create login data with user agent and IP (mock values for now)
+    const loginData = {
+      email,
+      password,
+      user_agent: navigator.userAgent,
+      ip: '192.168.1.1' // In real app, this would come from the server
+    };
+
+    const errorMsg = await login(loginData);
+    if (errorMsg) {
+      setError(errorMsg);
+      setIsSubmitting(false);
+      return;
     }
+    router.replace('/');
+    setIsSubmitting(false);
   };
 
   return (
-    <AuthGate requireAuth={false} redirectTo="/">
+    <>
       <Head>
         <title>Login - TMS</title>
       </Head>
@@ -47,13 +59,15 @@ export default function LoginPage() {
               </Box>
               <form onSubmit={handleSubmit}>
                 <TextField
-                  label="Username"
+                  label="Email"
+                  type="email"
                   variant="outlined"
                   fullWidth
                   margin="normal"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   required
+                  disabled={isSubmitting || isLoading}
                 />
                 <TextField
                   label="Password"
@@ -64,20 +78,29 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
+                  disabled={isSubmitting || isLoading}
                 />
                 {error && (
-                  <Typography color="error" variant="body2" mt={1} mb={1}>
+                  <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
                     {error}
-                  </Typography>
+                  </Alert>
                 )}
-                <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                  Login
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  color="primary" 
+                  fullWidth 
+                  sx={{ mt: 2 }}
+                  disabled={isSubmitting || isLoading}
+                  startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+                >
+                  {isSubmitting ? 'Signing In...' : 'Sign In'}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </Box>
       </Container>
-    </AuthGate>
+    </>
   );
 } 

@@ -6,6 +6,7 @@ import {
   Avatar,
   Box,
   Button,
+  Chip,
   Divider,
   Hidden,
   lighten,
@@ -19,6 +20,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
@@ -66,8 +68,10 @@ function HeaderUserbox() {
   
   const defaultUser = {
     name: user?.name || 'Administrator',
+    email: user?.email || 'admin@example.com',
     avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'System Administrator'
+    jobtitle: user?.role?.name || 'System Administrator',
+    role: user?.role
   };
 
   const ref = useRef<any>(null);
@@ -85,6 +89,19 @@ function HeaderUserbox() {
     logout();
     handleClose();
     router.push('/login');
+  };
+
+  const getRoleColor = (roleName: string) => {
+    switch (roleName) {
+      case 'admin':
+        return 'primary';
+      case 'partner':
+        return 'secondary';
+      case 'buyer':
+        return 'default';
+      default:
+        return 'default';
+    }
   };
 
   return (
@@ -121,8 +138,17 @@ function HeaderUserbox() {
           <UserBoxText>
             <UserBoxLabel variant="body1">{defaultUser.name}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {defaultUser.jobtitle}
+              {defaultUser.email}
             </UserBoxDescription>
+            {defaultUser.role && (
+              <Chip
+                icon={<AdminPanelSettingsIcon />}
+                label={defaultUser.role.name.toUpperCase()}
+                color={getRoleColor(defaultUser.role.name) as any}
+                size="small"
+                sx={{ mt: 1 }}
+              />
+            )}
           </UserBoxText>
         </MenuUserBox>
         <Divider sx={{ mb: 0 }} />
