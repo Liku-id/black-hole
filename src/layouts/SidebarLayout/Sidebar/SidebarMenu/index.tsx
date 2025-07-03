@@ -2,13 +2,13 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
 import {
-  alpha,
-  Box,
-  Button,
-  List,
-  ListItem,
-  ListSubheader,
-  styled
+    alpha,
+    Box,
+    Button,
+    List,
+    ListItem,
+    ListSubheader,
+    styled
 } from '@mui/material';
 import NextLink from 'next/link';
 import { SidebarContext } from 'src/contexts/SidebarContext';
@@ -173,7 +173,7 @@ function SidebarMenu() {
               <ListItem component="div">
                 <NextLink href="/" passHref>
                   <Button
-                    className={currentRoute === '="/' ? 'active' : ''}
+                    className={currentRoute === '/' ? 'active' : ''}
                     disableRipple
                     component="a"
                     onClick={closeSidebar}
