@@ -1,10 +1,12 @@
 import { useAuth } from '@/contexts/AuthContext';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Container,
   TextField,
@@ -12,27 +14,32 @@ import {
 } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isLoggedIn } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn && !isLoading) {
+      router.replace('/');
+    }
+  }, [isLoggedIn, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
-    // Create login data with user agent and IP (mock values for now)
+    // Create login data with just email and password
     const loginData = {
       email,
-      password,
-      user_agent: navigator.userAgent,
-      ip: '192.168.1.1' // In real app, this would come from the server
+      password
     };
 
     const errorMsg = await login(loginData);
@@ -41,9 +48,16 @@ export default function LoginPage() {
       setIsSubmitting(false);
       return;
     }
+    
+    // Manual redirect after successful login
     router.replace('/');
     setIsSubmitting(false);
   };
+
+  // Don't render if already logged in
+  if (isLoggedIn && !isLoading) {
+    return null;
+  }
 
   return (
     <>
@@ -56,6 +70,13 @@ export default function LoginPage() {
             <CardContent>
               <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
                 <Typography variant="h2" fontWeight="bold" mt={2} mb={1}>Sign In</Typography>
+                <Chip
+                  icon={<AdminPanelSettingsIcon />}
+                  label="Admin Access Only"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ mt: 1 }}
+                />
               </Box>
               <form onSubmit={handleSubmit}>
                 <TextField
@@ -96,6 +117,11 @@ export default function LoginPage() {
                 >
                   {isSubmitting ? 'Signing In...' : 'Sign In'}
                 </Button>
+                <Box mt={2} textAlign="center">
+                  <Typography variant="body2" color="text.secondary">
+                    Only administrators can access this system.
+                  </Typography>
+                </Box>
               </form>
             </CardContent>
           </Card>

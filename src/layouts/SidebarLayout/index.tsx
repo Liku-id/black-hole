@@ -1,9 +1,9 @@
-import { FC, ReactNode } from 'react';
 import { Box, alpha, lighten, useTheme } from '@mui/material';
 import PropTypes from 'prop-types';
+import { FC, ReactNode } from 'react';
 
-import Sidebar from './Sidebar';
 import Header from './Header';
+import Sidebar from './Sidebar';
 
 interface SidebarLayoutProps {
   children?: ReactNode;
@@ -63,7 +63,7 @@ const SidebarLayout: FC<SidebarLayoutProps> = ({ children }) => {
 };
 
 SidebarLayout.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node as PropTypes.Validator<ReactNode>
 };
 
 export default SidebarLayout;

@@ -1,36 +1,50 @@
-import { Typography, Avatar, Grid } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, Card, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const AvatarWrapper = styled(Avatar)(
+  ({ theme }) => `
+    width: ${theme.spacing(8)};
+    height: ${theme.spacing(8)};
+    margin: 0 auto ${theme.spacing(2)};
+`
+);
+
+const CardWrapper = styled(Card)(
+  ({ theme }) => `
+    background: ${theme.colors.gradients.blue1};
+    color: ${theme.palette.primary.contrastText};
+    overflow: visible;
+    
+    &:after {
+      border-radius: 50%;
+      content: '';
+      height: 100%;
+      left: 0;
+      position: absolute;
+      top: 0;
+      transform: scale(2);
+      transform-origin: center 1rem;
+      transition: .5s ease-in-out;
+      width: 100%;
+      z-index: 0;
+    }
+`
+);
 
 function PageHeader() {
-  const user = {
-    name: 'Admin',
-    avatar: '/static/images/avatars/1.jpg'
-  };
-  const theme = useTheme();
+  const { user } = useAuth();
 
   return (
-    <Grid container alignItems="center">
-      <Grid item>
-        <Avatar
-          sx={{
-            mr: 2,
-            width: theme.spacing(8),
-            height: theme.spacing(8)
-          }}
-          variant="rounded"
-          alt={user.name}
-          src={user.avatar}
-        />
-      </Grid>
-      <Grid item>
-        <Typography variant="h3" component="h3" gutterBottom>
-          Welcome, {user.name}!
-        </Typography>
-        <Typography variant="subtitle2">
-          Good to see you again!
-        </Typography>
-      </Grid>
-    </Grid>
+    <CardWrapper sx={{ py: 3, px: 3, textAlign: 'center', alignItems: 'center' }}>
+      <AvatarWrapper alt={user?.fullName} src="/static/images/avatars/1.jpg" />
+      <Typography variant="h3" component="h3" gutterBottom>
+        Welcome, {user?.fullName}!
+      </Typography>
+      <Typography variant="subtitle2">
+        Here's what's happening with your projects today
+      </Typography>
+    </CardWrapper>
   );
 }
 

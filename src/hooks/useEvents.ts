@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { ApiError } from '@/api/error';
+import { eventsApi } from '@/api/events';
 import { Event } from '@/models/event';
-import { eventOrganizersApi, ApiError } from '@/services/api';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseEventsReturn {
   events: Event[];
@@ -18,11 +19,14 @@ export const useEvents = (): UseEventsReturn => {
     try {
       setLoading(true);
       setError(null);
-      const response = await eventOrganizersApi.getEvents();
+      const response = await eventsApi.getEvents();
       setEvents(response.body.events);
     } catch (err) {
+      console.error('Error fetching events:', err);
       if (err instanceof ApiError) {
         setError(`Error ${err.code}: ${err.message}`);
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
         setError('An unexpected error occurred');
       }

@@ -1,15 +1,23 @@
-import { AuthUser, LoginDto } from '@/models/user';
-import { userService } from '@/services/userService';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { useAuth as useAuthHook } from '@/hooks/useAuth';
+import { AuthUser, LoginDto, Role, User } from '@/models/user';
+import React, { createContext, ReactNode, useContext } from 'react';
 
 interface AuthContextType {
   user: AuthUser | null;
   isLoggedIn: boolean;
   isLoading: boolean;
   login: (loginData: LoginDto) => Promise<string | null>;
-  logout: () => void;
+  logout: (userId?: string) => Promise<void>;
   hasRole: (roleName: string) => boolean;
   isAdmin: () => boolean;
+  isPartner: () => boolean;
+  isBuyer: () => boolean;
+  getUserById: (id: string) => Promise<User | null>;
+  getUserByEmail: (email: string) => Promise<User | null>;
+  getAllUsers: () => Promise<User[]>;
+  getAllRoles: () => Promise<Role[]>;
+  validateUserData: (userData: Partial<User>) => string[];
+  isValidEmail: (email: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,72 +27,10 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // Check if user is logged in on mount
-    const storedUser = localStorage.getItem('authUser');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-        setIsLoggedIn(true);
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('authUser');
-      }
-    }
-    setIsLoading(false);
-  }, []);
-
-  const login = async (loginData: LoginDto): Promise<string | null> => {
-    setIsLoading(true);
-    try {
-      const { user, error } = await userService.authenticate(loginData);
-      if (error) return error;
-      setUser(user!);
-      setIsLoggedIn(true);
-      localStorage.setItem('authUser', JSON.stringify(user));
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    setIsLoggedIn(false);
-    localStorage.removeItem('authUser');
-  };
-
-  const hasRole = (roleName: string): boolean => {
-    if (!user) return false;
-    return userService.hasRole(user, roleName);
-  };
-
-  const isAdmin = (): boolean => {
-    if (!user) return false;
-    return userService.isAdmin(user);
-  };
-
-  if (!mounted) {
-    return null;
-  }
+  const authHook = useAuthHook();
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoggedIn, 
-      isLoading, 
-      login, 
-      logout, 
-      hasRole, 
-      isAdmin 
-    }}>
+    <AuthContext.Provider value={authHook}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,7 +14,7 @@ const redirects = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'http://localhost:8080/v1/:path*'
+        destination: 'http://172.16.1.33:8080/v1/:path*'
       }
     ];
   },
@@ -33,7 +33,7 @@ const nextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'http://localhost:8080/v1/:path*'
+        destination: 'http://172.16.1.33:8080/v1/:path*'
       }
     ];
   }

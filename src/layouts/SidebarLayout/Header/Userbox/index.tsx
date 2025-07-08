@@ -67,11 +67,11 @@ function HeaderUserbox() {
   const router = useRouter();
   
   const defaultUser = {
-    name: user?.name || 'Administrator',
+    name: user?.fullName || 'Administrator',
     email: user?.email || 'admin@example.com',
     avatar: '/static/images/avatars/1.jpg',
-    jobtitle: user?.role?.name || 'System Administrator',
-    role: user?.role
+    jobtitle: user ? `Role ID: ${user.roleId}` : 'System Administrator',
+    roleId: user?.roleId
   };
 
   const ref = useRef<any>(null);
@@ -91,16 +91,29 @@ function HeaderUserbox() {
     router.push('/login');
   };
 
-  const getRoleColor = (roleName: string) => {
-    switch (roleName) {
-      case 'admin':
+  const getRoleColor = (roleId: string) => {
+    switch (roleId) {
+      case '1': // admin
         return 'primary';
-      case 'partner':
+      case '2': // partner
         return 'secondary';
-      case 'buyer':
+      case '3': // buyer
         return 'default';
       default:
         return 'default';
+    }
+  };
+
+  const getRoleName = (roleId: string) => {
+    switch (roleId) {
+      case '1':
+        return 'ADMIN';
+      case '2':
+        return 'PARTNER';
+      case '3':
+        return 'BUYER';
+      default:
+        return 'USER';
     }
   };
 
@@ -140,11 +153,11 @@ function HeaderUserbox() {
             <UserBoxDescription variant="body2">
               {defaultUser.email}
             </UserBoxDescription>
-            {defaultUser.role && (
+            {defaultUser.roleId && (
               <Chip
                 icon={<AdminPanelSettingsIcon />}
-                label={defaultUser.role.name.toUpperCase()}
-                color={getRoleColor(defaultUser.role.name) as any}
+                label={getRoleName(defaultUser.roleId)}
+                color={getRoleColor(defaultUser.roleId) as any}
                 size="small"
                 sx={{ mt: 1 }}
               />

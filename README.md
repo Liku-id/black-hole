@@ -30,7 +30,7 @@ It is powered by Next.js, Typescript and React and contains multiple components 
 We keep all dependencies updated to their latest stable versions. Each time we release an updated version you will be notified via the email you used to initially download the template.
 </p>
 <p>
-To discover all the features that this free React admin template has to offer, we suggest visiting the live preview we’ve set up.
+To discover all the features that this free React admin template has to offer, we suggest visiting the live preview we've set up.
 </p>
 <p>There is also a free Javascript version available, if that is what you prefer working with.</p>
 
@@ -62,3 +62,165 @@ To discover all the features that this free React admin template has to offer, w
         support@bloomui.freshdesk.com
     </a>
 </p>
+
+# Tokyo Free White NextJS Typescript Admin Dashboard
+
+High performance React template built with lots of powerful MUI (Material-UI) components across multiple product niches for fast & perfect apps development processes
+
+## Features
+
+- **Modern React with TypeScript**: Built with Next.js 15 and TypeScript
+- **Material-UI Components**: Rich set of pre-built components
+- **Authentication System**: Integrated with REST API
+- **Responsive Design**: Works on all devices
+- **Dark/Light Theme**: Multiple theme options
+- **Real-time Data**: Live data updates
+
+## Authentication
+
+The application now integrates with a REST API for authentication:
+
+### Login Endpoint
+- **URL**: `POST /login`
+- **Base URL**: `http://172.16.1.33:8080/v1`
+- **Parameters**:
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "statusCode": 0,
+    "message": "string",
+    "body": {
+      "accessToken": "string",
+      "refreshToken": "string",
+      "user": {
+        "id": "string",
+        "fullName": "string",
+        "email": "string",
+        "phoneNumber": "string",
+        "ktpNumber": "string",
+        "dateOfBirth": "string",
+        "gender": "string",
+        "roleId": "string",
+        "isVerified": true,
+        "profilePictureId": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "isGuest": true
+      }
+    }
+  }
+  ```
+
+### Logout Endpoint
+- **URL**: `POST /logout`
+- **Base URL**: `http://172.16.1.33:8080/v1`
+- **Parameters**:
+  ```json
+  {
+    "userId": "string"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "message": "string"
+  }
+  ```
+
+### Token Management
+- Access tokens are automatically stored in localStorage
+- Tokens are included in API requests via Authorization header
+- Automatic logout on token expiration
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone <repository-url>
+cd black-hole
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Start the development server
+```bash
+npm run dev
+```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## API Configuration
+
+The application is configured to connect to the API at `http://172.16.1.33:8080/v1`. 
+
+### Development Mode
+- Uses proxy configuration to avoid CORS issues
+- Requests go through `/api/v1/*` and are proxied to the backend
+
+### Production Mode
+- Direct API calls to the configured backend URL
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run lint-fix` - Fix ESLint errors
+- `npm run format` - Format code with Prettier
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable components
+├── contexts/           # React contexts (Auth, Sidebar)
+├── hooks/             # Custom React hooks (useUserService, useTokenService)
+├── layouts/           # Layout components
+├── models/            # TypeScript interfaces
+├── services/          # API services and utilities
+└── theme/             # Theme configuration
+```
+
+## Service Architecture
+
+The application uses a hook-based service architecture:
+
+### Authentication & User Management
+- `useUserService` - User authentication, role checking, and user data management
+- `useTokenService` - Token storage and management in localStorage
+- `useAuth` - React context for authentication state
+
+### API Services
+- `authApi` - Login/logout operations with role validation
+- `eventsApi` - Event management operations
+- `organizersApi` - Event organizer operations
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
