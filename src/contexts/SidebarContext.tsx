@@ -1,4 +1,4 @@
-import { useState, ReactNode, createContext } from 'react';
+import { ReactNode, createContext, useState } from 'react';
 
 type SidebarContextType = {
   sidebarToggle: any;
@@ -6,7 +6,6 @@ type SidebarContextType = {
   closeSidebar: () => void;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SidebarContext = createContext<SidebarContextType>(
   {} as SidebarContextType
 );

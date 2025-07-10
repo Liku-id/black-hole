@@ -22,12 +22,12 @@ type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
 
-interface TokyoAppProps extends AppProps {
+interface BackofficeAppProps extends AppProps {
   emotionCache?: EmotionCache;
   Component: NextPageWithLayout;
 }
 
-function TokyoApp(props: TokyoAppProps) {
+function BackofficeApp(props: BackofficeAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page) => page);
   const [mounted, setMounted] = useState(false);
@@ -67,4 +67,4 @@ function TokyoApp(props: TokyoAppProps) {
   );
 }
 
-export default TokyoApp;
+export default BackofficeApp;
