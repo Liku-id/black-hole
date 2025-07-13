@@ -1,13 +1,15 @@
-import * as React from 'react';
-import Document, { Html, Head, Main, NextScript } from 'next/document';
+import createEmotionCache from '@/createEmotionCache';
 import createEmotionServer from '@emotion/server/create-instance';
-import createEmotionCache from 'src/createEmotionCache';
+import Document, { Head, Html, Main, NextScript } from 'next/document';
+import * as React from 'react';
 
 export default class MyDocument extends Document {
   render() {
     return (
       <Html lang="en">
         <Head>
+          <meta name="theme-color" content="#5569ff" />
+          <meta name="robots" content="noindex,nofollow" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" />
           <link

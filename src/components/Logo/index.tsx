@@ -1,5 +1,5 @@
+import Link from '@/components/Link';
 import { Box, styled, Tooltip } from '@mui/material';
-import Link from 'src/components/Link';
 
 const LogoWrapper = styled(Link)(
   ({ theme }) => `
@@ -118,7 +118,7 @@ function Logo() {
           <Tooltip title="Version 1.0" arrow placement="right">
             <VersionBadge>1.0</VersionBadge>
           </Tooltip>
-          <LogoText>Tokyo Free White</LogoText>
+          <LogoText>Wukong Backoffice</LogoText>
         </LogoTextWrapper>
       </Box>
     </LogoWrapper>

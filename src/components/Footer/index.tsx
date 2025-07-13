@@ -18,7 +18,7 @@ function Footer() {
       >
         <Box>
           <Typography variant="subtitle1">
-            &copy; 2022 - Tokyo Free White Next.js Typescript Admin Dashboard
+            &copy; 2025 - Wukong Backoffice Admin Dashboard
           </Typography>
         </Box>
         <Typography
@@ -27,13 +27,13 @@ function Footer() {
           }}
           variant="subtitle1"
         >
-          Crafted by{' '}
+          Powered by{' '}
           <Link
-            href="https://bloomui.com"
+            href="https://liku.id"
             target="_blank"
             rel="noopener noreferrer"
           >
-            BloomUI.com
+            Liku.id
           </Link>
         </Typography>
       </Box>

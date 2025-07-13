@@ -1,19 +1,19 @@
+import BaseLayout from '@/layouts/BaseLayout';
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import {
-  Box,
-  Card,
-  Typography,
-  Container,
-  Divider,
-  Button,
-  FormControl,
-  OutlinedInput,
-  InputAdornment,
-  styled
+    Box,
+    Button,
+    Card,
+    Container,
+    Divider,
+    FormControl,
+    InputAdornment,
+    OutlinedInput,
+    styled,
+    Typography
 } from '@mui/material';
 import Head from 'next/head';
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import type { ReactElement } from 'react';
-import BaseLayout from 'src/layouts/BaseLayout';
 
 const MainContent = styled(Box)(
   () => `

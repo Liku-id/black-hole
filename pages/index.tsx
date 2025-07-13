@@ -1,19 +1,19 @@
+import BaseLayout from '@/layouts/BaseLayout';
 import {
-  Typography,
   Box,
+  Button,
   Card,
   Container,
-  Button,
-  styled
+  styled,
+  Typography
 } from '@mui/material';
 import type { ReactElement } from 'react';
-import BaseLayout from 'src/layouts/BaseLayout';
 
-import Link from 'src/components/Link';
+import Link from '@/components/Link';
 import Head from 'next/head';
 
-import Logo from 'src/components/LogoSign';
-import Hero from 'src/content/Overview/Hero';
+import Logo from '@/components/LogoSign';
+import Hero from '@/content/Overview/Hero';
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -38,7 +38,7 @@ function Overview() {
   return (
     <OverviewWrapper>
       <Head>
-        <title>Tokyo Free White NextJS Typescript Admin Dashboard</title>
+        <title>Wukong Backoffice Admin Dashboard</title>
       </Head>
       <HeaderWrapper>
         <Container maxWidth="lg">
@@ -54,11 +54,11 @@ function Overview() {
               <Box>
                 <Button
                   component={Link}
-                  href="/dashboards/crypto"
+                  href="/dashboard"
                   variant="contained"
                   sx={{ ml: 2 }}
                 >
-                  Live Preview
+                  Enter Dashboard
                 </Button>
               </Box>
             </Box>
@@ -68,13 +68,13 @@ function Overview() {
       <Hero />
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Typography textAlign="center" variant="subtitle1">
-          Crafted by{' '}
+          Powered by{' '}
           <Link
-            href="https://bloomui.com"
+            href="https://liku.id"
             target="_blank"
             rel="noopener noreferrer"
           >
-            BloomUI.com
+            Liku.id
           </Link>
         </Typography>
       </Container>

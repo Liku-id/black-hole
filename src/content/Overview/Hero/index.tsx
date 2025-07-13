@@ -1,13 +1,13 @@
 import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Typography,
-  styled
+    Box,
+    Button,
+    Container,
+    Grid,
+    Typography,
+    styled
 } from '@mui/material';
 
-import Link from 'src/components/Link';
+import Link from '@/components/Link';
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
@@ -35,66 +35,6 @@ const LabelWrapper = styled(Box)(
 `
 );
 
-const MuiAvatar = styled(Box)(
-  ({ theme }) => `
-    width: ${theme.spacing(8)};
-    height: ${theme.spacing(8)};
-    border-radius: ${theme.general.borderRadius};
-    background-color: #e5f7ff;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto ${theme.spacing(2)};
-
-    img {
-      width: 60%;
-      height: 60%;
-      display: block;
-    }
-`
-);
-
-const TsAvatar = styled(Box)(
-  ({ theme }) => `
-    width: ${theme.spacing(8)};
-    height: ${theme.spacing(8)};
-    border-radius: ${theme.general.borderRadius};
-    background-color: #dfebf6;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto ${theme.spacing(2)};
-
-    img {
-      width: 60%;
-      height: 60%;
-      display: block;
-    }
-`
-);
-
-const NextJsAvatar = styled(Box)(
-  ({ theme }) => `
-  width: ${theme.spacing(8)};
-  height: ${theme.spacing(8)};
-  border-radius: ${theme.general.borderRadius};
-  background-color: #dfebf6;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto ${theme.spacing(2)};
-
-    img {
-      width: 60%;
-      height: 60%;
-      display: block;
-    }
-`
-);
-
 function Hero() {
   return (
     <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
@@ -105,9 +45,9 @@ function Hero() {
         container
       >
         <Grid item md={10} lg={8} mx="auto">
-          <LabelWrapper color="success">Version 1.0.0</LabelWrapper>
+          <LabelWrapper color="success">Backoffice v1.0</LabelWrapper>
           <TypographyH1 sx={{ mb: 2 }} variant="h1">
-            Tokyo Free White Next.js Typescript Admin Dashboard
+            Wukong Backoffice Dashboard
           </TypographyH1>
           <TypographyH2
             sx={{ lineHeight: 1.5, pb: 4 }}
@@ -115,76 +55,60 @@ function Hero() {
             color="text.secondary"
             fontWeight="normal"
           >
-            High performance React template built with lots of powerful
-            Material-UI components across multiple product niches for fast &
-            perfect apps development processes
+            Comprehensive admin dashboard for managing your Wukong application. 
+            Built with Next.js, TypeScript, and Material-UI for optimal performance and user experience.
           </TypographyH2>
           <Button
             component={Link}
-            href="/dashboards/crypto"
+            href="/dashboard"
             size="large"
             variant="contained"
           >
-            Browse Live Preview
+            Access Dashboard
           </Button>
           <Button
             sx={{ ml: 2 }}
             component="a"
             target="_blank"
             rel="noopener"
-            href="https://bloomui.com/product/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard/"
+            href="/auth"
             size="large"
             variant="text"
           >
-            Key Features
+            Login / Register
           </Button>
           <Grid container spacing={3} mt={5}>
             <Grid item md={4}>
-              <MuiAvatar>
-                <img
-                  src="/static/images/logo/material-ui.svg"
-                  alt="Material-UI"
-                />
-              </MuiAvatar>
-              <Typography variant="h4">
-                <Box sx={{ pb: 2 }}>
-                  <b>Powered by MUI (Material-UI)</b>
-                </Box>
-                <Typography component="span" variant="subtitle2">
-                  A simple and customizable component library to build faster,
-                  beautiful, and accessible React apps.
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h4">
+                  🎛️ Complete Control
                 </Typography>
+              </Box>
+              <Typography component="span" variant="subtitle2">
+                Manage users, content, and system settings from a single, 
+                intuitive interface designed for administrators.
               </Typography>
             </Grid>
             <Grid item md={4}>
-              <NextJsAvatar>
-                <img src="/static/images/logo/next-js.svg" alt="NextJS" />
-              </NextJsAvatar>
-              <Typography variant="h4">
-                <Box sx={{ pb: 2 }}>
-                  <b>Built with Next.js</b>
-                </Box>
-                <Typography component="span" variant="subtitle2">
-                  Next.js gives you the best developer experience with all the
-                  features you need for production.
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h4">
+                  📊 Real-time Analytics
                 </Typography>
+              </Box>
+              <Typography component="span" variant="subtitle2">
+                Monitor system performance, user activity, and key metrics 
+                with comprehensive dashboards and reporting tools.
               </Typography>
             </Grid>
             <Grid item md={4}>
-              <TsAvatar>
-                <img
-                  src="/static/images/logo/typescript.svg"
-                  alt="Typescript"
-                />
-              </TsAvatar>
-              <Typography variant="h4">
-                <Box sx={{ pb: 2 }}>
-                  <b>Built with Typescript</b>
-                </Box>
-                <Typography component="span" variant="subtitle2">
-                  Tokyo Free White features a modern technology stack and is
-                  built with React + Typescript.
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h4">
+                  🔒 Secure & Scalable
                 </Typography>
+              </Box>
+              <Typography component="span" variant="subtitle2">
+                Built with modern security practices and designed to scale 
+                with your growing business needs and user base.
               </Typography>
             </Grid>
           </Grid>

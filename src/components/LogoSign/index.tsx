@@ -1,13 +1,13 @@
+import Link from '@/components/Link';
 import {
-  Box,
-  Tooltip,
-  Badge,
-  TooltipProps,
-  tooltipClasses,
-  styled,
-  useTheme
+    Badge,
+    Box,
+    Tooltip,
+    TooltipProps,
+    styled,
+    tooltipClasses,
+    useTheme
 } from '@mui/material';
-import Link from 'src/components/Link';
 
 const LogoWrapper = styled(Link)(
   ({ theme }) => `

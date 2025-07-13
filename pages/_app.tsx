@@ -1,18 +1,18 @@
 import type { ReactElement, ReactNode } from 'react';
 
+import { SidebarProvider } from '@/contexts/SidebarContext';
+import createEmotionCache from '@/createEmotionCache';
+import ThemeProvider from '@/theme/ThemeProvider';
+import { CacheProvider, EmotionCache } from '@emotion/react';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import CssBaseline from '@mui/material/CssBaseline';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
-import ThemeProvider from 'src/theme/ThemeProvider';
-import CssBaseline from '@mui/material/CssBaseline';
-import { CacheProvider, EmotionCache } from '@emotion/react';
-import createEmotionCache from 'src/createEmotionCache';
-import { SidebarProvider } from 'src/contexts/SidebarContext';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -36,11 +36,12 @@ function TokyoApp(props: TokyoAppProps) {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>Tokyo Free White NextJS Typescript Admin Dashboard</title>
+        <title>Wukong Backoffice Admin Dashboard</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
+        <meta name="description" content="Wukong backoffice admin dashboard for content and user management" />
       </Head>
       <SidebarProvider>
         <ThemeProvider>
