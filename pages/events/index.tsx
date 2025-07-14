@@ -3,28 +3,28 @@ import PageTitle from '@/components/PageTitle';
 import PageTitleWrapper from '@/components/PageTitleWrapper';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import {
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Container,
-  Divider,
-  Grid,
-  Typography
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    Container,
+    Divider,
+    Grid,
+    Typography
 } from '@mui/material';
 import Head from 'next/head';
 import type { ReactElement } from 'react';
 
-function DashboardOverview() {
+function Events() {
   return (
     <>
       <Head>
-        <title>Dashboard - Wukong Backoffice</title>
+        <title>Events - Wukong Backoffice</title>
       </Head>
       <PageTitleWrapper>
         <PageTitle
-          heading="Dashboard Overview"
-          subHeading="Welcome to Wukong Backoffice - Your comprehensive admin dashboard"
+          heading="Events"
+          subHeading="Manage and organize events"
         />
       </PageTitleWrapper>
       <Container maxWidth="lg">
@@ -37,26 +37,27 @@ function DashboardOverview() {
         >
           <Grid item xs={12}>
             <Card>
-              <CardHeader title="Welcome to Wukong Backoffice" />
+              <CardHeader title="Events Management" />
               <Divider />
               <CardContent>
                 <Box sx={{ p: 3 }}>
                   <Typography variant="h4" gutterBottom>
-                    🚀 Getting Started
+                    📅 Events
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
-                    Your Wukong backoffice is now ready! This dashboard will be the central hub for managing your application.
+                    This is the events management page. Here you will be able to create, edit, and manage events.
                   </Typography>
                   
                   <Typography variant="h5" sx={{ mt: 3, mb: 2 }}>
-                    Next Steps:
+                    Coming Soon:
                   </Typography>
                   <Typography variant="body2" component="div">
                     <ul>
-                      <li>Configure user management system</li>
-                      <li>Set up content management tools</li>
-                      <li>Implement analytics and reporting</li>
-                      <li>Add system monitoring features</li>
+                      <li>Create new events</li>
+                      <li>Edit existing events</li>
+                      <li>View event details</li>
+                      <li>Manage event registrations</li>
+                      <li>Event analytics and reports</li>
                     </ul>
                   </Typography>
                 </Box>
@@ -70,8 +71,8 @@ function DashboardOverview() {
   );
 }
 
-DashboardOverview.getLayout = (page: ReactElement) => (
+Events.getLayout = (page: ReactElement) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default DashboardOverview;
+export default Events;

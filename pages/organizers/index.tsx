@@ -3,28 +3,28 @@ import PageTitle from '@/components/PageTitle';
 import PageTitleWrapper from '@/components/PageTitleWrapper';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import {
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Container,
-  Divider,
-  Grid,
-  Typography
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    Container,
+    Divider,
+    Grid,
+    Typography
 } from '@mui/material';
 import Head from 'next/head';
 import type { ReactElement } from 'react';
 
-function DashboardOverview() {
+function Organizers() {
   return (
     <>
       <Head>
-        <title>Dashboard - Wukong Backoffice</title>
+        <title>Organizers - Wukong Backoffice</title>
       </Head>
       <PageTitleWrapper>
         <PageTitle
-          heading="Dashboard Overview"
-          subHeading="Welcome to Wukong Backoffice - Your comprehensive admin dashboard"
+          heading="Organizers"
+          subHeading="Manage event organizers and their permissions"
         />
       </PageTitleWrapper>
       <Container maxWidth="lg">
@@ -37,26 +37,27 @@ function DashboardOverview() {
         >
           <Grid item xs={12}>
             <Card>
-              <CardHeader title="Welcome to Wukong Backoffice" />
+              <CardHeader title="Organizer Management" />
               <Divider />
               <CardContent>
                 <Box sx={{ p: 3 }}>
                   <Typography variant="h4" gutterBottom>
-                    🚀 Getting Started
+                    👥 Organizers
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
-                    Your Wukong backoffice is now ready! This dashboard will be the central hub for managing your application.
+                    This is the organizers management page. Here you will be able to manage event organizers and their access levels.
                   </Typography>
                   
                   <Typography variant="h5" sx={{ mt: 3, mb: 2 }}>
-                    Next Steps:
+                    Coming Soon:
                   </Typography>
                   <Typography variant="body2" component="div">
                     <ul>
-                      <li>Configure user management system</li>
-                      <li>Set up content management tools</li>
-                      <li>Implement analytics and reporting</li>
-                      <li>Add system monitoring features</li>
+                      <li>Add new organizers</li>
+                      <li>Edit organizer profiles</li>
+                      <li>Manage organizer permissions</li>
+                      <li>Assign organizers to events</li>
+                      <li>View organizer activity</li>
                     </ul>
                   </Typography>
                 </Box>
@@ -70,8 +71,8 @@ function DashboardOverview() {
   );
 }
 
-DashboardOverview.getLayout = (page: ReactElement) => (
+Organizers.getLayout = (page: ReactElement) => (
   <SidebarLayout>{page}</SidebarLayout>
 );
 
-export default DashboardOverview;
+export default Organizers;
