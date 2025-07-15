@@ -1,4 +1,5 @@
 import Scrollbar from '@/components/Scrollbar';
+import { useAuth } from '@/contexts/AuthContext';
 import { SidebarContext } from '@/contexts/SidebarContext';
 import NextLink from 'next/link';
 import { useContext, useRef, useState } from 'react';
@@ -90,13 +91,14 @@ const UserBoxDescription = styled(Typography)(
 
 function Sidebar() {
   const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
+  const { user: authUser, logout } = useAuth();
   const closeSidebar = () => toggleSidebar();
   const theme = useTheme();
   
   const user = {
-    name: 'Catherine Pike',
+    name: authUser?.fullName || 'User',
     avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Project Manager'
+    jobtitle: 'Administrator'
   };
 
   const ref = useRef<any>(null);
@@ -108,6 +110,14 @@ function Sidebar() {
 
   const handleClose = (): void => {
     setOpen(false);
+  };
+
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
@@ -217,7 +227,7 @@ function Sidebar() {
             </List>
             <Divider />
             <Box sx={{ m: 1 }}>
-              <Button color="primary" fullWidth>
+              <Button color="primary" fullWidth onClick={handleLogout}>
                 <LockOpenTwoToneIcon sx={{ mr: 1 }} />
                 Sign out
               </Button>

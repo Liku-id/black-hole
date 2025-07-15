@@ -1,6 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
+import { ToastProvider } from '@/contexts/ToastContext';
 import createEmotionCache from '@/createEmotionCache';
 import ThemeProvider from '@/theme/ThemeProvider';
 import { CacheProvider, EmotionCache } from '@emotion/react';
@@ -18,6 +21,7 @@ const clientSideEmotionCache = createEmotionCache();
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
+  requireAuth?: boolean;
 };
 
 interface TokyoAppProps extends AppProps {
@@ -28,6 +32,7 @@ interface TokyoAppProps extends AppProps {
 function TokyoApp(props: TokyoAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page) => page);
+  const requireAuth = Component.requireAuth ?? true;
 
   Router.events.on('routeChangeStart', nProgress.start);
   Router.events.on('routeChangeError', nProgress.done);
@@ -43,14 +48,24 @@ function TokyoApp(props: TokyoAppProps) {
         />
         <meta name="description" content="Wukong backoffice admin dashboard for content and user management" />
       </Head>
-      <SidebarProvider>
-        <ThemeProvider>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <CssBaseline />
-            {getLayout(<Component {...pageProps} />)}
-          </LocalizationProvider>
-        </ThemeProvider>
-      </SidebarProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <SidebarProvider>
+            <ThemeProvider>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <CssBaseline />
+                {requireAuth ? (
+                  <ProtectedRoute>
+                    {getLayout(<Component {...pageProps} />)}
+                  </ProtectedRoute>
+                ) : (
+                  getLayout(<Component {...pageProps} />)
+                )}
+              </LocalizationProvider>
+            </ThemeProvider>
+          </SidebarProvider>
+        </AuthProvider>
+      </ToastProvider>
     </CacheProvider>
   );
 }
