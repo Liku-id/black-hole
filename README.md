@@ -1,61 +1,113 @@
-<p align="center">
-    <a href="https://bloomui.com" title="BloomUI.com">
-        <img src="https://bloomui.s3.us-east-2.amazonaws.com/tokyo-logo.png" alt="Tokyo Free White Typescript Next.js Admin Dashboard">
-    </a>
-</p>
-<h1 align="center">
-    <b>Tokyo Free White Typescript Next.js Admin Dashboard</b>
-    <br>
-    <a href="https://twitter.com/intent/tweet?url=https://bloomui.com&text=I like this Next.js admin dashboard">
-        <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social" />
-    </a>
-</h1>
-<div align="center">
+# Wukong Backoffice
 
-![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![license](https://img.shields.io/badge/license-MIT-blue.svg)
+> A modern Next.js admin dashboard for event management with comprehensive organizer system
 
-<a href="https://bloomui.com/product/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard/"><img src="https://bloomui.s3.us-east-2.amazonaws.com/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard.jpg" /></a>
-</div>
+## 🚀 Quick Start
 
-<a href="https://bloomui.com/product/tokyo-free-white-nextjs-typescript-material-ui-admin-dashboard/"><h3>Free Material-UI Next.js Typescript Dashboard Template with Dark Color Scheme</h3></a>
-<p>
-    Tokyo Free White Next.js Typescript Dashboard is built using the latest industry standards and features a clean and premium design style, making use of colors and accents to improve the user experience for all included flows and pages.
-</p>
-<p>
-It is powered by Next.js, Typescript and React and contains multiple components customized on top of Material-UI – which is one of the best UI components frameworks available.</p>
-<p>
-We keep all dependencies updated to their latest stable versions. Each time we release an updated version you will be notified via the email you used to initially download the template.
-</p>
-<p>
-To discover all the features that this free React admin template has to offer, we suggest visiting the live preview we’ve set up.
-</p>
-<p>There is also a free Javascript version available, if that is what you prefer working with.</p>
+```bash
+# Clone repository
+git clone <repository-url>
+cd black-hole
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.local.example .env.local
+# Edit .env.local with your backend URL
+
+# Start development server
+npm run dev
+```
+
+## 📚 Documentation
+
+**For complete documentation, please see [DOCUMENTATION.md](./DOCUMENTATION.md)**
+
+The comprehensive documentation includes:
+
+- 🎯 **Project Overview** - Architecture and tech stack
+- 🚀 **Quick Start Guide** - Setup and installation
+- ✨ **Features Overview** - Complete feature list
+- 🔗 **API Integration** - Backend integration guide
+- 🛠️ **Global Utilities** - Utility functions reference
+- 👥 **Event Organizers System** - Complete system guide
+- 💻 **Development Guide** - Coding standards and workflow
+- 🚀 **Build & Deployment** - Production deployment guide
+- 📊 **Performance Analysis** - Bundle analysis and optimization
+- 🐛 **Troubleshooting** - Common issues and solutions
+- 🔄 **Upgrade Plan** - Migration strategy to latest versions
+
+## 🛠️ Tech Stack
+
+- **Next.js** 12.1.6 - React framework
+- **TypeScript** 4.7.3 - Type safety
+- **Material-UI** 5.8.2 - UI components
+- **SWR** 2.3.4 - Data fetching
+- **Emotion** 11.7.1 - CSS-in-JS
+
+## 📋 Features
+
+- 📊 **Dashboard** - Real-time analytics
+- 👥 **User Management** - Authentication system
+- 🎯 **Event Management** - Complete event lifecycle
+- 🏢 **Organizer Management** - Comprehensive organizer system
+- 📱 **Responsive Design** - Mobile-first approach
+- 🌙 **Theme System** - Light/dark mode support
+
+## 🔧 Development
+
+```bash
+# Development server
+npm run dev
+
+# Production build
+npm run build
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+```
+
+## 📊 Performance
+
+Current bundle sizes:
+- Homepage: 192 kB (Good)
+- Dashboard: 144 kB (Excellent)
+- Events: 192 kB (Good)
+- Login: 192 kB (Good)
+- Organizers: 226 kB (Attention, but acceptable)
+
+## 🚀 Deployment
+
+The application is optimized for production deployment with:
+
+- ✅ Static generation for fast loading
+- ✅ Code splitting for optimal bundles
+- ✅ Image optimization
+- ✅ TypeScript compilation
+- ✅ Performance monitoring ready
+
+## 📖 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Material-UI Documentation](https://mui.com/)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests and documentation
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
 
 ---
-<h3>Updrade to PRO</h3>
 
-<p>The premium version of this template comes with a lot more components, features and options making it a very powerful friend in your development endeavors. You can download a copy of it from <a href="https://bloomui.com">bloomui.com</a></p>
-
----
-
-<h2>
-    Quick Start
-</h2>
-<ol>
-    <li>Make sure you have the latest stable versions for Node.js and NPM installed</li>
-    <li>Clone repository: <code>git clone https://github.com/bloomui/tokyo-free-white-nextjs-admin-dashboard.git</code></li>
-    <li>Install dependencies: Run <code>npm install</code> inside the project folder</li>
-    <li>Start dev server: After the install finishes, run <code>yarn dev</code>. A browser window will open on http://localhost:3000 where you''ll see the live preview</li>
-</ol>
-
----
-
-<h2>
-    Technical Support
-</h2>
-<p>
-    You can open a support ticket by sending an email here: <a href="mailto:support@bloomui.freshdesk.com" title="Open Support Ticket">
-        support@bloomui.freshdesk.com
-    </a>
-</p>
+**For detailed documentation, please refer to [DOCUMENTATION.md](./DOCUMENTATION.md)**

@@ -1,30 +1,33 @@
 import Footer from '@/components/Footer';
+import OrganizersTable from '@/components/OrganizersTable';
 import PageTitle from '@/components/PageTitle';
 import PageTitleWrapper from '@/components/PageTitleWrapper';
+import { useOrganizers } from '@/hooks/useOrganizers';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import {
-    Box,
-    Card,
-    CardContent,
-    CardHeader,
-    Container,
-    Divider,
-    Grid,
-    Typography
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography
 } from '@mui/material';
 import Head from 'next/head';
 import type { ReactElement } from 'react';
 
 function Organizers() {
+  const { organizers, loading, error, mutate } = useOrganizers();
+
   return (
     <>
       <Head>
-        <title>Organizers - Wukong Backoffice</title>
+        <title>Event Organizers - Wukong Backoffice</title>
       </Head>
       <PageTitleWrapper>
         <PageTitle
-          heading="Organizers"
-          subHeading="Manage event organizers and their permissions"
+          heading="Event Organizers"
+          subHeading="Manage event organizers and their information"
         />
       </PageTitleWrapper>
       <Container maxWidth="lg">
@@ -36,33 +39,38 @@ function Organizers() {
           spacing={3}
         >
           <Grid item xs={12}>
-            <Card>
-              <CardHeader title="Organizer Management" />
-              <Divider />
-              <CardContent>
-                <Box sx={{ p: 3 }}>
-                  <Typography variant="h4" gutterBottom>
-                    👥 Organizers
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    This is the organizers management page. Here you will be able to manage event organizers and their access levels.
-                  </Typography>
-                  
-                  <Typography variant="h5" sx={{ mt: 3, mb: 2 }}>
-                    Coming Soon:
-                  </Typography>
-                  <Typography variant="body2" component="div">
-                    <ul>
-                      <li>Add new organizers</li>
-                      <li>Edit organizer profiles</li>
-                      <li>Manage organizer permissions</li>
-                      <li>Assign organizers to events</li>
-                      <li>View organizer activity</li>
-                    </ul>
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
+            {error && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Failed to load organizers
+                </Typography>
+                <Typography variant="body2">
+                  {error}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                  Please check your backend connection and try again.
+                </Typography>
+              </Alert>
+            )}
+            
+            {!loading && organizers.length === 0 && !error && (
+              <Card>
+                <CardContent>
+                  <Box textAlign="center" py={4}>
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                      No organizers found
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      There are no event organizers in the system yet.
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            )}
+            
+            {(loading || organizers.length > 0) && (
+              <OrganizersTable organizers={organizers} loading={loading} onRefresh={mutate} />
+            )}
           </Grid>
         </Grid>
       </Container>

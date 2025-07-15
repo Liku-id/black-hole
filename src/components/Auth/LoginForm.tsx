@@ -1,18 +1,18 @@
 import Logo from '@/components/LogoSign';
 import { useAuth } from '@/contexts/AuthContext';
-import { isValidForm, validateLoginForm } from '@/utils/validation';
+import { isValidForm, validateLoginForm, ValidationErrors } from '@/utils';
 import {
-    Alert,
-    alpha,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CircularProgress,
-    styled,
-    TextField,
-    Typography,
-    useTheme,
+  Alert,
+  alpha,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  styled,
+  TextField,
+  Typography,
+  useTheme,
 } from '@mui/material';
 import React, { useState } from 'react';
 
@@ -99,7 +99,7 @@ const LoginForm: React.FC = () => {
     email: '', 
     password: '' 
   });
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, isLoading, error, clearError } = useAuth();
 
