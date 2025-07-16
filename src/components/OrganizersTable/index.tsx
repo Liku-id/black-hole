@@ -1,5 +1,5 @@
 import { EventOrganizer } from '@/types/organizer';
-import { formatDateTime, formatPhoneNumber, truncate } from '@/utils';
+import { formatIndonesianDateTime, formatPhoneNumber, truncate } from '@/utils';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BadgeIcon from '@mui/icons-material/Badge';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -11,25 +11,25 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityTwoToneIcon from '@mui/icons-material/VisibilityTwoTone';
 import {
-    Avatar,
-    Box,
-    Button,
-    Card,
-    CardHeader,
-    Checkbox,
-    Chip,
-    Divider,
-    IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    Tooltip,
-    Typography,
-    useTheme
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  Checkbox,
+  Chip,
+  Divider,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
+  Typography,
+  useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useState } from 'react';
 
@@ -312,10 +312,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                   <TableCell>
                     <Box>
                       <Typography variant="body2" fontWeight="medium" noWrap>
-                        {formatDateTime(organizer.created_at).date}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" noWrap>
-                        {formatDateTime(organizer.created_at).time}
+                        {formatIndonesianDateTime(organizer.created_at)}
                       </Typography>
                     </Box>
                   </TableCell>

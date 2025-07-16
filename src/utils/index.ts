@@ -14,7 +14,8 @@ export const {
   formatDateTime,
   formatFullDateTime,
   formatRelativeTime,
-  formatForAPI
+  formatForAPI,
+  formatIndonesianDateTime
 } = dateUtils;
 
 export const {
