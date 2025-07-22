@@ -7,30 +7,29 @@ import { formatIndonesianDateTime, formatPhoneNumber } from '@/utils';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import EditIcon from '@mui/icons-material/Edit';
+import CloseIcon from '@mui/icons-material/Close';
 import EmailIcon from '@mui/icons-material/Email';
 import EventIcon from '@mui/icons-material/Event';
 import LanguageIcon from '@mui/icons-material/Language';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import ShareIcon from '@mui/icons-material/Share';
 import {
   Alert,
   Avatar,
   Box,
-  Breadcrumbs,
   Button,
   Card,
   CardContent,
   CardHeader,
   Chip,
   Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
   IconButton,
-  Link,
   Skeleton,
   Stack,
   Tab,
@@ -70,6 +69,7 @@ function EventDetail() {
   const { metaUrl } = router.query;
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
+  const [organizerDialogOpen, setOrganizerDialogOpen] = useState(false);
 
   const { eventDetail, loading, error, mutate } = useEventDetail(
     metaUrl as string
@@ -176,31 +176,14 @@ function EventDetail() {
       </Head>
       <PageTitleWrapper>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
             onClick={() => router.push('/events')}
-            sx={{ color: theme.palette.primary.main }}
+            sx={{ borderRadius: 2 }}
           >
-            <ArrowBackIcon />
-          </IconButton>
-          <Box>
-            <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1 }}>
-              <Link
-                color="inherit"
-                href="/events"
-                sx={{
-                  textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' }
-                }}
-              >
-                Events
-              </Link>
-              <Typography color="text.primary">{eventDetail.name}</Typography>
-            </Breadcrumbs>
-            <PageTitle
-              heading={eventDetail.name}
-              subHeading={eventDetail.eventType}
-            />
-          </Box>
+            Back to Events
+          </Button>
         </Box>
       </PageTitleWrapper>
 
@@ -227,7 +210,15 @@ function EventDetail() {
               <CardContent sx={{ width: '100%', p: 4 }}>
                 <Grid container spacing={3} alignItems="center">
                   <Grid item xs={12} md={8}>
-                    <Typography variant="h3" fontWeight="bold" gutterBottom>
+                    <Typography
+                      variant="h3"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{
+                        color: 'white',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+                      }}
+                    >
                       {eventDetail.name}
                     </Typography>
                     <Chip
@@ -239,19 +230,39 @@ function EventDetail() {
                         color: 'white'
                       }}
                     />
-                    <Typography variant="h6" sx={{ opacity: 0.9, mb: 2 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        opacity: 0.9,
+                        mb: 2,
+                        color: 'white',
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                      }}
+                    >
                       {eventDetail.description}
                     </Typography>
                     <Stack direction="row" spacing={2} flexWrap="wrap" gap={1}>
                       <Box display="flex" alignItems="center" gap={1}>
                         <CalendarTodayIcon />
-                        <Typography variant="body2">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'white',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                          }}
+                        >
                           {formatDate(eventDetail.startDate)}
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center" gap={1}>
                         <LocationOnIcon />
-                        <Typography variant="body2">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'white',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                          }}
+                        >
                           {eventDetail.city.name}
                         </Typography>
                       </Box>
@@ -263,22 +274,6 @@ function EventDetail() {
                       spacing={1}
                       justifyContent="flex-end"
                     >
-                      <IconButton
-                        sx={{
-                          color: 'white',
-                          backgroundColor: 'rgba(255,255,255,0.1)'
-                        }}
-                      >
-                        <ShareIcon />
-                      </IconButton>
-                      <IconButton
-                        sx={{
-                          color: 'white',
-                          backgroundColor: 'rgba(255,255,255,0.1)'
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
                       <IconButton
                         onClick={mutate}
                         sx={{
@@ -378,15 +373,58 @@ function EventDetail() {
                               >
                                 Location
                               </Typography>
-                              <Typography variant="body1" fontWeight="medium">
-                                {eventDetail.address}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {eventDetail.city.name}
-                              </Typography>
+                              {eventDetail.mapLocationUrl &&
+                              eventDetail.mapLocationUrl.trim() !== '' ? (
+                                <Button
+                                  variant="text"
+                                  sx={{
+                                    p: 0,
+                                    textTransform: 'none',
+                                    textAlign: 'left',
+                                    justifyContent: 'flex-start',
+                                    minWidth: 'auto',
+                                    '&:hover': {
+                                      textDecoration: 'underline'
+                                    }
+                                  }}
+                                  onClick={() =>
+                                    window.open(
+                                      eventDetail.mapLocationUrl,
+                                      '_blank',
+                                      'noopener,noreferrer'
+                                    )
+                                  }
+                                >
+                                  <Typography
+                                    variant="body1"
+                                    fontWeight="medium"
+                                    color="primary"
+                                  >
+                                    {eventDetail.address}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    , {eventDetail.city.name}
+                                  </Typography>
+                                </Button>
+                              ) : (
+                                <>
+                                  <Typography
+                                    variant="body1"
+                                    fontWeight="medium"
+                                  >
+                                    {eventDetail.address}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {eventDetail.city.name}
+                                  </Typography>
+                                </>
+                              )}
                             </Box>
                           </Box>
                         </Stack>
@@ -429,34 +467,88 @@ function EventDetail() {
                     <Grid container spacing={2}>
                       {eventDetail.ticketTypes.map((ticket) => (
                         <Grid item xs={12} md={6} key={ticket.id}>
-                          <Card variant="outlined">
+                          <Card
+                            variant="outlined"
+                            sx={{
+                              height: '100%',
+                              transition: 'all 0.2s ease-in-out',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: theme.shadows[4]
+                              }
+                            }}
+                          >
                             <CardContent>
-                              <Typography
-                                variant="h6"
-                                color="primary"
-                                gutterBottom
+                              <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="flex-start"
+                                mb={2}
                               >
-                                {ticket.name}
-                              </Typography>
+                                <Typography
+                                  variant="h6"
+                                  color="primary"
+                                  fontWeight="bold"
+                                >
+                                  {ticket.name}
+                                </Typography>
+                                <Chip
+                                  label={`Qty: ${ticket.quantity}`}
+                                  size="small"
+                                  color="info"
+                                  variant="outlined"
+                                />
+                              </Box>
+
                               <Typography
-                                variant="h5"
-                                fontWeight="bold"
+                                variant="h4"
                                 color="primary"
+                                fontWeight="bold"
+                                gutterBottom
                               >
                                 {formatPrice(ticket.price)}
                               </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                gutterBottom
-                              >
-                                Quantity: {ticket.quantity}
-                              </Typography>
+
                               {ticket.description && (
-                                <Typography variant="body2">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  gutterBottom
+                                >
                                   {ticket.description}
                                 </Typography>
                               )}
+
+                              <Box mt={2}>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  display="block"
+                                >
+                                  Max Order:{' '}
+                                  {ticket.max_order_quantity || 'Unlimited'}
+                                </Typography>
+                                {ticket.sales_start_date && (
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    display="block"
+                                  >
+                                    Sales Start:{' '}
+                                    {formatDate(ticket.sales_start_date)}
+                                  </Typography>
+                                )}
+                                {ticket.sales_end_date && (
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    display="block"
+                                  >
+                                    Sales End:{' '}
+                                    {formatDate(ticket.sales_end_date)}
+                                  </Typography>
+                                )}
+                              </Box>
                             </CardContent>
                           </Card>
                         </Grid>
@@ -480,12 +572,17 @@ function EventDetail() {
                           <Card variant="outlined">
                             <CardContent>
                               <Box display="flex" alignItems="center" gap={2}>
-                                <Avatar
+                                <Box
+                                  component="img"
                                   src={method.logo}
-                                  sx={{ width: 40, height: 40 }}
-                                >
-                                  <PaymentIcon />
-                                </Avatar>
+                                  alt={method.name}
+                                  sx={{
+                                    width: 60,
+                                    height: 40,
+                                    objectFit: 'contain',
+                                    borderRadius: 1
+                                  }}
+                                />
                                 <Box>
                                   <Typography
                                     variant="subtitle1"
@@ -531,6 +628,14 @@ function EventDetail() {
             <Card sx={{ borderRadius: 3 }}>
               <CardHeader
                 title="Event Organizer"
+                action={
+                  <Button
+                    size="small"
+                    onClick={() => setOrganizerDialogOpen(true)}
+                  >
+                    View Details
+                  </Button>
+                }
                 sx={{
                   background: `linear-gradient(135deg, ${theme.palette.info.main}08, ${theme.palette.info.main}04)`,
                   borderBottom: `1px solid ${theme.palette.divider}`
@@ -657,6 +762,132 @@ function EventDetail() {
           </Grid>
         </Grid>
       </Container>
+
+      {/* Organizer Details Dialog */}
+      <Dialog
+        open={organizerDialogOpen}
+        onClose={() => setOrganizerDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="h6">Organizer Details</Typography>
+            <IconButton onClick={() => setOrganizerDialogOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Typography variant="h6" gutterBottom>
+                Basic Information
+              </Typography>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Name
+                  </Typography>
+                  <Typography variant="body1" fontWeight="medium">
+                    {eventDetail.eventOrganizer.name}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Email
+                  </Typography>
+                  <Typography variant="body1">
+                    {eventDetail.eventOrganizer.email}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Phone
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatPhoneNumber(eventDetail.eventOrganizer.phone_number)}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    PIC Title
+                  </Typography>
+                  <Typography variant="body1">
+                    {eventDetail.eventOrganizer.pic_title || 'Not specified'}
+                  </Typography>
+                </Box>
+                {eventDetail.eventOrganizer.address && (
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Address
+                    </Typography>
+                    <Typography variant="body1">
+                      {eventDetail.eventOrganizer.address}
+                    </Typography>
+                  </Box>
+                )}
+                {eventDetail.eventOrganizer.description && (
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Description
+                    </Typography>
+                    <Typography variant="body1">
+                      {eventDetail.eventOrganizer.description}
+                    </Typography>
+                  </Box>
+                )}
+              </Stack>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="h6" gutterBottom>
+                Legal Information
+              </Typography>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    NIK
+                  </Typography>
+                  <Typography variant="body1">
+                    {eventDetail.eventOrganizer.nik || 'Not provided'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    NPWP
+                  </Typography>
+                  <Typography variant="body1">
+                    {eventDetail.eventOrganizer.npwp || 'Not provided'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Social Media URL
+                  </Typography>
+                  <Typography variant="body1">
+                    {eventDetail.eventOrganizer.social_media_url ||
+                      'Not provided'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Xenplatform ID
+                  </Typography>
+                  <Typography variant="body1">
+                    {eventDetail.eventOrganizer.xenplatform_id ||
+                      'Not provided'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </>
   );
