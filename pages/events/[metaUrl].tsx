@@ -1,6 +1,8 @@
 import Footer from '@/components/Footer';
 import PageTitle from '@/components/PageTitle';
 import PageTitleWrapper from '@/components/PageTitleWrapper';
+import TicketListTable from '@/components/TicketListTable';
+import TransactionsTable from '@/components/TransactionsTable';
 import { useEventDetail } from '@/hooks/useEventDetail';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import { formatIndonesianDateTime, formatPhoneNumber } from '@/utils';
@@ -59,7 +61,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`event-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 }
@@ -69,6 +71,7 @@ function EventDetail() {
   const { metaUrl } = router.query;
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
+  const [listTabValue, setListTabValue] = useState(0);
   const [organizerDialogOpen, setOrganizerDialogOpen] = useState(false);
 
   const { eventDetail, loading, error, mutate } = useEventDetail(
@@ -77,6 +80,13 @@ function EventDetail() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleListTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
+    setListTabValue(newValue);
   };
 
   const formatPrice = (price: string) => {
@@ -188,7 +198,7 @@ function EventDetail() {
       </PageTitleWrapper>
 
       <Container maxWidth="lg">
-        <Grid container spacing={3}>
+        <Grid container spacing={3} alignItems="stretch">
           {/* Hero Section */}
           <Grid item xs={12}>
             <Card
@@ -292,16 +302,38 @@ function EventDetail() {
 
           {/* Event Details */}
           <Grid item xs={12} md={8}>
-            <Card sx={{ borderRadius: 3 }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                height: 580,
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
               <CardHeader
                 title="Event Details"
                 sx={{
                   background: `linear-gradient(135deg, ${theme.palette.primary.main}08, ${theme.palette.primary.main}04)`,
-                  borderBottom: `1px solid ${theme.palette.divider}`
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  flexShrink: 0
                 }}
               />
-              <CardContent>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <CardContent
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  p: 0,
+                  overflow: 'hidden'
+                }}
+              >
+                <Box
+                  sx={{
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    flexShrink: 0
+                  }}
+                >
                   <Tabs
                     value={tabValue}
                     onChange={handleTabChange}
@@ -314,318 +346,333 @@ function EventDetail() {
                   </Tabs>
                 </Box>
 
-                <TabPanel value={tabValue} index={0}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="h6" gutterBottom>
-                          Event Information
-                        </Typography>
-                        <Stack spacing={2}>
-                          <Box display="flex" alignItems="center" gap={2}>
-                            <EventIcon color="primary" />
-                            <Box>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                Event Type
-                              </Typography>
-                              <Typography variant="body1" fontWeight="medium">
-                                {eventDetail.eventType}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Box display="flex" alignItems="center" gap={2}>
-                            <CalendarTodayIcon color="primary" />
-                            <Box>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                Start Date
-                              </Typography>
-                              <Typography variant="body1" fontWeight="medium">
-                                {formatDate(eventDetail.startDate)}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Box display="flex" alignItems="center" gap={2}>
-                            <AccessTimeIcon color="primary" />
-                            <Box>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                End Date
-                              </Typography>
-                              <Typography variant="body1" fontWeight="medium">
-                                {formatDate(eventDetail.endDate)}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Box display="flex" alignItems="center" gap={2}>
-                            <LocationOnIcon color="primary" />
-                            <Box>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                Location
-                              </Typography>
-                              {eventDetail.mapLocationUrl &&
-                              eventDetail.mapLocationUrl.trim() !== '' ? (
-                                <Button
-                                  variant="text"
-                                  sx={{
-                                    p: 0,
-                                    textTransform: 'none',
-                                    textAlign: 'left',
-                                    justifyContent: 'flex-start',
-                                    minWidth: 'auto',
-                                    '&:hover': {
-                                      textDecoration: 'underline'
-                                    }
-                                  }}
-                                  onClick={() =>
-                                    window.open(
-                                      eventDetail.mapLocationUrl,
-                                      '_blank',
-                                      'noopener,noreferrer'
-                                    )
-                                  }
-                                >
-                                  <Typography
-                                    variant="body1"
-                                    fontWeight="medium"
-                                    color="primary"
-                                  >
-                                    {eventDetail.address}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    , {eventDetail.city.name}
-                                  </Typography>
-                                </Button>
-                              ) : (
-                                <>
-                                  <Typography
-                                    variant="body1"
-                                    fontWeight="medium"
-                                  >
-                                    {eventDetail.address}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    {eventDetail.city.name}
-                                  </Typography>
-                                </>
-                              )}
-                            </Box>
-                          </Box>
-                        </Stack>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="h6" gutterBottom>
-                          Description
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                          {eventDetail.description}
-                        </Typography>
-                      </Box>
-                      {eventDetail.websiteUrl && (
-                        <Box>
+                <Box
+                  sx={{
+                    flex: 1,
+                    overflow: 'auto',
+                    p: 3
+                  }}
+                >
+                  <TabPanel value={tabValue} index={0}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} md={6}>
+                        <Box sx={{ mb: 3 }}>
                           <Typography variant="h6" gutterBottom>
-                            Website
+                            Event Information
                           </Typography>
-                          <Button
-                            variant="outlined"
-                            startIcon={<LanguageIcon />}
-                            href={eventDetail.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Visit Website
-                          </Button>
-                        </Box>
-                      )}
-                    </Grid>
-                  </Grid>
-                </TabPanel>
-
-                <TabPanel value={tabValue} index={1}>
-                  <Typography variant="h6" gutterBottom>
-                    Ticket Types
-                  </Typography>
-                  {eventDetail.ticketTypes.length > 0 ? (
-                    <Grid container spacing={2}>
-                      {eventDetail.ticketTypes.map((ticket) => (
-                        <Grid item xs={12} md={6} key={ticket.id}>
-                          <Card
-                            variant="outlined"
-                            sx={{
-                              height: '100%',
-                              transition: 'all 0.2s ease-in-out',
-                              '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: theme.shadows[4]
-                              }
-                            }}
-                          >
-                            <CardContent>
-                              <Box
-                                display="flex"
-                                justifyContent="space-between"
-                                alignItems="flex-start"
-                                mb={2}
-                              >
-                                <Typography
-                                  variant="h6"
-                                  color="primary"
-                                  fontWeight="bold"
-                                >
-                                  {ticket.name}
-                                </Typography>
-                                <Chip
-                                  label={`Qty: ${ticket.quantity}`}
-                                  size="small"
-                                  color="info"
-                                  variant="outlined"
-                                />
-                              </Box>
-
-                              <Typography
-                                variant="h4"
-                                color="primary"
-                                fontWeight="bold"
-                                gutterBottom
-                              >
-                                {formatPrice(ticket.price)}
-                              </Typography>
-
-                              {ticket.description && (
+                          <Stack spacing={2}>
+                            <Box display="flex" alignItems="center" gap={2}>
+                              <EventIcon color="primary" />
+                              <Box>
                                 <Typography
                                   variant="body2"
                                   color="text.secondary"
-                                  gutterBottom
                                 >
-                                  {ticket.description}
+                                  Event Type
                                 </Typography>
-                              )}
-
-                              <Box mt={2}>
+                                <Typography variant="body1" fontWeight="medium">
+                                  {eventDetail.eventType}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Box display="flex" alignItems="center" gap={2}>
+                              <CalendarTodayIcon color="primary" />
+                              <Box>
                                 <Typography
-                                  variant="caption"
+                                  variant="body2"
                                   color="text.secondary"
-                                  display="block"
                                 >
-                                  Max Order:{' '}
-                                  {ticket.max_order_quantity || 'Unlimited'}
+                                  Start Date
                                 </Typography>
-                                {ticket.sales_start_date && (
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                    display="block"
+                                <Typography variant="body1" fontWeight="medium">
+                                  {formatDate(eventDetail.startDate)}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Box display="flex" alignItems="center" gap={2}>
+                              <AccessTimeIcon color="primary" />
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  End Date
+                                </Typography>
+                                <Typography variant="body1" fontWeight="medium">
+                                  {formatDate(eventDetail.endDate)}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Box display="flex" alignItems="center" gap={2}>
+                              <LocationOnIcon color="primary" />
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Location
+                                </Typography>
+                                {eventDetail.mapLocationUrl &&
+                                eventDetail.mapLocationUrl.trim() !== '' ? (
+                                  <Button
+                                    variant="text"
+                                    sx={{
+                                      p: 0,
+                                      textTransform: 'none',
+                                      textAlign: 'left',
+                                      justifyContent: 'flex-start',
+                                      minWidth: 'auto',
+                                      '&:hover': {
+                                        textDecoration: 'underline'
+                                      }
+                                    }}
+                                    onClick={() =>
+                                      window.open(
+                                        eventDetail.mapLocationUrl,
+                                        '_blank',
+                                        'noopener,noreferrer'
+                                      )
+                                    }
                                   >
-                                    Sales Start:{' '}
-                                    {formatDate(ticket.sales_start_date)}
-                                  </Typography>
-                                )}
-                                {ticket.sales_end_date && (
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                    display="block"
-                                  >
-                                    Sales End:{' '}
-                                    {formatDate(ticket.sales_end_date)}
-                                  </Typography>
+                                    <Typography
+                                      variant="body1"
+                                      fontWeight="medium"
+                                      color="primary"
+                                    >
+                                      {eventDetail.address}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      , {eventDetail.city.name}
+                                    </Typography>
+                                  </Button>
+                                ) : (
+                                  <>
+                                    <Typography
+                                      variant="body1"
+                                      fontWeight="medium"
+                                    >
+                                      {eventDetail.address}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      {eventDetail.city.name}
+                                    </Typography>
+                                  </>
                                 )}
                               </Box>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      ))}
+                            </Box>
+                          </Stack>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Box sx={{ mb: 3 }}>
+                          <Typography variant="h6" gutterBottom>
+                            Description
+                          </Typography>
+                          <Typography variant="body1" color="text.secondary">
+                            {eventDetail.description}
+                          </Typography>
+                        </Box>
+                        {eventDetail.websiteUrl && (
+                          <Box>
+                            <Typography variant="h6" gutterBottom>
+                              Website
+                            </Typography>
+                            <Button
+                              variant="outlined"
+                              startIcon={<LanguageIcon />}
+                              href={eventDetail.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Visit Website
+                            </Button>
+                          </Box>
+                        )}
+                      </Grid>
                     </Grid>
-                  ) : (
-                    <Typography variant="body1" color="text.secondary">
-                      No ticket types available for this event.
-                    </Typography>
-                  )}
-                </TabPanel>
+                  </TabPanel>
 
-                <TabPanel value={tabValue} index={2}>
-                  <Typography variant="h6" gutterBottom>
-                    Payment Methods
-                  </Typography>
-                  {eventDetail.paymentMethods.length > 0 ? (
-                    <Grid container spacing={2}>
-                      {eventDetail.paymentMethods.map((method) => (
-                        <Grid item xs={12} md={4} key={method.id}>
-                          <Card variant="outlined">
-                            <CardContent>
-                              <Box display="flex" alignItems="center" gap={2}>
+                  <TabPanel value={tabValue} index={1}>
+                    <Typography variant="h6" gutterBottom>
+                      Ticket Types
+                    </Typography>
+                    {eventDetail.ticketTypes.length > 0 ? (
+                      <Grid container spacing={2}>
+                        {eventDetail.ticketTypes.map((ticket) => (
+                          <Grid item xs={12} md={6} key={ticket.id}>
+                            <Card
+                              variant="outlined"
+                              sx={{
+                                height: '100%',
+                                transition: 'all 0.2s ease-in-out',
+                                '&:hover': {
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: theme.shadows[4]
+                                }
+                              }}
+                            >
+                              <CardContent>
                                 <Box
-                                  component="img"
-                                  src={method.logo}
-                                  alt={method.name}
-                                  sx={{
-                                    width: 60,
-                                    height: 40,
-                                    objectFit: 'contain',
-                                    borderRadius: 1
-                                  }}
-                                />
-                                <Box>
+                                  display="flex"
+                                  justifyContent="space-between"
+                                  alignItems="flex-start"
+                                  mb={2}
+                                >
                                   <Typography
-                                    variant="subtitle1"
-                                    fontWeight="medium"
+                                    variant="h6"
+                                    color="primary"
+                                    fontWeight="bold"
                                   >
-                                    {method.name}
+                                    {ticket.name}
                                   </Typography>
+                                  <Chip
+                                    label={`Qty: ${ticket.quantity}`}
+                                    size="small"
+                                    color="info"
+                                    variant="outlined"
+                                  />
+                                </Box>
+
+                                <Typography
+                                  variant="h4"
+                                  color="primary"
+                                  fontWeight="bold"
+                                  gutterBottom
+                                >
+                                  {formatPrice(ticket.price)}
+                                </Typography>
+
+                                {ticket.description && (
                                   <Typography
                                     variant="body2"
                                     color="text.secondary"
+                                    gutterBottom
                                   >
-                                    {method.bank?.name || method.type}
+                                    {ticket.description}
                                   </Typography>
-                                </Box>
-                              </Box>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  ) : (
-                    <Typography variant="body1" color="text.secondary">
-                      No payment methods available for this event.
-                    </Typography>
-                  )}
-                </TabPanel>
+                                )}
 
-                <TabPanel value={tabValue} index={3}>
-                  <Typography variant="h6" gutterBottom>
-                    Terms & Conditions
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    {eventDetail.termAndConditions ||
-                      'No terms and conditions available.'}
-                  </Typography>
-                </TabPanel>
+                                <Box mt={2}>
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    display="block"
+                                  >
+                                    Max Order:{' '}
+                                    {ticket.max_order_quantity || 'Unlimited'}
+                                  </Typography>
+                                  {ticket.sales_start_date && (
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                      display="block"
+                                    >
+                                      Sales Start:{' '}
+                                      {formatDate(ticket.sales_start_date)}
+                                    </Typography>
+                                  )}
+                                  {ticket.sales_end_date && (
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                      display="block"
+                                    >
+                                      Sales End:{' '}
+                                      {formatDate(ticket.sales_end_date)}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      <Typography variant="body1" color="text.secondary">
+                        No ticket types available for this event.
+                      </Typography>
+                    )}
+                  </TabPanel>
+
+                  <TabPanel value={tabValue} index={2}>
+                    <Typography variant="h6" gutterBottom>
+                      Payment Methods
+                    </Typography>
+                    {eventDetail.paymentMethods.length > 0 ? (
+                      <Grid container spacing={2}>
+                        {eventDetail.paymentMethods.map((method) => (
+                          <Grid item xs={12} md={4} key={method.id}>
+                            <Card variant="outlined">
+                              <CardContent>
+                                <Box display="flex" alignItems="center" gap={2}>
+                                  <Box
+                                    component="img"
+                                    src={method.logo}
+                                    alt={method.name}
+                                    sx={{
+                                      width: 60,
+                                      height: 40,
+                                      objectFit: 'contain',
+                                      borderRadius: 1
+                                    }}
+                                  />
+                                  <Box>
+                                    <Typography
+                                      variant="subtitle1"
+                                      fontWeight="medium"
+                                    >
+                                      {method.name}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      {method.bank?.name || method.type}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      <Typography variant="body1" color="text.secondary">
+                        No payment methods available for this event.
+                      </Typography>
+                    )}
+                  </TabPanel>
+
+                  <TabPanel value={tabValue} index={3}>
+                    <Typography variant="h6" gutterBottom>
+                      Terms & Conditions
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      {eventDetail.termAndConditions ||
+                        'No terms and conditions available.'}
+                    </Typography>
+                  </TabPanel>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
 
           {/* Organizer Information */}
           <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 3 }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                height: 275,
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
               <CardHeader
                 title="Event Organizer"
                 action={
@@ -641,7 +688,7 @@ function EventDetail() {
                   borderBottom: `1px solid ${theme.palette.divider}`
                 }}
               />
-              <CardContent>
+              <CardContent sx={{ flex: 1 }}>
                 <Box display="flex" alignItems="center" gap={2} mb={3}>
                   <Avatar
                     sx={{
@@ -719,7 +766,15 @@ function EventDetail() {
             </Card>
 
             {/* Event Status */}
-            <Card sx={{ mt: 3, borderRadius: 3 }}>
+            <Card
+              sx={{
+                mt: 3,
+                borderRadius: 3,
+                height: 275,
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
               <CardHeader
                 title="Event Status"
                 sx={{
@@ -727,7 +782,7 @@ function EventDetail() {
                   borderBottom: `1px solid ${theme.palette.divider}`
                 }}
               />
-              <CardContent>
+              <CardContent sx={{ flex: 1 }}>
                 <Stack spacing={2}>
                   <Box>
                     <Typography variant="body2" color="text.secondary">
@@ -759,6 +814,179 @@ function EventDetail() {
                 </Stack>
               </CardContent>
             </Card>
+          </Grid>
+        </Grid>
+      </Container>
+
+      {/* Transaction History Section */}
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                mb: 3,
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
+              <Tabs
+                value={listTabValue}
+                onChange={handleListTabChange}
+                aria-label="transaction/ticket list tabs"
+                sx={{
+                  '& .MuiTab-root': {
+                    minWidth: 120,
+                    fontWeight: 600
+                  }
+                }}
+              >
+                <Tab label="Transactions" />
+                <Tab label="Tickets" />
+              </Tabs>
+            </Box>
+
+            <TabPanel value={listTabValue} index={0}>
+              <TransactionsTable
+                transactions={[
+                  {
+                    id: '1',
+                    orderId: 'ORD-001',
+                    customerName: 'John Doe',
+                    customerEmail: 'john.doe@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 2,
+                    totalAmount: 500000,
+                    paymentMethod: 'Bank Transfer - BCA',
+                    status: 'completed',
+                    transactionDate: '2024-01-15T10:30:00Z',
+                    paymentDate: '2024-01-15T10:35:00Z'
+                  },
+                  {
+                    id: '2',
+                    orderId: 'ORD-002',
+                    customerName: 'Jane Smith',
+                    customerEmail: 'jane.smith@example.com',
+                    ticketType: 'Regular Ticket',
+                    quantity: 1,
+                    totalAmount: 150000,
+                    paymentMethod: 'Credit Card - Visa',
+                    status: 'pending',
+                    transactionDate: '2024-01-16T14:20:00Z'
+                  },
+                  {
+                    id: '3',
+                    orderId: 'ORD-003',
+                    customerName: 'Mike Johnson',
+                    customerEmail: 'mike.johnson@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 3,
+                    totalAmount: 750000,
+                    paymentMethod: 'E-Wallet - GoPay',
+                    status: 'completed',
+                    transactionDate: '2024-01-14T09:15:00Z',
+                    paymentDate: '2024-01-14T09:20:00Z'
+                  },
+                  {
+                    id: '4',
+                    orderId: 'ORD-004',
+                    customerName: 'Sarah Wilson',
+                    customerEmail: 'sarah.wilson@example.com',
+                    ticketType: 'Regular Ticket',
+                    quantity: 2,
+                    totalAmount: 300000,
+                    paymentMethod: 'Bank Transfer - Mandiri',
+                    status: 'failed',
+                    transactionDate: '2024-01-17T16:45:00Z'
+                  },
+                  {
+                    id: '5',
+                    orderId: 'ORD-005',
+                    customerName: 'David Brown',
+                    customerEmail: 'david.brown@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 1,
+                    totalAmount: 250000,
+                    paymentMethod: 'Credit Card - Mastercard',
+                    status: 'cancelled',
+                    transactionDate: '2024-01-13T11:30:00Z',
+                    refundAmount: 250000,
+                    refundDate: '2024-01-13T12:00:00Z'
+                  }
+                ]}
+                loading={false}
+                onRefresh={() => console.log('Refresh transactions')}
+              />
+            </TabPanel>
+
+            <TabPanel value={listTabValue} index={1}>
+              <TicketListTable
+                tickets={[
+                  {
+                    id: '1',
+                    ticketNumber: 'TKT-001',
+                    customerName: 'John Doe',
+                    customerEmail: 'john.doe@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-15T10:30:00Z',
+                    status: 'active',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A1'
+                  },
+                  {
+                    id: '2',
+                    ticketNumber: 'TKT-002',
+                    customerName: 'Jane Smith',
+                    customerEmail: 'jane.smith@example.com',
+                    ticketType: 'Regular Ticket',
+                    price: 150000,
+                    purchaseDate: '2024-01-16T14:20:00Z',
+                    status: 'used',
+                    usedDate: '2024-01-20T19:00:00Z',
+                    eventName: eventDetail.name,
+                    seatNumber: 'B3'
+                  },
+                  {
+                    id: '3',
+                    ticketNumber: 'TKT-003',
+                    customerName: 'Mike Johnson',
+                    customerEmail: 'mike.johnson@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-14T09:15:00Z',
+                    status: 'active',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A2'
+                  },
+                  {
+                    id: '4',
+                    ticketNumber: 'TKT-004',
+                    customerName: 'Sarah Wilson',
+                    customerEmail: 'sarah.wilson@example.com',
+                    ticketType: 'Regular Ticket',
+                    price: 150000,
+                    purchaseDate: '2024-01-17T16:45:00Z',
+                    status: 'expired',
+                    eventName: eventDetail.name,
+                    seatNumber: 'C5'
+                  },
+                  {
+                    id: '5',
+                    ticketNumber: 'TKT-005',
+                    customerName: 'David Brown',
+                    customerEmail: 'david.brown@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-13T11:30:00Z',
+                    status: 'cancelled',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A3'
+                  }
+                ]}
+                loading={false}
+                onRefresh={() => console.log('Refresh tickets')}
+              />
+            </TabPanel>
           </Grid>
         </Grid>
       </Container>
