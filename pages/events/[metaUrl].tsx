@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer';
 import PageTitle from '@/components/PageTitle';
 import PageTitleWrapper from '@/components/PageTitleWrapper';
+import TicketListTable from '@/components/TicketListTable';
 import TransactionsTable from '@/components/TransactionsTable';
 import { useEventDetail } from '@/hooks/useEventDetail';
 import SidebarLayout from '@/layouts/SidebarLayout';
@@ -70,6 +71,7 @@ function EventDetail() {
   const { metaUrl } = router.query;
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
+  const [listTabValue, setListTabValue] = useState(0);
   const [organizerDialogOpen, setOrganizerDialogOpen] = useState(false);
 
   const { eventDetail, loading, error, mutate } = useEventDetail(
@@ -78,6 +80,13 @@ function EventDetail() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleListTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
+    setListTabValue(newValue);
   };
 
   const formatPrice = (price: string) => {
@@ -813,76 +822,171 @@ function EventDetail() {
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <TransactionsTable
-              transactions={[
-                {
-                  id: '1',
-                  orderId: 'ORD-001',
-                  customerName: 'John Doe',
-                  customerEmail: 'john.doe@example.com',
-                  ticketType: 'VIP Ticket',
-                  quantity: 2,
-                  totalAmount: 500000,
-                  paymentMethod: 'Bank Transfer - BCA',
-                  status: 'completed',
-                  transactionDate: '2024-01-15T10:30:00Z',
-                  paymentDate: '2024-01-15T10:35:00Z'
-                },
-                {
-                  id: '2',
-                  orderId: 'ORD-002',
-                  customerName: 'Jane Smith',
-                  customerEmail: 'jane.smith@example.com',
-                  ticketType: 'Regular Ticket',
-                  quantity: 1,
-                  totalAmount: 150000,
-                  paymentMethod: 'Credit Card - Visa',
-                  status: 'pending',
-                  transactionDate: '2024-01-16T14:20:00Z'
-                },
-                {
-                  id: '3',
-                  orderId: 'ORD-003',
-                  customerName: 'Mike Johnson',
-                  customerEmail: 'mike.johnson@example.com',
-                  ticketType: 'VIP Ticket',
-                  quantity: 3,
-                  totalAmount: 750000,
-                  paymentMethod: 'E-Wallet - GoPay',
-                  status: 'completed',
-                  transactionDate: '2024-01-14T09:15:00Z',
-                  paymentDate: '2024-01-14T09:20:00Z'
-                },
-                {
-                  id: '4',
-                  orderId: 'ORD-004',
-                  customerName: 'Sarah Wilson',
-                  customerEmail: 'sarah.wilson@example.com',
-                  ticketType: 'Regular Ticket',
-                  quantity: 2,
-                  totalAmount: 300000,
-                  paymentMethod: 'Bank Transfer - Mandiri',
-                  status: 'failed',
-                  transactionDate: '2024-01-17T16:45:00Z'
-                },
-                {
-                  id: '5',
-                  orderId: 'ORD-005',
-                  customerName: 'David Brown',
-                  customerEmail: 'david.brown@example.com',
-                  ticketType: 'VIP Ticket',
-                  quantity: 1,
-                  totalAmount: 250000,
-                  paymentMethod: 'Credit Card - Mastercard',
-                  status: 'cancelled',
-                  transactionDate: '2024-01-13T11:30:00Z',
-                  refundAmount: 250000,
-                  refundDate: '2024-01-13T12:00:00Z'
-                }
-              ]}
-              loading={false}
-              onRefresh={() => console.log('Refresh transactions')}
-            />
+            <Box
+              sx={{
+                mb: 3,
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
+              <Tabs
+                value={listTabValue}
+                onChange={handleListTabChange}
+                aria-label="transaction/ticket list tabs"
+                sx={{
+                  '& .MuiTab-root': {
+                    minWidth: 120,
+                    fontWeight: 600
+                  }
+                }}
+              >
+                <Tab label="Transactions" />
+                <Tab label="Tickets" />
+              </Tabs>
+            </Box>
+
+            <TabPanel value={listTabValue} index={0}>
+              <TransactionsTable
+                transactions={[
+                  {
+                    id: '1',
+                    orderId: 'ORD-001',
+                    customerName: 'John Doe',
+                    customerEmail: 'john.doe@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 2,
+                    totalAmount: 500000,
+                    paymentMethod: 'Bank Transfer - BCA',
+                    status: 'completed',
+                    transactionDate: '2024-01-15T10:30:00Z',
+                    paymentDate: '2024-01-15T10:35:00Z'
+                  },
+                  {
+                    id: '2',
+                    orderId: 'ORD-002',
+                    customerName: 'Jane Smith',
+                    customerEmail: 'jane.smith@example.com',
+                    ticketType: 'Regular Ticket',
+                    quantity: 1,
+                    totalAmount: 150000,
+                    paymentMethod: 'Credit Card - Visa',
+                    status: 'pending',
+                    transactionDate: '2024-01-16T14:20:00Z'
+                  },
+                  {
+                    id: '3',
+                    orderId: 'ORD-003',
+                    customerName: 'Mike Johnson',
+                    customerEmail: 'mike.johnson@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 3,
+                    totalAmount: 750000,
+                    paymentMethod: 'E-Wallet - GoPay',
+                    status: 'completed',
+                    transactionDate: '2024-01-14T09:15:00Z',
+                    paymentDate: '2024-01-14T09:20:00Z'
+                  },
+                  {
+                    id: '4',
+                    orderId: 'ORD-004',
+                    customerName: 'Sarah Wilson',
+                    customerEmail: 'sarah.wilson@example.com',
+                    ticketType: 'Regular Ticket',
+                    quantity: 2,
+                    totalAmount: 300000,
+                    paymentMethod: 'Bank Transfer - Mandiri',
+                    status: 'failed',
+                    transactionDate: '2024-01-17T16:45:00Z'
+                  },
+                  {
+                    id: '5',
+                    orderId: 'ORD-005',
+                    customerName: 'David Brown',
+                    customerEmail: 'david.brown@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 1,
+                    totalAmount: 250000,
+                    paymentMethod: 'Credit Card - Mastercard',
+                    status: 'cancelled',
+                    transactionDate: '2024-01-13T11:30:00Z',
+                    refundAmount: 250000,
+                    refundDate: '2024-01-13T12:00:00Z'
+                  }
+                ]}
+                loading={false}
+                onRefresh={() => console.log('Refresh transactions')}
+              />
+            </TabPanel>
+
+            <TabPanel value={listTabValue} index={1}>
+              <TicketListTable
+                tickets={[
+                  {
+                    id: '1',
+                    ticketNumber: 'TKT-001',
+                    customerName: 'John Doe',
+                    customerEmail: 'john.doe@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-15T10:30:00Z',
+                    status: 'active',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A1'
+                  },
+                  {
+                    id: '2',
+                    ticketNumber: 'TKT-002',
+                    customerName: 'Jane Smith',
+                    customerEmail: 'jane.smith@example.com',
+                    ticketType: 'Regular Ticket',
+                    price: 150000,
+                    purchaseDate: '2024-01-16T14:20:00Z',
+                    status: 'used',
+                    usedDate: '2024-01-20T19:00:00Z',
+                    eventName: eventDetail.name,
+                    seatNumber: 'B3'
+                  },
+                  {
+                    id: '3',
+                    ticketNumber: 'TKT-003',
+                    customerName: 'Mike Johnson',
+                    customerEmail: 'mike.johnson@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-14T09:15:00Z',
+                    status: 'active',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A2'
+                  },
+                  {
+                    id: '4',
+                    ticketNumber: 'TKT-004',
+                    customerName: 'Sarah Wilson',
+                    customerEmail: 'sarah.wilson@example.com',
+                    ticketType: 'Regular Ticket',
+                    price: 150000,
+                    purchaseDate: '2024-01-17T16:45:00Z',
+                    status: 'expired',
+                    eventName: eventDetail.name,
+                    seatNumber: 'C5'
+                  },
+                  {
+                    id: '5',
+                    ticketNumber: 'TKT-005',
+                    customerName: 'David Brown',
+                    customerEmail: 'david.brown@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-13T11:30:00Z',
+                    status: 'cancelled',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A3'
+                  }
+                ]}
+                loading={false}
+                onRefresh={() => console.log('Refresh tickets')}
+              />
+            </TabPanel>
           </Grid>
         </Grid>
       </Container>
