@@ -6,12 +6,12 @@ export default async function handler(req: any, res: any) {
   try {
     const { userId } = req.body;
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId })
     });
 
     const data = await response.json();

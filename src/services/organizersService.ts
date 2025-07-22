@@ -1,21 +1,19 @@
 import { EventOrganizersResponse } from '@/types/organizer';
 
 class OrganizersService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
   async getEventOrganizers(): Promise<EventOrganizersResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/organizers`, {
+      const response = await fetch(`/api/organizers`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+          Accept: 'application/json'
+        }
       });
 
       if (!response.ok) {
         let errorMessage = 'Failed to fetch event organizers';
-        
+
         try {
           const errorData = await response.json();
           if (errorData.message) {
@@ -29,13 +27,12 @@ class OrganizersService {
           console.error('Failed to parse error response:', parseError);
           errorMessage = `Server error (${response.status})`;
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const responseData = await response.json();
       return responseData;
-      
     } catch (error) {
       console.error('Error fetching event organizers:', error);
       throw error;
