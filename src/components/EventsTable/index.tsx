@@ -7,7 +7,6 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import VisibilityTwoToneIcon from '@mui/icons-material/VisibilityTwoTone';
 import {
   Avatar,
   Box,
@@ -29,6 +28,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import { ChangeEvent, FC, useState } from 'react';
 
 interface EventsTableProps {
@@ -46,6 +46,7 @@ const EventsTable: FC<EventsTableProps> = ({
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(10);
   const theme = useTheme();
+  const router = useRouter();
 
   const handleSelectAllEvents = (
     event: ChangeEvent<HTMLInputElement>
@@ -75,6 +76,24 @@ const EventsTable: FC<EventsTableProps> = ({
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setLimit(parseInt(event.target.value));
     setPage(0);
+  };
+
+  const handleRowClick = (event: Event) => {
+    router.push(`/events/${event.metaUrl}`);
+  };
+
+  const handleActionClick = (
+    e: React.MouseEvent,
+    action: 'edit' | 'delete'
+  ) => {
+    e.stopPropagation(); // Prevent row click when clicking action buttons
+    if (action === 'edit') {
+      // Handle edit action
+      console.log('Edit event');
+    } else if (action === 'delete') {
+      // Handle delete action
+      console.log('Delete event');
+    }
   };
 
   const paginatedEvents = events.slice(page * limit, page * limit + limit);
@@ -224,7 +243,9 @@ const EventsTable: FC<EventsTableProps> = ({
                   hover
                   key={event.id}
                   selected={isEventSelected}
+                  onClick={() => handleRowClick(event)}
                   sx={{
+                    cursor: 'pointer',
                     '&:hover': {
                       backgroundColor: `${theme.palette.primary.main}08`,
                       transform: 'translateY(-1px)',
@@ -236,7 +257,10 @@ const EventsTable: FC<EventsTableProps> = ({
                     borderBottom: `1px solid ${theme.palette.divider}`
                   }}
                 >
-                  <TableCell padding="checkbox">
+                  <TableCell
+                    padding="checkbox"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Checkbox
                       color="primary"
                       checked={isEventSelected}
@@ -420,25 +444,11 @@ const EventsTable: FC<EventsTableProps> = ({
                       </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                     <Box display="flex" gap={0.5} justifyContent="flex-end">
-                      <Tooltip title="View Details" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.info.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.info.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <VisibilityTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
                       <Tooltip title="Edit Event" arrow>
                         <IconButton
+                          onClick={(e) => handleActionClick(e, 'edit')}
                           sx={{
                             '&:hover': {
                               background: theme.colors.primary.lighter,
@@ -454,6 +464,7 @@ const EventsTable: FC<EventsTableProps> = ({
                       </Tooltip>
                       <Tooltip title="Delete Event" arrow>
                         <IconButton
+                          onClick={(e) => handleActionClick(e, 'delete')}
                           sx={{
                             '&:hover': {
                               background: theme.colors.error.lighter,

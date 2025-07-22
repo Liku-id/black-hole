@@ -9,24 +9,14 @@ export default async function handler(
   }
 
   try {
+    const { metaUrl } = req.query;
+
+    if (!metaUrl || typeof metaUrl !== 'string') {
+      return res.status(400).json({ message: 'Invalid metaUrl parameter' });
+    }
+
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-
-    // Extract query parameters for filtering
-    const { show, page, cityId, name, startDate, endDate } = req.query;
-
-    // Build query string for backend
-    const queryParams = new URLSearchParams();
-    if (show) queryParams.append('show', show.toString());
-    if (page) queryParams.append('page', page.toString());
-    if (name) queryParams.append('name', name.toString());
-    if (startDate) queryParams.append('startDate', startDate.toString());
-    if (endDate) queryParams.append('endDate', endDate.toString());
-    if (cityId) queryParams.append('cityId', cityId.toString());
-
-    const queryString = queryParams.toString();
-    const backendEndpoint = `${backendUrl}/events${
-      queryString ? `?${queryString}` : ''
-    }`;
+    const backendEndpoint = `${backendUrl}/events/${metaUrl}`;
 
     const response = await fetch(backendEndpoint, {
       method: req.method,
@@ -51,9 +41,9 @@ export default async function handler(
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    console.error('Error fetching events from backend:', error);
+    console.error('Error fetching event detail from backend:', error);
     return res.status(500).json({
-      message: 'Failed to fetch events from backend API',
+      message: 'Failed to fetch event detail from backend API',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }

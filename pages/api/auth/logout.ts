@@ -1,17 +1,19 @@
-export default async function handler(req: any, res: any) {
+import type { NextApiRequest, NextApiResponse } from 'next/types';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
-    const { userId } = req.body;
-
     const response = await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ userId })
+      }
     });
 
     const data = await response.json();

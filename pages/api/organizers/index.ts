@@ -1,4 +1,9 @@
-export default async function handler(req: any, res: any) {
+import type { NextApiRequest, NextApiResponse } from 'next/types';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
@@ -8,7 +13,14 @@ export default async function handler(req: any, res: any) {
 
     const response = await fetch(`${backendUrl}/event-organizers`, {
       method: req.method,
-      headers: req.headers
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        // Forward any auth headers if needed
+        ...(req.headers.authorization && {
+          Authorization: req.headers.authorization
+        })
+      }
     });
 
     if (!response.ok) {

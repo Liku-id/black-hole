@@ -1,4 +1,8 @@
-import { EventsFilters, EventsResponse } from '@/types/event';
+import {
+  EventDetailResponse,
+  EventsFilters,
+  EventsResponse
+} from '@/types/event';
 
 class EventsService {
   async getEvents(filters?: EventsFilters): Promise<EventsResponse> {
@@ -47,6 +51,44 @@ class EventsService {
       return responseData;
     } catch (error) {
       console.error('Error fetching events:', error);
+      throw error;
+    }
+  }
+
+  async getEventDetail(metaUrl: string): Promise<EventDetailResponse> {
+    try {
+      const response = await fetch(`/api/events/${metaUrl}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to fetch event detail';
+
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else {
+            errorMessage = `Server error (${response.status})`;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          errorMessage = `Server error (${response.status})`;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } catch (error) {
+      console.error('Error fetching event detail:', error);
       throw error;
     }
   }
