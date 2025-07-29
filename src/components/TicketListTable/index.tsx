@@ -1,10 +1,7 @@
 import { formatIndonesianDateTime } from '@/utils';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import PersonIcon from '@mui/icons-material/Person';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import VisibilityTwoToneIcon from '@mui/icons-material/VisibilityTwoTone';
 import {
   Avatar,
   Box,
@@ -14,7 +11,6 @@ import {
   Checkbox,
   Chip,
   Divider,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -22,7 +18,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip,
   Typography,
   useTheme
 } from '@mui/material';
@@ -242,18 +237,6 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   Purchase Date
                 </Typography>
               </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  backgroundColor: theme.palette.grey[50],
-                  fontWeight: 600,
-                  minWidth: 120
-                }}
-              >
-                <Typography variant="subtitle2" fontWeight="bold">
-                  Actions
-                </Typography>
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -392,55 +375,6 @@ const TicketListTable: FC<TicketListTableProps> = ({
                           Used: {formatIndonesianDateTime(ticket.usedDate)}
                         </Typography>
                       )}
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Box display="flex" gap={0.5} justifyContent="flex-end">
-                      <Tooltip title="View Details" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.info.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.info.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <VisibilityTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit Ticket" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.primary.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.primary.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <EditTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Ticket" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.error.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.error.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <DeleteTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
                     </Box>
                   </TableCell>
                 </TableRow>

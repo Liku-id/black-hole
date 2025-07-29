@@ -36,6 +36,8 @@ export interface TicketType {
   color_hex: string;
   sales_start_date: string;
   sales_end_date: string;
+  is_public: boolean;
+  purchased_amount: number;
   created_at: string;
   updated_at: string;
   deleted_at: string;
@@ -98,11 +100,25 @@ export interface EventOrganizer {
   created_at: string;
   updated_at: string;
   deleted_at: string;
-  bank_information: any;
-  event_organizer_pic: any;
-  asset: any;
-  ktpPhoto: any;
-  npwpPhoto: any;
+  bank_information: {
+    id: string;
+    bankId: string;
+    accountNumber: string;
+    accountHolderName: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string;
+    bank: Bank;
+  } | null;
+  event_organizer_pic: {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+  } | null;
+  asset: Asset | null;
+  ktpPhoto: Asset | null;
+  npwpPhoto: Asset | null;
 }
 
 export interface Ticket {
@@ -110,7 +126,8 @@ export interface Ticket {
 }
 
 export interface FeeThreshold {
-  // Add fee threshold interface if needed
+  threshold: string;
+  platformFee: string;
 }
 
 export interface EventDetail {
@@ -140,6 +157,7 @@ export interface EventDetail {
 }
 
 export interface EventDetailResponse {
+  statusCode: number;
   message: string;
   body: EventDetail;
 }
