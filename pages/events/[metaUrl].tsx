@@ -4,7 +4,6 @@ import PageTitleWrapper from '@/components/PageTitleWrapper';
 import TicketListTable from '@/components/TicketListTable';
 import TransactionsTable from '@/components/TransactionsTable';
 import { useEventDetail } from '@/hooks/useEventDetail';
-import { useTickets } from '@/hooks/useTickets';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import { formatIndonesianDateTime, formatPhoneNumber } from '@/utils';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -18,7 +17,6 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   Avatar,
@@ -34,20 +32,17 @@ import {
   DialogTitle,
   Grid,
   IconButton,
-  InputAdornment,
   Skeleton,
   Stack,
   Tab,
   Tabs,
-  TextField,
   Typography,
-  useTheme,
-  TablePagination
+  useTheme
 } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -78,37 +73,10 @@ function EventDetail() {
   const [tabValue, setTabValue] = useState(0);
   const [listTabValue, setListTabValue] = useState(0);
   const [organizerDialogOpen, setOrganizerDialogOpen] = useState(false);
-  const [ticketFilters, setTicketFilters] = useState({
-    eventId: '',
-    page: 0,
-    show: 10,
-    search: ''
-  });
 
   const { eventDetail, loading, error, mutate } = useEventDetail(
     metaUrl as string
   );
-
-  const {
-    tickets,
-    loading: ticketsLoading,
-    error: ticketsError,
-    mutate: mutateTickets,
-    total: ticketsTotal,
-    totalPage: ticketsTotalPage,
-    currentPage: ticketsCurrentPage,
-    currentShow: ticketsCurrentShow
-  } = useTickets(ticketFilters);
-
-  // Update ticket filters when event detail is loaded
-  useEffect(() => {
-    if (eventDetail?.id) {
-      setTicketFilters((prev) => ({
-        ...prev,
-        eventId: eventDetail.id
-      }));
-    }
-  }, [eventDetail?.id]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -119,29 +87,6 @@ function EventDetail() {
     newValue: number
   ) => {
     setListTabValue(newValue);
-  };
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTicketFilters((prev) => ({
-      ...prev,
-      search: event.target.value,
-      page: 0 // Reset to first page when searching
-    }));
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setTicketFilters((prev) => ({
-      ...prev,
-      page: newPage
-    }));
-  };
-
-  const handleShowChange = (newShow: number) => {
-    setTicketFilters((prev) => ({
-      ...prev,
-      show: newShow,
-      page: 0 // Reset to first page when changing show size
-    }));
   };
 
   const formatPrice = (price: string) => {
@@ -881,173 +826,166 @@ function EventDetail() {
               sx={{
                 mb: 3,
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 2
+                justifyContent: 'center'
               }}
             >
-              {/* Search Bar */}
-              <Box
+              <Tabs
+                value={listTabValue}
+                onChange={handleListTabChange}
+                aria-label="transaction/ticket list tabs"
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 2
+                  '& .MuiTab-root': {
+                    minWidth: 120,
+                    fontWeight: 600
+                  }
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <TextField
-                    placeholder="Search by visitor name..."
-                    value={ticketFilters.search}
-                    onChange={handleSearchChange}
-                    size="small"
-                    sx={{
-                      minWidth: 300,
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'white'
-                      }
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Box>
-                <Box>
-                  <Tabs
-                    value={listTabValue}
-                    onChange={handleListTabChange}
-                    aria-label="transaction/ticket list tabs"
-                    sx={{
-                      '& .MuiTab-root': {
-                        minWidth: 120,
-                        fontWeight: 600
-                      }
-                    }}
-                  >
-                    <Tab label="Transactions" />
-                    <Tab label="Tickets" />
-                  </Tabs>
-                </Box>
-              </Box>
+                <Tab label="Transactions" />
+                <Tab label="Tickets" />
+              </Tabs>
             </Box>
 
             <TabPanel value={listTabValue} index={0}>
-              {ticketsError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Failed to load tickets
-                  </Typography>
-                  <Typography variant="body2">{ticketsError}</Typography>
-                </Alert>
-              )}
-              {ticketsLoading && (
-                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
-                  <Typography>Loading tickets...</Typography>
-                </Box>
-              )}
               <TransactionsTable
-                transactions={tickets.map((ticket) => ({
-                  id: ticket.id,
-                  orderId: ticket.transaction_id,
-                  customerName: ticket.visitor_name,
-                  customerEmail: 'N/A', // Not available in ticket data
-                  ticketType: ticket.ticket_name,
-                  quantity: 1, // Each ticket represents 1 quantity
-                  totalAmount: 0, // Not available in ticket data
-                  paymentMethod: 'N/A', // Not available in ticket data
-                  status: (() => {
-                    // Map ticket status to transaction status
-                    switch (ticket.ticket_status.toLowerCase()) {
-                      case 'active':
-                      case 'issued':
-                        return 'completed';
-                      case 'pending':
-                        return 'pending';
-                      case 'cancelled':
-                      case 'expired':
-                        return 'cancelled';
-                      case 'failed':
-                        return 'failed';
-                      default:
-                        return 'pending';
-                    }
-                  })(),
-                  transactionDate: ticket.created_at,
-                  paymentDate: ticket.issued_at || undefined
-                }))}
-                loading={ticketsLoading}
-                onRefresh={mutateTickets}
+                transactions={[
+                  {
+                    id: '1',
+                    orderId: 'ORD-001',
+                    customerName: 'John Doe',
+                    customerEmail: 'john.doe@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 2,
+                    totalAmount: 500000,
+                    paymentMethod: 'Bank Transfer - BCA',
+                    status: 'completed',
+                    transactionDate: '2024-01-15T10:30:00Z',
+                    paymentDate: '2024-01-15T10:35:00Z'
+                  },
+                  {
+                    id: '2',
+                    orderId: 'ORD-002',
+                    customerName: 'Jane Smith',
+                    customerEmail: 'jane.smith@example.com',
+                    ticketType: 'Regular Ticket',
+                    quantity: 1,
+                    totalAmount: 150000,
+                    paymentMethod: 'Credit Card - Visa',
+                    status: 'pending',
+                    transactionDate: '2024-01-16T14:20:00Z'
+                  },
+                  {
+                    id: '3',
+                    orderId: 'ORD-003',
+                    customerName: 'Mike Johnson',
+                    customerEmail: 'mike.johnson@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 3,
+                    totalAmount: 750000,
+                    paymentMethod: 'E-Wallet - GoPay',
+                    status: 'completed',
+                    transactionDate: '2024-01-14T09:15:00Z',
+                    paymentDate: '2024-01-14T09:20:00Z'
+                  },
+                  {
+                    id: '4',
+                    orderId: 'ORD-004',
+                    customerName: 'Sarah Wilson',
+                    customerEmail: 'sarah.wilson@example.com',
+                    ticketType: 'Regular Ticket',
+                    quantity: 2,
+                    totalAmount: 300000,
+                    paymentMethod: 'Bank Transfer - Mandiri',
+                    status: 'failed',
+                    transactionDate: '2024-01-17T16:45:00Z'
+                  },
+                  {
+                    id: '5',
+                    orderId: 'ORD-005',
+                    customerName: 'David Brown',
+                    customerEmail: 'david.brown@example.com',
+                    ticketType: 'VIP Ticket',
+                    quantity: 1,
+                    totalAmount: 250000,
+                    paymentMethod: 'Credit Card - Mastercard',
+                    status: 'cancelled',
+                    transactionDate: '2024-01-13T11:30:00Z',
+                    refundAmount: 250000,
+                    refundDate: '2024-01-13T12:00:00Z'
+                  }
+                ]}
+                loading={false}
+                onRefresh={() => console.log('Refresh transactions')}
               />
             </TabPanel>
 
             <TabPanel value={listTabValue} index={1}>
-              {ticketsError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Failed to load tickets
-                  </Typography>
-                  <Typography variant="body2">{ticketsError}</Typography>
-                </Alert>
-              )}
-              {ticketsLoading && (
-                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
-                  <Typography>Loading tickets...</Typography>
-                </Box>
-              )}
               <TicketListTable
-                tickets={tickets.map((ticket) => ({
-                  id: ticket.id,
-                  ticketNumber: ticket.ticket_id,
-                  customerName: ticket.visitor_name,
-                  customerEmail: 'N/A', // Not available in ticket data
-                  ticketType: ticket.ticket_name,
-                  price: 0, // Not available in ticket data
-                  purchaseDate: ticket.created_at,
-                  status: (() => {
-                    // Map ticket status to TicketListTable status
-                    switch (ticket.ticket_status.toLowerCase()) {
-                      case 'active':
-                      case 'issued':
-                        return 'active';
-                      case 'used':
-                      case 'redeemed':
-                        return 'used';
-                      case 'expired':
-                        return 'expired';
-                      case 'cancelled':
-                        return 'cancelled';
-                      default:
-                        return 'active';
-                    }
-                  })(),
-                  usedDate:
-                    ticket.redeemed_at || ticket.checked_in_at || undefined,
-                  eventName: eventDetail.name,
-                  seatNumber: undefined // Not available in ticket data
-                }))}
-                loading={ticketsLoading}
-                onRefresh={mutateTickets}
+                tickets={[
+                  {
+                    id: '1',
+                    ticketNumber: 'TKT-001',
+                    customerName: 'John Doe',
+                    customerEmail: 'john.doe@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-15T10:30:00Z',
+                    status: 'active',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A1'
+                  },
+                  {
+                    id: '2',
+                    ticketNumber: 'TKT-002',
+                    customerName: 'Jane Smith',
+                    customerEmail: 'jane.smith@example.com',
+                    ticketType: 'Regular Ticket',
+                    price: 150000,
+                    purchaseDate: '2024-01-16T14:20:00Z',
+                    status: 'used',
+                    usedDate: '2024-01-20T19:00:00Z',
+                    eventName: eventDetail.name,
+                    seatNumber: 'B3'
+                  },
+                  {
+                    id: '3',
+                    ticketNumber: 'TKT-003',
+                    customerName: 'Mike Johnson',
+                    customerEmail: 'mike.johnson@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-14T09:15:00Z',
+                    status: 'active',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A2'
+                  },
+                  {
+                    id: '4',
+                    ticketNumber: 'TKT-004',
+                    customerName: 'Sarah Wilson',
+                    customerEmail: 'sarah.wilson@example.com',
+                    ticketType: 'Regular Ticket',
+                    price: 150000,
+                    purchaseDate: '2024-01-17T16:45:00Z',
+                    status: 'expired',
+                    eventName: eventDetail.name,
+                    seatNumber: 'C5'
+                  },
+                  {
+                    id: '5',
+                    ticketNumber: 'TKT-005',
+                    customerName: 'David Brown',
+                    customerEmail: 'david.brown@example.com',
+                    ticketType: 'VIP Ticket',
+                    price: 250000,
+                    purchaseDate: '2024-01-13T11:30:00Z',
+                    status: 'cancelled',
+                    eventName: eventDetail.name,
+                    seatNumber: 'A3'
+                  }
+                ]}
+                loading={false}
+                onRefresh={() => console.log('Refresh tickets')}
               />
-              {!ticketsLoading && (
-                <Box
-                  sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}
-                >
-                  <TablePagination
-                    component="div"
-                    count={ticketsTotal}
-                    page={ticketsCurrentPage}
-                    onPageChange={(_, newPage) => handlePageChange(newPage)}
-                    rowsPerPage={ticketsCurrentShow}
-                    onRowsPerPageChange={(event) =>
-                      handleShowChange(parseInt(event.target.value, 10))
-                    }
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                  />
-                </Box>
-              )}
             </TabPanel>
           </Grid>
         </Grid>
@@ -1074,7 +1012,7 @@ function EventDetail() {
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6}>
               <Typography variant="h6" gutterBottom>
                 Basic Information
               </Typography>
@@ -1101,15 +1039,6 @@ function EventDetail() {
                   </Typography>
                   <Typography variant="body1">
                     {formatPhoneNumber(eventDetail.eventOrganizer.phone_number)}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    PIC Name
-                  </Typography>
-                  <Typography variant="body1">
-                    {eventDetail.eventOrganizer.event_organizer_pic ||
-                      'Not specified'}
                   </Typography>
                 </Box>
                 <Box>
@@ -1142,7 +1071,7 @@ function EventDetail() {
                 )}
               </Stack>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6}>
               <Typography variant="h6" gutterBottom>
                 Legal Information
               </Typography>
@@ -1179,40 +1108,6 @@ function EventDetail() {
                   <Typography variant="body1">
                     {eventDetail.eventOrganizer.xenplatform_id ||
                       'Not provided'}
-                  </Typography>
-                </Box>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant="h6" gutterBottom>
-                Bank Information
-              </Typography>
-              <Stack spacing={2}>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Bank Name
-                  </Typography>
-                  <Typography variant="body1">
-                    {eventDetail.eventOrganizer.bank_information?.bank?.name ||
-                      'Not provided'}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Account Number
-                  </Typography>
-                  <Typography variant="body1">
-                    {eventDetail.eventOrganizer.bank_information
-                      ?.accountNumber || 'Not provided'}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Account Holder Name
-                  </Typography>
-                  <Typography variant="body1">
-                    {eventDetail.eventOrganizer.bank_information
-                      ?.accountHolderName || 'Not provided'}
                   </Typography>
                 </Box>
               </Stack>
