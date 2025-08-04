@@ -10,13 +10,13 @@ export const formatUtils = {
    */
   formatCurrency: (amount: number, currency: string = 'IDR'): string => {
     if (typeof amount !== 'number') return '';
-    
+
     const formatter = new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0
     });
-    
+
     return formatter.format(amount);
   },
 
@@ -48,16 +48,16 @@ export const formatUtils = {
    */
   formatFileSize: (bytes: number): string => {
     if (typeof bytes !== 'number') return '';
-    
+
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let size = bytes;
     let unitIndex = 0;
-    
+
     while (size >= 1024 && unitIndex < units.length - 1) {
       size /= 1024;
       unitIndex++;
     }
-    
+
     return `${size.toFixed(1)} ${units[unitIndex]}`;
   },
 
@@ -68,13 +68,13 @@ export const formatUtils = {
    */
   formatBankAccount: (accountNumber: string): string => {
     if (!accountNumber) return '';
-    
+
     if (accountNumber.length <= 4) return accountNumber;
-    
+
     const first = accountNumber.slice(0, 2);
     const last = accountNumber.slice(-2);
     const middle = '*'.repeat(accountNumber.length - 4);
-    
+
     return `${first}${middle}${last}`;
   },
 
@@ -85,13 +85,13 @@ export const formatUtils = {
    */
   formatIDNumber: (idNumber: string): string => {
     if (!idNumber) return '';
-    
+
     if (idNumber.length <= 6) return idNumber;
-    
+
     const first = idNumber.slice(0, 3);
     const last = idNumber.slice(-3);
     const middle = '*'.repeat(idNumber.length - 6);
-    
+
     return `${first}${middle}${last}`;
   },
 
@@ -102,18 +102,28 @@ export const formatUtils = {
    */
   formatStatus: (status: string): string => {
     if (!status) return '';
-    
+
     const statusMap: { [key: string]: string } = {
-      'active': 'Active',
-      'inactive': 'Inactive',
-      'pending': 'Pending',
-      'approved': 'Approved',
-      'rejected': 'Rejected',
-      'completed': 'Completed',
-      'cancelled': 'Cancelled',
-      'draft': 'Draft'
+      active: 'Active',
+      inactive: 'Inactive',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+      draft: 'Draft'
     };
-    
+
     return statusMap[status.toLowerCase()] || status;
+  },
+
+  /**
+   * Format role name with proper casing
+   * @param role - Role string
+   * @returns Formatted role name
+   */
+  formatRoleName: (role: string): string => {
+    if (!role) return '';
+    return role.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   }
 };
