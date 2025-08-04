@@ -1,6 +1,7 @@
 import Scrollbar from '@/components/Scrollbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarContext } from '@/contexts/SidebarContext';
+import { formatUtils } from '@/utils/formatUtils';
 import NextLink from 'next/link';
 import { useContext, useRef, useState } from 'react';
 
@@ -94,11 +95,13 @@ function Sidebar() {
   const { user: authUser, logout } = useAuth();
   const closeSidebar = () => toggleSidebar();
   const theme = useTheme();
-  
+
   const user = {
     name: authUser?.fullName || 'User',
     avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Administrator'
+    jobtitle: authUser?.role
+      ? formatUtils.formatRoleName(authUser.role)
+      : 'User'
   };
 
   const ref = useRef<any>(null);
@@ -166,9 +169,9 @@ function Sidebar() {
         />
         <Box px={2} py={0.9}>
           <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-            <Avatar 
-              variant="rounded" 
-              alt={user.name} 
+            <Avatar
+              variant="rounded"
+              alt={user.name}
               src={user.avatar}
               sx={{ width: 32, height: 32 }}
             />
@@ -178,7 +181,9 @@ function Sidebar() {
                 {user.jobtitle}
               </UserBoxDescription>
             </UserBoxText>
-            <ExpandMoreTwoToneIcon sx={{ ml: 'auto', color: theme.colors.alpha.trueWhite[50] }} />
+            <ExpandMoreTwoToneIcon
+              sx={{ ml: 'auto', color: theme.colors.alpha.trueWhite[50] }}
+            />
           </UserBoxButton>
           <Popover
             anchorEl={ref.current}
@@ -196,10 +201,16 @@ function Sidebar() {
             <MenuUserBox sx={{ minWidth: 210 }} display="flex">
               <Avatar variant="rounded" alt={user.name} src={user.avatar} />
               <UserBoxText>
-                <UserBoxLabel variant="body1" sx={{ color: theme.palette.text.primary }}>
+                <UserBoxLabel
+                  variant="body1"
+                  sx={{ color: theme.palette.text.primary }}
+                >
                   {user.name}
                 </UserBoxLabel>
-                <UserBoxDescription variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                <UserBoxDescription
+                  variant="body2"
+                  sx={{ color: theme.palette.text.secondary }}
+                >
                   {user.jobtitle}
                 </UserBoxDescription>
               </UserBoxText>
@@ -280,9 +291,9 @@ function Sidebar() {
           />
           <Box p={2} pb={8}>
             <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-              <Avatar 
-                variant="rounded" 
-                alt={user.name} 
+              <Avatar
+                variant="rounded"
+                alt={user.name}
                 src={user.avatar}
                 sx={{ width: 32, height: 32 }}
               />
@@ -292,7 +303,9 @@ function Sidebar() {
                   {user.jobtitle}
                 </UserBoxDescription>
               </UserBoxText>
-              <ExpandMoreTwoToneIcon sx={{ ml: 'auto', color: theme.colors.alpha.trueWhite[50] }} />
+              <ExpandMoreTwoToneIcon
+                sx={{ ml: 'auto', color: theme.colors.alpha.trueWhite[50] }}
+              />
             </UserBoxButton>
           </Box>
         </SidebarWrapper>
