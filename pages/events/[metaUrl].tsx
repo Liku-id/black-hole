@@ -42,8 +42,7 @@ import {
   Tabs,
   TextField,
   Typography,
-  useTheme,
-  TablePagination
+  useTheme
 } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -122,12 +121,12 @@ function EventDetail() {
     }
   }, [eventDetail?.id]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
   const handleListTabChange = (
-    event: React.SyntheticEvent,
+    _event: React.SyntheticEvent,
     newValue: number
   ) => {
     setListTabValue(newValue);
