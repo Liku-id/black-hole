@@ -5,6 +5,7 @@ import TicketListTable from '@/components/TicketListTable';
 import TransactionsTable from '@/components/TransactionsTable';
 import { useEventDetail } from '@/hooks/useEventDetail';
 import { useTickets } from '@/hooks/useTickets';
+import { useTransactions } from '@/hooks/useTransactions';
 import SidebarLayout from '@/layouts/SidebarLayout';
 import { formatIndonesianDateTime, formatPhoneNumber } from '@/utils';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -85,6 +86,11 @@ function EventDetail() {
     search: ''
   });
 
+  const [transactionFilters, setTransactionFilters] = useState({
+    page: 0,
+    limit: 10
+  });
+
   const { eventDetail, loading, error, mutate } = useEventDetail(
     metaUrl as string
   );
@@ -95,10 +101,16 @@ function EventDetail() {
     error: ticketsError,
     mutate: mutateTickets,
     total: ticketsTotal,
-    totalPage: ticketsTotalPage,
     currentPage: ticketsCurrentPage,
     currentShow: ticketsCurrentShow
   } = useTickets(ticketFilters);
+
+  const {
+    data: transactionsData,
+    isLoading: transactionsLoading,
+    error: transactionsError,
+    refetch: mutateTransactions
+  } = useTransactions(eventDetail?.id || '', transactionFilters);
 
   // Update ticket filters when event detail is loaded
   useEffect(() => {
@@ -126,21 +138,6 @@ function EventDetail() {
       ...prev,
       search: event.target.value,
       page: 0 // Reset to first page when searching
-    }));
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setTicketFilters((prev) => ({
-      ...prev,
-      page: newPage
-    }));
-  };
-
-  const handleShowChange = (newShow: number) => {
-    setTicketFilters((prev) => ({
-      ...prev,
-      show: newShow,
-      page: 0 // Reset to first page when changing show size
     }));
   };
 
@@ -935,51 +932,72 @@ function EventDetail() {
             </Box>
 
             <TabPanel value={listTabValue} index={0}>
-              {ticketsError && (
+              {transactionsError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Failed to load tickets
+                    Failed to load transactions
                   </Typography>
-                  <Typography variant="body2">{ticketsError}</Typography>
+                  <Typography variant="body2">{transactionsError}</Typography>
                 </Alert>
               )}
-              {ticketsLoading && (
+              {transactionsLoading && (
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
-                  <Typography>Loading tickets...</Typography>
+                  <Typography>Loading transactions...</Typography>
                 </Box>
               )}
               <TransactionsTable
-                transactions={tickets.map((ticket) => ({
-                  id: ticket.id,
-                  orderId: ticket.transaction_id,
-                  customerName: ticket.visitor_name,
-                  customerEmail: 'N/A', // Not available in ticket data
-                  ticketType: ticket.ticket_name,
-                  quantity: 1, // Each ticket represents 1 quantity
-                  totalAmount: 0, // Not available in ticket data
-                  paymentMethod: 'N/A', // Not available in ticket data
-                  status: (() => {
-                    // Map ticket status to transaction status
-                    switch (ticket.ticket_status.toLowerCase()) {
-                      case 'active':
-                      case 'issued':
-                        return 'completed';
-                      case 'pending':
-                        return 'pending';
-                      case 'cancelled':
-                      case 'expired':
-                        return 'cancelled';
-                      case 'failed':
-                        return 'failed';
-                      default:
-                        return 'pending';
-                    }
-                  })(),
-                  transactionDate: ticket.created_at,
-                  paymentDate: ticket.issued_at || undefined
-                }))}
-                loading={ticketsLoading}
-                onRefresh={mutateTickets}
+                transactions={
+                  transactionsData?.transactions?.map((transaction) => ({
+                    id: transaction.id,
+                    orderId: transaction.transactionNumber,
+                    customerName: 'N/A', // Not available in transaction data
+                    customerEmail: 'N/A', // Not available in transaction data
+                    ticketType: transaction.ticketType.name,
+                    quantity:
+                      transaction.orderQuantity ||
+                      transaction.ticketType.quantity,
+                    totalAmount:
+                      transaction.paymentBreakdown?.totalPrice ||
+                      transaction.ticketType.price,
+                    paymentMethod: transaction.paymentMethod.name,
+                    status: (() => {
+                      // Map transaction status to transaction status
+                      switch (transaction.status.toLowerCase()) {
+                        case 'success':
+                        case 'completed':
+                          return 'completed';
+                        case 'pending':
+                          return 'pending';
+                        case 'cancelled':
+                        case 'expired':
+                          return 'cancelled';
+                        case 'failed':
+                          return 'failed';
+                        default:
+                          return 'pending';
+                      }
+                    })(),
+                    transactionDate: transaction.createdAt,
+                    paymentDate: transaction.createdAt,
+                    paymentBreakdown: transaction.paymentBreakdown
+                  })) || []
+                }
+                loading={transactionsLoading}
+                onRefresh={mutateTransactions}
+                pagination={transactionsData?.pagination}
+                onPageChange={(newPage) => {
+                  setTransactionFilters((prev) => ({
+                    ...prev,
+                    page: newPage
+                  }));
+                }}
+                onLimitChange={(newLimit) => {
+                  setTransactionFilters((prev) => ({
+                    ...prev,
+                    limit: newLimit,
+                    page: 0
+                  }));
+                }}
               />
             </TabPanel>
 
@@ -1030,24 +1048,30 @@ function EventDetail() {
                 }))}
                 loading={ticketsLoading}
                 onRefresh={mutateTickets}
+                pagination={{
+                  currentPage: ticketsCurrentPage,
+                  totalItems: ticketsTotal,
+                  limit: ticketsCurrentShow,
+                  totalPages: Math.ceil(ticketsTotal / ticketsCurrentShow),
+                  hasNext:
+                    ticketsCurrentPage <
+                    Math.ceil(ticketsTotal / ticketsCurrentShow) - 1,
+                  hasPrev: ticketsCurrentPage > 0
+                }}
+                onPageChange={(newPage) => {
+                  setTicketFilters((prev) => ({
+                    ...prev,
+                    page: newPage
+                  }));
+                }}
+                onLimitChange={(newLimit) => {
+                  setTicketFilters((prev) => ({
+                    ...prev,
+                    show: newLimit,
+                    page: 0
+                  }));
+                }}
               />
-              {!ticketsLoading && (
-                <Box
-                  sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}
-                >
-                  <TablePagination
-                    component="div"
-                    count={ticketsTotal}
-                    page={ticketsCurrentPage}
-                    onPageChange={(_, newPage) => handlePageChange(newPage)}
-                    rowsPerPage={ticketsCurrentShow}
-                    onRowsPerPageChange={(event) =>
-                      handleShowChange(parseInt(event.target.value, 10))
-                    }
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                  />
-                </Box>
-              )}
             </TabPanel>
           </Grid>
         </Grid>
