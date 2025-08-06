@@ -18,11 +18,15 @@ class TicketsService {
       const queryString = params.toString();
       const url = `/api/tickets${queryString ? `?${queryString}` : ''}`;
 
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_access_token');
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         }
       });
 
