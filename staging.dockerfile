@@ -21,7 +21,7 @@ FROM node:16-alpine AS runner
 
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=develop
 
 # Copy only necessary files from builder
 COPY --from=builder /app/package*.json ./
