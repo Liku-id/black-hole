@@ -409,7 +409,7 @@ const EventsTable: FC<EventsTableProps> = ({
                       <Box display="flex" gap={0.5} flexWrap="wrap">
                         {event.paymentMethods
                           .slice(0, 3)
-                          .map((method, _index) => (
+                          .map((method) => (
                             <Chip
                               key={method.id}
                               label={method.bank?.name || method.name}
