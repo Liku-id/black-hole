@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+    - echo "==> Login to Amazon ECR"
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+    - ECR_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+    - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+    - IMAGE_TAG=${COMMIT_HASH}
+
+  build:
+    commands:
+    - echo "==> Preparing for Docker build"
+    - echo "Workspace directory structure:"
+    - ls -la
+    - echo "==> Building Docker image"
+    - |
+      docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG -f staging.dockerfile .
+
+  post_build:
+    commands:
+    - echo "==> Pushing image to ECR"
+    - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+    - echo "==> Writing imagedefinitions.json"
+    - printf '[{"name":"%s","imageUri":"%s"}]' $IMAGE_REPO_NAME $ECR_REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+  - imagedefinitions.json
