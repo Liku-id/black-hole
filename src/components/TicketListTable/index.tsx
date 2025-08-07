@@ -42,6 +42,16 @@ interface TicketListTableProps {
   tickets: Ticket[];
   loading?: boolean;
   onRefresh?: () => void;
+  pagination?: {
+    currentPage: number;
+    totalItems: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  onPageChange?: (newPage: number) => void;
+  onLimitChange?: (newLimit: number) => void;
 }
 
 const getStatusColor = (status: Ticket['status']) => {
@@ -85,11 +95,12 @@ const formatPrice = (price: number) => {
 const TicketListTable: FC<TicketListTableProps> = ({
   tickets,
   loading = false,
-  onRefresh
+  onRefresh,
+  pagination,
+  onPageChange,
+  onLimitChange
 }) => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(10);
   const theme = useTheme();
 
   const handleSelectAllTickets = (
@@ -114,15 +125,13 @@ const TicketListTable: FC<TicketListTableProps> = ({
   };
 
   const handlePageChange = (_event: any, newPage: number): void => {
-    setPage(newPage);
+    onPageChange?.(newPage);
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
-    setPage(0);
+    const newLimit = parseInt(event.target.value);
+    onLimitChange?.(newLimit);
   };
-
-  const paginatedTickets = tickets.slice(page * limit, page * limit + limit);
   const selectedSomeTickets =
     selectedTickets.length > 0 && selectedTickets.length < tickets.length;
   const selectedAllTickets = selectedTickets.length === tickets.length;
@@ -240,7 +249,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTickets.map((ticket) => {
+            {tickets.map((ticket) => {
               const isTicketSelected = selectedTickets.includes(ticket.id);
               return (
                 <TableRow
@@ -390,21 +399,23 @@ const TicketListTable: FC<TicketListTableProps> = ({
           borderTop: `1px solid ${theme.palette.divider}`
         }}
       >
-        <TablePagination
-          component="div"
-          count={tickets.length}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
-          page={page}
-          rowsPerPage={limit}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          sx={{
-            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
-              {
-                fontWeight: 500
-              }
-          }}
-        />
+        {pagination && (
+          <TablePagination
+            component="div"
+            count={pagination.totalItems}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleLimitChange}
+            page={pagination.currentPage}
+            rowsPerPage={pagination.limit}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            sx={{
+              '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+                {
+                  fontWeight: 500
+                }
+            }}
+          />
+        )}
       </Box>
     </Card>
   );
