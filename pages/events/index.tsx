@@ -25,16 +25,7 @@ function Events() {
     page: 1
   });
 
-  const {
-    events,
-    loading,
-    error,
-    mutate,
-    total,
-    totalPage,
-    currentPage,
-    currentShow
-  } = useEvents(filters);
+  const { events, loading, error, mutate } = useEvents(filters);
 
   return (
     <>
