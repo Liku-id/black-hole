@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { formatUtils } from '@/utils/formatUtils';
 import { useRef, useState } from 'react';
 
 import NextLink from 'next/link';
@@ -61,11 +62,13 @@ const UserBoxDescription = styled(Typography)(
 
 function HeaderUserbox() {
   const { user: authUser, logout } = useAuth();
-  
+
   const user = {
     name: authUser?.fullName || 'User',
     avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Administrator'
+    jobtitle: authUser?.role
+      ? formatUtils.formatRoleName(authUser.role)
+      : 'User'
   };
 
   const ref = useRef<any>(null);

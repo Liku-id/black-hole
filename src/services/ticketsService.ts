@@ -1,12 +1,27 @@
-import { EventOrganizersResponse } from '@/types/organizer';
+import { TicketsFilters, TicketsResponse } from '@/types/ticket';
 
-class OrganizersService {
-  async getEventOrganizers(): Promise<EventOrganizersResponse> {
+class TicketsService {
+  async getTickets(filters: TicketsFilters): Promise<TicketsResponse> {
     try {
+      const params = new URLSearchParams();
+
+      // Required parameters
+      params.append('eventId', filters.eventId);
+
+      // Optional parameters
+      if (filters.page !== undefined)
+        params.append('page', filters.page.toString());
+      if (filters.show !== undefined)
+        params.append('show', filters.show.toString());
+      if (filters.search) params.append('search', filters.search);
+
+      const queryString = params.toString();
+      const url = `/api/tickets${queryString ? `?${queryString}` : ''}`;
+
       // Get auth token from localStorage
       const token = localStorage.getItem('auth_access_token');
 
-      const response = await fetch(`/api/organizers`, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -16,7 +31,7 @@ class OrganizersService {
       });
 
       if (!response.ok) {
-        let errorMessage = 'Failed to fetch event organizers';
+        let errorMessage = 'Failed to fetch tickets';
 
         try {
           const errorData = await response.json();
@@ -38,10 +53,10 @@ class OrganizersService {
       const responseData = await response.json();
       return responseData;
     } catch (error) {
-      console.error('Error fetching event organizers:', error);
+      console.error('Error fetching tickets:', error);
       throw error;
     }
   }
 }
 
-export default new OrganizersService();
+export default new TicketsService();

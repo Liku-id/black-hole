@@ -1,8 +1,3 @@
-export interface City {
-  id: string;
-  name: string;
-}
-
 export interface Bank {
   id: string;
   name: string;
@@ -20,17 +15,18 @@ export interface PaymentMethod {
   bankId: string;
   requestType: string;
   paymentCode: string;
+  paymentMethodFee: number;
   channelProperties: Record<string, any>;
   rules: string[];
-  bank: Bank | null;
+  bank: Bank;
 }
 
 export interface TicketType {
   id: string;
   name: string;
-  quantity: string;
+  quantity: number;
   description: string;
-  price: string;
+  price: number;
   event_id: string;
   max_order_quantity: number;
   color_hex: string;
@@ -41,6 +37,8 @@ export interface TicketType {
   created_at: string;
   updated_at: string;
   deleted_at: string;
+  ticketStartDate: string;
+  ticketEndDate: string;
 }
 
 export interface Asset {
@@ -61,25 +59,6 @@ export interface EventAsset {
   asset: Asset;
 }
 
-export interface Event {
-  id: string;
-  name: string;
-  eventType: string;
-  eventOrganizerName: string;
-  description: string;
-  address: string;
-  mapLocationUrl: string;
-  metaUrl: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
-  city: City;
-  paymentMethods: PaymentMethod[];
-  lowestPriceTicketType: TicketType;
-  eventAssets: EventAsset[];
-}
-
-// Event Detail specific interfaces
 export interface EventOrganizer {
   id: string;
   bank_information_id: string;
@@ -121,16 +100,17 @@ export interface EventOrganizer {
   npwpPhoto: Asset | null;
 }
 
-export interface Ticket {
-  // Add ticket interface if needed
+export interface City {
+  id: string;
+  name: string;
 }
 
 export interface FeeThreshold {
   threshold: string;
-  platformFee: string;
+  platformFee: number;
 }
 
-export interface EventDetail {
+export interface Event {
   id: string;
   name: string;
   eventType: string;
@@ -145,9 +125,8 @@ export interface EventDetail {
   websiteUrl: string;
   createdAt: string;
   updatedAt: string;
-  deletedAt: string | null;
+  deletedAt: string;
   ticketTypes: TicketType[];
-  tickets: Ticket[];
   city: City;
   eventOrganizer: EventOrganizer;
   paymentMethods: PaymentMethod[];
@@ -156,28 +135,96 @@ export interface EventDetail {
   eventAssets: EventAsset[];
 }
 
-export interface EventDetailResponse {
+export interface VirtualAccount {
+  id: string;
+  externalId: string;
+  ownerId: string;
+  bankCode: string;
+  merchantCode: string;
+  accountNumber: string;
+  name: string;
+  currency: string;
+  isSingleUse: boolean;
+  isClosed: boolean;
+  expectedAmount: number;
+  suggestedAmount: number;
+  expirationDate: string;
+  description: string;
+  status: string;
+  alternativeDisplays: Array<{
+    type: string;
+    data: string;
+  }>;
+}
+
+export interface QrisPayment {
+  id: string;
+  referenceId: string;
+  businessId: string;
+  type: string;
+  currency: string;
+  amount: number;
+  channelCode: string;
+  status: string;
+  qrString: string;
+  expiresAt: string;
+  created: string;
+  updated: string;
+  metadata: Record<string, any>;
+}
+
+export interface PaymentDetails {
+  va?: VirtualAccount;
+  qris?: QrisPayment;
+}
+
+export interface PaymentBreakdown {
+  basedPrice: number;
+  fee: number;
+  tax: number;
+  totalPrice: number;
+}
+
+export interface Transaction {
+  id: string;
+  transactionNumber: string;
+  expiresAt: string;
+  createdAt: string;
+  status: string;
+  paymentMethod: PaymentMethod;
+  ticketType: TicketType;
+  event: Event;
+  paymentDetails: PaymentDetails;
+  orderQuantity: number;
+  paymentBreakdown: PaymentBreakdown;
+}
+
+export interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  limit: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface TransactionsResponse {
   statusCode: number;
   message: string;
-  body: EventDetail;
+  transactions: Transaction[];
+  pagination: Pagination;
 }
 
-export interface EventsResponse {
-  message: string;
-  body: {
-    events: Event[];
-    show: number;
-    page: number;
-    total: string;
-    totalPage: number;
-  };
-}
-
-export interface EventsFilters {
-  show?: number;
+export interface TransactionsFilters {
   page?: number;
-  cityId?: string;
-  name?: string;
-  startDate?: string;
-  endDate?: string;
+  limit?: number;
+}
+
+export interface TransactionError {
+  code: number;
+  message: string;
+  details: Array<{
+    '@type': string;
+    [key: string]: any;
+  }>;
 }

@@ -43,12 +43,28 @@ export interface Transaction {
   paymentDate?: string;
   refundAmount?: number;
   refundDate?: string;
+  paymentBreakdown?: {
+    basedPrice: number;
+    fee: number;
+    tax: number;
+    totalPrice: number;
+  };
 }
 
 interface TransactionsTableProps {
   transactions: Transaction[];
   loading?: boolean;
   onRefresh?: () => void;
+  pagination?: {
+    currentPage: number;
+    totalItems: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  onPageChange?: (newPage: number) => void;
+  onLimitChange?: (newLimit: number) => void;
 }
 
 const getStatusColor = (status: Transaction['status']) => {
@@ -92,13 +108,14 @@ const formatPrice = (price: number) => {
 const TransactionsTable: FC<TransactionsTableProps> = ({
   transactions,
   loading = false,
-  onRefresh
+  onRefresh,
+  pagination,
+  onPageChange,
+  onLimitChange
 }) => {
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>(
     []
   );
-  const [page, setPage] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(10);
   const theme = useTheme();
 
   const handleSelectAllTransactions = (
@@ -128,18 +145,13 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
   };
 
   const handlePageChange = (_event: any, newPage: number): void => {
-    setPage(newPage);
+    onPageChange?.(newPage);
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
-    setPage(0);
+    const newLimit = parseInt(event.target.value);
+    onLimitChange?.(newLimit);
   };
-
-  const paginatedTransactions = transactions.slice(
-    page * limit,
-    page * limit + limit
-  );
   const selectedSomeTransactions =
     selectedTransactions.length > 0 &&
     selectedTransactions.length < transactions.length;
@@ -234,15 +246,16 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   Payment Info
                 </Typography>
               </TableCell>
+
               <TableCell
                 sx={{
                   backgroundColor: theme.palette.grey[50],
                   fontWeight: 600,
-                  minWidth: 150
+                  minWidth: 180
                 }}
               >
                 <Typography variant="subtitle2" fontWeight="bold">
-                  Amount
+                  Payment Breakdown
                 </Typography>
               </TableCell>
               <TableCell
@@ -282,7 +295,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTransactions.map((transaction) => {
+            {transactions.map((transaction) => {
               const isTransactionSelected = selectedTransactions.includes(
                 transaction.id
               );
@@ -400,22 +413,68 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                       )}
                     </Box>
                   </TableCell>
+
                   <TableCell>
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        color="primary"
-                        noWrap
-                      >
-                        {formatPrice(transaction.totalAmount)}
-                      </Typography>
-                      {transaction.refundAmount && (
-                        <Typography variant="caption" color="error" noWrap>
-                          Refund: {formatPrice(transaction.refundAmount)}
+                    {transaction.paymentBreakdown ? (
+                      <Box>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                        >
+                          Base:{' '}
+                          {formatPrice(transaction.paymentBreakdown.basedPrice)}
                         </Typography>
-                      )}
-                    </Box>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                        >
+                          Fee: {formatPrice(transaction.paymentBreakdown.fee)}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                        >
+                          Tax: {formatPrice(transaction.paymentBreakdown.tax)}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          fontWeight="bold"
+                          color="success.main"
+                          display="block"
+                        >
+                          Total:{' '}
+                          {formatPrice(transaction.paymentBreakdown.totalPrice)}
+                        </Typography>
+                        {transaction.refundAmount && (
+                          <Typography
+                            variant="caption"
+                            color="error"
+                            display="block"
+                          >
+                            Refund: {formatPrice(transaction.refundAmount)}
+                          </Typography>
+                        )}
+                      </Box>
+                    ) : (
+                      <Box>
+                        <Typography
+                          variant="body2"
+                          fontWeight="bold"
+                          color="primary"
+                          noWrap
+                        >
+                          {formatPrice(transaction.totalAmount)}
+                        </Typography>
+                        {transaction.refundAmount && (
+                          <Typography variant="caption" color="error" noWrap>
+                            Refund: {formatPrice(transaction.refundAmount)}
+                          </Typography>
+                        )}
+                      </Box>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -504,21 +563,23 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
           borderTop: `1px solid ${theme.palette.divider}`
         }}
       >
-        <TablePagination
-          component="div"
-          count={transactions.length}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
-          page={page}
-          rowsPerPage={limit}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          sx={{
-            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
-              {
-                fontWeight: 500
-              }
-          }}
-        />
+        {pagination && (
+          <TablePagination
+            component="div"
+            count={pagination.totalItems}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleLimitChange}
+            page={pagination.currentPage}
+            rowsPerPage={pagination.limit}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            sx={{
+              '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+                {
+                  fontWeight: 500
+                }
+            }}
+          />
+        )}
       </Box>
     </Card>
   );

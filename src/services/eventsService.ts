@@ -19,11 +19,15 @@ class EventsService {
       const queryString = params.toString();
       const url = `/api/events${queryString ? `?${queryString}` : ''}`;
 
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_access_token');
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         }
       });
 
@@ -57,11 +61,15 @@ class EventsService {
 
   async getEventDetail(metaUrl: string): Promise<EventDetailResponse> {
     try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_access_token');
+
       const response = await fetch(`/api/events/${metaUrl}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         }
       });
 

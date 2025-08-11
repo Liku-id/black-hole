@@ -1,10 +1,7 @@
 import { formatIndonesianDateTime } from '@/utils';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import PersonIcon from '@mui/icons-material/Person';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import VisibilityTwoToneIcon from '@mui/icons-material/VisibilityTwoTone';
 import {
   Avatar,
   Box,
@@ -14,7 +11,6 @@ import {
   Checkbox,
   Chip,
   Divider,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -22,7 +18,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip,
   Typography,
   useTheme
 } from '@mui/material';
@@ -47,6 +42,16 @@ interface TicketListTableProps {
   tickets: Ticket[];
   loading?: boolean;
   onRefresh?: () => void;
+  pagination?: {
+    currentPage: number;
+    totalItems: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  onPageChange?: (newPage: number) => void;
+  onLimitChange?: (newLimit: number) => void;
 }
 
 const getStatusColor = (status: Ticket['status']) => {
@@ -90,11 +95,12 @@ const formatPrice = (price: number) => {
 const TicketListTable: FC<TicketListTableProps> = ({
   tickets,
   loading = false,
-  onRefresh
+  onRefresh,
+  pagination,
+  onPageChange,
+  onLimitChange
 }) => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(10);
   const theme = useTheme();
 
   const handleSelectAllTickets = (
@@ -119,15 +125,13 @@ const TicketListTable: FC<TicketListTableProps> = ({
   };
 
   const handlePageChange = (_event: any, newPage: number): void => {
-    setPage(newPage);
+    onPageChange?.(newPage);
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
-    setPage(0);
+    const newLimit = parseInt(event.target.value);
+    onLimitChange?.(newLimit);
   };
-
-  const paginatedTickets = tickets.slice(page * limit, page * limit + limit);
   const selectedSomeTickets =
     selectedTickets.length > 0 && selectedTickets.length < tickets.length;
   const selectedAllTickets = selectedTickets.length === tickets.length;
@@ -242,22 +246,10 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   Purchase Date
                 </Typography>
               </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  backgroundColor: theme.palette.grey[50],
-                  fontWeight: 600,
-                  minWidth: 120
-                }}
-              >
-                <Typography variant="subtitle2" fontWeight="bold">
-                  Actions
-                </Typography>
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTickets.map((ticket) => {
+            {tickets.map((ticket) => {
               const isTicketSelected = selectedTickets.includes(ticket.id);
               return (
                 <TableRow
@@ -394,55 +386,6 @@ const TicketListTable: FC<TicketListTableProps> = ({
                       )}
                     </Box>
                   </TableCell>
-                  <TableCell align="right">
-                    <Box display="flex" gap={0.5} justifyContent="flex-end">
-                      <Tooltip title="View Details" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.info.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.info.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <VisibilityTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit Ticket" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.primary.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.primary.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <EditTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Ticket" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.error.lighter,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.error.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                          size="small"
-                        >
-                          <DeleteTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
                 </TableRow>
               );
             })}
@@ -456,21 +399,23 @@ const TicketListTable: FC<TicketListTableProps> = ({
           borderTop: `1px solid ${theme.palette.divider}`
         }}
       >
-        <TablePagination
-          component="div"
-          count={tickets.length}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
-          page={page}
-          rowsPerPage={limit}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          sx={{
-            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
-              {
-                fontWeight: 500
-              }
-          }}
-        />
+        {pagination && (
+          <TablePagination
+            component="div"
+            count={pagination.totalItems}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleLimitChange}
+            page={pagination.currentPage}
+            rowsPerPage={pagination.limit}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            sx={{
+              '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+                {
+                  fontWeight: 500
+                }
+            }}
+          />
+        )}
       </Box>
     </Card>
   );
