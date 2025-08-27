@@ -3,6 +3,26 @@
  */
 export const formatUtils = {
   /**
+   * Format price for display (accepts both string and number)
+   * @param price - Price to format (string or number)
+   * @param currency - Currency code (default: IDR)
+   * @returns Formatted price string
+   */
+  formatPrice: (price: string | number, currency: string = 'IDR'): string => {
+    const numPrice = typeof price === 'string' ? parseInt(price, 10) : price;
+    
+    if (isNaN(numPrice)) return '';
+
+    const formatter = new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0
+    });
+
+    return formatter.format(numPrice);
+  },
+
+  /**
    * Format currency for display
    * @param amount - Amount to format
    * @param currency - Currency code (default: IDR)

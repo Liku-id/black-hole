@@ -1,4 +1,4 @@
-import { formatIndonesianDateTime } from '@/utils';
+import { formatDateDDMMYYYY } from '@/utils';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -408,7 +408,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                           noWrap
                         >
                           Paid:{' '}
-                          {formatIndonesianDateTime(transaction.paymentDate)}
+                          {formatDateDDMMYYYY(transaction.paymentDate)}
                         </Typography>
                       )}
                     </Box>
@@ -487,7 +487,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   <TableCell>
                     <Box>
                       <Typography variant="body2" fontWeight="medium" noWrap>
-                        {formatIndonesianDateTime(transaction.transactionDate)}
+                        {formatDateDDMMYYYY(transaction.transactionDate)}
                       </Typography>
                       {transaction.refundDate && (
                         <Typography
@@ -496,7 +496,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                           noWrap
                         >
                           Refund:{' '}
-                          {formatIndonesianDateTime(transaction.refundDate)}
+                          {formatDateDDMMYYYY(transaction.refundDate)}
                         </Typography>
                       )}
                     </Box>
@@ -507,7 +507,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                         <IconButton
                           sx={{
                             '&:hover': {
-                              background: theme.colors.info.lighter,
+                              background: theme.palette.info.light,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.info.main,
@@ -522,7 +522,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                         <IconButton
                           sx={{
                             '&:hover': {
-                              background: theme.colors.primary.lighter,
+                              background: theme.palette.primary.light,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.primary.main,
@@ -537,7 +537,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                         <IconButton
                           sx={{
                             '&:hover': {
-                              background: theme.colors.error.lighter,
+                              background: theme.palette.error.light,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.error.main,

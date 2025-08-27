@@ -1,111 +1,45 @@
-import BaseLayout from '@/layouts/BaseLayout';
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
-import {
-    Box,
-    Button,
-    Card,
-    Container,
-    Divider,
-    FormControl,
-    InputAdornment,
-    OutlinedInput,
-    styled,
-    Typography
-} from '@mui/material';
-import Head from 'next/head';
-import type { ReactElement } from 'react';
+import { Box, Button, Container, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
 
-const MainContent = styled(Box)(
-  () => `
-    height: 100%;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-`
-);
+export default function Custom404() {
+  const router = useRouter();
 
-const TopWrapper = styled(Box)(
-  ({ theme }) => `
-  display: flex;
-  width: 100%;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: ${theme.spacing(6)};
-`
-);
-
-const OutlinedInputWrapper = styled(OutlinedInput)(
-  ({ theme }) => `
-    background-color: ${theme.colors.alpha.white[100]};
-`
-);
-
-const ButtonSearch = styled(Button)(
-  ({ theme }) => `
-    margin-right: -${theme.spacing(1)};
-`
-);
-
-function Status404() {
   return (
-    <>
-      <Head>
-        <title>Status - 404</title>
-      </Head>
-      <MainContent>
-        <TopWrapper>
-          <Container maxWidth="md">
-            <Box textAlign="center">
-              <img alt="404" height={180} src="/static/images/status/404.svg" />
-              <Typography variant="h2" sx={{ my: 2 }}>
-                The page you were looking for doesn't exist.
-              </Typography>
-              <Typography
-                variant="h4"
-                color="text.secondary"
-                fontWeight="normal"
-                sx={{ mb: 4 }}
-              >
-                It's on us, we moved the content to a different page. The search
-                below should help!
-              </Typography>
-            </Box>
-            <Container maxWidth="sm">
-              <Card sx={{ textAlign: 'center', mt: 3, p: 4 }}>
-                <FormControl variant="outlined" fullWidth>
-                  <OutlinedInputWrapper
-                    type="text"
-                    placeholder="Search terms here..."
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <ButtonSearch variant="contained" size="small">
-                          Search
-                        </ButtonSearch>
-                      </InputAdornment>
-                    }
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <SearchTwoToneIcon />
-                      </InputAdornment>
-                    }
-                  />
-                </FormControl>
-                <Divider sx={{ my: 4 }}>OR</Divider>
-                <Button href="/" variant="outlined">
-                  Go to homepage
-                </Button>
-              </Card>
-            </Container>
-          </Container>
-        </TopWrapper>
-      </MainContent>
-    </>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'background.default'
+      }}
+    >
+      <Container maxWidth="sm">
+        <Box textAlign="center">
+          <Typography variant="h1" sx={{ mb: 2, color: 'text.primary' }}>
+            404
+          </Typography>
+          <Typography variant="h4" sx={{ mb: 2, color: 'text.secondary' }}>
+            Page Not Found
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+            The page you are looking for does not exist.
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => router.push('/dashboard')}
+            sx={{ mr: 2 }}
+          >
+            Go to Dashboard
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => router.back()}
+          >
+            Go Back
+          </Button>
+        </Box>
+      </Container>
+    </Box>
   );
 }
-
-export default Status404;
-
-Status404.getLayout = function getLayout(page: ReactElement) {
-  return <BaseLayout>{page}</BaseLayout>;
-};

@@ -322,7 +322,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                         <IconButton
                           sx={{
                             '&:hover': {
-                              background: theme.colors.info.lighter,
+                              background: theme.palette.info.light,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.info.main,
@@ -337,7 +337,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                         <IconButton
                           sx={{
                             '&:hover': {
-                              background: theme.colors.primary.lighter,
+                              background: theme.palette.primary.lighter,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.primary.main,
@@ -352,7 +352,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                         <IconButton
                           sx={{
                             '&:hover': { 
-                              background: theme.colors.error.lighter,
+                              background: theme.palette.error.lighter,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.error.main,

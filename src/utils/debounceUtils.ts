@@ -1,0 +1,24 @@
+import { useCallback, useRef } from 'react';
+
+/**
+ * React hook that returns a debounced function
+ * @param callback - Function to debounce
+ * @param delay - Delay in milliseconds
+ * @returns Debounced function
+ */
+export const useDebouncedCallback = <T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  return useCallback(
+    (...args: Parameters<T>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => callback(...args), delay);
+    },
+    [callback, delay]
+  );
+};
