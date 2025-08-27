@@ -3,19 +3,14 @@ import { dateUtils } from './dateUtils';
 import { formatUtils } from './formatUtils';
 import { stringUtils } from './stringUtils';
 import { validationUtils } from './validationUtils';
+import { useDebouncedCallback } from './debounceUtils';
 
 export type { ValidationErrors } from './validationUtils';
-export { apiUtils, dateUtils, formatUtils, stringUtils, validationUtils };
+export { apiUtils, dateUtils, formatUtils, stringUtils, validationUtils, useDebouncedCallback };
 
 // Re-export commonly used utilities for easier access
 export const {
-  formatDate,
-  formatTime,
-  formatDateTime,
-  formatFullDateTime,
-  formatRelativeTime,
-  formatForAPI,
-  formatIndonesianDateTime
+  formatDateDDMMYYYY
 } = dateUtils;
 
 export const {
@@ -30,6 +25,7 @@ export const {
 } = stringUtils;
 
 export const {
+  formatPrice,
   formatCurrency,
   formatNumber,
   formatPercentage,

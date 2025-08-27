@@ -28,9 +28,9 @@ export interface PaymentMethod {
 export interface TicketType {
   id: string;
   name: string;
-  quantity: string;
+  quantity: number;
   description: string;
-  price: string;
+  price: number;
   event_id: string;
   max_order_quantity: number;
   color_hex: string;
@@ -41,6 +41,8 @@ export interface TicketType {
   created_at: string;
   updated_at: string;
   deleted_at: string;
+  ticketStartDate: string;
+  ticketEndDate: string;
 }
 
 export interface Asset {

@@ -1,13 +1,8 @@
-import Footer from '@/components/Footer';
-import PageTitle from '@/components/PageTitle';
-import PageTitleWrapper from '@/components/PageTitleWrapper';
-import TicketListTable from '@/components/TicketListTable';
+import TicketListTable from '@/components/features/tickets/table';
 import TransactionsTable from '@/components/TransactionsTable';
-import { useEventDetail } from '@/hooks/useEventDetail';
-import { useTickets } from '@/hooks/useTickets';
-import { useTransactions } from '@/hooks/useTransactions';
-import SidebarLayout from '@/layouts/SidebarLayout';
-import { formatIndonesianDateTime, formatPhoneNumber } from '@/utils';
+import { useEventDetail, useTickets, useTransactions } from '@/hooks';
+import DashboardLayout from '@/layouts/dashboard';
+import { dateUtils, formatPrice, formatPhoneNumber } from '@/utils';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -140,13 +135,7 @@ function EventDetail() {
     }));
   };
 
-  const formatPrice = (price: string) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(parseInt(price));
-  };
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -161,16 +150,10 @@ function EventDetail() {
 
   if (loading) {
     return (
-      <>
+      <DashboardLayout>
         <Head>
           <title>Loading Event - Wukong Backoffice</title>
         </Head>
-        <PageTitleWrapper>
-          <PageTitle
-            heading="Event Detail"
-            subHeading="Loading event information..."
-          />
-        </PageTitleWrapper>
         <Container maxWidth="lg">
           <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -187,23 +170,16 @@ function EventDetail() {
             </Grid>
           </Grid>
         </Container>
-        <Footer />
-      </>
+      </DashboardLayout>
     );
   }
 
   if (error || !eventDetail) {
     return (
-      <>
+      <DashboardLayout>
         <Head>
           <title>Event Not Found - Wukong Backoffice</title>
         </Head>
-        <PageTitleWrapper>
-          <PageTitle
-            heading="Event Not Found"
-            subHeading="The requested event could not be found"
-          />
-        </PageTitleWrapper>
         <Container maxWidth="lg">
           <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -223,8 +199,7 @@ function EventDetail() {
             </Grid>
           </Grid>
         </Container>
-        <Footer />
-      </>
+      </DashboardLayout>
     );
   }
 
@@ -235,18 +210,16 @@ function EventDetail() {
       <Head>
         <title>{eventDetail.name} - Wukong Backoffice</title>
       </Head>
-      <PageTitleWrapper>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => router.push('/events')}
-            sx={{ borderRadius: 2 }}
-          >
-            Back to Events
-          </Button>
-        </Box>
-      </PageTitleWrapper>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => router.push('/events')}
+          sx={{ borderRadius: 2 }}
+        >
+          Back to Events
+        </Button>
+      </Box>
 
       <Container maxWidth="lg">
         <Grid container spacing={3} alignItems="stretch">
@@ -859,7 +832,7 @@ function EventDetail() {
                       Created
                     </Typography>
                     <Typography variant="body1">
-                      {formatIndonesianDateTime(eventDetail.createdAt)}
+                      {dateUtils.formatDateDDMMYYYY(eventDetail.createdAt)}
                     </Typography>
                   </Box>
                 </Stack>
@@ -1131,7 +1104,7 @@ function EventDetail() {
                     PIC Name
                   </Typography>
                   <Typography variant="body1">
-                    {eventDetail.eventOrganizer.event_organizer_pic ||
+                    {eventDetail.eventOrganizer.event_organizer_pic?.name ||
                       'Not specified'}
                   </Typography>
                 </Box>
@@ -1243,14 +1216,12 @@ function EventDetail() {
           </Grid>
         </DialogContent>
       </Dialog>
-
-      <Footer />
     </>
   );
 }
 
 EventDetail.getLayout = (page: ReactElement) => (
-  <SidebarLayout>{page}</SidebarLayout>
+  <DashboardLayout>{page}</DashboardLayout>
 );
 
 export default EventDetail;

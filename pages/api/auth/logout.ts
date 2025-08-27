@@ -9,11 +9,27 @@ export default async function handler(
   }
 
   try {
+    const { userId } = req.body;
+
+    // Mock logout for development/testing
+    if (!process.env.BACKEND_URL) {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const mockResponse = {
+        message: 'Logout successful'
+      };
+      
+      return res.status(200).json(mockResponse);
+    }
+
+    // Real backend call
     const response = await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({ userId })
     });
 
     const data = await response.json();

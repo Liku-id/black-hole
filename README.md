@@ -1,113 +1,151 @@
-# Wukong Backoffice
+# Black Hole - Creator Dashboard
 
-> A modern Next.js admin dashboard for event management with comprehensive organizer system
+A clean and modern creator dashboard built with Next.js 14, TypeScript, and Material-UI.
 
-## 🚀 Quick Start
+## 🚀 Tech Stack
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd black-hole
+- **Framework**: Next.js 14
+- **Language**: TypeScript
+- **UI Library**: Material-UI v5
+- **Styling**: Emotion (built-in with MUI)
+- **State Management**: React Context API
+- **Data Fetching**: SWR
+- **Forms**: React Hook Form
 
-# Install dependencies
-npm install
+## 📦 Dependencies
 
-# Configure environment
-cp .env.local.example .env.local
-# Edit .env.local with your backend URL
+### Core
+- `next`: ^14.0.4
+- `react`: ^18.2.0
+- `react-dom`: ^18.2.0
+- `typescript`: ^5.3.3
 
-# Start development server
-npm run dev
+### UI & Styling
+- `@mui/material`: ^5.15.0
+- `@mui/icons-material`: ^5.15.0
+- `@emotion/react`: ^11.11.1
+- `@emotion/styled`: ^11.11.0
+- `@emotion/cache`: ^11.11.0
+- `@emotion/server`: ^11.11.0
+
+### Utilities
+- `swr`: ^2.2.4
+- `react-hook-form`: ^7.48.2
+- `date-fns`: ^2.30.0
+
+## 🏗️ Project Structure
+
+```
+black-hole/
+├── pages/                 # Next.js pages
+│   ├── _app.tsx          # App wrapper with providers
+│   ├── index.tsx         # Home page (redirects to dashboard)
+│   ├── dashboard/        # Dashboard pages
+│   ├── events/           # Event management pages
+│   ├── organizers/       # Organizer management pages
+│   ├── tickets/          # Ticket management pages
+│   ├── transactions/     # Transaction pages
+│   └── api/              # API routes
+├── src/
+│   ├── components/       # Reusable components
+│   ├── contexts/         # React contexts
+│   ├── hooks/            # Custom hooks
+│   ├── layouts/          # Layout components
+│   ├── services/         # API services
+│   ├── theme/            # Theme configuration
+│   ├── types/            # TypeScript types
+│   └── utils/            # Utility functions
+└── public/               # Static assets
 ```
 
-## 📚 Documentation
+## 🎨 Theme
 
-**For complete documentation, please see [DOCUMENTATION.md](./DOCUMENTATION.md)**
+The project uses a clean Material-UI theme with:
+- Light mode by default
+- Primary color: #1976d2 (Blue)
+- Secondary color: #dc004e (Red)
+- Clean typography with Roboto font
+- Responsive design
 
-The comprehensive documentation includes:
+## 🚀 Getting Started
 
-- 🎯 **Project Overview** - Architecture and tech stack
-- 🚀 **Quick Start Guide** - Setup and installation
-- ✨ **Features Overview** - Complete feature list
-- 🔗 **API Integration** - Backend integration guide
-- 🛠️ **Global Utilities** - Utility functions reference
-- 👥 **Event Organizers System** - Complete system guide
-- 💻 **Development Guide** - Coding standards and workflow
-- 🚀 **Build & Deployment** - Production deployment guide
-- 📊 **Performance Analysis** - Bundle analysis and optimization
-- 🐛 **Troubleshooting** - Common issues and solutions
-- 🔄 **Upgrade Plan** - Migration strategy to latest versions
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-## 🛠️ Tech Stack
+2. **Run development server**:
+   ```bash
+   npm run dev
+   ```
 
-- **Next.js** 12.1.6 - React framework
-- **TypeScript** 4.7.3 - Type safety
-- **Material-UI** 5.8.2 - UI components
-- **SWR** 2.3.4 - Data fetching
-- **Emotion** 11.7.1 - CSS-in-JS
+3. **Open your browser**:
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 📋 Features
+## 📝 Available Scripts
 
-- 📊 **Dashboard** - Real-time analytics
-- 👥 **User Management** - Authentication system
-- 🎯 **Event Management** - Complete event lifecycle
-- 🏢 **Organizer Management** - Comprehensive organizer system
-- 📱 **Responsive Design** - Mobile-first approach
-- 🌙 **Theme System** - Light/dark mode support
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run lint-fix` - Fix ESLint issues
 
-## 🔧 Development
+## 🎯 Features
 
-```bash
-# Development server
-npm run dev
+- **Clean Architecture**: Simplified codebase without template bloat
+- **Responsive Design**: Works on desktop and mobile
+- **Type Safety**: Full TypeScript support
+- **Modern UI**: Material-UI components with clean design
+- **Fast Development**: Hot reload and optimized build process
 
-# Production build
-npm run build
+## 🔧 Customization
 
-# Type checking
-npm run type-check
+### Adding New Pages
+1. Create a new file in `pages/` directory
+2. Use `DashboardLayout` for consistent navigation
+3. Add menu item in `src/layouts/DashboardLayout.tsx`
 
-# Linting
-npm run lint
-```
+### Styling
+- Use Material-UI's `sx` prop for component styling
+- Create custom themes in `src/theme/base.ts`
+- Use `styled` from `@emotion/styled` for complex components
 
-## 📊 Performance
+### State Management
+- Use React Context for global state
+- Use SWR for server state management
+- Use React Hook Form for form state
 
-Current bundle sizes:
-- Homepage: 192 kB (Good)
-- Dashboard: 144 kB (Excellent)
-- Events: 192 kB (Good)
-- Login: 192 kB (Good)
-- Organizers: 226 kB (Attention, but acceptable)
+## 📱 Responsive Design
 
-## 🚀 Deployment
+The dashboard is fully responsive with:
+- Mobile-first approach
+- Collapsible sidebar on mobile
+- Touch-friendly interface
+- Optimized for all screen sizes
 
-The application is optimized for production deployment with:
+## 🔒 Authentication
 
-- ✅ Static generation for fast loading
-- ✅ Code splitting for optimal bundles
-- ✅ Image optimization
-- ✅ TypeScript compilation
-- ✅ Performance monitoring ready
+Authentication is handled through:
+- `AuthContext` for global auth state
+- `ProtectedRoute` component for route protection
+- API routes for login/logout functionality
 
-## 📖 Learn More
+## 🎨 Design System
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Material-UI Documentation](https://mui.com/)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+The project follows Material Design principles:
+- Consistent spacing and typography
+- Clear visual hierarchy
+- Accessible color contrast
+- Intuitive navigation patterns
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests and documentation
-5. Submit a pull request
+1. Follow the existing code structure
+2. Use TypeScript for all new code
+3. Follow Material-UI best practices
+4. Test on multiple screen sizes
+5. Ensure accessibility standards
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
-
----
-
-**For detailed documentation, please refer to [DOCUMENTATION.md](./DOCUMENTATION.md)**
+This project is licensed under the MIT License.

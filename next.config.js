@@ -1,48 +1,40 @@
-const withImages = require('next-images');
-
-const redirects = {
-  async redirects() {
-    return [
-      {
-        source: '/dashboards',
-        destination: '/dashboards/crypto',
-        permanent: true
-      }
-    ];
-  }
-};
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  ...redirects,
-  // Exclude demo-reference folder from build
+  // Enable TypeScript and JSX
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
   
-  // Ignore demo-reference folder during development and build
+  // Webpack configuration
   webpack: (config, { dev, isServer }) => {
-    // Exclude demo-reference folder from webpack compilation
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: [
-        '**/node_modules/**',
-        '**/demo-reference/**',
-        '**/.git/**',
-        '**/.next/**'
-      ]
-    };
-
-    // Add resolve alias to ignore demo-reference imports
+    // Add resolve alias for cleaner imports
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@/demo-reference': false
+      '@': require('path').resolve(__dirname, 'src'),
     };
 
     return config;
   },
 
-  // Exclude demo-reference from page routing
-  async rewrites() {
-    return [];
-  }
+  // Redirects
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/dashboard',
+        permanent: false
+      }
+    ];
+  },
+
+  // Environment variables
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+
+  // Image optimization (Next.js built-in)
+  images: {
+    domains: [],
+    formats: ['image/webp', 'image/avif'],
+  },
 };
 
-module.exports = withImages(nextConfig);
+module.exports = nextConfig;
