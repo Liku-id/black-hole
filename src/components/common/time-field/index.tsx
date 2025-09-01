@@ -1,13 +1,15 @@
 'use client';
 
-import { Box, IconButton, InputAdornment } from '@mui/material';
-import { useState, useEffect } from 'react';
-import { Body2 } from '@/components/common';
-import { StyledTextField } from '../text-field/StyledTextField';
-import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { Box, IconButton, InputAdornment } from '@mui/material';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+
+import { Body2 } from '@/components/common';
+
+import { StyledTextField } from '../text-field/StyledTextField';
 
 interface TimeFieldProps {
   label?: string;
@@ -27,11 +29,11 @@ interface TimeValue {
 }
 
 // Internal component for rendering the time field UI
-const TimeFieldUI = ({ 
-  label, 
-  error, 
-  helperText, 
-  disabled, 
+const TimeFieldUI = ({
+  label,
+  error,
+  helperText,
+  disabled,
   timeValue,
   onTimeChange
 }: {
@@ -76,80 +78,93 @@ const TimeFieldUI = ({
   };
 
   const startComponent = (
-    <Image 
-      src="/icon/time.svg" 
-      alt="Time" 
-      width={20} 
-      height={20}
-    />
+    <Image alt="Time" height={20} src="/icon/time.svg" width={20} />
   );
 
   const endComponent = (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       {/* Hours spinner */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, pointerEvents: 'auto' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0,
+          pointerEvents: 'auto'
+        }}
+      >
         <IconButton
+          disabled={disabled}
           size="small"
+          sx={{
+            p: 0.25,
+            minWidth: 'auto',
+            '&:hover': { backgroundColor: 'transparent' }
+          }}
           onClick={incrementHours}
-          disabled={disabled}
-          sx={{ 
-            p: 0.25, 
-            minWidth: 'auto',
-            '&:hover': { backgroundColor: 'transparent' }
-          }}
         >
           <KeyboardArrowUpIcon sx={{ fontSize: 14 }} />
         </IconButton>
         <IconButton
+          disabled={disabled}
           size="small"
+          sx={{
+            p: 0.25,
+            minWidth: 'auto',
+            '&:hover': { backgroundColor: 'transparent' }
+          }}
           onClick={decrementHours}
-          disabled={disabled}
-          sx={{ 
-            p: 0.25, 
-            minWidth: 'auto',
-            '&:hover': { backgroundColor: 'transparent' }
-          }}
         >
           <KeyboardArrowDownIcon sx={{ fontSize: 14 }} />
         </IconButton>
       </Box>
-      
+
       <Box sx={{ fontSize: '14px', color: 'text.primary', fontWeight: 500 }}>
-        {timeValue.hours !== null ? timeValue.hours.toString().padStart(2, '0') : '--'}
+        {timeValue.hours !== null
+          ? timeValue.hours.toString().padStart(2, '0')
+          : '--'}
       </Box>
-      
+
       <Box sx={{ fontSize: '14px', color: 'text.primary', mx: 0.5 }}>:</Box>
-      
+
       {/* Minutes spinner */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, pointerEvents: 'auto' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0,
+          pointerEvents: 'auto'
+        }}
+      >
         <IconButton
-          size="small"
-          onClick={incrementMinutes}
           disabled={disabled}
-          sx={{ 
-            p: 0.25, 
+          size="small"
+          sx={{
+            p: 0.25,
             minWidth: 'auto',
             '&:hover': { backgroundColor: 'transparent' }
           }}
+          onClick={incrementMinutes}
         >
           <KeyboardArrowUpIcon sx={{ fontSize: 14 }} />
         </IconButton>
         <IconButton
-          size="small"
-          onClick={decrementMinutes}
           disabled={disabled}
-          sx={{ 
-            p: 0.25, 
+          size="small"
+          sx={{
+            p: 0.25,
             minWidth: 'auto',
             '&:hover': { backgroundColor: 'transparent' }
           }}
+          onClick={decrementMinutes}
         >
           <KeyboardArrowDownIcon sx={{ fontSize: 14 }} />
         </IconButton>
       </Box>
-      
+
       <Box sx={{ fontSize: '14px', color: 'text.primary', fontWeight: 500 }}>
-        {timeValue.minutes !== null ? timeValue.minutes.toString().padStart(2, '0') : '--'}
+        {timeValue.minutes !== null
+          ? timeValue.minutes.toString().padStart(2, '0')
+          : '--'}
       </Box>
     </Box>
   );
@@ -159,7 +174,7 @@ const TimeFieldUI = ({
       <InputAdornment position="start" sx={{ marginRight: 0, marginLeft: 0 }}>
         {startComponent}
       </InputAdornment>
-    ),
+    )
   };
 
   const hasValue = timeValue.hours !== null && timeValue.minutes !== null;
@@ -173,64 +188,64 @@ const TimeFieldUI = ({
       )}
       <Box sx={{ position: 'relative' }}>
         <StyledTextField
-          variant="outlined"
-          value=""
+          disabled={disabled}
+          error={error}
+          helperText={helperText}
           InputProps={{
             ...inputProps,
             readOnly: true
           }}
-          error={error}
-          helperText={helperText}
-          disabled={disabled}
           sx={(theme) => ({
             '& .MuiOutlinedInput-root': {
               '& input': {
                 paddingLeft: '0 !important',
-                paddingRight: '0 !important',
+                paddingRight: '0 !important'
               },
               '& fieldset': {
-                border: 'none !important',
+                border: 'none !important'
               },
               '&:hover fieldset': {
-                border: 'none !important',
+                border: 'none !important'
               },
               '&.Mui-focused fieldset': {
-                border: 'none !important',
+                border: 'none !important'
               },
               '&.Mui-error fieldset': {
-                border: 'none !important',
+                border: 'none !important'
               },
               '&.Mui-focused': {
                 '& fieldset': {
-                  border: 'none !important',
+                  border: 'none !important'
                 }
               }
             },
             '& .MuiInputBase-root': {
-              backgroundColor: hasValue 
+              backgroundColor: hasValue
                 ? `${theme.palette.background.default} !important`
                 : `${theme.palette.common.white} !important`,
-              border: hasValue 
+              border: hasValue
                 ? `1px solid ${theme.palette.primary.main} !important`
                 : `1px solid ${theme.palette.divider} !important`,
               '&.Mui-focused': {
                 backgroundColor: `${theme.palette.background.default} !important`,
-                border: `1px solid ${theme.palette.primary.main} !important`,
-              },
+                border: `1px solid ${theme.palette.primary.main} !important`
+              }
             },
             '& fieldset': {
-              border: 'none !important',
+              border: 'none !important'
             },
             '&:hover fieldset': {
-              border: 'none !important',
+              border: 'none !important'
             },
             '&.Mui-focused fieldset': {
-              border: 'none !important',
+              border: 'none !important'
             }
           })}
+          value=""
+          variant="outlined"
         />
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             position: 'absolute',
             top: '50%',
             left: '48px',
@@ -251,8 +266,8 @@ const TimeFieldUI = ({
 
 // Main TimeField component
 const TimeField = (props: TimeFieldProps) => {
-  const { 
-    label, 
+  const {
+    label,
     name,
     rules,
     error,
@@ -260,7 +275,7 @@ const TimeField = (props: TimeFieldProps) => {
     value,
     onChange,
     disabled,
-    placeholder = "00:00"
+    placeholder = '00:00'
   } = props;
 
   const [timeValue, setTimeValue] = useState<TimeValue>(() => {
@@ -295,10 +310,10 @@ const TimeField = (props: TimeFieldProps) => {
   // Regular TimeField without form
   return (
     <TimeFieldUI
-      label={label}
+      disabled={disabled}
       error={error}
       helperText={helperText}
-      disabled={disabled}
+      label={label}
       placeholder={placeholder}
       timeValue={timeValue}
       onTimeChange={handleTimeChange}
@@ -308,30 +323,30 @@ const TimeField = (props: TimeFieldProps) => {
 
 // Form TimeField with React Hook Form integration
 const FormTimeField = ({ name, rules, ...props }: TimeFieldProps) => {
-  const { control, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext();
   const fieldError = errors[name as string];
-  
+
   return (
     <Controller
-      name={name as string}
       control={control}
-      rules={rules}
+      name={name as string}
       render={({ field }) => {
-        const [timeValue, setTimeValue] = useState<TimeValue>(() => {
-          if (field.value) {
-            const [hours, minutes] = field.value.split(':').map(Number);
-            return { hours: hours || 0, minutes: minutes || 0 };
-          }
-          return { hours: null, minutes: null };
-        });
-
         const handleTimeChange = (newTime: TimeValue) => {
-          setTimeValue(newTime);
           if (newTime.hours !== null && newTime.minutes !== null) {
             const timeString = `${newTime.hours.toString().padStart(2, '0')}:${newTime.minutes.toString().padStart(2, '0')}`;
             field.onChange(timeString);
           }
         };
+
+        const timeValue: TimeValue = field.value
+          ? (() => {
+              const [hours, minutes] = field.value.split(':').map(Number);
+              return { hours: hours || 0, minutes: minutes || 0 };
+            })()
+          : { hours: null, minutes: null };
 
         return (
           <TimeFieldUI
@@ -343,6 +358,7 @@ const FormTimeField = ({ name, rules, ...props }: TimeFieldProps) => {
           />
         );
       }}
+      rules={rules}
     />
   );
 };

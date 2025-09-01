@@ -9,7 +9,8 @@ export default async function handler(
   }
 
   try {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const backendUrl =
+      process.env.BACKEND_URL || 'http://localhost:8080';
 
     const response = await fetch(`${backendUrl}/event-organizers`, {
       method: req.method,

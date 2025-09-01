@@ -1,11 +1,13 @@
-import type { AppProps } from 'next/app';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
+import axios from 'axios';
+import type { AppProps } from 'next/app';
 import { SWRConfig } from 'swr';
+
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/contexts/ToastContext';
-import ThemeProvider from '@/theme/ThemeProvider';
 import createEmotionCache from '@/createEmotionCache';
+import ThemeProvider from '@/theme/ThemeProvider';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -23,8 +25,8 @@ export default function App(props: MyAppProps) {
         <CssBaseline />
         <SWRConfig
           value={{
-            fetcher: (url: string) => fetch(url).then((res) => res.json()),
-            revalidateOnFocus: false,
+            fetcher: (url: string) => axios.get(url).then((res) => res.data),
+            revalidateOnFocus: false
           }}
         >
           <ToastProvider>

@@ -1,22 +1,19 @@
+import { Alert, Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
-import {
-  Alert,
-  Box,
-  Card,
-  CardContent,
-  Typography
-} from '@mui/material';
+
 import { Tabs, Button, TextField } from '@/components/common';
+import EventsTable from '@/components/features/events/list/table';
+import { useEvents } from '@/hooks/features/events/useEvents';
 import DashboardLayout from '@/layouts/dashboard';
-import EventsTable from '@/components/features/events/table';
 // import EventsFilter from '@/components/EventsFilter';
 import { EventsFilters } from '@/types/event';
-import { useEvents } from '@/hooks';
 import { useDebouncedCallback } from '@/utils';
-import Image from 'next/image';
 
 export default function Events() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('ongoing');
   const [searchValue, setSearchValue] = useState('');
   const [filters, setFilters] = useState<EventsFilters>({
@@ -28,7 +25,7 @@ export default function Events() {
   const { events, loading, error, mutate } = useEvents(filters);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       name: value,
       page: 1
@@ -47,7 +44,7 @@ export default function Events() {
     { id: 'draft', title: 'Draft Event', quantity: 0 },
     { id: 'rejected', title: 'Rejected Event', quantity: 0 },
     { id: 'submitted', title: 'On Review Event', quantity: 0 },
-    { id: 'done', title: 'Past Event', quantity: 0 },
+    { id: 'done', title: 'Past Event', quantity: 0 }
   ];
 
   return (
@@ -58,11 +55,16 @@ export default function Events() {
 
       <Box>
         {/* Header */}
-        <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="24px">
-          <Typography fontSize="28px" fontWeight={700} color="text.primary">
+        <Box
+          alignItems="center"
+          display="flex"
+          justifyContent="space-between"
+          marginBottom="24px"
+        >
+          <Typography color="text.primary" fontSize="28px" fontWeight={700}>
             Events
           </Typography>
-          <Button>
+          <Button onClick={() => router.push('/events/create')}>
             Create New Event
           </Button>
         </Box>
@@ -70,28 +72,33 @@ export default function Events() {
         {/* Tabs Card */}
         <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
           <CardContent sx={{ padding: '16px 24px' }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box
+              alignItems="center"
+              display="flex"
+              justifyContent="space-between"
+              mb={2}
+            >
               <Box flex="1" marginRight={4}>
                 <Tabs
-                  tabs={tabs}
                   activeTab={activeTab}
+                  tabs={tabs}
                   onTabChange={setActiveTab}
                 />
               </Box>
-              
+
               <TextField
                 placeholder="Cari Event"
-                value={searchValue}
-                onChange={handleSearchChange}
                 startComponent={
                   <Image
-                    src="/icon/search.svg"
                     alt="Search"
-                    width={20}
                     height={20}
+                    src="/icon/search.svg"
+                    width={20}
                   />
                 }
                 sx={{ width: 300, flexShrink: 0 }}
+                value={searchValue}
+                onChange={handleSearchChange}
               />
             </Box>
 
@@ -109,15 +116,11 @@ export default function Events() {
         {/* Error Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 3, mt: 3 }}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography gutterBottom variant="subtitle2">
               Failed to load events
             </Typography>
             <Typography variant="body2">{error}</Typography>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mt: 1 }}
-            >
+            <Typography color="text.secondary" sx={{ mt: 1 }} variant="caption">
               Please check your backend connection and try again.
             </Typography>
           </Alert>
@@ -127,15 +130,11 @@ export default function Events() {
         {!loading && events.length === 0 && !error && (
           <Card sx={{ mt: 3 }}>
             <CardContent>
-              <Box textAlign="center" py={4}>
-                <Typography
-                  variant="h6"
-                  color="text.secondary"
-                  gutterBottom
-                >
+              <Box py={4} textAlign="center">
+                <Typography gutterBottom color="text.secondary" variant="h6">
                   No events found
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography color="text.secondary" variant="body2">
                   There are no events in the system yet.
                 </Typography>
               </Box>

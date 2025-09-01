@@ -19,11 +19,13 @@
     "@types/react": "^18.2.45",
     "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^18.2.18",
+    "axios": "^1.11.0",
     "date-fns": "^2.30.0",
     "next": "^14.0.4",
     "react": "^18.2.0",
     "react-datepicker": "^8.7.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.48.2",
     "swr": "^2.2.4",
     "typescript": "^5.3.3"
@@ -33,10 +35,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint-fix": "next lint --fix"
+    "lint-fix": "next lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:fix": "npm run format && npm run lint-fix"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.0.4"
+    "eslint-config-next": "^14.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.2",
+    "eslint-plugin-react": "^7.33.2",
+    "prettier": "^3.1.1"
   }
 }

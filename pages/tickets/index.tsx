@@ -1,11 +1,7 @@
-import DashboardLayout from '@/layouts/dashboard';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent
-} from '@mui/material';
+import { Box, Typography, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
+
+import DashboardLayout from '@/layouts/dashboard';
 
 export default function Tickets() {
   return (
@@ -13,22 +9,22 @@ export default function Tickets() {
       <Head>
         <title>Tickets - Black Hole Dashboard</title>
       </Head>
-      
+
       <Box>
-        <Typography variant="h4" gutterBottom>
+        <Typography gutterBottom variant="h4">
           Tickets
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        <Typography color="text.secondary" sx={{ mb: 3 }} variant="body1">
           Manage event tickets and sales
         </Typography>
 
         <Card>
           <CardContent>
-            <Box textAlign="center" py={4}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Box py={4} textAlign="center">
+              <Typography gutterBottom color="text.secondary" variant="h6">
                 Tickets Management
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography color="text.secondary" variant="body2">
                 Ticket management features will be implemented here.
               </Typography>
             </Box>

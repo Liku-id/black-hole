@@ -1,0 +1,8 @@
+// Export all services by domain
+export { eventsService } from './events';
+export { eventTypesService } from './events/types';
+export { ticketsService } from './tickets';
+export { transactionsService } from './transactions';
+export { organizersService } from './organizers';
+export { authService } from './auth';
+export { listService } from './list';

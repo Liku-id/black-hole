@@ -1,176 +1,154 @@
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+
 /**
- * API utilities for common operations
+ * API utilities for common operations using axios
  */
 export const apiUtils = {
   /**
-   * Build query string from object
-   * @param params - Object containing query parameters
-   * @returns Query string
+   * Get authentication token from localStorage
+   * @returns Auth token or null
    */
-  buildQueryString: (params: Record<string, any>): string => {
-    const queryParams = new URLSearchParams();
-    
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        queryParams.append(key, String(value));
-      }
-    });
-    
-    return queryParams.toString();
+  getAuthToken: (): string | null => {
+    return localStorage.getItem('auth_access_token');
   },
 
   /**
-   * Handle API response with error handling
-   * @param response - Fetch response
-   * @returns Parsed response data
+   * Create default axios config with authentication
+   * @param additionalConfig - Additional axios config
+   * @returns AxiosRequestConfig
    */
-  handleResponse: async (response: Response): Promise<any> => {
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
-  },
+  createConfig: (additionalConfig?: AxiosRequestConfig): AxiosRequestConfig => {
+    const token = apiUtils.getAuthToken();
 
-  /**
-   * Make authenticated API request
-   * @param url - API endpoint URL
-   * @param options - Fetch options
-   * @returns Promise with response data
-   */
-  makeRequest: async (url: string, options: RequestInit = {}): Promise<any> => {
-    const token = localStorage.getItem('authToken');
-    
-    const defaultOptions: RequestInit = {
+    return {
+      timeout: 30000, // 30 second timeout
       headers: {
         'Content-Type': 'application/json',
+        Accept: 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers
-      }
+        ...additionalConfig?.headers
+      },
+      ...additionalConfig
     };
+  },
 
-    const response = await fetch(url, { ...defaultOptions, ...options });
-    return apiUtils.handleResponse(response);
+  /**
+   * Enhanced error handler for axios responses
+   * @param error - Axios error
+   * @param defaultErrorMessage - Default error message if parsing fails
+   * @returns Error with proper message
+   */
+  handleAxiosError: (
+    error: AxiosError,
+    defaultErrorMessage: string = 'Request failed'
+  ): Error => {
+    let errorMessage = defaultErrorMessage;
+
+    if (error.response) {
+      // Server responded with error status
+      const { data, status } = error.response;
+
+      if (data && typeof data === 'object') {
+        const errorData = data as any;
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+        } else if (errorData.details && Array.isArray(errorData.details)) {
+          errorMessage = errorData.details.join(', ');
+        } else {
+          errorMessage = `Server error (${status})`;
+        }
+      } else {
+        errorMessage = `Server error (${status})`;
+      }
+    } else if (error.request) {
+      // Request was made but no response received
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout - server is not responding';
+      } else {
+        errorMessage =
+          'No response from server. Please check your internet connection.';
+      }
+    } else {
+      // Something else happened
+      errorMessage = error.message || defaultErrorMessage;
+    }
+
+    console.error('API Error:', {
+      message: errorMessage,
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url,
+      code: error.code
+    });
+
+    return new Error(errorMessage);
+  },
+
+  /**
+   * Make authenticated API request with axios
+   * @param config - Axios request config
+   * @param defaultErrorMessage - Default error message
+   * @returns Promise with response data
+   */
+  makeRequest: async <T = any>(
+    config: AxiosRequestConfig,
+    defaultErrorMessage: string = 'Request failed'
+  ): Promise<T> => {
+    try {
+      const axiosConfig = apiUtils.createConfig(config);
+      const response: AxiosResponse<T> = await axios(axiosConfig);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw apiUtils.handleAxiosError(error, defaultErrorMessage);
+      }
+      throw error;
+    }
   },
 
   /**
    * GET request helper
    * @param url - API endpoint URL
    * @param params - Query parameters
+   * @param defaultErrorMessage - Default error message
    * @returns Promise with response data
    */
-  get: async (url: string, params?: Record<string, any>): Promise<any> => {
-    const queryString = params ? `?${apiUtils.buildQueryString(params)}` : '';
-    return apiUtils.makeRequest(`${url}${queryString}`);
+  get: async <T = any>(
+    url: string,
+    params?: Record<string, any>,
+    defaultErrorMessage?: string
+  ): Promise<T> => {
+    return apiUtils.makeRequest<T>(
+      {
+        method: 'GET',
+        url,
+        params
+      },
+      defaultErrorMessage
+    );
   },
 
   /**
    * POST request helper
    * @param url - API endpoint URL
    * @param data - Request body data
+   * @param defaultErrorMessage - Default error message
    * @returns Promise with response data
    */
-  post: async (url: string, data?: any): Promise<any> => {
-    return apiUtils.makeRequest(url, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
-  },
-
-  /**
-   * PUT request helper
-   * @param url - API endpoint URL
-   * @param data - Request body data
-   * @returns Promise with response data
-   */
-  put: async (url: string, data?: any): Promise<any> => {
-    return apiUtils.makeRequest(url, {
-      method: 'PUT',
-      body: JSON.stringify(data)
-    });
-  },
-
-  /**
-   * DELETE request helper
-   * @param url - API endpoint URL
-   * @returns Promise with response data
-   */
-  delete: async (url: string): Promise<any> => {
-    return apiUtils.makeRequest(url, {
-      method: 'DELETE'
-    });
-  },
-
-  /**
-   * Upload file helper
-   * @param url - API endpoint URL
-   * @param file - File to upload
-   * @param fieldName - Form field name for the file
-   * @returns Promise with response data
-   */
-  uploadFile: async (url: string, file: File, fieldName: string = 'file'): Promise<any> => {
-    const formData = new FormData();
-    formData.append(fieldName, file);
-
-    const token = localStorage.getItem('authToken');
-    
-    const options: RequestInit = {
-      method: 'POST',
-      body: formData,
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` })
-      }
-    };
-
-    const response = await fetch(url, options);
-    return apiUtils.handleResponse(response);
-  },
-
-  /**
-   * Download file helper
-   * @param url - File URL
-   * @param filename - Optional filename for download
-   */
-  downloadFile: async (url: string, filename?: string): Promise<void> => {
-    try {
-      const response = await apiUtils.makeRequest(url);
-      const blob = await response.blob();
-      
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename || 'download';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Retry API request with exponential backoff
-   * @param fn - Function to retry
-   * @param retries - Number of retries
-   * @param delay - Initial delay in milliseconds
-   * @returns Promise with response data
-   */
-  retry: async <T>(
-    fn: () => Promise<T>,
-    retries: number = 3,
-    delay: number = 1000
+  post: async <T = any>(
+    url: string,
+    data?: any,
+    defaultErrorMessage?: string
   ): Promise<T> => {
-    try {
-      return await fn();
-    } catch (error) {
-      if (retries > 0) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return apiUtils.retry(fn, retries - 1, delay * 2);
-      }
-      throw error;
-    }
+    return apiUtils.makeRequest<T>(
+      {
+        method: 'POST',
+        url,
+        data
+      },
+      defaultErrorMessage
+    );
   }
 };

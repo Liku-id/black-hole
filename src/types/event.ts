@@ -183,3 +183,31 @@ export interface EventsFilters {
   startDate?: string;
   endDate?: string;
 }
+
+export interface EventTypesResponse {
+  eventTypes: string[];
+}
+
+export interface CreateEventRequest {
+  cityId: string;
+  eventOrganizerId: string;
+  paymentMethodIds: string[];
+  name: string;
+  eventType: string;
+  description: string;
+  address: string;
+  mapLocationUrl: string;
+  startDate: string;
+  endDate: string;
+  termAndConditions: string;
+  websiteUrl: string;
+  metaUrl: string;
+  adminFee: number;
+  tax: number;
+}
+
+export interface CreateEventResponse {
+  statusCode: number;
+  message: string;
+  body: Event;
+}

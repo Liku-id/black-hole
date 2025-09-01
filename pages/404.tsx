@@ -16,26 +16,23 @@ export default function Custom404() {
     >
       <Container maxWidth="sm">
         <Box textAlign="center">
-          <Typography variant="h1" sx={{ mb: 2, color: 'text.primary' }}>
+          <Typography sx={{ mb: 2, color: 'text.primary' }} variant="h1">
             404
           </Typography>
-          <Typography variant="h4" sx={{ mb: 2, color: 'text.secondary' }}>
+          <Typography sx={{ mb: 2, color: 'text.secondary' }} variant="h4">
             Page Not Found
           </Typography>
-          <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+          <Typography sx={{ mb: 4, color: 'text.secondary' }} variant="body1">
             The page you are looking for does not exist.
           </Typography>
-          <Button 
-            variant="contained" 
-            onClick={() => router.push('/dashboard')}
+          <Button
             sx={{ mr: 2 }}
+            variant="contained"
+            onClick={() => router.push('/dashboard')}
           >
             Go to Dashboard
           </Button>
-          <Button 
-            variant="outlined" 
-            onClick={() => router.back()}
-          >
+          <Button variant="outlined" onClick={() => router.back()}>
             Go Back
           </Button>
         </Box>

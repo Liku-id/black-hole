@@ -1,8 +1,9 @@
-import { useAuth } from '@/contexts/AuthContext';
-import { ALLOWED_ROLES } from '@/types/auth';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { ALLOWED_ROLES } from '@/types/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -32,9 +33,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (isLoading) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="100vh"
       >
         <CircularProgress />
@@ -50,16 +51,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (user && !ALLOWED_ROLES.includes(user.role)) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         flexDirection="column"
         justifyContent="center"
-        alignItems="center"
         minHeight="100vh"
       >
-        <Typography variant="h4" gutterBottom>
+        <Typography gutterBottom variant="h4">
           Access Denied
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography color="text.secondary" variant="body1">
           You don't have permission to access this application.
         </Typography>
       </Box>

@@ -1,6 +1,7 @@
-import ticketsService from '@/services/ticketsService';
+import { ticketsService } from '@/services';
 import { Ticket, TicketsFilters } from '@/types/ticket';
-import { useApi } from '../../common/useApi';
+
+import { useApi } from '../../useApi';
 
 interface UseTicketsReturn {
   tickets: Ticket[];
@@ -31,4 +32,4 @@ const useTickets = (filters: TicketsFilters): UseTicketsReturn => {
   };
 };
 
-export default useTickets;
+export { useTickets };

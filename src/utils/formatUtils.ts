@@ -10,7 +10,7 @@ export const formatUtils = {
    */
   formatPrice: (price: string | number, currency: string = 'IDR'): string => {
     const numPrice = typeof price === 'string' ? parseInt(price, 10) : price;
-    
+
     if (isNaN(numPrice)) return '';
 
     const formatter = new Intl.NumberFormat('id-ID', {

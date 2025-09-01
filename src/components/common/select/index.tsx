@@ -1,9 +1,17 @@
-import { TextFieldProps, InputAdornment, Box, Menu, MenuItem } from '@mui/material';
-import { useState } from 'react';
-import { Body2 } from '@/components/common';
-import { StyledTextField } from '../text-field/StyledTextField';
-import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+import {
+  TextFieldProps,
+  InputAdornment,
+  Box,
+  Menu,
+  MenuItem
+} from '@mui/material';
 import Image from 'next/image';
+import { useState } from 'react';
+import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+
+import { Body2 } from '@/components/common';
+
+import { StyledTextField } from '../text-field/StyledTextField';
 
 interface SelectOption {
   value: string;
@@ -18,20 +26,19 @@ interface CustomSelectProps extends Omit<TextFieldProps, 'variant'> {
   helperText?: string;
   options: SelectOption[];
   placeholder?: string;
+  fullWidth?: boolean;
 }
 
 export const CustomSelect = (props: CustomSelectProps) => {
-  const { 
-    label, 
-    name,
-    rules,
-    options,
-    placeholder,
-  } = props;
+  const { label, name, rules, options, placeholder, fullWidth, ...otherProps } =
+    props;
 
-  const { control, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext();
   const fieldError = errors[name];
-  
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -45,62 +52,72 @@ export const CustomSelect = (props: CustomSelectProps) => {
     setAnchorEl(null);
   };
 
-  const handleOptionSelect = (value: string, onChange: (value: string) => void) => {
+  const handleOptionSelect = (
+    value: string,
+    onChange: (value: string) => void
+  ) => {
     onChange(value);
     handleClose();
   };
 
   return (
     <Controller
-      name={name}
       control={control}
-      rules={rules}
+      name={name}
       render={({ field }) => (
         <Box>
           {label && (
-            <Body2 color="text.primary" mb={1} display="block">
+            <Body2 color="text.primary" display="block" mb={1}>
               {label}
             </Body2>
           )}
           <StyledTextField
             {...field}
-            variant="outlined"
+            {...otherProps}
             error={!!fieldError}
+            fullWidth={fullWidth}
             helperText={fieldError?.message as string}
-            placeholder={placeholder}
-            onClick={handleClick}
             InputProps={{
               readOnly: true,
               endAdornment: (
                 <InputAdornment position="end">
                   <Box
+                    alignItems="center"
                     component="span"
                     display="flex"
-                    alignItems="center"
                     paddingY={1}
                     sx={{ cursor: 'pointer' }}
                   >
                     <Image
-                      src="/icon/accordion-arrow.svg"
                       alt="dropdown"
-                      width={16}
                       height={16}
-                      style={{ 
+                      src="/icon/accordion-arrow.svg"
+                      style={{
                         transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
                         transition: 'transform 0.2s ease'
                       }}
+                      width={16}
                     />
                   </Box>
                 </InputAdornment>
-              ),
+              )
             }}
+            placeholder={placeholder}
             sx={{ cursor: 'pointer' }}
+            value={(() => {
+              // Display label instead of value
+              const selectedOption = options.find(
+                (option) => option.value === field.value
+              );
+              return selectedOption ? selectedOption.label : field.value;
+            })()}
+            variant="outlined"
+            onClick={handleClick}
           />
-          
+
           <Menu
             anchorEl={anchorEl}
             open={open}
-            onClose={handleClose}
             PaperProps={{
               sx: (theme) => ({
                 mt: 1,
@@ -108,25 +125,26 @@ export const CustomSelect = (props: CustomSelectProps) => {
                 minWidth: '200px',
                 boxShadow: theme.shadows[8],
                 borderRadius: 1,
-                px: 2,
+                px: 2
               })
             }}
+            onClose={handleClose}
           >
             {options.map((option) => (
               <MenuItem
                 key={option.value}
-                onClick={() => handleOptionSelect(option.value, field.onChange)}
                 sx={(theme) => ({
                   py: 1.5,
                   fontSize: '14px',
                   fontFamily: '"Onest", sans-serif',
                   color: theme.palette.text.primary,
                   '&:hover': {
-                    backgroundColor: theme.palette.action.hover,
+                    backgroundColor: theme.palette.action.hover
                   },
                   borderBottom: '1px solid',
-                  borderColor: theme.palette.divider,
+                  borderColor: theme.palette.divider
                 })}
+                onClick={() => handleOptionSelect(option.value, field.onChange)}
               >
                 {option.label}
               </MenuItem>
@@ -134,6 +152,7 @@ export const CustomSelect = (props: CustomSelectProps) => {
           </Menu>
         </Box>
       )}
+      rules={rules}
     />
   );
 };

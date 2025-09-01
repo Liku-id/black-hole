@@ -1,9 +1,17 @@
-import { TextFieldProps, InputAdornment, Box, Menu, MenuItem } from '@mui/material';
-import { useState } from 'react';
-import { Body2, Caption } from '@/components/common';
-import { StyledTextField } from '../text-field/StyledTextField';
-import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+import {
+  TextFieldProps,
+  InputAdornment,
+  Box,
+  Menu,
+  MenuItem
+} from '@mui/material';
 import Image from 'next/image';
+import { useState } from 'react';
+import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+
+import { Body2, Caption } from '@/components/common';
+
+import { StyledTextField } from '../text-field/StyledTextField';
 
 interface CountryCode {
   code: string;
@@ -15,7 +23,7 @@ const countryCodes: CountryCode[] = [
   { code: 'GB', dialCode: '+44' },
   { code: 'SG', dialCode: '+65' },
   { code: 'MY', dialCode: '+60' },
-  { code: 'AU', dialCode: '+61' },
+  { code: 'AU', dialCode: '+61' }
 ];
 
 interface CustomPhoneFieldProps extends Omit<TextFieldProps, 'variant'> {
@@ -27,14 +35,12 @@ interface CustomPhoneFieldProps extends Omit<TextFieldProps, 'variant'> {
   defaultCountryCode?: string;
 }
 
-
-
 // Country Code Selector Component
-const CountryCodeSelector = ({ 
-  selectedCode, 
-  onCodeChange 
-}: { 
-  selectedCode: CountryCode; 
+const CountryCodeSelector = ({
+  selectedCode,
+  onCodeChange
+}: {
+  selectedCode: CountryCode;
   onCodeChange: (code: CountryCode) => void;
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -56,46 +62,45 @@ const CountryCodeSelector = ({
   return (
     <>
       <Box
-        component="span"
-        onClick={handleClick}
-        display="flex"
         alignItems="center"
+        component="span"
+        display="flex"
         gap={1}
         paddingY={1}
-        sx={{ cursor: 'pointer'}}
+        sx={{ cursor: 'pointer' }}
+        onClick={handleClick}
       >
-         <Image
-          src="/icon/accordion-arrow.svg"
+        <Image
           alt="dropdown"
-          width={12}
           height={12}
-          style={{ 
+          src="/icon/accordion-arrow.svg"
+          style={{
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease'
           }}
+          width={12}
         />
         <Body2 component="span" fontWeight={500}>
           {selectedCode.dialCode}
         </Body2>
       </Box>
-      
+
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose}
         PaperProps={{
           sx: (theme) => ({
             mt: 1,
             minWidth: 120,
             boxShadow: theme.shadows[8],
-            borderRadius: 1,
+            borderRadius: 1
           })
         }}
+        onClose={handleClose}
       >
         {countryCodes.map((code) => (
           <MenuItem
             key={code.code}
-            onClick={() => handleCodeSelect(code)}
             sx={(theme) => ({
               display: 'flex',
               alignItems: 'center',
@@ -103,16 +108,13 @@ const CountryCodeSelector = ({
               py: 1.5,
               px: 2,
               '&:hover': {
-                backgroundColor: theme.palette.action.hover,
-              },
+                backgroundColor: theme.palette.action.hover
+              }
             })}
+            onClick={() => handleCodeSelect(code)}
           >
-            <Body2 component="span">
-              {code.dialCode}
-            </Body2>
-            <Caption component="span">
-              {code.code}
-            </Caption>
+            <Body2 component="span">{code.dialCode}</Body2>
+            <Caption component="span">{code.code}</Caption>
           </MenuItem>
         ))}
       </Menu>
@@ -121,38 +123,40 @@ const CountryCodeSelector = ({
 };
 
 export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
-  const { 
-    label, 
+  const {
+    label,
     name,
     rules,
     error,
     helperText,
     defaultCountryCode = '+62',
-    ...otherProps 
+    ...otherProps
   } = props;
 
-  const { control, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext();
   const fieldError = errors[name];
-  
+
   const [selectedCountryCode, setSelectedCountryCode] = useState<CountryCode>(
-    countryCodes.find(code => code.dialCode === defaultCountryCode) || countryCodes[0]
+    countryCodes.find((code) => code.dialCode === defaultCountryCode) ||
+      countryCodes[0]
   );
 
   return (
     <Controller
-      name={name}
       control={control}
-      rules={rules}
+      name={name}
       render={({ field }) => (
         <Box>
           {label && (
-            <Body2 color="text.primary" mb={1} display="block">
+            <Body2 color="text.primary" display="block" mb={1}>
               {label}
             </Body2>
           )}
           <StyledTextField
             {...field}
-            variant="outlined"
             error={!!fieldError}
             helperText={fieldError?.message as string}
             InputProps={{
@@ -163,12 +167,14 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
                     onCodeChange={setSelectedCountryCode}
                   />
                 </InputAdornment>
-              ),
+              )
             }}
+            variant="outlined"
             {...otherProps}
           />
         </Box>
       )}
+      rules={rules}
     />
   );
 };

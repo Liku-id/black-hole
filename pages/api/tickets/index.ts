@@ -24,7 +24,8 @@ export default async function handler(
     if (show) params.append('show', show.toString());
     if (search) params.append('search', search.toString());
 
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const backendUrl =
+      process.env.BACKEND_URL || 'http://localhost:8080';
     const backendEndpoint = `${backendUrl}/tickets?${params.toString()}`;
 
     const response = await fetch(backendEndpoint, {
