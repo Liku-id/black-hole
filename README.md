@@ -15,12 +15,14 @@ A clean and modern creator dashboard built with Next.js 14, TypeScript, and Mate
 ## 📦 Dependencies
 
 ### Core
+
 - `next`: ^14.0.4
 - `react`: ^18.2.0
 - `react-dom`: ^18.2.0
 - `typescript`: ^5.3.3
 
 ### UI & Styling
+
 - `@mui/material`: ^5.15.0
 - `@mui/icons-material`: ^5.15.0
 - `@emotion/react`: ^11.11.1
@@ -29,6 +31,7 @@ A clean and modern creator dashboard built with Next.js 14, TypeScript, and Mate
 - `@emotion/server`: ^11.11.0
 
 ### Utilities
+
 - `swr`: ^2.2.4
 - `react-hook-form`: ^7.48.2
 - `date-fns`: ^2.30.0
@@ -61,6 +64,7 @@ black-hole/
 ## 🎨 Theme
 
 The project uses a clean Material-UI theme with:
+
 - Light mode by default
 - Primary color: #1976d2 (Blue)
 - Secondary color: #dc004e (Red)
@@ -70,11 +74,13 @@ The project uses a clean Material-UI theme with:
 ## 🚀 Getting Started
 
 1. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 2. **Run development server**:
+
    ```bash
    npm run dev
    ```
@@ -101,16 +107,19 @@ The project uses a clean Material-UI theme with:
 ## 🔧 Customization
 
 ### Adding New Pages
+
 1. Create a new file in `pages/` directory
 2. Use `DashboardLayout` for consistent navigation
 3. Add menu item in `src/layouts/DashboardLayout.tsx`
 
 ### Styling
+
 - Use Material-UI's `sx` prop for component styling
 - Create custom themes in `src/theme/base.ts`
 - Use `styled` from `@emotion/styled` for complex components
 
 ### State Management
+
 - Use React Context for global state
 - Use SWR for server state management
 - Use React Hook Form for form state
@@ -118,6 +127,7 @@ The project uses a clean Material-UI theme with:
 ## 📱 Responsive Design
 
 The dashboard is fully responsive with:
+
 - Mobile-first approach
 - Collapsible sidebar on mobile
 - Touch-friendly interface
@@ -126,6 +136,7 @@ The dashboard is fully responsive with:
 ## 🔒 Authentication
 
 Authentication is handled through:
+
 - `AuthContext` for global auth state
 - `ProtectedRoute` component for route protection
 - API routes for login/logout functionality
@@ -133,6 +144,7 @@ Authentication is handled through:
 ## 🎨 Design System
 
 The project follows Material Design principles:
+
 - Consistent spacing and typography
 - Clear visual hierarchy
 - Accessible color contrast

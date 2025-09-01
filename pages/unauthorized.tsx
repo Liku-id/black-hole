@@ -26,27 +26,23 @@ export default function Unauthorized() {
     >
       <Container maxWidth="sm">
         <Box textAlign="center">
-          <Typography variant="h1" sx={{ mb: 2, color: 'error.main' }}>
+          <Typography sx={{ mb: 2, color: 'error.main' }} variant="h1">
             ⚠️
           </Typography>
-          <Typography variant="h4" sx={{ mb: 2, color: 'text.primary' }}>
+          <Typography sx={{ mb: 2, color: 'text.primary' }} variant="h4">
             Access Denied
           </Typography>
-          <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+          <Typography sx={{ mb: 4, color: 'text.secondary' }} variant="body1">
             You don't have permission to access this page.
           </Typography>
-          <Button 
-            variant="contained" 
-            onClick={() => router.push('/dashboard')}
+          <Button
             sx={{ mr: 2 }}
+            variant="contained"
+            onClick={() => router.push('/dashboard')}
           >
             Go to Dashboard
           </Button>
-          <Button 
-            variant="outlined" 
-            onClick={handleLogout}
-            color="error"
-          >
+          <Button color="error" variant="outlined" onClick={handleLogout}>
             Logout
           </Button>
         </Box>

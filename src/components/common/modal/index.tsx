@@ -1,5 +1,6 @@
 import { Box, Modal, styled } from '@mui/material';
 import Image from 'next/image';
+
 import { Body1 } from '@/components/common';
 
 const StyledModal = styled(Modal)({
@@ -56,44 +57,34 @@ export default function CustomModal({
   height = 332
 }: ModalProps) {
   return (
-    <StyledModal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="modal-title"
-    >
+    <StyledModal aria-labelledby="modal-title" open={open} onClose={onClose}>
       <ModalContent
-        width={width}
-        height={height}
-        padding="16px 24px"
         display="flex"
         flexDirection="column"
+        height={height}
+        padding="16px 24px"
+        width={width}
       >
         {/* Header */}
         <ModalHeader>
-          <Body1 fontSize={titleSize} color="text.primary" fontWeight={700}>
+          <Body1 color="text.primary" fontSize={titleSize} fontWeight={700}>
             {title}
           </Body1>
           <Image
-            src="/icon/close.svg"
             alt="Close"
-            width={24}
             height={24}
+            src="/icon/close.svg"
             style={{ cursor: 'pointer' }}
+            width={24}
             onClick={onClose}
           />
         </ModalHeader>
 
         {/* Content */}
-        <ModalBody>
-          {children}
-        </ModalBody>
+        <ModalBody>{children}</ModalBody>
 
         {/* Footer */}
-        {footer && (
-          <ModalFooter>
-            {footer}
-          </ModalFooter>
-        )}
+        {footer && <ModalFooter>{footer}</ModalFooter>}
       </ModalContent>
     </StyledModal>
   );

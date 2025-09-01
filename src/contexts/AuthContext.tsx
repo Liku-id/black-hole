@@ -1,7 +1,16 @@
-import { authService } from '@/services/authService';
-import { AuthState, LoginRequest, User } from '@/types/auth';
 import { useRouter } from 'next/router';
-import React, { createContext, ReactNode, useContext, useEffect, useReducer } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useReducer,
+  useState
+} from 'react';
+
+import { authService } from '@/services';
+import { AuthState, LoginRequest, User } from '@/types/auth';
+
 import { useToast } from './ToastContext';
 
 interface AuthContextType extends AuthState {
@@ -13,13 +22,19 @@ interface AuthContextType extends AuthState {
 
 type AuthAction =
   | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: { user: User; accessToken: string; refreshToken: string } }
+  | {
+      type: 'LOGIN_SUCCESS';
+      payload: { user: User; accessToken: string; refreshToken: string };
+    }
   | { type: 'LOGIN_ERROR'; payload: string }
   | { type: 'LOGOUT_START' }
   | { type: 'LOGOUT_SUCCESS' }
   | { type: 'LOGOUT_ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'RESTORE_SESSION'; payload: { user: User; accessToken: string; refreshToken: string } }
+  | {
+      type: 'RESTORE_SESSION';
+      payload: { user: User; accessToken: string; refreshToken: string };
+    }
   | { type: 'SESSION_RESTORED' };
 
 const initialState: AuthState = {
@@ -27,7 +42,7 @@ const initialState: AuthState = {
   accessToken: null,
   refreshToken: null,
   isLoading: true, // Start with loading = true
-  isAuthenticated: false,
+  isAuthenticated: false
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -35,7 +50,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case 'LOGIN_START':
     case 'LOGOUT_START':
       return { ...state, isLoading: true };
-    
+
     case 'LOGIN_SUCCESS':
     case 'RESTORE_SESSION':
       return {
@@ -44,9 +59,9 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         accessToken: action.payload.accessToken,
         refreshToken: action.payload.refreshToken,
         isAuthenticated: true,
-        isLoading: false,
+        isLoading: false
       };
-    
+
     case 'LOGIN_ERROR':
     case 'LOGOUT_ERROR':
       return {
@@ -55,24 +70,24 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         isAuthenticated: false,
         user: null,
         accessToken: null,
-        refreshToken: null,
+        refreshToken: null
       };
-    
+
     case 'LOGOUT_SUCCESS':
       return {
         ...initialState,
-        isLoading: false,
+        isLoading: false
       };
-    
+
     case 'CLEAR_ERROR':
       return state;
-    
+
     case 'SESSION_RESTORED':
       return {
         ...state,
-        isLoading: false,
+        isLoading: false
       };
-    
+
     default:
       return state;
   }
@@ -86,9 +101,9 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { showSuccess, showError } = useToast();
+  const { showError } = useToast();
 
   // Restore session on app start
   useEffect(() => {
@@ -105,8 +120,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             payload: {
               user,
               accessToken: storedAccessToken,
-              refreshToken: storedRefreshToken,
-            },
+              refreshToken: storedRefreshToken
+            }
           });
         }
       } catch (error) {
@@ -130,7 +145,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const response = await authService.login(data);
-      
+
       const { user, accessToken, refreshToken } = response.body;
 
       // Store in localStorage
@@ -140,14 +155,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: { user, accessToken, refreshToken },
+        payload: { user, accessToken, refreshToken }
       });
 
-      // Show success message
-      showSuccess(`Welcome back, ${user.fullName}!`);
-
       // Redirect to intended route or dashboard
-      const redirectTo = router.query.redirect as string || '/dashboard';
+      const redirectTo = (router.query.redirect as string) || '/dashboard';
       router.replace(redirectTo);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
@@ -176,7 +188,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('auth_refresh_token');
 
       dispatch({ type: 'LOGOUT_SUCCESS' });
-      showSuccess('You have been logged out successfully');
       router.replace('/login');
     }
   };
@@ -190,13 +201,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     clearError,
-    error,
+    error
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

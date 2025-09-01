@@ -1,8 +1,20 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { Box, AppBar, Toolbar, Container, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Container,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton
+} from '@mui/material';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+
 import { Body1, Body2 } from '@/components/common';
 
 interface DashboardLayoutProps {
@@ -16,7 +28,7 @@ const menuItems = [
   { text: 'Event', icon: '/icon/event.svg', path: '/events' },
   { text: 'Finance', icon: '/icon/finance.svg', path: '/finance' },
   { text: 'Ticket', icon: '/icon/ticket.svg', path: '/tickets' },
-  { text: 'Account', icon: '/icon/account.svg', path: '/account' },
+  { text: 'Account', icon: '/icon/account.svg', path: '/account' }
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -28,61 +40,56 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   const drawer = (
-    <Box 
-      display="flex" 
-      flexDirection="column" 
-      height="100%"
-    >
+    <Box display="flex" flexDirection="column" height="100%">
       <Box
-        padding="16px"
         marginBottom="68px"
+        padding="16px"
         sx={{ backgroundColor: 'primary.dark' }}
       >
         <Image
-          src="/logo/wukong.svg"
           alt="Wukong Logo"
-          width={176}
           height={48}
+          src="/logo/wukong.svg"
+          width={176}
         />
       </Box>
 
-      <Body1 padding="0px 16px" color="text.secondary">Menu</Body1>
+      <Body1 color="text.secondary" padding="0px 16px">
+        Menu
+      </Body1>
       <List sx={{ padding: 0 }}>
         {menuItems.map((item) => (
           <ListItem
-            button
             key={item.text}
-            onClick={() => router.push(item.path)}
+            button
             selected={router.pathname === item.path}
             sx={{
-              alignItems: "center",
+              alignItems: 'center',
               padding: '16px',
               margin: 0,
               '&.Mui-selected': {
                 backgroundColor: 'secondary.dark',
                 '&:hover': {
-                  backgroundColor: 'secondary.dark',
-                },
+                  backgroundColor: 'secondary.dark'
+                }
               },
               '&:hover': {
-                backgroundColor: 'secondary.dark',
-              },
+                backgroundColor: 'secondary.dark'
+              }
             }}
+            onClick={() => router.push(item.path)}
           >
-            <ListItemIcon sx={{
-              minWidth: 'auto',
-              marginRight: '8px',
-            }}>
-              <Image
-                src={item.icon}
-                alt={item.text}
-                width={24}
-                height={24}
-              />
+            <ListItemIcon
+              sx={{
+                minWidth: 'auto',
+                marginRight: '8px'
+              }}
+            >
+              <Image alt={item.text} height={24} src={item.icon} width={24} />
             </ListItemIcon>
             <ListItemText
               primary={
-                <Body2 color='text.secondary' fontSize="14px">
+                <Body2 color="text.secondary" fontSize="14px">
                   {item.text}
                 </Body2>
               }
@@ -90,37 +97,41 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </ListItem>
         ))}
       </List>
-      
+
       {/* User Menu */}
-      <Box 
-        borderTop="1px solid"
+      <Box
         borderColor="text.secondary"
-        padding="16px"
+        borderTop="1px solid"
         marginTop="auto"
+        padding="16px"
       >
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" alignItems="center">
-            <Box 
-              width="40px" 
-              height="40px" 
+        <Box alignItems="center" display="flex" justifyContent="space-between">
+          <Box alignItems="center" display="flex">
+            <Box
               borderRadius="8px"
+              height="40px"
               marginRight="8px"
               sx={{ backgroundColor: 'secondary.dark' }}
+              width="40px"
             />
             <Box>
               <Body2 color="text.secondary" fontSize="14px">
                 EKUID Creative Organizer
               </Body2>
-              <Body2 color="text.secondary" fontSize="12px" sx={{ marginTop: '8px' }}>
+              <Body2
+                color="text.secondary"
+                fontSize="12px"
+                sx={{ marginTop: '8px' }}
+              >
                 Admin
               </Body2>
             </Box>
           </Box>
-          <Image 
-            src="/icon/accordion-arrow.svg" 
-            alt="Arrow" 
-            width={16} 
+          <Image
+            alt="Arrow"
             height={16}
+            src="/icon/accordion-arrow.svg"
+            width={16}
           />
         </Box>
       </Box>
@@ -134,59 +145,57 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: 'primary.dark',
+          backgroundColor: 'primary.dark'
         }}
       >
-        <Toolbar sx={{ 
-          backgroundColor: 'common.white',
-          height: '80px'
-        }}>
+        <Toolbar
+          sx={{
+            backgroundColor: 'common.white',
+            height: '80px'
+          }}
+        >
           <IconButton
-            color="inherit"
             aria-label="open drawer"
+            color="inherit"
             edge="start"
-            onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { sm: 'none' } }}
+            onClick={handleDrawerToggle}
           >
             <MenuIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
 
-      <Box
-        component="nav"
-        width={{ sm: drawerWidth }}
-        flexShrink={{ sm: 0 }}
-      >
+      <Box component="nav" flexShrink={{ sm: 0 }} width={{ sm: drawerWidth }}>
         <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true,
+            keepMounted: true
           }}
+          open={mobileOpen}
           sx={{
             display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              backgroundColor: 'primary.dark',
-            },
+              backgroundColor: 'primary.dark'
+            }
           }}
+          variant="temporary"
+          onClose={handleDrawerToggle}
         >
           {drawer}
         </Drawer>
         <Drawer
-          variant="permanent"
+          open
           sx={{
             display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              backgroundColor: 'primary.dark',
-            },
+              backgroundColor: 'primary.dark'
+            }
           }}
-          open
+          variant="permanent"
         >
           {drawer}
         </Drawer>
@@ -195,10 +204,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Box
         component="main"
         flexGrow={1}
-        width={{ sm: `calc(100% - ${drawerWidth}px)` }}
         minHeight="100vh"
-        padding="140px 40px"
+        padding="115px 40px"
         sx={{ backgroundColor: 'primary.light' }}
+        width={{ sm: `calc(100% - ${drawerWidth}px)` }}
       >
         <Container maxWidth="lg" sx={{ padding: '0px !important' }}>
           {children}

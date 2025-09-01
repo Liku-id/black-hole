@@ -69,7 +69,9 @@ export const validationUtils = {
    * @param password - Password to validate
    * @returns Object with validation results
    */
-  validatePassword: (password: string): {
+  validatePassword: (
+    password: string
+  ): {
     isValid: boolean;
     errors: string[];
     strength: 'weak' | 'medium' | 'strong';
@@ -117,13 +119,19 @@ export const validationUtils = {
    * @param fieldName - Name of the field for error message
    * @returns Validation result
    */
-  validateRequired: (value: any, fieldName: string): {
+  validateRequired: (
+    value: any,
+    fieldName: string
+  ): {
     isValid: boolean;
     error?: string;
   } => {
-    const isEmpty = value === null || value === undefined || value === '' || 
-                   (typeof value === 'string' && value.trim() === '');
-    
+    const isEmpty =
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      (typeof value === 'string' && value.trim() === '');
+
     return {
       isValid: !isEmpty,
       error: isEmpty ? `${fieldName} is required` : undefined
@@ -137,15 +145,21 @@ export const validationUtils = {
    * @param fieldName - Name of the field for error message
    * @returns Validation result
    */
-  validateMinLength: (value: string, minLength: number, fieldName: string): {
+  validateMinLength: (
+    value: string,
+    minLength: number,
+    fieldName: string
+  ): {
     isValid: boolean;
     error?: string;
   } => {
     const isValid = value && value.length >= minLength;
-    
+
     return {
       isValid,
-      error: !isValid ? `${fieldName} must be at least ${minLength} characters long` : undefined
+      error: !isValid
+        ? `${fieldName} must be at least ${minLength} characters long`
+        : undefined
     };
   },
 
@@ -156,15 +170,21 @@ export const validationUtils = {
    * @param fieldName - Name of the field for error message
    * @returns Validation result
    */
-  validateMaxLength: (value: string, maxLength: number, fieldName: string): {
+  validateMaxLength: (
+    value: string,
+    maxLength: number,
+    fieldName: string
+  ): {
     isValid: boolean;
     error?: string;
   } => {
     const isValid = !value || value.length <= maxLength;
-    
+
     return {
       isValid,
-      error: !isValid ? `${fieldName} must be no more than ${maxLength} characters long` : undefined
+      error: !isValid
+        ? `${fieldName} must be no more than ${maxLength} characters long`
+        : undefined
     };
   },
 

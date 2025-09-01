@@ -32,14 +32,17 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toast, setToast] = useState<ToastState>({
     open: false,
     message: '',
-    severity: 'info',
+    severity: 'info'
   });
 
-  const showToast = (message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
+  const showToast = (
+    message: string,
+    severity: 'success' | 'error' | 'warning' | 'info'
+  ) => {
     setToast({
       open: true,
       message,
-      severity,
+      severity
     });
   };
 
@@ -48,27 +51,32 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const showWarning = (message: string) => showToast(message, 'warning');
   const showInfo = (message: string) => showToast(message, 'info');
 
-  const handleClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
-    setToast(prev => ({ ...prev, open: false }));
+    setToast((prev) => ({ ...prev, open: false }));
   };
 
   return (
-    <ToastContext.Provider value={{ showSuccess, showError, showWarning, showInfo }}>
+    <ToastContext.Provider
+      value={{ showSuccess, showError, showWarning, showInfo }}
+    >
       {children}
       <Snackbar
-        open={toast.open}
-        autoHideDuration={4000}
-        onClose={handleClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        autoHideDuration={4000}
+        open={toast.open}
+        onClose={handleClose}
       >
         <Alert
-          onClose={handleClose}
           severity={toast.severity}
-          variant="filled"
           sx={{ width: '100%' }}
+          variant="filled"
+          onClose={handleClose}
         >
           {toast.message}
         </Alert>

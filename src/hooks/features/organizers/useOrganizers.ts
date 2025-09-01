@@ -1,6 +1,7 @@
-import organizersService from '@/services/organizersService';
+import { organizersService } from '@/services';
 import { EventOrganizer } from '@/types/organizer';
-import { useApi } from '../../common/useApi';
+
+import { useApi } from '../../useApi';
 
 interface UseOrganizersReturn {
   organizers: EventOrganizer[];
@@ -22,8 +23,8 @@ const useOrganizers = (): UseOrganizersReturn => {
     organizers: data || [],
     loading,
     error,
-    mutate,
+    mutate
   };
 };
 
-export default useOrganizers;
+export { useOrganizers };

@@ -1,6 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { Body2 } from '@/components/common';
 import { useRef, useState } from 'react';
+
+import { Body2 } from '@/components/common';
 
 interface TabItem {
   id: string;
@@ -15,35 +16,39 @@ interface TabsProps {
   borderless?: boolean;
 }
 
-const TabsContainer = styled(Box)<{ borderless?: boolean }>(({ theme, borderless }) => ({
-  display: 'flex',
-  gap: '40px',
-  borderBottom: borderless ? 'none' : `1px solid ${theme.palette.divider}`,
-  overflowX: 'auto',
-  cursor: 'grab',
-  userSelect: 'none',
-  '&:active': {
-    cursor: 'grabbing'
-  },
-  '&::-webkit-scrollbar': {
-    height: '0px'
-  },
-  '&::-webkit-scrollbar-track': {
-    background: theme.palette.grey[100]
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: theme.palette.grey[300],
-    borderRadius: '2px'
-  },
-  '&::-webkit-scrollbar-thumb:hover': {
-    background: theme.palette.grey[400]
-  }
-}));
+const TabsContainer = styled(Box)<{ borderless?: boolean }>(
+  ({ theme, borderless }) => ({
+    display: 'flex',
+    gap: '40px',
+    borderBottom: borderless ? 'none' : `1px solid ${theme.palette.divider}`,
+    overflowX: 'auto',
+    cursor: 'grab',
+    userSelect: 'none',
+    '&:active': {
+      cursor: 'grabbing'
+    },
+    '&::-webkit-scrollbar': {
+      height: '0px'
+    },
+    '&::-webkit-scrollbar-track': {
+      background: theme.palette.grey[100]
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.grey[300],
+      borderRadius: '2px'
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: theme.palette.grey[400]
+    }
+  })
+);
 
 const TabItem = styled(Box)<{ active: boolean }>(({ active, theme }) => ({
   padding: '16px 0',
   cursor: 'pointer',
-  borderBottom: active ? `2px solid ${theme.palette.primary.main}` : '2px solid transparent',
+  borderBottom: active
+    ? `2px solid ${theme.palette.primary.main}`
+    : '2px solid transparent',
   transition: 'all 0.2s ease',
   flexShrink: 0,
   '&:hover': {
@@ -51,7 +56,12 @@ const TabItem = styled(Box)<{ active: boolean }>(({ active, theme }) => ({
   }
 }));
 
-export default function Tabs({ tabs, activeTab, onTabChange, borderless = false }: TabsProps) {
+export default function Tabs({
+  tabs,
+  activeTab,
+  onTabChange,
+  borderless = false
+}: TabsProps) {
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -80,7 +90,7 @@ export default function Tabs({ tabs, activeTab, onTabChange, borderless = false 
     const x = e.pageX;
     const walk = x - startX;
     setDragDistance(Math.abs(walk));
-    
+
     if (containerRef.current) {
       containerRef.current.scrollLeft = scrollLeft - walk;
     }
@@ -90,11 +100,11 @@ export default function Tabs({ tabs, activeTab, onTabChange, borderless = false 
     <TabsContainer
       ref={containerRef}
       borderless={borderless}
+      sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}
       onMouseDown={handleMouseDown}
       onMouseLeave={handleMouseLeave}
-      onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+      onMouseUp={handleMouseUp}
     >
       {tabs.map((tab) => (
         <TabItem
@@ -106,10 +116,10 @@ export default function Tabs({ tabs, activeTab, onTabChange, borderless = false 
             }
           }}
         >
-          <Body2 
-            fontSize="14px" 
-            fontFamily="Onest"
+          <Body2
             color={activeTab === tab.id ? 'primary.main' : 'text.secondary'}
+            fontFamily="Onest"
+            fontSize="14px"
           >
             {tab.title}
             {tab.quantity !== undefined && `(${tab.quantity})`}

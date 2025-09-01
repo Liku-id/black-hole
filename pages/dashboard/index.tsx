@@ -1,8 +1,16 @@
-import { useState } from 'react';
+import { Search, Visibility } from '@mui/icons-material';
 import { Box, Grid, Card, CardContent } from '@mui/material';
-import DashboardLayout from '@/layouts/dashboard';
-import { 
-  H2, H3, Body1, H1, Body2, Caption, Overline,
+import { useState } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+
+import {
+  H2,
+  H3,
+  Body1,
+  H1,
+  Body2,
+  Caption,
+  Overline,
   Button,
   TextField,
   PhoneField,
@@ -11,12 +19,11 @@ import {
   TimeField,
   Modal
 } from '@/components/common';
-import { Search, Visibility } from '@mui/icons-material';
-import { useForm, FormProvider } from 'react-hook-form';
+import DashboardLayout from '@/layouts/dashboard';
 
 export default function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
-  
+
   const methods = useForm({
     defaultValues: {
       email: '',
@@ -25,7 +32,7 @@ export default function Dashboard() {
       phone: '',
       category: '',
       eventDate: '',
-      eventTime: '',
+      eventTime: ''
     }
   });
 
@@ -38,7 +45,7 @@ export default function Dashboard() {
     { value: 'sports', label: 'Sports' },
     { value: 'business', label: 'Business' },
     { value: 'technology', label: 'Technology' },
-    { value: 'education', label: 'Education' },
+    { value: 'education', label: 'Education' }
   ];
 
   return (
@@ -49,10 +56,10 @@ export default function Dashboard() {
         </H2>
 
         <Box sx={{ mb: 8 }}>
-          <H3 color="text.primary" gutterBottom>
+          <H3 gutterBottom color="text.primary">
             Typography
           </H3>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2}}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <H1 color="text.primary" fontWeight={300}>
               H1: Lorem ipsum dolor sit.
             </H1>
@@ -76,30 +83,33 @@ export default function Dashboard() {
             </Overline>
           </Box>
         </Box>
-        
+
         {/* Regular Text Fields (without form) */}
         <Box sx={{ mb: 8 }}>
-          <H3 color="text.primary" gutterBottom>
+          <H3 gutterBottom color="text.primary">
             Fields
           </H3>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
-            <TextField 
-              label="Search Events" 
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              maxWidth: 400
+            }}
+          >
+            <TextField
+              label="Search Events"
               placeholder="Type to search..."
               startComponent={<Search />}
             />
-            <TextField 
-              label="Email" 
-              type="email"
+            <TextField
+              label="Email"
               placeholder="Enter your email"
+              type="email"
             />
-             <TextField 
-              label="Name" 
-              type="text"
-              placeholder="Enter your name"
-            />
-            <TimeField 
-              label="Meeting Time" 
+            <TextField label="Name" placeholder="Enter your name" type="text" />
+            <TimeField
+              label="Meeting Time"
               onChange={(value) => console.log('Time changed:', value)}
             />
           </Box>
@@ -107,16 +117,22 @@ export default function Dashboard() {
 
         {/* React Hook Form Text Fields */}
         <Box sx={{ mb: 8 }}>
-          <H3 color="text.primary" gutterBottom>
-          Fields With React Hook Form 
+          <H3 gutterBottom color="text.primary">
+            Fields With React Hook Form
           </H3>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
-                <TextField 
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  maxWidth: 400
+                }}
+              >
+                <TextField
+                  label="Email"
                   name="email"
-                  label="Email" 
-                  type="email"
                   placeholder="Enter your email"
                   rules={{
                     required: 'Email is required',
@@ -125,14 +141,14 @@ export default function Dashboard() {
                       message: 'Invalid email address'
                     }
                   }}
+                  type="email"
                 />
-                
-                <TextField 
-                  name="password"
-                  label="Password" 
-                  type="password"
-                  placeholder="Enter your password"
+
+                <TextField
                   endComponent={<Visibility />}
+                  label="Password"
+                  name="password"
+                  placeholder="Enter your password"
                   rules={{
                     required: 'Password is required',
                     minLength: {
@@ -140,13 +156,14 @@ export default function Dashboard() {
                       message: 'Password must be at least 6 characters'
                     }
                   }}
+                  type="password"
                 />
-                
-                <PhoneField 
-                  name="phone"
-                  label="Phone Number"
-                  placeholder="Enter phone number"
+
+                <PhoneField
                   defaultCountryCode="+62"
+                  label="Phone Number"
+                  name="phone"
+                  placeholder="Enter phone number"
                   rules={{
                     required: 'Phone number is required',
                     pattern: {
@@ -157,110 +174,101 @@ export default function Dashboard() {
                 />
 
                 <Select
-                  name="category"
                   label="Event Category"
-                  placeholder="Select category"
+                  name="category"
                   options={categoryOptions}
+                  placeholder="Select category"
                   rules={{
                     required: 'Category is required'
                   }}
                 />
                 <DateField
-                  name="eventDate"
                   label="Event Date"
+                  name="eventDate"
                   placeholder="Select date"
                   rules={{
                     required: 'Event date is required'
                   }}
                 />
                 <TimeField
-                  name="eventTime"
                   label="Event Time"
+                  name="eventTime"
                   placeholder="Select time"
                   rules={{
                     required: 'Event time is required'
                   }}
                 />
-                <TextField 
+                <TextField
+                  label="Search"
                   name="search"
-                  label="Search" 
                   placeholder="Search something..."
-                  startComponent={<Search />}
                   rules={{
                     required: 'Search term is required'
                   }}
+                  startComponent={<Search />}
                 />
                 <Button type="submit">Submit Form</Button>
               </Box>
             </form>
           </FormProvider>
         </Box>
-        
+
         {/* Button Examples */}
-        <H3 color="text.primary" gutterBottom>
+        <H3 gutterBottom color="text.primary">
           Button
         </H3>
         <Box sx={{ mb: 8, display: 'flex', gap: 2 }}>
           <Button>Primary Button</Button>
           <Button variant="secondary">Secondary Button</Button>
         </Box>
-        
-        <H3 color="text.primary" gutterBottom>
+
+        <H3 gutterBottom color="text.primary">
           Modal
         </H3>
         <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
 
-
-        <Box marginBottom="64px"/>
+        <Box marginBottom="64px" />
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item md={3} sm={6} xs={12}>
             <Card sx={{ backgroundColor: 'background.paper' }}>
               <CardContent>
-                <Body1 color="text.secondary" gutterBottom>
+                <Body1 gutterBottom color="text.secondary">
                   Total Events
                 </Body1>
-                <H2 color="text.primary">
-                  24
-                </H2>
+                <H2 color="text.primary">24</H2>
               </CardContent>
             </Card>
           </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
+
+          <Grid item md={3} sm={6} xs={12}>
             <Card sx={{ backgroundColor: 'background.paper' }}>
               <CardContent>
-                <Body1 color="text.secondary" gutterBottom>
+                <Body1 gutterBottom color="text.secondary">
                   Active Events
                 </Body1>
-                <H2 color="text.primary">
-                  12
-                </H2>
+                <H2 color="text.primary">12</H2>
               </CardContent>
             </Card>
           </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
+
+          <Grid item md={3} sm={6} xs={12}>
             <Card sx={{ backgroundColor: 'background.paper' }}>
               <CardContent>
-                <Body1 color="text.secondary" gutterBottom>
+                <Body1 gutterBottom color="text.secondary">
                   Total Tickets
                 </Body1>
-                <H2 color="text.primary">
-                  1,234
-                </H2>
+                <H2 color="text.primary">1,234</H2>
               </CardContent>
             </Card>
           </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
+
+          <Grid item md={3} sm={6} xs={12}>
             <Card sx={{ backgroundColor: 'background.paper' }}>
               <CardContent>
-                <Body1 color="text.secondary" gutterBottom>
+                <Body1 gutterBottom color="text.secondary">
                   Revenue
                 </Body1>
-                <H2 color="text.primary">
-                  $12,345
-                </H2>
+                <H2 color="text.primary">$12,345</H2>
               </CardContent>
             </Card>
           </Grid>
@@ -269,23 +277,22 @@ export default function Dashboard() {
 
       {/* Modal Example */}
       <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Example Modal"
-        titleSize="18px"
         footer={
-          <Box display="flex" justifyContent="flex-end" gap={2}>
+          <Box display="flex" gap={2} justifyContent="flex-end">
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => setModalOpen(false)}>
-              Confirm
-            </Button>
+            <Button onClick={() => setModalOpen(false)}>Confirm</Button>
           </Box>
         }
+        open={modalOpen}
+        title="Example Modal"
+        titleSize="18px"
+        onClose={() => setModalOpen(false)}
       >
         <Body1>
-          This is an example modal content. You can put any content here including forms, text, or other components.
+          This is an example modal content. You can put any content here
+          including forms, text, or other components.
         </Body1>
       </Modal>
     </DashboardLayout>

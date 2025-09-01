@@ -1,4 +1,3 @@
-import { formatDateDDMMYYYY } from '@/utils';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -28,6 +27,8 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useState } from 'react';
+
+import { formatDateDDMMYYYY } from '@/utils';
 
 export interface Transaction {
   id: string;
@@ -163,7 +164,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
       <Card>
         <CardHeader title="Transaction History" />
         <Divider />
-        <Box p={3} display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" p={3}>
           <Typography>Loading transactions...</Typography>
         </Box>
       </Card>
@@ -173,19 +174,14 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
   return (
     <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
       <CardHeader
-        title={
-          <Typography variant="body2" color="text.secondary">
-            Total: {transactions.length} transactions
-          </Typography>
-        }
         action={
           <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={onRefresh}
             disabled={loading}
             size="small"
+            startIcon={<RefreshIcon />}
             sx={{ borderRadius: 2 }}
+            variant="outlined"
+            onClick={onRefresh}
           >
             Refresh
           </Button>
@@ -194,6 +190,11 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
           background: `linear-gradient(135deg, ${theme.palette.primary.main}08, ${theme.palette.primary.main}04)`,
           borderBottom: `1px solid ${theme.palette.divider}`
         }}
+        title={
+          <Typography color="text.secondary" variant="body2">
+            Total: {transactions.length} transactions
+          </Typography>
+        }
       />
       <TableContainer sx={{ maxHeight: 800 }}>
         <Table stickyHeader>
@@ -207,8 +208,8 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                 }}
               >
                 <Checkbox
-                  color="primary"
                   checked={selectedAllTransactions}
+                  color="primary"
                   indeterminate={selectedSomeTransactions}
                   onChange={handleSelectAllTransactions}
                 />
@@ -220,7 +221,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 280
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Customer & Order
                 </Typography>
               </TableCell>
@@ -231,7 +232,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 200
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Ticket Details
                 </Typography>
               </TableCell>
@@ -242,7 +243,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 180
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Payment Info
                 </Typography>
               </TableCell>
@@ -254,7 +255,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 180
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Payment Breakdown
                 </Typography>
               </TableCell>
@@ -265,7 +266,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 120
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Status
                 </Typography>
               </TableCell>
@@ -276,7 +277,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 150
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Date
                 </Typography>
               </TableCell>
@@ -288,7 +289,7 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   minWidth: 120
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Actions
                 </Typography>
               </TableCell>
@@ -301,8 +302,8 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
               );
               return (
                 <TableRow
-                  hover
                   key={transaction.id}
+                  hover
                   selected={isTransactionSelected}
                   sx={{
                     '&:hover': {
@@ -318,16 +319,16 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
-                      color="primary"
                       checked={isTransactionSelected}
+                      color="primary"
+                      value={isTransactionSelected}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         handleSelectOneTransaction(event, transaction.id)
                       }
-                      value={isTransactionSelected}
                     />
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" alignItems="center">
+                    <Box alignItems="center" display="flex">
                       <Avatar
                         sx={{
                           mr: 2,
@@ -341,22 +342,22 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                       </Avatar>
                       <Box>
                         <Typography
-                          variant="subtitle2"
-                          fontWeight="bold"
                           noWrap
+                          fontWeight="bold"
+                          variant="subtitle2"
                         >
                           {transaction.customerName}
                         </Typography>
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
                           noWrap
+                          color="text.secondary"
+                          variant="caption"
                         >
                           {transaction.customerEmail}
                         </Typography>
                         <Box
-                          display="flex"
                           alignItems="center"
+                          display="flex"
                           gap={0.5}
                           mt={0.5}
                         >
@@ -367,9 +368,9 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                             }}
                           />
                           <Typography
-                            variant="caption"
-                            color="text.secondary"
                             noWrap
+                            color="text.secondary"
+                            variant="caption"
                           >
                             Order: {transaction.orderId}
                           </Typography>
@@ -379,13 +380,13 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium" noWrap>
+                      <Typography noWrap fontWeight="medium" variant="body2">
                         {transaction.ticketType}
                       </Typography>
                       <Typography
-                        variant="caption"
-                        color="text.secondary"
                         noWrap
+                        color="text.secondary"
+                        variant="caption"
                       >
                         Quantity: {transaction.quantity}
                       </Typography>
@@ -393,22 +394,21 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Box display="flex" alignItems="center" gap={1} mb={1}>
+                      <Box alignItems="center" display="flex" gap={1} mb={1}>
                         <AccountBalanceIcon
                           sx={{ fontSize: 16, color: theme.palette.info.main }}
                         />
-                        <Typography variant="body2" noWrap>
+                        <Typography noWrap variant="body2">
                           {transaction.paymentMethod}
                         </Typography>
                       </Box>
                       {transaction.paymentDate && (
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
                           noWrap
+                          color="text.secondary"
+                          variant="caption"
                         >
-                          Paid:{' '}
-                          {formatDateDDMMYYYY(transaction.paymentDate)}
+                          Paid: {formatDateDDMMYYYY(transaction.paymentDate)}
                         </Typography>
                       )}
                     </Box>
@@ -418,41 +418,41 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                     {transaction.paymentBreakdown ? (
                       <Box>
                         <Typography
-                          variant="caption"
                           color="text.secondary"
                           display="block"
+                          variant="caption"
                         >
                           Base:{' '}
                           {formatPrice(transaction.paymentBreakdown.basedPrice)}
                         </Typography>
                         <Typography
-                          variant="caption"
                           color="text.secondary"
                           display="block"
+                          variant="caption"
                         >
                           Fee: {formatPrice(transaction.paymentBreakdown.fee)}
                         </Typography>
                         <Typography
-                          variant="caption"
                           color="text.secondary"
                           display="block"
+                          variant="caption"
                         >
                           Tax: {formatPrice(transaction.paymentBreakdown.tax)}
                         </Typography>
                         <Typography
-                          variant="caption"
-                          fontWeight="bold"
                           color="success.main"
                           display="block"
+                          fontWeight="bold"
+                          variant="caption"
                         >
                           Total:{' '}
                           {formatPrice(transaction.paymentBreakdown.totalPrice)}
                         </Typography>
                         {transaction.refundAmount && (
                           <Typography
-                            variant="caption"
                             color="error"
                             display="block"
+                            variant="caption"
                           >
                             Refund: {formatPrice(transaction.refundAmount)}
                           </Typography>
@@ -461,15 +461,15 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                     ) : (
                       <Box>
                         <Typography
-                          variant="body2"
-                          fontWeight="bold"
-                          color="primary"
                           noWrap
+                          color="primary"
+                          fontWeight="bold"
+                          variant="body2"
                         >
                           {formatPrice(transaction.totalAmount)}
                         </Typography>
                         {transaction.refundAmount && (
-                          <Typography variant="caption" color="error" noWrap>
+                          <Typography noWrap color="error" variant="caption">
                             Refund: {formatPrice(transaction.refundAmount)}
                           </Typography>
                         )}
@@ -478,33 +478,33 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={getStatusLabel(transaction.status)}
                       color={getStatusColor(transaction.status) as any}
+                      label={getStatusLabel(transaction.status)}
                       size="small"
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium" noWrap>
+                      <Typography noWrap fontWeight="medium" variant="body2">
                         {formatDateDDMMYYYY(transaction.transactionDate)}
                       </Typography>
                       {transaction.refundDate && (
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
                           noWrap
+                          color="text.secondary"
+                          variant="caption"
                         >
-                          Refund:{' '}
-                          {formatDateDDMMYYYY(transaction.refundDate)}
+                          Refund: {formatDateDDMMYYYY(transaction.refundDate)}
                         </Typography>
                       )}
                     </Box>
                   </TableCell>
                   <TableCell align="right">
                     <Box display="flex" gap={0.5} justifyContent="flex-end">
-                      <Tooltip title="View Details" arrow>
+                      <Tooltip arrow title="View Details">
                         <IconButton
+                          size="small"
                           sx={{
                             '&:hover': {
                               background: theme.palette.info.light,
@@ -513,13 +513,13 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                             color: theme.palette.info.main,
                             transition: 'all 0.2s ease-in-out'
                           }}
-                          size="small"
                         >
                           <VisibilityTwoToneIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Edit Transaction" arrow>
+                      <Tooltip arrow title="Edit Transaction">
                         <IconButton
+                          size="small"
                           sx={{
                             '&:hover': {
                               background: theme.palette.primary.light,
@@ -528,13 +528,13 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                             color: theme.palette.primary.main,
                             transition: 'all 0.2s ease-in-out'
                           }}
-                          size="small"
                         >
                           <EditTwoToneIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Delete Transaction" arrow>
+                      <Tooltip arrow title="Delete Transaction">
                         <IconButton
+                          size="small"
                           sx={{
                             '&:hover': {
                               background: theme.palette.error.light,
@@ -543,7 +543,6 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                             color: theme.palette.error.main,
                             transition: 'all 0.2s ease-in-out'
                           }}
-                          size="small"
                         >
                           <DeleteTwoToneIcon fontSize="small" />
                         </IconButton>
@@ -567,8 +566,6 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
           <TablePagination
             component="div"
             count={pagination.totalItems}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleLimitChange}
             page={pagination.currentPage}
             rowsPerPage={pagination.limit}
             rowsPerPageOptions={[5, 10, 25, 50]}
@@ -578,6 +575,8 @@ const TransactionsTable: FC<TransactionsTableProps> = ({
                   fontWeight: 500
                 }
             }}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleLimitChange}
           />
         )}
       </Box>

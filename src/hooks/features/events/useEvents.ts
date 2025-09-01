@@ -1,6 +1,7 @@
-import eventsService from '@/services/eventsService';
+import { eventsService } from '@/services';
 import { Event, EventsFilters } from '@/types/event';
-import { useApi } from '../../common/useApi';
+
+import { useApi } from '../../useApi';
 
 interface UseEventsReturn {
   events: Event[];
@@ -31,4 +32,4 @@ const useEvents = (filters?: EventsFilters): UseEventsReturn => {
   };
 };
 
-export default useEvents;
+export { useEvents };

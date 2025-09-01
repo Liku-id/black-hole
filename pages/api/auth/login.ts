@@ -8,14 +8,17 @@ export default async function handler(
   if (req.method === 'GET') {
     return res.status(200).json({ message: 'Login API is working' });
   }
-  
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
     const { email, password } = req.body;
-    console.log('Login attempt:', { email, password: password ? '***' : 'missing' });
+    console.log('Login attempt:', {
+      email,
+      password: password ? '***' : 'missing'
+    });
 
     // For now, return mock response to test
     const mockUser = {
@@ -25,7 +28,7 @@ export default async function handler(
       role: 'admin',
       avatar: null
     };
-    
+
     const mockResponse = {
       body: {
         user: mockUser,
@@ -34,9 +37,8 @@ export default async function handler(
       },
       message: 'Login successful'
     };
-    
+
     return res.status(200).json(mockResponse);
-    
   } catch (error) {
     console.error('Login API error:', error);
     return res.status(500).json({ message: 'Internal server error' });

@@ -1,10 +1,13 @@
-import React, { FC, createContext } from 'react';
 import { ThemeProvider } from '@mui/material';
+import React, { FC, createContext } from 'react';
+
 import { themeCreator } from './base';
 
 export const ThemeContext = createContext((_themeName: string): void => {});
 
-const ThemeProviderWrapper: FC<{ children: React.ReactNode }> = ({ children }) => {
+const ThemeProviderWrapper: FC<{ children: React.ReactNode }> = ({
+  children
+}) => {
   const theme = themeCreator();
   const setThemeName = (themeName: string): void => {
     window.localStorage.setItem('appTheme', themeName);

@@ -1,6 +1,7 @@
-import eventsService from '@/services/eventsService';
+import { eventsService } from '@/services';
 import { EventDetail } from '@/types/event';
-import { useApi } from '../../common/useApi';
+
+import { useApi } from '../../useApi';
 
 interface UseEventDetailReturn {
   eventDetail: EventDetail | null;
@@ -23,4 +24,4 @@ const useEventDetail = (metaUrl: string): UseEventDetailReturn => {
   };
 };
 
-export default useEventDetail;
+export { useEventDetail };

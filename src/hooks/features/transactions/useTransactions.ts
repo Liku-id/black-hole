@@ -1,6 +1,7 @@
+import { transactionsService } from '@/services';
 import { TransactionsFilters, TransactionsResponse } from '@/types/transaction';
-import transactionsService from '@/services/transactionsService';
-import { useApi } from '../../common/useApi';
+
+import { useApi } from '../../useApi';
 
 interface UseTransactionsReturn {
   data: TransactionsResponse | null;
@@ -26,4 +27,4 @@ const useTransactions = (
   };
 };
 
-export default useTransactions;
+export { useTransactions };

@@ -10,7 +10,9 @@ export const stringUtils = {
    */
   truncate: (text: string, maxLength: number = 50): string => {
     if (!text) return '';
-    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
   },
 
   /**
@@ -57,7 +59,9 @@ export const stringUtils = {
     if (words.length === 1) {
       return words[0].charAt(0).toUpperCase();
     }
-    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+    return (
+      words[0].charAt(0) + words[words.length - 1].charAt(0)
+    ).toUpperCase();
   },
 
   /**
@@ -69,17 +73,17 @@ export const stringUtils = {
     if (!phoneNumber) return '';
     // Remove all non-digit characters
     const cleaned = phoneNumber.replace(/\D/g, '');
-    
+
     // Format Indonesian phone numbers
     if (cleaned.startsWith('62')) {
       return `+${cleaned.slice(0, 2)} ${cleaned.slice(2, 5)} ${cleaned.slice(5, 9)} ${cleaned.slice(9)}`;
     }
-    
+
     // Format other patterns
     if (cleaned.length === 10) {
       return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     }
-    
+
     return phoneNumber; // Return original if no pattern matches
   },
 

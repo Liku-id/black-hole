@@ -1,5 +1,3 @@
-import { EventOrganizer } from '@/types/organizer';
-import { formatIndonesianDateTime, formatPhoneNumber, truncate } from '@/utils';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BadgeIcon from '@mui/icons-material/Badge';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -33,19 +31,28 @@ import {
 } from '@mui/material';
 import { ChangeEvent, FC, useState } from 'react';
 
+import { EventOrganizer } from '@/types/organizer';
+import { formatIndonesianDateTime, formatPhoneNumber, truncate } from '@/utils';
+
 interface OrganizersTableProps {
   organizers: EventOrganizer[];
   loading?: boolean;
   onRefresh?: () => void;
 }
 
-const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false, onRefresh }) => {
+const OrganizersTable: FC<OrganizersTableProps> = ({
+  organizers,
+  loading = false,
+  onRefresh
+}) => {
   const [selectedOrganizers, setSelectedOrganizers] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(10);
   const theme = useTheme();
 
-  const handleSelectAllOrganizers = (event: ChangeEvent<HTMLInputElement>): void => {
+  const handleSelectAllOrganizers = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     setSelectedOrganizers(
       event.target.checked ? organizers.map((organizer) => organizer.id) : []
     );
@@ -73,9 +80,13 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
     setPage(0);
   };
 
-  const paginatedOrganizers = organizers.slice(page * limit, page * limit + limit);
+  const paginatedOrganizers = organizers.slice(
+    page * limit,
+    page * limit + limit
+  );
   const selectedSomeOrganizers =
-    selectedOrganizers.length > 0 && selectedOrganizers.length < organizers.length;
+    selectedOrganizers.length > 0 &&
+    selectedOrganizers.length < organizers.length;
   const selectedAllOrganizers = selectedOrganizers.length === organizers.length;
 
   if (loading) {
@@ -83,7 +94,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
       <Card>
         <CardHeader title="Event Organizers" />
         <Divider />
-        <Box p={3} display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" p={3}>
           <Typography>Loading organizers...</Typography>
         </Box>
       </Card>
@@ -93,97 +104,110 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
   return (
     <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
       <CardHeader
-        title={
-          <Typography variant="body2" color="text.secondary">
-            Total: {organizers.length} organizers
-          </Typography>
-        }
         action={
           <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={onRefresh}
             disabled={loading}
             size="small"
+            startIcon={<RefreshIcon />}
             sx={{ borderRadius: 2 }}
+            variant="outlined"
+            onClick={onRefresh}
           >
             Refresh
           </Button>
         }
-        sx={{ 
+        sx={{
           background: `linear-gradient(135deg, ${theme.palette.primary.main}08, ${theme.palette.primary.main}04)`,
           borderBottom: `1px solid ${theme.palette.divider}`
         }}
+        title={
+          <Typography color="text.secondary" variant="body2">
+            Total: {organizers.length} organizers
+          </Typography>
+        }
       />
       <TableContainer sx={{ maxHeight: 800 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell 
+              <TableCell
                 padding="checkbox"
-                sx={{ 
+                sx={{
                   backgroundColor: theme.palette.grey[50],
                   fontWeight: 600
                 }}
               >
                 <Checkbox
-                  color="primary"
                   checked={selectedAllOrganizers}
+                  color="primary"
                   indeterminate={selectedSomeOrganizers}
                   onChange={handleSelectAllOrganizers}
                 />
               </TableCell>
-              <TableCell sx={{ 
-                backgroundColor: theme.palette.grey[50],
-                fontWeight: 600,
-                minWidth: 280
-              }}>
-                <Typography variant="subtitle2" fontWeight="bold">
+              <TableCell
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  fontWeight: 600,
+                  minWidth: 280
+                }}
+              >
+                <Typography fontWeight="bold" variant="subtitle2">
                   Organizer Details
                 </Typography>
               </TableCell>
-              <TableCell sx={{ 
-                backgroundColor: theme.palette.grey[50],
-                fontWeight: 600,
-                minWidth: 200
-              }}>
-                <Typography variant="subtitle2" fontWeight="bold">
+              <TableCell
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  fontWeight: 600,
+                  minWidth: 200
+                }}
+              >
+                <Typography fontWeight="bold" variant="subtitle2">
                   Contact Information
                 </Typography>
               </TableCell>
-              <TableCell sx={{ 
-                backgroundColor: theme.palette.grey[50],
-                fontWeight: 600,
-                minWidth: 200
-              }}>
-                <Typography variant="subtitle2" fontWeight="bold">
+              <TableCell
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  fontWeight: 600,
+                  minWidth: 200
+                }}
+              >
+                <Typography fontWeight="bold" variant="subtitle2">
                   Banking Details
                 </Typography>
               </TableCell>
-              <TableCell sx={{ 
-                backgroundColor: theme.palette.grey[50],
-                fontWeight: 600,
-                minWidth: 180
-              }}>
-                <Typography variant="subtitle2" fontWeight="bold">
+              <TableCell
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  fontWeight: 600,
+                  minWidth: 180
+                }}
+              >
+                <Typography fontWeight="bold" variant="subtitle2">
                   Registration
                 </Typography>
               </TableCell>
-              <TableCell sx={{ 
-                backgroundColor: theme.palette.grey[50],
-                fontWeight: 600,
-                minWidth: 120
-              }}>
-                <Typography variant="subtitle2" fontWeight="bold">
+              <TableCell
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  fontWeight: 600,
+                  minWidth: 120
+                }}
+              >
+                <Typography fontWeight="bold" variant="subtitle2">
                   Created
                 </Typography>
               </TableCell>
-              <TableCell align="right" sx={{ 
-                backgroundColor: theme.palette.grey[50],
-                fontWeight: 600,
-                minWidth: 120
-              }}>
-                <Typography variant="subtitle2" fontWeight="bold">
+              <TableCell
+                align="right"
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  fontWeight: 600,
+                  minWidth: 120
+                }}
+              >
+                <Typography fontWeight="bold" variant="subtitle2">
                   Actions
                 </Typography>
               </TableCell>
@@ -191,11 +215,13 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
           </TableHead>
           <TableBody>
             {paginatedOrganizers.map((organizer) => {
-              const isOrganizerSelected = selectedOrganizers.includes(organizer.id);
+              const isOrganizerSelected = selectedOrganizers.includes(
+                organizer.id
+              );
               return (
-                <TableRow 
-                  hover 
-                  key={organizer.id} 
+                <TableRow
+                  key={organizer.id}
+                  hover
                   selected={isOrganizerSelected}
                   sx={{
                     '&:hover': {
@@ -204,23 +230,23 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                       transition: 'all 0.2s ease-in-out'
                     },
                     '&.Mui-selected': {
-                      backgroundColor: `${theme.palette.primary.main}12`,
+                      backgroundColor: `${theme.palette.primary.main}12`
                     },
                     borderBottom: `1px solid ${theme.palette.divider}`
                   }}
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
-                      color="primary"
                       checked={isOrganizerSelected}
+                      color="primary"
+                      value={isOrganizerSelected}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         handleSelectOneOrganizer(event, organizer.id)
                       }
-                      value={isOrganizerSelected}
                     />
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" alignItems="center">
+                    <Box alignItems="center" display="flex">
                       <Avatar
                         sx={{
                           mr: 2,
@@ -233,17 +259,39 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                         <BusinessIcon />
                       </Avatar>
                       <Box>
-                        <Typography variant="subtitle2" fontWeight="bold" noWrap>
+                        <Typography
+                          noWrap
+                          fontWeight="bold"
+                          variant="subtitle2"
+                        >
                           {organizer.name}
                         </Typography>
-                        <Box display="flex" alignItems="center" gap={0.5} mt={0.5}>
-                          <PersonIcon sx={{ fontSize: 14, color: theme.palette.text.secondary }} />
-                          <Typography variant="caption" color="text.secondary" noWrap>
+                        <Box
+                          alignItems="center"
+                          display="flex"
+                          gap={0.5}
+                          mt={0.5}
+                        >
+                          <PersonIcon
+                            sx={{
+                              fontSize: 14,
+                              color: theme.palette.text.secondary
+                            }}
+                          />
+                          <Typography
+                            noWrap
+                            color="text.secondary"
+                            variant="caption"
+                          >
                             {organizer.pic_title || 'No title specified'}
                           </Typography>
                         </Box>
                         {organizer.description && (
-                          <Typography variant="caption" color="text.secondary" noWrap>
+                          <Typography
+                            noWrap
+                            color="text.secondary"
+                            variant="caption"
+                          >
                             {truncate(organizer.description, 30)}
                           </Typography>
                         )}
@@ -252,74 +300,112 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Box display="flex" alignItems="center" gap={1} mb={1}>
-                        <EmailIcon sx={{ fontSize: 16, color: theme.palette.info.main }} />
-                        <Typography variant="body2" noWrap>
+                      <Box alignItems="center" display="flex" gap={1} mb={1}>
+                        <EmailIcon
+                          sx={{ fontSize: 16, color: theme.palette.info.main }}
+                        />
+                        <Typography noWrap variant="body2">
                           {organizer.email}
                         </Typography>
-                      </Box>                        <Box display="flex" alignItems="center" gap={1}>
-                          <PhoneIcon sx={{ fontSize: 16, color: theme.palette.success.main }} />
-                          <Typography variant="body2" color="text.secondary" noWrap>
-                            {formatPhoneNumber(organizer.phone_number)}
-                          </Typography>
-                        </Box>
+                      </Box>{' '}
+                      <Box alignItems="center" display="flex" gap={1}>
+                        <PhoneIcon
+                          sx={{
+                            fontSize: 16,
+                            color: theme.palette.success.main
+                          }}
+                        />
+                        <Typography
+                          noWrap
+                          color="text.secondary"
+                          variant="body2"
+                        >
+                          {formatPhoneNumber(organizer.phone_number)}
+                        </Typography>
+                      </Box>
                     </Box>
                   </TableCell>
                   <TableCell>
                     {organizer.bank_information ? (
                       <Box>
-                        <Box display="flex" alignItems="center" gap={1} mb={1}>
-                          <AccountBalanceIcon 
-                            sx={{ fontSize: 16, color: theme.palette.primary.main }} 
+                        <Box alignItems="center" display="flex" gap={1} mb={1}>
+                          <AccountBalanceIcon
+                            sx={{
+                              fontSize: 16,
+                              color: theme.palette.primary.main
+                            }}
                           />
-                          <Typography variant="body2" fontWeight="medium" noWrap>
+                          <Typography
+                            noWrap
+                            fontWeight="medium"
+                            variant="body2"
+                          >
                             {organizer.bank_information.bank.name.toUpperCase()}
                           </Typography>
                         </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <BadgeIcon sx={{ fontSize: 14, color: theme.palette.text.secondary }} />
-                          <Typography variant="caption" color="text.secondary" noWrap>
+                        <Box alignItems="center" display="flex" gap={1}>
+                          <BadgeIcon
+                            sx={{
+                              fontSize: 14,
+                              color: theme.palette.text.secondary
+                            }}
+                          />
+                          <Typography
+                            noWrap
+                            color="text.secondary"
+                            variant="caption"
+                          >
                             {organizer.bank_information.accountNumber}
                           </Typography>
                         </Box>
-                        <Typography variant="caption" color="text.secondary" noWrap>
+                        <Typography
+                          noWrap
+                          color="text.secondary"
+                          variant="caption"
+                        >
                           {organizer.bank_information.accountHolderName}
                         </Typography>
                       </Box>
                     ) : (
-                      <Chip 
-                        label="No Bank Info" 
-                        size="small" 
-                        color="warning" 
-                        variant="outlined"
+                      <Chip
+                        color="warning"
+                        label="No Bank Info"
+                        size="small"
                         sx={{ borderRadius: 1 }}
+                        variant="outlined"
                       />
                     )}
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Box display="flex" alignItems="center" gap={1} mb={1}>
-                        <BadgeIcon sx={{ fontSize: 16, color: theme.palette.secondary.main }} />
-                        <Typography variant="body2" fontWeight="medium" noWrap>
+                      <Box alignItems="center" display="flex" gap={1} mb={1}>
+                        <BadgeIcon
+                          sx={{
+                            fontSize: 16,
+                            color: theme.palette.secondary.main
+                          }}
+                        />
+                        <Typography noWrap fontWeight="medium" variant="body2">
                           NIK: {organizer.nik || '-'}
                         </Typography>
                       </Box>
-                      <Typography variant="body2" color="text.secondary" noWrap>
+                      <Typography noWrap color="text.secondary" variant="body2">
                         NPWP: {organizer.npwp || '-'}
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium" noWrap>
+                      <Typography noWrap fontWeight="medium" variant="body2">
                         {formatIndonesianDateTime(organizer.created_at)}
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell align="right">
                     <Box display="flex" gap={0.5} justifyContent="flex-end">
-                      <Tooltip title="View Details" arrow>
+                      <Tooltip arrow title="View Details">
                         <IconButton
+                          size="small"
                           sx={{
                             '&:hover': {
                               background: theme.palette.info.light,
@@ -328,13 +414,13 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                             color: theme.palette.info.main,
                             transition: 'all 0.2s ease-in-out'
                           }}
-                          size="small"
                         >
                           <VisibilityTwoToneIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Edit Organizer" arrow>
+                      <Tooltip arrow title="Edit Organizer">
                         <IconButton
+                          size="small"
                           sx={{
                             '&:hover': {
                               background: theme.palette.primary.lighter,
@@ -343,22 +429,21 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
                             color: theme.palette.primary.main,
                             transition: 'all 0.2s ease-in-out'
                           }}
-                          size="small"
                         >
                           <EditTwoToneIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Delete Organizer" arrow>
+                      <Tooltip arrow title="Delete Organizer">
                         <IconButton
+                          size="small"
                           sx={{
-                            '&:hover': { 
+                            '&:hover': {
                               background: theme.palette.error.lighter,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.error.main,
                             transition: 'all 0.2s ease-in-out'
                           }}
-                          size="small"
                         >
                           <DeleteTwoToneIcon fontSize="small" />
                         </IconButton>
@@ -371,9 +456,9 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
           </TableBody>
         </Table>
       </TableContainer>
-      <Box 
-        p={2} 
-        sx={{ 
+      <Box
+        p={2}
+        sx={{
           backgroundColor: theme.palette.grey[50],
           borderTop: `1px solid ${theme.palette.divider}`
         }}
@@ -381,16 +466,17 @@ const OrganizersTable: FC<OrganizersTableProps> = ({ organizers, loading = false
         <TablePagination
           component="div"
           count={organizers.length}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
           page={page}
           rowsPerPage={limit}
           rowsPerPageOptions={[5, 10, 25, 50]}
           sx={{
-            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
-              fontWeight: 500
-            }
+            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+              {
+                fontWeight: 500
+              }
           }}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleLimitChange}
         />
       </Box>
     </Card>

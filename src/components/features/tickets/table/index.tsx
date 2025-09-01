@@ -1,4 +1,3 @@
-import { formatDateDDMMYYYY } from '@/utils';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import PersonIcon from '@mui/icons-material/Person';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -22,6 +21,8 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useState } from 'react';
+
+import { formatDateDDMMYYYY } from '@/utils';
 
 export interface Ticket {
   id: string;
@@ -141,7 +142,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
       <Card>
         <CardHeader title="Ticket List" />
         <Divider />
-        <Box p={3} display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" p={3}>
           <Typography>Loading tickets...</Typography>
         </Box>
       </Card>
@@ -151,19 +152,14 @@ const TicketListTable: FC<TicketListTableProps> = ({
   return (
     <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
       <CardHeader
-        title={
-          <Typography variant="body2" color="text.secondary">
-            Total: {tickets.length} tickets
-          </Typography>
-        }
         action={
           <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={onRefresh}
             disabled={loading}
             size="small"
+            startIcon={<RefreshIcon />}
             sx={{ borderRadius: 2 }}
+            variant="outlined"
+            onClick={onRefresh}
           >
             Refresh
           </Button>
@@ -172,6 +168,11 @@ const TicketListTable: FC<TicketListTableProps> = ({
           background: `linear-gradient(135deg, ${theme.palette.primary.main}08, ${theme.palette.primary.main}04)`,
           borderBottom: `1px solid ${theme.palette.divider}`
         }}
+        title={
+          <Typography color="text.secondary" variant="body2">
+            Total: {tickets.length} tickets
+          </Typography>
+        }
       />
       <TableContainer sx={{ maxHeight: 800 }}>
         <Table stickyHeader>
@@ -185,8 +186,8 @@ const TicketListTable: FC<TicketListTableProps> = ({
                 }}
               >
                 <Checkbox
-                  color="primary"
                   checked={selectedAllTickets}
+                  color="primary"
                   indeterminate={selectedSomeTickets}
                   onChange={handleSelectAllTickets}
                 />
@@ -198,7 +199,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   minWidth: 280
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Customer & Ticket
                 </Typography>
               </TableCell>
@@ -209,7 +210,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   minWidth: 200
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Ticket Details
                 </Typography>
               </TableCell>
@@ -220,7 +221,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   minWidth: 150
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Price
                 </Typography>
               </TableCell>
@@ -231,7 +232,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   minWidth: 120
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Status
                 </Typography>
               </TableCell>
@@ -242,7 +243,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   minWidth: 150
                 }}
               >
-                <Typography variant="subtitle2" fontWeight="bold">
+                <Typography fontWeight="bold" variant="subtitle2">
                   Purchase Date
                 </Typography>
               </TableCell>
@@ -253,8 +254,8 @@ const TicketListTable: FC<TicketListTableProps> = ({
               const isTicketSelected = selectedTickets.includes(ticket.id);
               return (
                 <TableRow
-                  hover
                   key={ticket.id}
+                  hover
                   selected={isTicketSelected}
                   sx={{
                     '&:hover': {
@@ -270,16 +271,16 @@ const TicketListTable: FC<TicketListTableProps> = ({
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
-                      color="primary"
                       checked={isTicketSelected}
+                      color="primary"
+                      value={isTicketSelected}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         handleSelectOneTicket(event, ticket.id)
                       }
-                      value={isTicketSelected}
                     />
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" alignItems="center">
+                    <Box alignItems="center" display="flex">
                       <Avatar
                         sx={{
                           mr: 2,
@@ -293,22 +294,22 @@ const TicketListTable: FC<TicketListTableProps> = ({
                       </Avatar>
                       <Box>
                         <Typography
-                          variant="subtitle2"
-                          fontWeight="bold"
                           noWrap
+                          fontWeight="bold"
+                          variant="subtitle2"
                         >
                           {ticket.customerName}
                         </Typography>
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
                           noWrap
+                          color="text.secondary"
+                          variant="caption"
                         >
                           {ticket.customerEmail}
                         </Typography>
                         <Box
-                          display="flex"
                           alignItems="center"
+                          display="flex"
                           gap={0.5}
                           mt={0.5}
                         >
@@ -319,9 +320,9 @@ const TicketListTable: FC<TicketListTableProps> = ({
                             }}
                           />
                           <Typography
-                            variant="caption"
-                            color="text.secondary"
                             noWrap
+                            color="text.secondary"
+                            variant="caption"
                           >
                             Ticket: {ticket.ticketNumber}
                           </Typography>
@@ -331,21 +332,21 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium" noWrap>
+                      <Typography noWrap fontWeight="medium" variant="body2">
                         {ticket.ticketType}
                       </Typography>
                       <Typography
-                        variant="caption"
-                        color="text.secondary"
                         noWrap
+                        color="text.secondary"
+                        variant="caption"
                       >
                         Event: {ticket.eventName}
                       </Typography>
                       {ticket.seatNumber && (
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
                           noWrap
+                          color="text.secondary"
+                          variant="caption"
                         >
                           Seat: {ticket.seatNumber}
                         </Typography>
@@ -354,32 +355,32 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Typography
-                      variant="body2"
-                      fontWeight="bold"
-                      color="primary"
                       noWrap
+                      color="primary"
+                      fontWeight="bold"
+                      variant="body2"
                     >
                       {formatPrice(ticket.price)}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={getStatusLabel(ticket.status)}
                       color={getStatusColor(ticket.status) as any}
+                      label={getStatusLabel(ticket.status)}
                       size="small"
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium" noWrap>
+                      <Typography noWrap fontWeight="medium" variant="body2">
                         {formatDateDDMMYYYY(ticket.purchaseDate)}
                       </Typography>
                       {ticket.usedDate && (
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
                           noWrap
+                          color="text.secondary"
+                          variant="caption"
                         >
                           Used: {formatDateDDMMYYYY(ticket.usedDate)}
                         </Typography>
@@ -403,8 +404,6 @@ const TicketListTable: FC<TicketListTableProps> = ({
           <TablePagination
             component="div"
             count={pagination.totalItems}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleLimitChange}
             page={pagination.currentPage}
             rowsPerPage={pagination.limit}
             rowsPerPageOptions={[5, 10, 25, 50]}
@@ -414,6 +413,8 @@ const TicketListTable: FC<TicketListTableProps> = ({
                   fontWeight: 500
                 }
             }}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleLimitChange}
           />
         )}
       </Box>

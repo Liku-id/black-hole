@@ -1,4 +1,3 @@
-import { useAuth } from '@/contexts/AuthContext';
 import {
   Alert,
   alpha,
@@ -6,11 +5,13 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  styled,
+  styled
 } from '@mui/material';
-import { TextField, Button, H3, Body1 } from '@/components/common';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+
+import { TextField, Button, H3, Body1 } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LoginCard = styled(Card)(
   ({ theme }) => `
@@ -58,10 +59,10 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     if (isSubmitting || isLoading) return;
-    
+
     setIsSubmitting(true);
     clearError();
-    
+
     try {
       await login(data);
     } catch (err) {
@@ -76,44 +77,39 @@ const LoginForm: React.FC = () => {
   return (
     <LoginCard elevation={6}>
       <CardContent sx={{ p: 0 }}>
-        <LogoWrapper>
-          {/* <Logo /> */}
-        </LogoWrapper>
-        
-        <Box textAlign="center" mb={4}>
-          <H3 color="text.primary" gutterBottom>
+        <LogoWrapper>{/* <Logo /> */}</LogoWrapper>
+
+        <Box mb={4} textAlign="center">
+          <H3 gutterBottom color="text.primary">
             Welcome Back
           </H3>
-          <Body1 color="text.secondary">
-            Please sign in to your account
-          </Body1>
+          <Body1 color="text.secondary">Please sign in to your account</Body1>
         </Box>
 
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <Box mb={3}>
               <TextField
-                name="email"
-                label="Email Address"
-                type="email"
-                placeholder="Enter your email address"
-                disabled={isFormDisabled}
                 fullWidth
+                disabled={isFormDisabled}
+                label="Email Address"
+                name="email"
+                placeholder="Enter your email address"
                 rules={{
                   required: 'Email is required',
                   validate: email
                 }}
+                type="email"
               />
             </Box>
-            
+
             <Box mb={3}>
               <TextField
-                name="password"
-                label="Password"
-                type="password"
-                placeholder="Enter your password"
-                disabled={isFormDisabled}
                 fullWidth
+                disabled={isFormDisabled}
+                label="Password"
+                name="password"
+                placeholder="Enter your password"
                 rules={{
                   required: 'Password is required',
                   minLength: {
@@ -121,34 +117,35 @@ const LoginForm: React.FC = () => {
                     message: 'Password must be at least 6 characters'
                   }
                 }}
+                type="password"
               />
             </Box>
 
-          {error && (
-            <Box mb={3}>
-              <Alert 
-                severity="error" 
-                sx={{ 
-                  borderRadius: 8,
-                  '& .MuiAlert-message': {
-                    fontSize: 14,
-                    fontWeight: 500
-                  }
-                }}
-              >
-                {error}
-              </Alert>
-            </Box>
-          )}
+            {error && (
+              <Box mb={3}>
+                <Alert
+                  severity="error"
+                  sx={{
+                    borderRadius: 8,
+                    '& .MuiAlert-message': {
+                      fontSize: 14,
+                      fontWeight: 500
+                    }
+                  }}
+                >
+                  {error}
+                </Alert>
+              </Box>
+            )}
 
             <Button
-              type="submit"
               disabled={isFormDisabled}
               sx={{ width: '100%', height: '48px' }}
+              type="submit"
             >
               {isFormDisabled ? (
                 <>
-                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  <CircularProgress color="inherit" size={20} sx={{ mr: 1 }} />
                   Signing In...
                 </>
               ) : (

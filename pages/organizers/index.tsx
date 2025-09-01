@@ -1,14 +1,9 @@
-import OrganizersTable from '@/components/OrganizersTable';
-import DashboardLayout from '@/layouts/dashboard';
-import { useOrganizers } from '@/hooks';
-import {
-  Alert,
-  Box,
-  Card,
-  CardContent,
-  Typography
-} from '@mui/material';
+import { Alert, Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
+
+import OrganizersTable from '@/components/OrganizersTable';
+import { useOrganizers } from '@/hooks/features/organizers/useOrganizers';
+import DashboardLayout from '@/layouts/dashboard';
 
 export default function Organizers() {
   const { organizers, loading, error, mutate } = useOrganizers();
@@ -18,46 +13,48 @@ export default function Organizers() {
       <Head>
         <title>Event Organizers - Black Hole Dashboard</title>
       </Head>
-      
+
       <Box>
-        <Typography variant="h4" gutterBottom>
+        <Typography gutterBottom variant="h4">
           Event Organizers
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        <Typography color="text.secondary" sx={{ mb: 3 }} variant="body1">
           Manage event organizers and their information
         </Typography>
 
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography gutterBottom variant="subtitle2">
               Failed to load organizers
             </Typography>
-            <Typography variant="body2">
-              {error}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography variant="body2">{error}</Typography>
+            <Typography color="text.secondary" sx={{ mt: 1 }} variant="caption">
               Please check your backend connection and try again.
             </Typography>
           </Alert>
         )}
-        
+
         {!loading && organizers.length === 0 && !error && (
           <Card>
             <CardContent>
-              <Box textAlign="center" py={4}>
-                <Typography variant="h6" color="text.secondary" gutterBottom>
+              <Box py={4} textAlign="center">
+                <Typography gutterBottom color="text.secondary" variant="h6">
                   No organizers found
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography color="text.secondary" variant="body2">
                   There are no event organizers in the system yet.
                 </Typography>
               </Box>
             </CardContent>
           </Card>
         )}
-        
+
         {(loading || organizers.length > 0) && (
-          <OrganizersTable organizers={organizers} loading={loading} onRefresh={mutate} />
+          <OrganizersTable
+            loading={loading}
+            organizers={organizers}
+            onRefresh={mutate}
+          />
         )}
       </Box>
     </DashboardLayout>
