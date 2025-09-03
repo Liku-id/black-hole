@@ -154,6 +154,7 @@ export interface EventDetail {
   eventOrganizer: EventOrganizer;
   paymentMethods: PaymentMethod[];
   adminFee: number;
+  tax: number;
   feeThresholds: FeeThreshold[];
   eventAssets: EventAsset[];
 }

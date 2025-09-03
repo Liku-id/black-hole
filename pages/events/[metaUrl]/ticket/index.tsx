@@ -1,11 +1,10 @@
 import { Box } from '@mui/material';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Button, Card, H3, Body1, Breadcrumb } from '@/components/common';
-import { TicketCreateModal } from '@/components/features/events/ticket/create-modal';
-import TicketTable from '@/components/features/events/ticket/table';
+import { Button, Card, H4, Body1, Breadcrumb } from '@/components/common';
+import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
+import TicketTable from '@/components/features/events/create/ticket/table';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketsService } from '@/services/tickets';
 
@@ -21,7 +20,6 @@ interface TicketCategory {
   salesEndDate: string;
   ticketStartDate: string;
   ticketEndDate: string;
-  // Raw data for ISO conversion
   salesStartRawDate?: string;
   salesStartTime?: string;
   salesStartTimeZone?: string;
@@ -182,9 +180,9 @@ const TicketPage = () => {
   return (
     <DashboardLayout>
       <Box>
-        <H3 color="text.primary" fontWeight={700} marginBottom="16px">
+        <H4 color="text.primary" fontWeight={700} marginBottom="16px">
           Create Event
-        </H3>
+        </H4>
 
         {/* Breadcrumb */}
         <Box marginBottom="24px">

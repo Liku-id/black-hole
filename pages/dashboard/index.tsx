@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import {
-  H2,
   H3,
+  H4,
   Body1,
   H1,
   Body2,
@@ -51,24 +51,24 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <Box>
-        <H2 color="text.primary" fontWeight={300} marginBottom="64px">
+        <H3 color="text.primary" fontWeight={300} marginBottom="64px">
           COMPONENTS
-        </H2>
+        </H3>
 
         <Box sx={{ mb: 8 }}>
-          <H3 gutterBottom color="text.primary">
+          <H4 gutterBottom color="text.primary">
             Typography
-          </H3>
+          </H4>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <H1 color="text.primary" fontWeight={300}>
               H1: Lorem ipsum dolor sit.
             </H1>
-            <H2 color="text.secondary" fontWeight={700}>
+            <H3 color="text.secondary" fontWeight={700}>
               H2: Lorem ipsum dolor sit.
-            </H2>
-            <H3 color="common.black" fontWeight={300}>
-              H3: Lorem ipsum dolor sit.
             </H3>
+            <H4 color="common.black" fontWeight={300}>
+              H3: Lorem ipsum dolor sit.
+            </H4>
             <Body1 color="common.white" fontWeight={300}>
               Body1: Lorem ipsum dolor sit.
             </Body1>
@@ -86,9 +86,9 @@ export default function Dashboard() {
 
         {/* Regular Text Fields (without form) */}
         <Box sx={{ mb: 8 }}>
-          <H3 gutterBottom color="text.primary">
+          <H4 gutterBottom color="text.primary">
             Fields
-          </H3>
+          </H4>
           <Box
             sx={{
               display: 'flex',
@@ -117,9 +117,9 @@ export default function Dashboard() {
 
         {/* React Hook Form Text Fields */}
         <Box sx={{ mb: 8 }}>
-          <H3 gutterBottom color="text.primary">
+          <H4 gutterBottom color="text.primary">
             Fields With React Hook Form
-          </H3>
+          </H4>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <Box
@@ -214,17 +214,17 @@ export default function Dashboard() {
         </Box>
 
         {/* Button Examples */}
-        <H3 gutterBottom color="text.primary">
+        <H4 gutterBottom color="text.primary">
           Button
-        </H3>
+        </H4>
         <Box sx={{ mb: 8, display: 'flex', gap: 2 }}>
           <Button>Primary Button</Button>
           <Button variant="secondary">Secondary Button</Button>
         </Box>
 
-        <H3 gutterBottom color="text.primary">
+        <H4 gutterBottom color="text.primary">
           Modal
-        </H3>
+        </H4>
         <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
 
         <Box marginBottom="64px" />
@@ -235,7 +235,7 @@ export default function Dashboard() {
                 <Body1 gutterBottom color="text.secondary">
                   Total Events
                 </Body1>
-                <H2 color="text.primary">24</H2>
+                <H3 color="text.primary">24</H3>
               </CardContent>
             </Card>
           </Grid>
@@ -246,7 +246,7 @@ export default function Dashboard() {
                 <Body1 gutterBottom color="text.secondary">
                   Active Events
                 </Body1>
-                <H2 color="text.primary">12</H2>
+                <H3 color="text.primary">12</H3>
               </CardContent>
             </Card>
           </Grid>
@@ -257,7 +257,7 @@ export default function Dashboard() {
                 <Body1 gutterBottom color="text.secondary">
                   Total Tickets
                 </Body1>
-                <H2 color="text.primary">1,234</H2>
+                <H3 color="text.primary">1,234</H3>
               </CardContent>
             </Card>
           </Grid>
@@ -268,7 +268,7 @@ export default function Dashboard() {
                 <Body1 gutterBottom color="text.secondary">
                   Revenue
                 </Body1>
-                <H2 color="text.primary">$12,345</H2>
+                <H3 color="text.primary">$12,345</H3>
               </CardContent>
             </Card>
           </Grid>

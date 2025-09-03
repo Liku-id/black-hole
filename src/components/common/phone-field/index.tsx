@@ -1,16 +1,7 @@
-import {
-  TextFieldProps,
-  InputAdornment,
-  Box,
-  Menu,
-  MenuItem
-} from '@mui/material';
-import Image from 'next/image';
+import { TextFieldProps, InputAdornment, Box } from '@mui/material';
 import { useState } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
-
-import { Body2, Caption } from '@/components/common';
-
+import { Body2, DropdownSelector } from '@/components/common';
 import { StyledTextField } from '../text-field/StyledTextField';
 
 interface CountryCode {
@@ -26,6 +17,12 @@ const countryCodes: CountryCode[] = [
   { code: 'AU', dialCode: '+61' }
 ];
 
+// Convert to DropdownSelector format
+const countryCodeOptions = countryCodes.map((code) => ({
+  value: code.dialCode,
+  label: code.dialCode
+}));
+
 interface CustomPhoneFieldProps extends Omit<TextFieldProps, 'variant'> {
   label?: string;
   name: string; // Required for React Hook Form
@@ -34,93 +31,6 @@ interface CustomPhoneFieldProps extends Omit<TextFieldProps, 'variant'> {
   helperText?: string;
   defaultCountryCode?: string;
 }
-
-// Country Code Selector Component
-const CountryCodeSelector = ({
-  selectedCode,
-  onCodeChange
-}: {
-  selectedCode: CountryCode;
-  onCodeChange: (code: CountryCode) => void;
-}) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleCodeSelect = (code: CountryCode) => {
-    onCodeChange(code);
-    handleClose();
-  };
-
-  return (
-    <>
-      <Box
-        alignItems="center"
-        component="span"
-        display="flex"
-        gap={1}
-        paddingY={1}
-        sx={{ cursor: 'pointer' }}
-        onClick={handleClick}
-      >
-        <Image
-          alt="dropdown"
-          height={12}
-          src="/icon/accordion-arrow.svg"
-          style={{
-            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease'
-          }}
-          width={12}
-        />
-        <Body2 component="span" fontWeight={500}>
-          {selectedCode.dialCode}
-        </Body2>
-      </Box>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        PaperProps={{
-          sx: (theme) => ({
-            mt: 1,
-            minWidth: 120,
-            boxShadow: theme.shadows[8],
-            borderRadius: 1
-          })
-        }}
-        onClose={handleClose}
-      >
-        {countryCodes.map((code) => (
-          <MenuItem
-            key={code.code}
-            sx={(theme) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              py: 1.5,
-              px: 2,
-              '&:hover': {
-                backgroundColor: theme.palette.action.hover
-              }
-            })}
-            onClick={() => handleCodeSelect(code)}
-          >
-            <Body2 component="span">{code.dialCode}</Body2>
-            <Caption component="span">{code.code}</Caption>
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
-};
 
 export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
   const {
@@ -139,9 +49,8 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
   } = useFormContext();
   const fieldError = errors[name];
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState<CountryCode>(
-    countryCodes.find((code) => code.dialCode === defaultCountryCode) ||
-      countryCodes[0]
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string>(
+    defaultCountryCode || '+62'
   );
 
   return (
@@ -162,9 +71,11 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <CountryCodeSelector
-                    selectedCode={selectedCountryCode}
-                    onCodeChange={setSelectedCountryCode}
+                  <DropdownSelector
+                    selectedValue={selectedCountryCode}
+                    onValueChange={setSelectedCountryCode}
+                    options={countryCodeOptions}
+                    defaultLabel="+62"
                   />
                 </InputAdornment>
               )

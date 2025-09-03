@@ -1,12 +1,27 @@
-import { Box, Grid } from '@mui/material';
+import { Box, Grid, InputAdornment } from '@mui/material';
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-
-import { TextField, Card, Select, TextArea, Button, Caption } from '@/components/common';
-import { EventDateModal } from '@/components/features/events/info/event-date-modal';
-import { EventTimeModal } from '@/components/features/events/info/event-time-modal';
-import { PaymentMethodSelector } from '@/components/features/events/info/payment-method-selector';
+import {
+  TextField,
+  Select,
+  TextArea,
+  Button,
+  Caption,
+  Overline,
+  DropdownSelector
+} from '@/components/common';
+import { EventDateModal } from '@/components/features/events/create/info/event-date-modal';
+import { EventTimeModal } from '@/components/features/events/create/info/event-time-modal';
+import { PaymentMethodSelector } from '@/components/features/events/create/info/payment-method-selector';
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
+import { EventDetail } from '@/types/event';
+import { dateUtils } from '@/utils';
+
+// Admin Fee Type Options
+const adminFeeTypeOptions = [
+  { value: '%', label: '%' },
+  { value: 'Rp', label: 'Rp' }
+];
 
 interface FormData {
   eventName: string;
@@ -20,8 +35,10 @@ interface FormData {
   endDate: string;
   address: string;
   googleMapsLink: string;
+  websiteUrl: string;
   city: string;
   adminFee: string;
+  adminFeeType: string;
   paymentMethod: string[];
   tax: string;
   taxNominal: string;
@@ -29,37 +46,79 @@ interface FormData {
   termsAndConditions: string;
 }
 
-interface CreateEventFormProps {
-  onSubmit: (data: FormData) => void;
+interface EventEditInfoProps {
+  eventDetail: EventDetail;
+  onSubmit?: (data: FormData, isDraft?: boolean) => void;
+  error?: string;
 }
 
-export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
+export const EventEditInfo = ({
+  eventDetail,
+  onSubmit,
+  error
+}: EventEditInfoProps) => {
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
   const { eventTypes } = useEventTypes();
   const { cities } = useCities();
   const { paymentMethods } = usePaymentMethods();
 
+  // Prepare date range and time range strings from existing data
+  const dateRange =
+    eventDetail.startDate && eventDetail.endDate
+      ? `${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)}`
+      : '';
+
+  const timeRange =
+    eventDetail.startDate && eventDetail.endDate
+      ? `${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB`
+      : '';
+
+  const detectedTimezone = dateUtils.extractTimezone(eventDetail.startDate || '');
+
+  // Process Google Maps Link - remove https:// if present
+  const processGoogleMapsLink = (url: string): string => {
+    if (!url) return '';
+    return url.replace(/^https?:\/\//, '');
+  };
+
+  // Process Admin Fee - determine type and value based on amount
+  const processAdminFee = (adminFee: number | undefined): { fee: string; type: string } => {
+    if (!adminFee) return { fee: '', type: '%' };
+    
+    if (adminFee < 100) {
+      return { fee: adminFee.toString(), type: '%' };
+    } else {
+      return { fee: adminFee.toString(), type: 'Rp' };
+    }
+  };
+
+  const { fee: adminFeeValue, type: adminFeeTypeValue } = processAdminFee(eventDetail.adminFee);
+
   const methods = useForm<FormData>({
     defaultValues: {
-      eventName: '',
-      eventType: '',
-      dateRange: '',
-      timeRange: '',
-      startTime: '00:00',
-      endTime: '00:00',
-      timeZone: '+07:00',
-      startDate: '',
-      endDate: '',
-      address: '',
-      googleMapsLink: '',
-      city: '',
-      adminFee: '',
-      paymentMethod: [],
-      tax: '',
-      taxNominal: '',
-      eventDescription: '',
-      termsAndConditions: ''
+      eventName: eventDetail.name || '',
+      eventType: eventDetail.eventType || '',
+      dateRange: dateRange,
+      timeRange: timeRange,
+      startTime: eventDetail.startDate
+        ? dateUtils.formatTime(eventDetail.startDate)
+        : '00:00',
+      endTime: eventDetail.endDate ? dateUtils.formatTime(eventDetail.endDate) : '00:00',
+      timeZone: detectedTimezone,
+      startDate: eventDetail.startDate || '',
+      endDate: eventDetail.endDate || '',
+      address: eventDetail.address || '',
+      googleMapsLink: processGoogleMapsLink(eventDetail.mapLocationUrl || ''),
+      websiteUrl: eventDetail.websiteUrl || '',
+      city: eventDetail.city?.id || '',
+      adminFee: adminFeeValue,
+      adminFeeType: adminFeeTypeValue,
+      paymentMethod: eventDetail.paymentMethods?.map(pm => pm.id) || [],
+      tax: eventDetail.tax ? 'true' : 'false',
+      taxNominal: eventDetail.tax?.toString() || '',
+      eventDescription: eventDetail.description || '',
+      termsAndConditions: eventDetail.termAndConditions || ''
     }
   });
 
@@ -67,6 +126,7 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
   const watchedDateRange = watch('dateRange');
   const watchedTimeRange = watch('timeRange');
   const watchedTax = watch('tax');
+  const watchedAdminFeeType = watch('adminFeeType');
 
   const eventTypeOptions = eventTypes.map((type) => ({
     value: type,
@@ -79,8 +139,8 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
   }));
 
   const taxOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
+    { value: 'true', label: 'Yes' },
+    { value: 'false', label: 'No' }
   ];
 
   const handleDateSave = (dateRange: string) => {
@@ -94,13 +154,21 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
   };
 
   const handleFormSubmit = (data: any) => {
-    onSubmit(data as FormData);
+    if (onSubmit) {
+      onSubmit(data as FormData, false);
+    }
+  };
+
+  const handleSaveDraft = () => {
+    const data = methods.getValues();
+    if (onSubmit) {
+      onSubmit(data as FormData, true);
+    }
   };
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(handleFormSubmit)}>
-        <Card>
           <Grid container spacing={3}>
             <Grid item md={6} xs={12}>
               <TextField
@@ -188,10 +256,19 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
                   required: 'Google Maps link is required'
                 }}
                 startComponent={
-                  <Caption color="text.primary">
-                    HTTPS://
-                  </Caption>
+                  <Caption color="text.primary">HTTPS://</Caption>
                 }
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="Website Url*"
+                name="websiteUrl"
+                placeholder="Website Url"
+                rules={{
+                  required: 'Website URL is required'
+                }}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -209,14 +286,36 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DropdownSelector
+                        selectedValue={watchedAdminFeeType}
+                        onValueChange={(type) => setValue('adminFeeType', type)}
+                        options={adminFeeTypeOptions}
+                        defaultLabel="%"
+                      />
+                    </InputAdornment>
+                  )
+                }}
                 label="Admin Fee*"
                 name="adminFee"
-                placeholder="Admin Fee Amount"
+                placeholder={
+                  watchedAdminFeeType === '%'
+                    ? 'Admin fee percentage'
+                    : 'Admin fee amount'
+                }
                 rules={{
                   required: 'Admin fee is required',
                   pattern: {
                     value: /^\d+$/,
                     message: 'Admin fee must be a number'
+                  },
+                  validate: (value) => {
+                    if (watchedAdminFeeType === '%' && parseInt(value) >= 100) {
+                      return 'Admin fee percentage must be less than 100%';
+                    }
+                    return true;
                   }
                 }}
               />
@@ -245,26 +344,11 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
                 }}
               />
             </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
-                fullWidth
-                label="Website Link*"
-                name="websiteLink"
-                placeholder="Website Link"
-                rules={{
-                  required: 'Website link is required'
-                }}
-              />
-            </Grid>
-            {watchedTax === 'yes' && (
+            {watchedTax === 'true' && (
               <Grid item md={6} xs={12}>
                 <TextField
                   fullWidth
-                  endComponent={
-                    <Caption color="text.primary">
-                      %
-                    </Caption>
-                  }
+                  endComponent={<Caption color="text.primary">%</Caption>}
                   label="Tax Nominal*"
                   name="taxNominal"
                   placeholder="Tax percentage"
@@ -308,13 +392,22 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
           </Grid>
 
           {/* Buttons */}
-          <Box display="flex" gap={2} justifyContent="flex-end" marginTop={4}>
-            <Button variant="secondary">Save Draft</Button>
-            <Button type="submit" variant="primary">
-              Continue
-            </Button>
+          <Box textAlign="right" marginTop={4}>
+            {error && (
+              <Box marginBottom={2}>
+                <Overline color="error.main">{error}</Overline>
+              </Box>
+            )}
+
+            <Box display="flex" gap={2} justifyContent="flex-end">
+              <Button variant="secondary" onClick={handleSaveDraft}>
+                Save Draft
+              </Button>
+              <Button type="submit" variant="primary">
+                Update Event
+              </Button>
+            </Box>
           </Box>
-        </Card>
 
         <EventDateModal
           open={dateModalOpen}

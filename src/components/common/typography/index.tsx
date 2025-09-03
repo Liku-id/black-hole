@@ -18,16 +18,24 @@ export const H1 = styled(BaseTypography)<
   fontWeight: fontWeight || 600
 })) as typeof Typography;
 
-// H2 - 22px
+// H2 - 28px
 export const H2 = styled(BaseTypography)<
+  TypographyProps & { fontWeight?: number | string }
+>(({ fontWeight }) => ({
+  fontSize: '28px',
+  fontWeight: fontWeight || 600
+})) as typeof Typography;
+
+// H3 - 22px
+export const H3 = styled(BaseTypography)<
   TypographyProps & { fontWeight?: number | string }
 >(({ fontWeight }) => ({
   fontSize: '22px',
   fontWeight: fontWeight || 600
 })) as typeof Typography;
 
-// H3 - 18px
-export const H3 = styled(BaseTypography)<
+// H4 - 18px
+export const H4 = styled(BaseTypography)<
   TypographyProps & { fontWeight?: number | string }
 >(({ fontWeight }) => ({
   fontSize: '18px',

@@ -32,7 +32,10 @@ const nextConfig = {
 
   // Image optimization (Next.js built-in)
   images: {
-    domains: [],
+    domains: [
+      'wukong-staging-public.s3.ap-southeast-3.amazonaws.com',
+      'wukong-dev-public.s3.ap-southeast-3.amazonaws.com'
+    ],
     formats: ['image/webp', 'image/avif']
   }
 };

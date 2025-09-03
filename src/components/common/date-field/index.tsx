@@ -128,7 +128,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     alignItems: 'center',
     justifyContent: 'center',
     '&:hover': {
-      backgroundColor: theme.palette.action.hover
+      backgroundColor: theme.paletteinfo.contrastText
     }
   },
   '& .react-datepicker__day--outside-month': {
@@ -262,7 +262,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontSize: '16px',
     fontFamily: '"Onest", sans-serif',
     '&:hover': {
-      backgroundColor: theme.palette.action.hover
+      backgroundColor: theme.paletteinfo.contrastText
     },
     '&--selected': {
       backgroundColor: theme.palette.primary.main,

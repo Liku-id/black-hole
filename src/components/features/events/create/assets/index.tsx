@@ -13,7 +13,10 @@ interface EventAssetsFormProps {
   showError?: boolean;
 }
 
-export const EventAssetsForm = ({ onFilesChange, showError = false }: EventAssetsFormProps) => {
+export const EventAssetsForm = ({
+  onFilesChange,
+  showError = false
+}: EventAssetsFormProps) => {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [supportingImages, setSupportingImages] = useState<(File | null)[]>([
     null,

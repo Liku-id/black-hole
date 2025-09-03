@@ -11,7 +11,9 @@ export function themeCreator(): Theme {
       },
       secondary: {
         main: 'rgba(60, 80, 224, 0.10)',
-        dark: '#333A48'
+        dark: '#333A48',
+        light: '#FCF0FB',
+        contrastText: '#DE69CE'
       },
       text: {
         primary: '#1C2434',
@@ -25,13 +27,28 @@ export function themeCreator(): Theme {
         paper: '#FFFFFF'
       },
       error: {
-        main: '#FF1943'
+        main: '#DE69CE',
+        light: '#FCF0FB'
       },
       common: {
         black: '#000000',
         white: '#FFFFFF'
       },
-      divider: '#E0E0E0'
+      divider: '#E0E0E0',
+      success: {
+        main: '#38D200',
+        light: '#ECFBE6'
+      },
+      warning: {
+        main: '#F48042',
+        light: '#FFE8DA'
+      },
+      info: {
+        main: '#8A38F5',
+        light: '#F4ECFE',
+        dark: "#ECEEFC",
+        contrastText: '#3C50E0',
+      },
     }
   });
 }

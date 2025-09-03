@@ -10,8 +10,7 @@ export default async function handler(
   }
 
   try {
-    const backendUrl =
-      process.env.BACKEND_URL || 'http://localhost:8080';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     const backendEndpoint = `${backendUrl}/city`;
 
     const response = await axios.get(backendEndpoint);

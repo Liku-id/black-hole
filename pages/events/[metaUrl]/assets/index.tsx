@@ -2,8 +2,8 @@ import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Button, Card, H3, Breadcrumb } from '@/components/common';
-import { EventAssetsForm } from '@/components/features/events/assets';
+import { Button, Card, H4, Breadcrumb } from '@/components/common';
+import { EventAssetsForm } from '@/components/features/events/create/assets';
 import DashboardLayout from '@/layouts/dashboard';
 
 interface AssetFiles {
@@ -59,12 +59,12 @@ const AssetsPage = () => {
     const payload: AssetPayload[] = [];
     const allFiles = [assetFiles.thumbnail, ...assetFiles.supportingImages];
     const validFiles = allFiles.filter((file): file is File => file !== null);
-    
+
     validFiles.forEach((file, index) => {
       payload.push({
         eventId: metaUrl as string,
         assetId: generateAssetId(file, index + 1),
-        order: index + 1 
+        order: index + 1
       });
     });
 
@@ -90,16 +90,19 @@ const AssetsPage = () => {
   return (
     <DashboardLayout>
       <Box>
-        <H3 color="text.primary" fontWeight={700} marginBottom="16px">
+        <H4 color="text.primary" fontWeight={700} marginBottom="16px">
           Create Event
-        </H3>
+        </H4>
 
         <Box marginBottom="24px">
           <Breadcrumb steps={breadcrumbSteps} />
         </Box>
 
         <Card>
-          <EventAssetsForm onFilesChange={handleFilesChange} showError={showError} />
+          <EventAssetsForm
+            onFilesChange={handleFilesChange}
+            showError={showError}
+          />
 
           <Box display="flex" gap="24px" justifyContent="flex-end">
             <Button variant="primary" onClick={handleSubmitEvent}>

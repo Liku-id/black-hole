@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { TextField, Button, H3, Body1 } from '@/components/common';
+import { TextField, Button, H4, Body1 } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 
 const LoginCard = styled(Card)(
@@ -80,9 +80,9 @@ const LoginForm: React.FC = () => {
         <LogoWrapper>{/* <Logo /> */}</LogoWrapper>
 
         <Box mb={4} textAlign="center">
-          <H3 gutterBottom color="text.primary">
+          <H4 gutterBottom color="text.primary">
             Welcome Back
-          </H3>
+          </H4>
           <Body1 color="text.secondary">Please sign in to your account</Body1>
         </Box>
 

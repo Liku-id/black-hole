@@ -63,18 +63,18 @@ const Dropzone = ({
       {...getRootProps()}
       height={height}
       position="relative"
-             border="1px solid"
-       borderColor={error ? 'error.main' : 'grey.100'}
-       sx={{
-         cursor: 'pointer',
-         overflow: 'hidden',
-         transition: 'all 0.2s ease-in-out',
-         '&:hover': {
-           backgroundColor: 'primary.light',
-           borderColor: error ? 'error.main' : 'primary.main'
-         },
-         ...sx
-       }}
+      border="1px solid"
+      borderColor={error ? 'error.main' : 'grey.100'}
+      sx={{
+        cursor: 'pointer',
+        overflow: 'hidden',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          backgroundColor: 'primary.light',
+          borderColor: error ? 'error.main' : 'primary.main'
+        },
+        ...sx
+      }}
       width={width}
     >
       <input {...getInputProps()} />
