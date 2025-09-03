@@ -22,7 +22,7 @@ function LoginPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: 'background.default',
+          bgcolor: 'primary.dark',
           p: 3
         }}
       >

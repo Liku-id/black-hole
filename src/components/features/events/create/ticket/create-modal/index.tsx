@@ -72,7 +72,19 @@ export const TicketCreateModal = ({
       salesStartDate: '',
       salesEndDate: '',
       ticketStartDate: '',
-      ticketEndDate: ''
+      ticketEndDate: '',
+      salesStartRawDate: '',
+      salesEndRawDate: '',
+      ticketStartRawDate: '',
+      ticketEndRawDate: '',
+      salesStartTime: '',
+      salesEndTime: '',
+      ticketStartTime: '',
+      ticketEndTime: '',
+      salesStartTimeZone: '',
+      salesEndTimeZone: '',
+      ticketStartTimeZone: '',
+      ticketEndTimeZone: ''
     }
   });
 

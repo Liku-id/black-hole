@@ -27,7 +27,7 @@ export function themeCreator(): Theme {
         paper: '#FFFFFF'
       },
       error: {
-        main: '#DE69CE',
+        main: '#FF1943',
         light: '#FCF0FB'
       },
       common: {
