@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Button, Card, H3, Body1, Breadcrumb } from '@/components/common';
+import { withAuth } from '@/components/Auth/withAuth';
+import { Body1, Breadcrumb, Button, Card, H3 } from '@/components/common';
 import { TicketCreateModal } from '@/components/features/events/ticket/create-modal';
 import TicketTable from '@/components/features/events/ticket/table';
 import DashboardLayout from '@/layouts/dashboard';
@@ -242,4 +242,5 @@ const TicketPage = () => {
   );
 };
 
-export default TicketPage;
+// Export with authentication wrapper that requires authentication
+export default withAuth(TicketPage, { requireAuth: true });

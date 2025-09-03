@@ -44,6 +44,7 @@ import TransactionsTable from '@/components/TransactionsTable';
 import { useEventDetail, useTickets, useTransactions } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { dateUtils, formatPrice, formatPhoneNumber } from '@/utils';
+import { withAuth } from '@/components/Auth/withAuth';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -1223,4 +1224,5 @@ EventDetail.getLayout = (page: ReactElement) => (
   <DashboardLayout>{page}</DashboardLayout>
 );
 
-export default EventDetail;
+// Export with authentication wrapper that requires authentication
+export default withAuth(EventDetail, { requireAuth: true });

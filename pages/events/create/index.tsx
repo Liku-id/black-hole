@@ -3,7 +3,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { H3, Breadcrumb } from '@/components/common';
+import { withAuth } from '@/components/Auth/withAuth';
+import { Breadcrumb, H3 } from '@/components/common';
 import { CreateEventForm } from '@/components/features/events/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
@@ -31,7 +32,7 @@ interface FormData {
   websiteLink: string;
 }
 
-export default function CreateEvent() {
+function CreateEvent() {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -100,3 +101,6 @@ export default function CreateEvent() {
     </DashboardLayout>
   );
 }
+
+// Export with authentication wrapper that requires authentication
+export default withAuth(CreateEvent, { requireAuth: true });

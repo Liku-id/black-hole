@@ -20,8 +20,9 @@ import {
   Modal
 } from '@/components/common';
 import DashboardLayout from '@/layouts/dashboard';
+import { withAuth } from '@/components/Auth/withAuth';
 
-export default function Dashboard() {
+function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const methods = useForm({
@@ -298,3 +299,6 @@ export default function Dashboard() {
     </DashboardLayout>
   );
 }
+
+// Export with authentication wrapper that requires authentication
+export default withAuth(Dashboard, { requireAuth: true });
