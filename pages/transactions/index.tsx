@@ -1,9 +1,10 @@
-import { Box, Typography, Card, CardContent } from '@mui/material';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 
+import { withAuth } from '@/components/Auth/withAuth';
 import DashboardLayout from '@/layouts/dashboard';
 
-export default function Transactions() {
+function Transactions() {
   return (
     <DashboardLayout>
       <Head>
@@ -34,3 +35,6 @@ export default function Transactions() {
     </DashboardLayout>
   );
 }
+
+// Export with authentication wrapper that requires authentication
+export default withAuth(Transactions, { requireAuth: true });

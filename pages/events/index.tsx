@@ -8,11 +8,12 @@ import { Tabs, Button, TextField } from '@/components/common';
 import EventsTable from '@/components/features/events/list/table';
 import { useEvents } from '@/hooks/features/events/useEvents';
 import DashboardLayout from '@/layouts/dashboard';
+import { withAuth } from '@/components/Auth/withAuth';
 // import EventsFilter from '@/components/EventsFilter';
 import { EventsFilters } from '@/types/event';
 import { useDebouncedCallback } from '@/utils';
 
-export default function Events() {
+function Events() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('ongoing');
   const [searchValue, setSearchValue] = useState('');
@@ -145,3 +146,5 @@ export default function Events() {
     </DashboardLayout>
   );
 }
+
+export default withAuth(Events, { requireAuth: true });

@@ -2,9 +2,10 @@ import { Box } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { H4, Breadcrumb } from '@/components/common';
 import { CreateEventForm } from '@/components/features/events/create/info';
+import { H4, Breadcrumb } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
+import { withAuth } from '@/components/Auth/withAuth';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
 import { CreateEventRequest } from '@/types/event';
@@ -32,8 +33,10 @@ interface FormData {
   websiteUrl: string;
 }
 
-export default function CreateEvent() {
+function CreateEvent() {
   const [error, setError] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
 
@@ -108,3 +111,6 @@ export default function CreateEvent() {
     </DashboardLayout>
   );
 }
+
+// Export with authentication wrapper that requires authentication
+export default withAuth(CreateEvent, { requireAuth: true });

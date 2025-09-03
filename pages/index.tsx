@@ -1,7 +1,8 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { withAuth } from '@/components/Auth/withAuth';
 
-export default function Home() {
+function Home() {
   const router = useRouter();
 
   useEffect(() => {
@@ -10,3 +11,6 @@ export default function Home() {
 
   return null;
 }
+
+// Export with authentication wrapper that requires authentication
+export default withAuth(Home, { requireAuth: true });

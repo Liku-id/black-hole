@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-
 import { Button, Card, H4, Breadcrumb } from '@/components/common';
 import { EventAssetsForm } from '@/components/features/events/create/assets';
+import { withAuth } from '@/components/Auth/withAuth';
 import DashboardLayout from '@/layouts/dashboard';
 
 interface AssetFiles {
@@ -115,4 +115,4 @@ const AssetsPage = () => {
   );
 };
 
-export default AssetsPage;
+export default withAuth(AssetsPage, { requireAuth: true });

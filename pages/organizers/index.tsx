@@ -4,8 +4,9 @@ import Head from 'next/head';
 import OrganizersTable from '@/components/OrganizersTable';
 import { useOrganizers } from '@/hooks/features/organizers/useOrganizers';
 import DashboardLayout from '@/layouts/dashboard';
+import { withAuth } from '@/components/Auth/withAuth';
 
-export default function Organizers() {
+function Organizers() {
   const { organizers, loading, error, mutate } = useOrganizers();
 
   return (
@@ -60,3 +61,6 @@ export default function Organizers() {
     </DashboardLayout>
   );
 }
+
+// Export with authentication wrapper that requires authentication
+export default withAuth(Organizers, { requireAuth: true });

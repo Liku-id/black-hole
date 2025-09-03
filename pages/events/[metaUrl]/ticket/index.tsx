@@ -1,10 +1,10 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-
 import { Button, Card, H4, Body1, Breadcrumb } from '@/components/common';
 import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
 import TicketTable from '@/components/features/events/create/ticket/table';
+import { withAuth } from '@/components/Auth/withAuth';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketsService } from '@/services/tickets';
 
@@ -240,4 +240,4 @@ const TicketPage = () => {
   );
 };
 
-export default TicketPage;
+export default withAuth(TicketPage, { requireAuth: true });

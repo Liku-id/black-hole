@@ -9,6 +9,7 @@ import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
+import { withAuth } from '@/components/Auth/withAuth';
 
 const StyledDivider = styled(Divider)({
   margin: '24px 0px',
@@ -150,4 +151,4 @@ function EventDetail() {
   );
 }
 
-export default EventDetail;
+export default withAuth(EventDetail, { requireAuth: true });
