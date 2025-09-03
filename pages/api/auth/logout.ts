@@ -24,16 +24,13 @@ export default async function handler(
     }
 
     // Real backend call
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/auth/logout`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId })
+    });
 
     const data = await response.json();
 

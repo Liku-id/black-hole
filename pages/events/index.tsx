@@ -147,5 +147,4 @@ function Events() {
   );
 }
 
-// Export with authentication wrapper that requires authentication
 export default withAuth(Events, { requireAuth: true });

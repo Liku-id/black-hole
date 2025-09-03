@@ -15,8 +15,7 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid metaUrl parameter' });
     }
 
-    const backendUrl =
-      process.env.BACKEND_URL || 'http://localhost:8080';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     const backendEndpoint = `${backendUrl}/events/${metaUrl}`;
 
     const response = await fetch(backendEndpoint, {

@@ -1,10 +1,9 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-
+import { Button, Card, H4, Breadcrumb } from '@/components/common';
+import { EventAssetsForm } from '@/components/features/events/create/assets';
 import { withAuth } from '@/components/Auth/withAuth';
-import { Breadcrumb, Button, Card, H3 } from '@/components/common';
-import { EventAssetsForm } from '@/components/features/events/assets';
 import DashboardLayout from '@/layouts/dashboard';
 
 interface AssetFiles {
@@ -91,9 +90,9 @@ const AssetsPage = () => {
   return (
     <DashboardLayout>
       <Box>
-        <H3 color="text.primary" fontWeight={700} marginBottom="16px">
+        <H4 color="text.primary" fontWeight={700} marginBottom="16px">
           Create Event
-        </H3>
+        </H4>
 
         <Box marginBottom="24px">
           <Breadcrumb steps={breadcrumbSteps} />
@@ -116,5 +115,4 @@ const AssetsPage = () => {
   );
 };
 
-// Export with authentication wrapper that requires authentication
 export default withAuth(AssetsPage, { requireAuth: true });

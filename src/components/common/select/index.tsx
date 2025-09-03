@@ -139,7 +139,7 @@ export const CustomSelect = (props: CustomSelectProps) => {
                   fontFamily: '"Onest", sans-serif',
                   color: theme.palette.text.primary,
                   '&:hover': {
-                    backgroundColor: theme.palette.action.hover
+                    backgroundColor: theme.paletteinfo.contrastText
                   },
                   borderBottom: '1px solid',
                   borderColor: theme.palette.divider

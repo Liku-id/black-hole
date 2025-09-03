@@ -16,8 +16,7 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid eventId parameter' });
     }
 
-    const backendUrl =
-      process.env.BACKEND_URL || 'http://172.16.1.33:8080';
+    const backendUrl = process.env.BACKEND_URL || 'http://172.16.1.33:8080';
 
     // Build query parameters
     const queryParams = new URLSearchParams();

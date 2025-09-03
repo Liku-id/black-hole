@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next/types';
 interface ApiRouteOptions {
   endpoint: string;
   timeout?: number;
+  transformQuery?: (query: any) => any;
 }
 
 export const apiRouteUtils = {
@@ -15,7 +16,24 @@ export const apiRouteUtils = {
 
       try {
         const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+        const params = options.transformQuery
+          ? options.transformQuery(req.query)
+          : req.query;
+
+        // Forward headers from request to backend
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        };
+
+        // Forward Authorization header if present
+        if (req.headers.authorization) {
+          headers.Authorization = req.headers.authorization;
+        }
+
         const response = await axios.get(url, {
+          params,
+          headers,
           timeout: options.timeout || 10000
         });
 
@@ -37,7 +55,20 @@ export const apiRouteUtils = {
 
       try {
         const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+
+        // Forward headers from request to backend
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        };
+
+        // Forward Authorization header if present
+        if (req.headers.authorization) {
+          headers.Authorization = req.headers.authorization;
+        }
+
         const response = await axios.post(url, req.body, {
+          headers,
           timeout: options.timeout || 30000
         });
 
