@@ -123,6 +123,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               refreshToken: storedRefreshToken
             }
           });
+        } else {
+          // No valid session found, mark as not authenticated
+          dispatch({ type: 'SESSION_RESTORED' });
         }
       } catch (error) {
         console.error('Failed to restore session:', error);
@@ -130,8 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('auth_user');
         localStorage.removeItem('auth_access_token');
         localStorage.removeItem('auth_refresh_token');
-      } finally {
-        // Always mark session restoration as complete
+        // Mark session restoration as complete with no authentication
         dispatch({ type: 'SESSION_RESTORED' });
       }
     };

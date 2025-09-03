@@ -2,8 +2,9 @@ import { Box, Container } from '@mui/material';
 import Head from 'next/head';
 
 import LoginForm from '@/components/Auth/LoginForm';
+import { withAuth } from '@/components/Auth/withAuth';
 
-export default function LoginPage() {
+function LoginPage() {
   return (
     <>
       <Head>
@@ -33,5 +34,5 @@ export default function LoginPage() {
   );
 }
 
-// Exclude login page from auth protection
-(LoginPage as any).requireAuth = false;
+// Export with authentication wrapper that excludes login from auth requirements
+export default withAuth(LoginPage, { requireAuth: false });

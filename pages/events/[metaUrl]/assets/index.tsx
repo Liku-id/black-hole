@@ -2,7 +2,8 @@ import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Button, Card, H3, Breadcrumb } from '@/components/common';
+import { withAuth } from '@/components/Auth/withAuth';
+import { Breadcrumb, Button, Card, H3 } from '@/components/common';
 import { EventAssetsForm } from '@/components/features/events/assets';
 import DashboardLayout from '@/layouts/dashboard';
 
@@ -59,12 +60,12 @@ const AssetsPage = () => {
     const payload: AssetPayload[] = [];
     const allFiles = [assetFiles.thumbnail, ...assetFiles.supportingImages];
     const validFiles = allFiles.filter((file): file is File => file !== null);
-    
+
     validFiles.forEach((file, index) => {
       payload.push({
         eventId: metaUrl as string,
         assetId: generateAssetId(file, index + 1),
-        order: index + 1 
+        order: index + 1
       });
     });
 
@@ -99,7 +100,10 @@ const AssetsPage = () => {
         </Box>
 
         <Card>
-          <EventAssetsForm onFilesChange={handleFilesChange} showError={showError} />
+          <EventAssetsForm
+            onFilesChange={handleFilesChange}
+            showError={showError}
+          />
 
           <Box display="flex" gap="24px" justifyContent="flex-end">
             <Button variant="primary" onClick={handleSubmitEvent}>
@@ -112,4 +116,5 @@ const AssetsPage = () => {
   );
 };
 
-export default AssetsPage;
+// Export with authentication wrapper that requires authentication
+export default withAuth(AssetsPage, { requireAuth: true });
