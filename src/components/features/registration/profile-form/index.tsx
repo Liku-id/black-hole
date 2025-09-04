@@ -7,7 +7,6 @@ import {
   CircularProgress,
   FormControlLabel,
   Grid,
-  IconButton,
   styled
 } from '@mui/material';
 import React, { useState } from 'react';
@@ -16,10 +15,10 @@ import Image from 'next/image';
 
 import {
   TextField,
+  TextArea,
   Button,
   Body2,
   Caption,
-  DropzoneLite,
   H3
 } from '@/components/common';
 import { RegisterProfileRequest, SocialMediaLink } from '@/types/register';
@@ -55,7 +54,6 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
   onSubmit,
   isLoading = false
 }) => {
-  const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLink[]>([
     { id: '1', platform: 'tiktok', url: '', icon: '/icon/tiktok.svg' },
     { id: '2', platform: 'instagram', url: '', icon: '/icon/instagram.svg' },
@@ -72,33 +70,68 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
     mode: 'onChange'
   });
 
-  const handleProfilePictureChange = (files: File[]) => {
-    if (files.length > 0) {
-      setProfilePicture(files[0]);
-    }
-  };
-
   const handleSocialMediaChange = (index: number, value: string) => {
     const newLinks = [...socialMediaLinks];
     newLinks[index].url = value;
     setSocialMediaLinks(newLinks);
+
+    // Clear social media error if at least one link is filled
+    const hasFilledLink = newLinks.some((link) => link.url.trim() !== '');
+    if (hasFilledLink && methods.formState.errors.socialMedia) {
+      methods.clearErrors('socialMedia');
+    }
   };
 
   const removeSocialMediaLink = (index: number) => {
     const newLinks = [...socialMediaLinks];
     newLinks[index].url = '';
     setSocialMediaLinks(newLinks);
+
+    // Check if any links are still filled after clearing this one
+    const hasFilledLink = newLinks.some((link) => link.url.trim() !== '');
+    if (!hasFilledLink && methods.formState.errors.socialMedia) {
+      // Keep the error if no links are filled
+    } else if (hasFilledLink && methods.formState.errors.socialMedia) {
+      // Clear error if at least one link is still filled
+      methods.clearErrors('socialMedia');
+    }
   };
 
   const handleSubmit = (data: any) => {
+    // Validate that at least one social media link is provided
+    const filledSocialMedia = socialMediaLinks.filter(
+      (link) => link.url.trim() !== ''
+    );
+    if (filledSocialMedia.length === 0) {
+      methods.setError('socialMedia', {
+        type: 'required',
+        message: 'At least one social media link is required'
+      });
+      return;
+    }
+
     const formData: RegisterProfileRequest = {
-      profilePicture: profilePicture || undefined,
-      socialMedia: socialMediaLinks.filter((link) => link.url.trim() !== ''),
+      socialMedia: filledSocialMedia,
       address: data.address,
       aboutOrganizer: data.aboutOrganizer,
       termsAccepted: data.termsAccepted
     };
     onSubmit(formData);
+  };
+
+  // Custom validation function for social media
+  const validateSocialMedia = () => {
+    const filledSocialMedia = socialMediaLinks.filter(
+      (link) => link.url.trim() !== ''
+    );
+    if (filledSocialMedia.length === 0) {
+      methods.setError('socialMedia', {
+        type: 'required',
+        message: 'At least one social media link is required'
+      });
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -116,42 +149,43 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
         <CardContent sx={{ p: 0, pb: '0px !important' }}>
           <Box mb={5} textAlign={'center'}>
             <H3 gutterBottom color="text.primary" fontWeight={700}>
-              Welcome,
+              Complete Your Profile
             </H3>
             <Body2 color="text.secondary">
-              Ready to take your events to the next level? Join our platform
-              now!
+              Tell us more about yourself and your organization
             </Body2>
           </Box>
 
           <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(handleSubmit)}>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+
+                // Trigger all form validations first
+                const isValid = await methods.trigger();
+
+                // Then validate social media
+                const socialMediaValid = validateSocialMedia();
+
+                // Only proceed if all validations pass
+                if (isValid && socialMediaValid) {
+                  methods.handleSubmit(handleSubmit)(e);
+                }
+              }}
+            >
               <Grid container spacing={3}>
                 {/* Left Column */}
                 <Grid item xs={12} md={6}>
-                  {/* Profile Picture */}
-                  <Box mb={3}>
-                    <Body2 color="text.primary" mb={1} display="block">
-                      Profile Picture
-                    </Body2>
-                    <DropzoneLite
-                      onFileSelect={(file) =>
-                        handleProfilePictureChange([file])
-                      }
-                      accept={{
-                        'image/*': ['.jpeg', '.jpg', '.png']
-                      }}
-                      maxSize={2 * 1024 * 1024} // 2MB
-                      height={44}
-                      width="100%"
-                    ></DropzoneLite>
-                  </Box>
-
                   {/* Social Media */}
                   <Box mb={3}>
                     <Body2 color="text.primary" mb={2} display="block">
-                      Social media
+                      Social media *
                     </Body2>
+                    {methods.formState.errors.socialMedia && (
+                      <Caption color="error.main" mb={1} display="block">
+                        {methods.formState.errors.socialMedia.message}
+                      </Caption>
+                    )}
                     {socialMediaLinks.map((link, index) => (
                       <Box
                         key={link.id}
@@ -160,52 +194,81 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                         gap={1}
                         width="100%"
                       >
-                        <TextField
-                          fullWidth
-                          placeholder="Link Profile Account"
-                          value={link.url}
-                          onChange={(e) =>
-                            handleSocialMediaChange(index, e.target.value)
-                          }
-                          size="small"
+                        <Box
                           sx={{
-                            width: '100%',
-                            maxWidth: '100%'
+                            position: 'relative',
+                            width: '100%'
                           }}
-                          startComponent={
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="center"
+                        >
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              left: 16,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              zIndex: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 24,
+                              height: 24
+                            }}
+                          >
+                            <Image
+                              src={link.icon}
+                              alt={link.platform}
                               width={24}
                               height={24}
-                              fontSize="16px"
+                            />
+                          </Box>
+                          <input
+                            type="text"
+                            placeholder="Link Profile Account"
+                            value={link.url}
+                            onChange={(e) =>
+                              handleSocialMediaChange(index, e.target.value)
+                            }
+                            style={{
+                              width: '100%',
+                              height: '44px',
+                              padding: '11px 16px 11px 48px',
+                              border: '1px solid #E0E0E0',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              fontFamily: '"Onest", sans-serif',
+                              outline: 'none',
+                              transition: 'all 0.2s ease-in-out'
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = '#1976d2';
+                              e.target.style.backgroundColor = '#fafafa';
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = '#E0E0E0';
+                              e.target.style.backgroundColor = '#ffffff';
+                            }}
+                          />
+                          {link.url !== '' && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                right: 16,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                cursor: 'pointer',
+                                zIndex: 1
+                              }}
+                              onClick={() => removeSocialMediaLink(index)}
                             >
                               <Image
-                                src={link.icon}
-                                alt={link.platform}
+                                src="/icon/trash.svg"
+                                alt="Delete"
                                 width={24}
                                 height={24}
                               />
                             </Box>
-                          }
-                          endComponent={
-                            link.url !== '' && (
-                              <IconButton
-                                size="small"
-                                onClick={() => removeSocialMediaLink(index)}
-                                color="error"
-                              >
-                                <Image
-                                  src="/icon/trash.svg"
-                                  alt="Delete"
-                                  width={24}
-                                  height={24}
-                                />
-                              </IconButton>
-                            )
-                          }
-                        />
+                          )}
+                        </Box>
                       </Box>
                     ))}
                   </Box>
@@ -216,7 +279,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                   {/* Address */}
                   <Box mb={3}>
                     <Body2 color="text.primary" mb={1} display="block">
-                      Address
+                      Address *
                     </Body2>
                     <TextField
                       fullWidth
@@ -229,36 +292,16 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                   {/* About Organizer */}
                   <Box mb={3}>
                     <Body2 color="text.primary" mb={2} display="block">
-                      About Organizer
+                      About Organizer *
                     </Body2>
-                    <TextField
+                    <TextArea
                       fullWidth
                       name="aboutOrganizer"
                       placeholder="Max 1000 Characters"
                       rules={{
-                        required: 'About organizer is required',
-                        maxLength: {
-                          value: 1000,
-                          message: 'Maximum 1000 characters allowed'
-                        }
+                        required: 'About organizer is required'
                       }}
-                      inputProps={{
-                        style: {
-                          height: '110px',
-                          padding: '0'
-                        }
-                      }}
-                      multiline
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          height: '160px'
-                        },
-                        '& .MuiInputBase-input': {
-                          height: '163px !important',
-                          minHeight: '163px',
-                          maxHeight: '163px'
-                        }
-                      }}
+                      maxLength={1000}
                     />
                   </Box>
                 </Grid>
@@ -270,6 +313,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                 mb={4}
                 sx={{
                   display: 'flex',
+                  flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center'
                 }}
@@ -280,7 +324,8 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                     <Controller
                       name="termsAccepted"
                       rules={{
-                        required: 'You must accept the terms and conditions'
+                        required:
+                          'You must accept the terms and conditions and privacy policy'
                       }}
                       render={({ field }) => (
                         <Checkbox
@@ -330,6 +375,16 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                     </Box>
                   }
                 />
+                {methods.formState.errors.termsAccepted && (
+                  <Caption
+                    color="error.main"
+                    mt={1}
+                    display="block"
+                    textAlign="center"
+                  >
+                    {methods.formState.errors.termsAccepted.message}
+                  </Caption>
+                )}
               </Box>
 
               {/* Submit Button */}

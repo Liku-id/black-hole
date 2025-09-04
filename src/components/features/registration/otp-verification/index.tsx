@@ -130,6 +130,7 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
       onResendOTP();
       setTimeLeft(countdown);
       setCanResend(false);
+      setOtp(['', '', '', '', '', '']); // Clear OTP input fields
     }
   };
 
@@ -180,6 +181,7 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 placeholder=""
                 autoComplete="one-time-code"
+                disabled={isLoading}
               />
             ))}
           </Box>

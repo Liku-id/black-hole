@@ -1,49 +1,31 @@
 import {
-  RegisterRequest,
-  RegisterResponse,
-  RegisterProfileRequest,
+  OTPRequestRequest,
+  OTPRequestResponse,
   OTPVerificationRequest,
   OTPVerificationResponse,
-  ResendOTPRequest,
-  ResendOTPResponse
+  UploadAssetRequest,
+  UploadAssetResponse,
+  CreateEventOrganizerRequest,
+  CreateEventOrganizerResponse,
+  CheckAvailabilityRequest,
+  CheckAvailabilityResponse
 } from '@/types/register';
 import { apiUtils } from '@/utils/apiUtils';
 
 class RegisterService {
-  async register(data: RegisterRequest): Promise<RegisterResponse> {
-    console.log('Attempting registration with:', {
-      organizerName: data.organizerName,
-      email: data.email,
-      phoneNumber: data.phoneNumber
-    });
+  async requestOTP(data: OTPRequestRequest): Promise<OTPRequestResponse> {
+    console.log('Requesting OTP for:', data.phoneNumber);
 
     try {
-      const responseData = await apiUtils.post<RegisterResponse>(
-        '/api/auth/register',
+      const responseData = await apiUtils.post<OTPRequestResponse>(
+        '/api/auth/otp/request',
         data,
-        'Registration failed'
+        'OTP request failed'
       );
-      console.log('Registration successful:', responseData);
+      console.log('OTP requested successfully:', responseData);
       return responseData;
     } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  }
-
-  async submitProfile(data: RegisterProfileRequest): Promise<any> {
-    console.log('Submitting profile data');
-
-    try {
-      const responseData = await apiUtils.post<any>(
-        '/api/auth/submit-profile',
-        data,
-        'Profile submission failed'
-      );
-      console.log('Profile submitted successfully:', responseData);
-      return responseData;
-    } catch (error) {
-      console.error('Profile submission error:', error);
+      console.error('OTP request error:', error);
       throw error;
     }
   }
@@ -55,7 +37,7 @@ class RegisterService {
 
     try {
       const responseData = await apiUtils.post<OTPVerificationResponse>(
-        '/api/auth/verify-otp',
+        '/api/auth/otp/verification',
         data,
         'OTP verification failed'
       );
@@ -67,19 +49,57 @@ class RegisterService {
     }
   }
 
-  async resendOTP(data: ResendOTPRequest): Promise<ResendOTPResponse> {
-    console.log('Resending OTP');
+  async uploadAsset(data: UploadAssetRequest): Promise<UploadAssetResponse> {
+    console.log('Uploading asset');
 
     try {
-      const responseData = await apiUtils.post<ResendOTPResponse>(
-        '/api/auth/resend-otp',
+      const responseData = await apiUtils.post<UploadAssetResponse>(
+        '/api/upload-asset',
         data,
-        'Failed to resend OTP'
+        'Asset upload failed'
       );
-      console.log('OTP resent successfully:', responseData);
+      console.log('Asset uploaded successfully:', responseData);
       return responseData;
     } catch (error) {
-      console.error('Resend OTP error:', error);
+      console.error('Asset upload error:', error);
+      throw error;
+    }
+  }
+
+  async createEventOrganizer(
+    data: CreateEventOrganizerRequest
+  ): Promise<CreateEventOrganizerResponse> {
+    console.log('Creating event organizer');
+
+    try {
+      const responseData = await apiUtils.post<CreateEventOrganizerResponse>(
+        '/api/event-organizers',
+        data,
+        'Event organizer creation failed'
+      );
+      console.log('Event organizer created successfully:', responseData);
+      return responseData;
+    } catch (error) {
+      console.error('Event organizer creation error:', error);
+      throw error;
+    }
+  }
+
+  async checkAvailability(
+    data: CheckAvailabilityRequest
+  ): Promise<CheckAvailabilityResponse> {
+    console.log('Checking availability for:', data.email, data.phoneNumber);
+
+    try {
+      const responseData = await apiUtils.post<CheckAvailabilityResponse>(
+        '/api/users/check-availability',
+        data,
+        'Availability check failed'
+      );
+      console.log('Availability check successful:', responseData);
+      return responseData;
+    } catch (error) {
+      console.error('Availability check error:', error);
       throw error;
     }
   }

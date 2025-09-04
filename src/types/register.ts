@@ -20,53 +20,85 @@ export interface SocialMediaLink {
   icon: string;
 }
 
-export interface RegisterResponse {
-  statusCode: number;
+export interface OTPRequestRequest {
+  phoneNumber: string;
+}
+
+export interface OTPRequestResponse {
+  success: boolean;
   message: string;
-  body: {
-    accessToken: string;
-    refreshToken: string;
-    user: {
-      id: string;
-      fullName: string;
-      email: string;
-      role: string;
-      phoneNumber: string;
-      avatar: string | null;
-    };
-  };
+  expiredIn: number;
 }
 
 export interface OTPVerificationRequest {
   phoneNumber: string;
-  otp: string;
+  code: string;
 }
 
 export interface OTPVerificationResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface UploadAssetRequest {
+  type: string;
+  file: string; // base64 encoded file
+  filename: string;
+  privacy: string;
+  fileGroup: string;
+}
+
+export interface UploadAssetResponse {
   statusCode: number;
   message: string;
   body: {
-    verified: boolean;
-    user: {
+    asset: {
       id: string;
-      fullName: string;
-      email: string;
-      role: string;
-      phoneNumber: string;
-      avatar: string | null;
+      type: string;
+      url: string;
+      bucket: string;
+      key: string;
+      createdAt: string;
+      updatedAt: string;
     };
   };
 }
 
-export interface ResendOTPRequest {
+export interface CreateEventOrganizerRequest {
+  name: string;
+  email: string;
+  phone_number: string;
+  password: string;
+  social_media_url: string;
+  address: string;
+  description: string;
+}
+
+export interface CreateEventOrganizerResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface CheckAvailabilityRequest {
+  email: string;
   phoneNumber: string;
 }
 
-export interface ResendOTPResponse {
+export interface CheckAvailabilityResponse {
   statusCode: number;
   message: string;
   body: {
-    sent: boolean;
-    expiresIn: number;
+    isValid: boolean;
   };
+}
+
+export interface ErrorResponse {
+  code: number;
+  message: string;
+  details: Array<{
+    '@type': string;
+    additionalProp1: string;
+    additionalProp2: string;
+    additionalProp3: string;
+  }>;
 }

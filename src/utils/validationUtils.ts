@@ -221,5 +221,89 @@ export const validationUtils = {
    */
   isValidForm: (errors: ValidationErrors): boolean => {
     return Object.keys(errors).length === 0;
+  },
+
+  // React Hook Form compatible validators
+  /**
+   * Email validator for react-hook-form
+   * @param value - Email value to validate
+   * @returns Error message or undefined
+   */
+  emailValidator: (value: string): string | undefined => {
+    if (!value) return undefined;
+    if (!validationUtils.isValidEmail(value)) {
+      return 'Invalid email format';
+    }
+    return undefined;
+  },
+
+  /**
+   * Password validator for react-hook-form
+   * @param value - Password value to validate
+   * @returns Error message or undefined
+   */
+  passwordValidator: (value: string): string | undefined => {
+    if (!value) return undefined;
+
+    if (value.length < 8 || value.length > 20) {
+      return 'Password must be 8-20 characters';
+    }
+
+    if (!/(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(value)) {
+      return 'Password must contain letter, number, and special character';
+    }
+
+    return undefined;
+  },
+
+  /**
+   * Organizer name validator for react-hook-form
+   * @param value - Organizer name value to validate
+   * @returns Error message or undefined
+   */
+  organizerNameValidator: (value: string): string | undefined => {
+    if (!value) return undefined;
+
+    if (!/^[a-zA-Z\s]+$/.test(value)) {
+      return 'Organizer name can only contain letters and spaces';
+    }
+
+    return undefined;
+  },
+
+  /**
+   * Phone number validator for react-hook-form
+   * @param value - Phone number value to validate
+   * @returns Error message or undefined
+   */
+  phoneNumberValidator: (value: string): string | undefined => {
+    if (!value) return undefined;
+
+    // Remove country code and spaces to check only digits
+    const digitsOnly = value.replace(/[^\d]/g, '');
+    if (digitsOnly.length < 10 || digitsOnly.length > 14) {
+      return 'Phone number must be 10-14 digits';
+    }
+
+    return undefined;
+  },
+
+  /**
+   * Confirm password validator for react-hook-form
+   * @param value - Confirm password value to validate
+   * @param password - Original password to compare with
+   * @returns Error message or undefined
+   */
+  confirmPasswordValidator: (
+    value: string,
+    password: string
+  ): string | undefined => {
+    if (!value) return undefined;
+
+    if (value !== password) {
+      return 'Passwords do not match';
+    }
+
+    return undefined;
   }
 };

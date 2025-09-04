@@ -1,5 +1,5 @@
 import { TextFieldProps, InputAdornment, Box } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
 import { Body2, DropdownSelector } from '@/components/common';
@@ -47,13 +47,42 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
+    setValue
   } = useFormContext();
-  const fieldError = errors[name];
 
+  const fieldError = errors[name];
   const [selectedCountryCode, setSelectedCountryCode] = useState<string>(
     defaultCountryCode || '+62'
   );
+
+  // Local state for display value (what user sees)
+  const [displayValue, setDisplayValue] = useState<string>('');
+
+  // Handle country code change
+  const handleCountryCodeChange = (newCountryCode: string) => {
+    setSelectedCountryCode(newCountryCode);
+    // Update the form value with new country code only if there's input
+    const combinedValue = displayValue ? newCountryCode + displayValue : '';
+    setValue(name, combinedValue);
+  };
+
+  // Handle phone number input change
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setDisplayValue(inputValue);
+
+    // Update the form value with country code only if there's input
+    const combinedValue = inputValue ? selectedCountryCode + inputValue : '';
+    setValue(name, combinedValue);
+  };
+
+  // Initialize the field with empty value
+  useEffect(() => {
+    if (!displayValue) {
+      setValue(name, '');
+    }
+  }, [setValue, name, displayValue]);
 
   return (
     <Controller
@@ -68,8 +97,11 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
           )}
           <StyledTextField
             {...field}
+            value={displayValue}
             error={!!fieldError}
             helperText={fieldError?.message as string}
+            onChange={handlePhoneNumberChange}
+            placeholder="Phone number"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

@@ -18,6 +18,9 @@ import {
   Caption,
   PhoneField
 } from '@/components/common';
+import { registerService } from '@/services/auth/register';
+import { useToast } from '@/contexts/ToastContext';
+import { validationUtils } from '@/utils/validationUtils';
 
 const RegisterCard = styled(Card)(
   ({ theme }) => `
@@ -41,22 +44,6 @@ const LogoWrapper = styled(Box)(
 `
 );
 
-export const email = (value: string) =>
-  value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)
-    ? 'Invalid email format'
-    : undefined;
-
-export const password = (value: string) => {
-  if (!value) return undefined;
-  if (value.length < 8 || value.length > 20) {
-    return 'Password must be 8-20 characters';
-  }
-  if (!/(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(value)) {
-    return 'Password must contain letter, number, and special character';
-  }
-  return undefined;
-};
-
 interface RegisterFormData {
   organizerName: string;
   email: string;
@@ -75,6 +62,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { showError } = useToast();
 
   const methods = useForm<RegisterFormData>({
     defaultValues: {
@@ -93,10 +81,55 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Call the parent onSubmit to move to next step
-      onFormSubmit(data);
+      // Check availability of email and phone number
+      const availabilityResponse = await registerService.checkAvailability({
+        email: data.email,
+        phoneNumber: data.phoneNumber
+      });
+
+      if (availabilityResponse.body.isValid) {
+        // If available, proceed to next step
+        onFormSubmit(data);
+      } else {
+        // If not available, show specific error messages
+        const message = availabilityResponse.message.toLowerCase();
+
+        if (message.includes('email') && message.includes('phone')) {
+          // Both email and phone are taken
+          methods.setError('email', {
+            type: 'manual',
+            message: 'This email is not available to use'
+          });
+          methods.setError('phoneNumber', {
+            type: 'manual',
+            message: 'This phone number is not available to use'
+          });
+          showError('Email and phone number are already registered');
+        } else if (message.includes('email')) {
+          // Only email is taken
+          methods.setError('email', {
+            type: 'manual',
+            message: 'This email is not available to use'
+          });
+          showError('This email is already registered');
+        } else if (message.includes('phone')) {
+          // Only phone is taken
+          methods.setError('phoneNumber', {
+            type: 'manual',
+            message: 'This phone number is not available to use'
+          });
+          showError('This phone number is already registered');
+        } else {
+          // Generic error
+          showError('Email or phone number is not available to use');
+        }
+      }
     } catch (err) {
-      console.error('Registration error:', err);
+      console.error('Availability check error:', err);
+      const errorMessage =
+        err instanceof Error ? err.message : 'Availability check failed';
+      showError(errorMessage);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -137,7 +170,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     name="organizerName"
                     placeholder="Organizer Name"
                     rules={{
-                      required: 'Organizer name is required'
+                      required: 'Organizer name is required',
+                      validate: validationUtils.organizerNameValidator
                     }}
                   />
                 </Box>
@@ -151,7 +185,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     placeholder="Email address"
                     rules={{
                       required: 'Email is required',
-                      validate: email
+                      validate: validationUtils.emailValidator
                     }}
                     type="email"
                   />
@@ -165,7 +199,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     name="phoneNumber"
                     placeholder="Phone Number"
                     rules={{
-                      required: 'Phone number is required'
+                      required: 'Phone number is required',
+                      validate: validationUtils.phoneNumberValidator
                     }}
                     defaultCountryCode="+62"
                   />
@@ -180,7 +215,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     placeholder="Password"
                     rules={{
                       required: 'Password is required',
-                      validate: password
+                      validate: validationUtils.passwordValidator
                     }}
                     type={showPassword ? 'text' : 'password'}
                     helperText="8-20 characters, letter, number, special character"
@@ -221,7 +256,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                       required: 'Please confirm your password',
                       validate: (value) => {
                         const password = methods.getValues('password');
-                        return value === password || 'Passwords do not match';
+                        return validationUtils.confirmPasswordValidator(
+                          value,
+                          password
+                        );
                       }
                     }}
                     type={showConfirmPassword ? 'text' : 'password'}
@@ -272,7 +310,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                         size={20}
                         sx={{ mr: 1 }}
                       />
-                      Creating Account...
+                      Checking Credential...
                     </>
                   ) : (
                     'Continue'
