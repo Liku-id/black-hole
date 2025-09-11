@@ -1,13 +1,13 @@
 import {
-  TextFieldProps,
-  InputAdornment,
   Box,
+  InputAdornment,
   Menu,
-  MenuItem
+  MenuItem,
+  TextFieldProps
 } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+import { Controller, RegisterOptions, useFormContext } from 'react-hook-form';
 
 import { Body2 } from '@/components/common';
 
@@ -139,7 +139,7 @@ export const CustomSelect = (props: CustomSelectProps) => {
                   fontFamily: '"Onest", sans-serif',
                   color: theme.palette.text.primary,
                   '&:hover': {
-                    backgroundColor: theme.paletteinfo.contrastText
+                    backgroundColor: theme.palette.info.contrastText
                   },
                   borderBottom: '1px solid',
                   borderColor: theme.palette.divider

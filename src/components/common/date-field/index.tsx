@@ -1,14 +1,14 @@
-import { TextFieldProps, InputAdornment, Box } from '@mui/material';
+import { Box, InputAdornment, TextFieldProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Image from 'next/image';
 import { forwardRef } from 'react';
 import { DatePicker } from 'react-datepicker';
-import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
+import { Controller, RegisterOptions, useFormContext } from 'react-hook-form';
 
 import { Body2 } from '@/components/common';
 
-import { StyledTextField } from '../text-field/StyledTextField';
 import 'react-datepicker/dist/react-datepicker.css';
+import { StyledTextField } from '../text-field/StyledTextField';
 
 interface CustomDateFieldProps extends Omit<TextFieldProps, 'variant'> {
   label?: string;
@@ -128,7 +128,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     alignItems: 'center',
     justifyContent: 'center',
     '&:hover': {
-      backgroundColor: theme.paletteinfo.contrastText
+      backgroundColor: theme.palette.info.contrastText
     }
   },
   '& .react-datepicker__day--outside-month': {
@@ -262,7 +262,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontSize: '16px',
     fontFamily: '"Onest", sans-serif',
     '&:hover': {
-      backgroundColor: theme.paletteinfo.contrastText
+      backgroundColor: theme.palette.info.contrastText
     },
     '&--selected': {
       backgroundColor: theme.palette.primary.main,
