@@ -77,7 +77,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontSize: '14px',
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: '4px',
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "theme.palette.background.paper",
     boxShadow: theme.shadows[8],
     padding: '24px'
   },
@@ -127,9 +127,6 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    '&:hover': {
-      backgroundColor: theme.paletteinfo.contrastText
-    }
   },
   '& .react-datepicker__day--outside-month': {
     color: theme.palette.text.secondary
@@ -137,7 +134,11 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
   '& .react-datepicker__day--today': {
     fontWeight: 600,
     backgroundColor: 'transparent',
-    color: theme.palette.text.primary
+    color: "theme.palette.text.primary",
+    '&:hover': {
+      backgroundColor: `${theme.palette.primary.main} !important`,
+      color: `${theme.palette.common.white} !important`,
+    }
   },
   '& .react-datepicker__day--selected': {
     backgroundColor: `${theme.palette.primary.main} !important`,
@@ -211,13 +212,13 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     }
   },
   '& .react-datepicker__month-read-view--down-arrow:after, & .react-datepicker__month-read-view--down-arrow:before':
-    {
-      display: 'none !important'
-    },
+  {
+    display: 'none !important'
+  },
   '& .react-datepicker__year-read-view--down-arrow:after, & .react-datepicker__year-read-view--down-arrow:before':
-    {
-      display: 'none !important'
-    },
+  {
+    display: 'none !important'
+  },
   '& .react-datepicker__month-select::-ms-expand': {
     display: 'none'
   },
@@ -225,13 +226,13 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     display: 'none'
   },
   '& .react-datepicker__month-select::-webkit-outer-spin-button, & .react-datepicker__month-select::-webkit-inner-spin-button':
-    {
-      display: 'none'
-    },
+  {
+    display: 'none'
+  },
   '& .react-datepicker__year-select::-webkit-outer-spin-button, & .react-datepicker__year-select::-webkit-inner-spin-button':
-    {
-      display: 'none'
-    },
+  {
+    display: 'none'
+  },
   '& .react-datepicker__month-select, & .react-datepicker__year-select': {
     backgroundImage: 'none !important',
     background: 'transparent !important'
@@ -262,7 +263,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontSize: '16px',
     fontFamily: '"Onest", sans-serif',
     '&:hover': {
-      backgroundColor: theme.paletteinfo.contrastText
+      backgroundColor: theme.palette.info.contrastText
     },
     '&--selected': {
       backgroundColor: theme.palette.primary.main,
@@ -306,10 +307,27 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
               dateFormat="MMMM d, yyyy"
               dropdownMode="select"
               placeholderText={placeholder || 'Select date'}
-              selected={field.value ? new Date(field.value) : null}
+              selected={
+                field.value
+                  ? (() => {
+                      // Parse YYYY-MM-DD as a local date to avoid timezone shifting
+                      const [y, m, d] = field.value.split('-').map(Number);
+                      if (!y || !m || !d) return null;
+                      return new Date(y, m - 1, d);
+                    })()
+                  : null
+              }
               yearDropdownItemNumber={10}
               onChange={(date: Date | null) => {
-                field.onChange(date ? date.toISOString().split('T')[0] : '');
+                if (!date) {
+                  field.onChange('');
+                  return;
+                }
+                // Format to YYYY-MM-DD using local date parts (avoid UTC/ISO)
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                field.onChange(`${yyyy}-${mm}-${dd}`);
               }}
             />
           </DatePickerWrapper>

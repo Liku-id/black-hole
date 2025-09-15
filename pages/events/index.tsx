@@ -1,25 +1,25 @@
-import { Alert, Box, Card, CardContent, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
+import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, Button, TextField } from '@/components/common';
 import EventsTable from '@/components/features/events/list/table';
 import { useEvents } from '@/hooks/features/events/useEvents';
 import DashboardLayout from '@/layouts/dashboard';
-import { withAuth } from '@/components/Auth/withAuth';
-// import EventsFilter from '@/components/EventsFilter';
 import { EventsFilters } from '@/types/event';
 import { useDebouncedCallback } from '@/utils';
 
 function Events() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('ongoing');
+  const [activeTab, setActiveTab] = useState("EVENT_STATUS_ON_GOING");
   const [searchValue, setSearchValue] = useState('');
   const [filters, setFilters] = useState<EventsFilters>({
     show: 10,
     page: 1,
+    status: 'EVENT_STATUS_ON_GOING',
     name: ''
   });
 
@@ -28,6 +28,7 @@ function Events() {
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
       ...prev,
+      status: activeTab,
       name: value,
       page: 1
     }));
@@ -39,13 +40,22 @@ function Events() {
     debouncedSetFilters(value);
   };
 
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    setFilters((prev) => ({
+      ...prev,
+      status: newTab,
+      page: 1
+    }));
+  };
+
   const tabs = [
-    { id: 'ongoing', title: 'Ongoing Event', quantity: 0 },
-    { id: 'upcoming', title: 'Upcoming Event', quantity: 0 },
-    { id: 'draft', title: 'Draft Event', quantity: 0 },
-    { id: 'rejected', title: 'Rejected Event', quantity: 0 },
-    { id: 'submitted', title: 'On Review Event', quantity: 0 },
-    { id: 'done', title: 'Past Event', quantity: 0 }
+    { id: 'EVENT_STATUS_ON_GOING', title: 'Ongoing Event'},
+    { id: 'EVENT_STATUS_APPROVED', title: 'Upcoming Event'},
+    { id: 'EVENT_STATUS_DRAFT', title: 'Draft Event'},
+    { id: 'EVENT_STATUS_REJECTED', title: 'Rejected Event'},
+    { id: 'EVENT_STATUS_ON_REVIEW', title: 'On Review Event'},
+    { id: 'EVENT_STATUS_DONE', title: 'Past Event'}
   ];
 
   return (
@@ -83,7 +93,7 @@ function Events() {
                 <Tabs
                   activeTab={activeTab}
                   tabs={tabs}
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
                 />
               </Box>
 
@@ -111,26 +121,9 @@ function Events() {
                 onRefresh={mutate}
               />
             )}
-          </CardContent>
-        </Card>
 
-        {/* Error Alert */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 3, mt: 3 }}>
-            <Typography gutterBottom variant="subtitle2">
-              Failed to load events
-            </Typography>
-            <Typography variant="body2">{error}</Typography>
-            <Typography color="text.secondary" sx={{ mt: 1 }} variant="caption">
-              Please check your backend connection and try again.
-            </Typography>
-          </Alert>
-        )}
-
-        {/* Empty State */}
-        {!loading && events.length === 0 && !error && (
-          <Card sx={{ mt: 3 }}>
-            <CardContent>
+            {/* Empty State */}
+            {!loading && events.length === 0 && !error && (
               <Box py={4} textAlign="center">
                 <Typography gutterBottom color="text.secondary" variant="h6">
                   No events found
@@ -139,9 +132,26 @@ function Events() {
                   There are no events in the system yet.
                 </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        )}
+            )}
+
+            {/* Error Alert */}
+            {error && (
+              <Box py={4} textAlign="center">
+                <Typography gutterBottom variant="subtitle2">
+                  Failed to load events
+                </Typography>
+                <Typography variant="body2">{error}</Typography>
+                <Typography
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                  variant="caption"
+                >
+                  Please check your backend connection and try again.
+                </Typography>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
       </Box>
     </DashboardLayout>
   );

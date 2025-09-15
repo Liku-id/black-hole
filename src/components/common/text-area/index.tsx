@@ -15,6 +15,32 @@ interface CustomTextAreaProps extends Omit<TextFieldProps, 'variant'> {
   maxLength?: number;
 }
 
+const getTextAreaStyles = (value: unknown, theme: any) => {
+  const hasValue = value && typeof value === 'string' && value.trim() !== '';
+  return {
+    '& .MuiOutlinedInput-root': {
+      height: '182px',
+      alignItems: 'flex-start',
+      backgroundColor: hasValue
+        ? `${theme.palette.background.default} !important`
+        : `${theme.palette.common.white} !important`,
+      border: hasValue
+        ? `1px solid ${theme.palette.primary.main} !important`
+        : `1px solid ${theme.palette.divider} !important`,
+      '&.Mui-focused': {
+        backgroundColor: `${theme.palette.background.default} !important`,
+        border: `1px solid ${theme.palette.primary.main} !important`
+      },
+      '& textarea': {
+        padding: '0px',
+        height: '100% !important',
+        width: '100% !important',
+        resize: 'none'
+      }
+    }
+  };
+};
+
 export const CustomTextArea = (props: CustomTextAreaProps) => {
   const { label, name, rules, error, maxLength, ...otherProps } = props;
 
@@ -34,22 +60,9 @@ export const CustomTextArea = (props: CustomTextAreaProps) => {
       <StyledTextField
         multiline
         error={error}
-        inputProps={{
-          maxLength: maxLength
-        }}
+        inputProps={{ maxLength }}
         rows={4}
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            height: '182px',
-            alignItems: 'flex-start',
-            '& textarea': {
-              padding: '0px',
-              height: '100% !important',
-              width: '100% !important',
-              resize: 'none'
-            }
-          }
-        }}
+        sx={(theme) => getTextAreaStyles(otherProps.value, theme)}
         variant="outlined"
         {...otherProps}
       />
@@ -66,8 +79,7 @@ const FormTextArea = ({
 }: CustomTextAreaProps) => {
   const {
     control,
-    formState: { errors },
-    watch
+    formState: { errors }
   } = useFormContext();
   const fieldError = errors[name as string];
 
@@ -100,23 +112,9 @@ const FormTextArea = ({
             multiline
             error={!!fieldError}
             helperText={fieldError?.message as string}
-            inputProps={{
-              maxLength: maxLength
-            }}
+            inputProps={{ maxLength }}
             rows={4}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                height: '182px',
-                alignItems: 'flex-start',
-                '& textarea': {
-                  padding: '0px !important',
-                  height: '100% !important',
-                  width: '100% !important',
-                  minHeight: 'unset !important',
-                  resize: 'none !important'
-                }
-              }
-            }}
+            sx={(theme) => getTextAreaStyles(field.value, theme)}
             variant="outlined"
             {...otherProps}
           />

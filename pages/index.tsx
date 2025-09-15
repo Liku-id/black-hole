@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+
 import { withAuth } from '@/components/Auth/withAuth';
 
 function Home() {

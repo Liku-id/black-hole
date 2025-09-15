@@ -1,10 +1,12 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { Button, Card, H4, Body1, Breadcrumb } from '@/components/common';
+import { useEffect, useState } from 'react';
+
+import { withAuth } from '@/components/Auth/withAuth';
+import { Button, Card, H4, Body1, Breadcrumb, Overline } from '@/components/common';
 import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
 import TicketTable from '@/components/features/events/create/ticket/table';
-import { withAuth } from '@/components/Auth/withAuth';
+import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketsService } from '@/services/tickets';
 
@@ -33,13 +35,14 @@ interface TicketCategory {
 const TicketPage = () => {
   const router = useRouter();
   const { metaUrl } = router.query;
+  const { eventDetail } = useEventDetail(metaUrl as string);
   const [tickets, setTickets] = useState<TicketCategory[]>([]);
+  const [error, setError] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<
     TicketCategory | undefined
   >();
 
-  // Prevent hydration error by checking if router is ready
   if (!router.isReady) {
     return null;
   }
@@ -115,25 +118,15 @@ const TicketPage = () => {
     setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
   };
 
-  const handleSaveDraft = () => {
-    // TODO: Implement save draft functionality
-    console.log('Save draft');
-  };
-
-  const handleContinue = async () => {
-    // if (tickets.length === 0) {
-    // return;
-    // }
-
+  const onSubmit = async (redirectPath: string) => {
     const ticketTypesPayload = tickets.map((ticket) => ({
       name: ticket.name,
       quantity: ticket.quantity,
       description: ticket.description,
       price: ticket.price,
-      eventId: metaUrl as string,
+      eventId: eventDetail.id,
       maxOrderQuantity: ticket.maxPerUser,
       colorHex: ticket.colorHex,
-      // Format like events/create: ${date}T${time}:00${timeZone}
       salesStartDate:
         ticket.salesStartRawDate &&
         ticket.salesStartTime &&
@@ -153,29 +146,41 @@ const TicketPage = () => {
         : ticket.ticketEndDate
     }));
 
-    console.log('Ticket Types Payload:', ticketTypesPayload);
-
     try {
-      console.log(ticketTypesPayload);
-      const response =
-        await ticketsService.createTicketTypes(ticketTypesPayload);
+      // Create each ticket type individually
+      const responses = [];
+      for (const ticketType of ticketTypesPayload) {
+        const response = await ticketsService.createTicketType(ticketType);
+        responses.push(response);
+      }
 
-      if (response.body?.ticketTypes) {
-        alert(
-          `Successfully created ${response.body.ticketTypes.length} ticket types!`
-        );
-        // TODO: Navigate to next step
+      if (responses.length > 0) {
+        setError('');
+        router.push(redirectPath);
       }
     } catch (error: any) {
-      console.error('Failed to create ticket types:', error);
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
         'Failed to create ticket types. Please try again.';
-
-      alert(errorMessage);
+      setError(errorMessage);
     }
   };
+
+  const handleSaveDraft = async () => {
+    await onSubmit('/events');
+  };
+
+  const handleContinue = async () => {
+    await onSubmit(`/events/create/${metaUrl}/assets`);
+  };
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (eventDetail?.eventStatus === 'draft') {
+      router.replace('/events');
+    }
+  }, [router.isReady, eventDetail]);
 
   return (
     <DashboardLayout>
@@ -213,6 +218,11 @@ const TicketPage = () => {
           </Box>
 
           {/* Footer Buttons */}
+          {error && (
+            <Box marginBottom="8px">
+              <Overline color="error.main">{error}</Overline>
+            </Box>
+          )}
           <Box
             display="flex"
             gap="24px"

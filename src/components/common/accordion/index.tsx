@@ -21,7 +21,7 @@ export const CustomAccordion = ({
 }: CustomAccordionProps) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const handleChange = (event: React.SyntheticEvent, isExpanded: boolean) => {
+  const handleChange = (_: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded);
   };
 

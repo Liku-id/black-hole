@@ -1,10 +1,10 @@
 import { Alert, Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 
+import { withAuth } from '@/components/Auth/withAuth';
 import OrganizersTable from '@/components/OrganizersTable';
 import { useOrganizers } from '@/hooks/features/organizers/useOrganizers';
 import DashboardLayout from '@/layouts/dashboard';
-import { withAuth } from '@/components/Auth/withAuth';
 
 function Organizers() {
   const { organizers, loading, error, mutate } = useOrganizers();

@@ -3,6 +3,7 @@ import { Box, Grid, Card, CardContent } from '@mui/material';
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
+import { withAuth } from '@/components/Auth/withAuth';
 import {
   H3,
   H4,
@@ -20,7 +21,6 @@ import {
   Modal
 } from '@/components/common';
 import DashboardLayout from '@/layouts/dashboard';
-import { withAuth } from '@/components/Auth/withAuth';
 
 function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);

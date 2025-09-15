@@ -2,7 +2,6 @@ import {
   Box,
   IconButton,
   Table,
-  TableBody,
   TableCell,
   TableRow
 } from '@mui/material';
@@ -27,6 +26,26 @@ interface EventsTableProps {
 
 const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
   const router = useRouter();
+
+  const handleViewClick = (event: Event) => {
+    const status = ((event as any).eventStatus || (event as any).status || '').toString().toLowerCase();
+    const meta = event.metaUrl;
+
+    if (status && status !== 'draft') {
+      router.push(`/events/${meta}`);
+      return;
+    }
+
+    if (status === 'draft') {
+      const hasLowest = !!event.lowestPriceTicketType;
+      if (!hasLowest) {
+        router.push(`/events/create/${meta}/ticket`);
+        return;
+      }
+      router.push(`/events/create/${meta}/assets`);
+      return;
+    }
+  };
 
   if (loading) {
     return (
@@ -135,7 +154,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
                 <IconButton
                   size="small"
                   sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                  onClick={() => router.push(`/events/${event.metaUrl}`)}
+                  onClick={() => handleViewClick(event)}
                 >
                   <Image
                     alt="View"

@@ -91,7 +91,7 @@ export const DropdownSelector = ({
               py: 1.5,
               px: 2,
               '&:hover': {
-                backgroundColor: theme.paletteinfo.contrastText
+                backgroundColor: theme.palette.primary.light
               }
             })}
             onClick={() => handleValueSelect(option.value)}

@@ -7,7 +7,7 @@ import {
 import { styled } from '@mui/material/styles';
 
 // Styled checkbox with custom padding and border radius
-const StyledCheckbox = styled(MuiCheckbox)<CheckboxProps>(({ theme }) => ({
+const StyledCheckbox = styled(MuiCheckbox)<CheckboxProps>(() => ({
   padding: 0,
   borderRadius: '4px',
   marginRight: '16px',

@@ -32,7 +32,8 @@ import {
 import { ChangeEvent, FC, useState } from 'react';
 
 import { EventOrganizer } from '@/types/organizer';
-import { formatIndonesianDateTime, formatPhoneNumber, truncate } from '@/utils';
+import { formatPhoneNumber, truncate } from '@/utils';
+import { dateUtils } from '@/utils';
 
 interface OrganizersTableProps {
   organizers: EventOrganizer[];
@@ -397,7 +398,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
                   <TableCell>
                     <Box>
                       <Typography noWrap fontWeight="medium" variant="body2">
-                        {formatIndonesianDateTime(organizer.created_at)}
+                        {dateUtils.formatDateTimeWIB(organizer.created_at)}
                       </Typography>
                     </Box>
                   </TableCell>
@@ -423,7 +424,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
                           size="small"
                           sx={{
                             '&:hover': {
-                              background: theme.palette.primary.lighter,
+                              background: theme.palette.primary.light,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.primary.main,
@@ -438,7 +439,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
                           size="small"
                           sx={{
                             '&:hover': {
-                              background: theme.palette.error.lighter,
+                              background: theme.palette.error.light,
                               transform: 'scale(1.1)'
                             },
                             color: theme.palette.error.main,

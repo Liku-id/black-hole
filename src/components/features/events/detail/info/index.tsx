@@ -1,5 +1,6 @@
 import { Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
+
 import { Body2, Button, H3 } from '@/components/common';
 import { EventDetail } from '@/types/event';
 import { dateUtils } from '@/utils';
@@ -50,12 +51,15 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
         <H3 color="text.primary" fontWeight={700}>
           Event Detail
         </H3>
-        <Button
-          variant="primary"
-          onClick={() => router.push(`/events/${eventDetail.metaUrl}/edit`)}
-        >
-          Edit Detail Event
-        </Button>
+        {eventDetail.eventStatus !== "done" && eventDetail.eventStatus !== "on_review" && (
+          <Button
+            variant="primary"
+            onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+          >
+            Edit Detail Event
+          </Button>
+        )}
+
       </Box>
       <Grid container spacing={2}>
         {/* Left Grid */}
@@ -111,7 +115,7 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
             <Grid item xs={12}>
               <EventField
                 label="Admin Fee*"
-                value={`${eventDetail.adminFee}%`}
+                value={eventDetail.adminFee < 100 ? `${eventDetail.adminFee}%` : `Rp ${eventDetail.adminFee}`}
               />
             </Grid>
             <Grid item xs={12}>

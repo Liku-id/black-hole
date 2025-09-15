@@ -6,3 +6,4 @@ export { transactionsService } from './transactions';
 export { organizersService } from './organizers';
 export { authService } from './auth';
 export { listService } from './list';
+export { assetsService } from './assets';
