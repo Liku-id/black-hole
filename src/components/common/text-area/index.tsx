@@ -21,6 +21,7 @@ const getTextAreaStyles = (value: unknown, theme: any) => {
     '& .MuiOutlinedInput-root': {
       height: '182px',
       alignItems: 'flex-start',
+      overflowY: 'auto',
       backgroundColor: hasValue
         ? `${theme.palette.background.default} !important`
         : `${theme.palette.common.white} !important`,
@@ -35,7 +36,10 @@ const getTextAreaStyles = (value: unknown, theme: any) => {
         padding: '0px',
         height: '100% !important',
         width: '100% !important',
-        resize: 'none'
+        resize: 'none',
+        overflow: 'auto',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word'
       }
     }
   };

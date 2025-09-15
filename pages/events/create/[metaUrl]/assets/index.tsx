@@ -27,7 +27,7 @@ const AssetsPage = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    if (eventDetail?.eventStatus !== 'draft') {
+    if (eventDetail && eventDetail?.eventStatus !== 'draft') {
       router.replace('/events');
     }
   }, [router.isReady, eventDetail]);
