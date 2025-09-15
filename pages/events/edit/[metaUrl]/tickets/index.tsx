@@ -69,6 +69,14 @@ const EditTicketsPage = () => {
     }
   }, [eventDetail]);
 
+  // Ensure hooks are not called conditionally; redirect when ready
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (eventDetail?.eventStatus === 'draft') {
+      router.replace('/events');
+    }
+  }, [router.isReady, eventDetail]);
+
   // Prevent hydration error by checking if router is ready
   if (!router.isReady) {
     return null;
@@ -308,33 +316,28 @@ const EditTicketsPage = () => {
     router.push(`/events/${metaUrl}`);
   };
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (eventDetail?.eventStatus === 'draft') {
-      router.replace('/events');
-    }
-  }, [router.isReady, eventDetail]);
+  
 
   return (
     <DashboardLayout>
       <Box>
         {/* Back Button */}
         <Box
-          display="flex"
           alignItems="center"
+          display="flex"
           gap={1}
           mb={2}
-          onClick={() => router.back()}
           sx={{ cursor: 'pointer' }}
+          onClick={() => router.back()}
         >
-          <Image src="/icon/back.svg" alt="Back" width={24} height={24} />
+          <Image alt="Back" height={24} src="/icon/back.svg" width={24} />
           <Caption color="text.secondary" component="span">
             Back To Event Detail
           </Caption>
         </Box>
 
         {/* Title */}
-        <H2 color="text.primary" mb="21px" fontWeight={700}>
+        <H2 color="text.primary" fontWeight={700} mb="21px">
           Edit Ticket
         </H2>
 
@@ -369,16 +372,16 @@ const EditTicketsPage = () => {
             marginBottom="24px"
           >
             <Button
+              disabled={isLoading}
               variant="secondary"
               onClick={handleCancel}
-              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
+              disabled={isLoading}
               variant="primary"
               onClick={handleSubmitEvent}
-              disabled={isLoading}
             >
               {isLoading ? 'Updating...' : 'Update Tickets'}
             </Button>

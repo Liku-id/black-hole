@@ -162,18 +162,18 @@ export const EventAssetsEditForm = ({
         <Grid item md={6} xs={12}>
           <Dropzone
             accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
-            height="354px"
-            maxSize={2 * 1024 * 1024} // 2MB
-            order={1}
-            width="100%"
-            onFileSelect={handleThumbnailSelect}
-            onFileRemove={handleThumbnailRemove}
             error={showError}
             existingFileUrl={
               !thumbnail && !removedFromDisplay.thumbnail
                 ? mainEventAsset?.asset.url
                 : undefined
             }
+            height="354px"
+            maxSize={2 * 1024 * 1024} // 2MB
+            order={1}
+            width="100%"
+            onFileRemove={handleThumbnailRemove}
+            onFileSelect={handleThumbnailSelect}
           />
         </Grid>
 
@@ -188,18 +188,18 @@ export const EventAssetsEditForm = ({
                 <Grid key={index} item xs={6}>
                   <Dropzone
                     accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
-                    height="169px"
-                    maxSize={2 * 1024 * 1024} // 2MB
-                    order={index + 2}
-                    width="100%"
-                    onFileSelect={(file) =>
-                      handleSupportingImageSelect(index, file)
-                    }
-                    onFileRemove={() => handleSupportingImageRemove(index)}
                     existingFileUrl={
                       !hasNewFile && !removedFromDisplay.supportingImages[index]
                         ? existingEventAsset?.asset.url
                         : undefined
+                    }
+                    height="169px"
+                    maxSize={2 * 1024 * 1024} // 2MB
+                    order={index + 2}
+                    width="100%"
+                    onFileRemove={() => handleSupportingImageRemove(index)}
+                    onFileSelect={(file) =>
+                      handleSupportingImageSelect(index, file)
                     }
                   />
                 </Grid>

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
 import { Body2, DropdownSelector } from '@/components/common';
+
 import { StyledTextField } from '../text-field/StyledTextField';
 
 interface CountryCode {
@@ -73,10 +74,10 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
               startAdornment: (
                 <InputAdornment position="start">
                   <DropdownSelector
+                    defaultLabel="+62"
+                    options={countryCodeOptions}
                     selectedValue={selectedCountryCode}
                     onValueChange={setSelectedCountryCode}
-                    options={countryCodeOptions}
-                    defaultLabel="+62"
                   />
                 </InputAdornment>
               )

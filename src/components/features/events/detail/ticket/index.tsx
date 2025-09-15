@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 
 import { Button, H3, H4 } from '@/components/common';
 import { EventDetail } from '@/types/event';
+
 import { EventDetailTicketTable } from './table';
 
 interface EventDetailTicketProps {
@@ -19,9 +20,9 @@ export const EventDetailTicket = ({ eventDetail }: EventDetailTicketProps) => {
   return (
     <Box>
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="space-between"
-        alignItems="center"
         mb={2}
       >
         <H3 color="text.primary" fontWeight={700}>
@@ -35,7 +36,7 @@ export const EventDetailTicket = ({ eventDetail }: EventDetailTicketProps) => {
       </Box>
 
       {/* Ticket Category Label */}
-      <H4 color="text.primary" mb="16px" fontWeight={700}>
+      <H4 color="text.primary" fontWeight={700} mb="16px">
         Ticket Category
       </H4>
 

@@ -249,10 +249,10 @@ export const CreateEventForm = ({ onSubmit, error, loading }: CreateEventFormPro
                   startAdornment: (
                     <InputAdornment position="start">
                       <DropdownSelector
+                        defaultLabel="%"
+                        options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
                         onValueChange={(type) => setValue('adminFeeType', type)}
-                        options={adminFeeTypeOptions}
-                        defaultLabel="%"
                       />
                     </InputAdornment>
                   )
@@ -351,7 +351,7 @@ export const CreateEventForm = ({ onSubmit, error, loading }: CreateEventFormPro
           </Grid>
 
           {/* Buttons */}
-          <Box textAlign="right" marginTop={4}>
+          <Box marginTop={4} textAlign="right">
             {error && (
               <Box marginBottom={2}>
                 <Overline color="error.main">{error}</Overline>
@@ -359,10 +359,10 @@ export const CreateEventForm = ({ onSubmit, error, loading }: CreateEventFormPro
             )}
 
             <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button variant="secondary" onClick={handleSaveDraft} disabled={loading}>
+              <Button disabled={loading} variant="secondary" onClick={handleSaveDraft}>
                 Save Draft
               </Button>
-              <Button type="submit" variant="primary" disabled={loading}>
+              <Button disabled={loading} type="submit" variant="primary">
                 Continue
               </Button>
             </Box>

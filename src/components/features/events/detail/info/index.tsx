@@ -20,10 +20,10 @@ const EventField = ({
       {label}
     </Body2>
     <Box
-      p="12px 16px"
       border="1px solid"
       borderColor="primary.main"
       borderRadius={1}
+      p="12px 16px"
       sx={{
         backgroundColor: 'primary.light',
         ...(isTextArea && { height: '216px' })
@@ -43,9 +43,9 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
   return (
     <>
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="space-between"
-        alignItems="center"
         mb={2}
       >
         <H3 color="text.primary" fontWeight={700}>
@@ -94,9 +94,9 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
             </Grid>
             <Grid item xs={12}>
               <EventField
+                isTextArea
                 label="Event Description*"
                 value={eventDetail.description}
-                isTextArea
               />
             </Grid>
           </Grid>
@@ -107,9 +107,9 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <EventField
+                isTextArea
                 label="Terms & Condition*"
                 value={eventDetail.termAndConditions}
-                isTextArea
               />
             </Grid>
             <Grid item xs={12}>
