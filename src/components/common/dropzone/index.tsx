@@ -68,10 +68,11 @@ const Dropzone = ({
   return (
     <Box
       {...getRootProps()}
-      height={height}
-      position="relative"
       border="1px solid"
       borderColor={error ? 'error.main' : 'grey.100'}
+      height={height}
+      position="relative"
+      style={style}
       sx={{
         cursor: 'pointer',
         overflow: 'hidden',
@@ -83,7 +84,6 @@ const Dropzone = ({
         ...sx
       }}
       width={width}
-      style={style}
     >
       <input {...getInputProps()} />
 
@@ -136,19 +136,19 @@ const Dropzone = ({
         <>
           {order && (
             <Box
-              height="24px"
-              left="16px"
-              position="absolute"
               alignItems="center"
-              justifyContent="center"
               borderRadius="50%"
               display="flex"
-              top="16px"
-              width="24px"
-              zIndex={1}
+              height="24px"
+              justifyContent="center"
+              left="16px"
+              position="absolute"
               sx={{
                 backgroundColor: 'primary.main'
               }}
+              top="16px"
+              width="24px"
+              zIndex={1}
             >
               <Caption color="common.white" fontWeight={600}>
                 {order}

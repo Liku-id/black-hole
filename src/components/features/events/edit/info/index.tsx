@@ -290,10 +290,10 @@ export const EventEditInfo = ({
                 startAdornment: (
                   <InputAdornment position="start">
                     <DropdownSelector
+                      defaultLabel="%"
+                      options={adminFeeTypeOptions}
                       selectedValue={watchedAdminFeeType}
                       onValueChange={(type) => setValue('adminFeeType', type)}
-                      options={adminFeeTypeOptions}
-                      defaultLabel="%"
                     />
                   </InputAdornment>
                 )
@@ -392,7 +392,7 @@ export const EventEditInfo = ({
         </Grid>
 
         {/* Buttons */}
-        <Box textAlign="right" marginTop={4}>
+        <Box marginTop={4} textAlign="right">
           {error && (
             <Box marginBottom={2}>
               <Overline color="error.main">{error}</Overline>

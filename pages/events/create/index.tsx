@@ -106,7 +106,7 @@ function CreateEvent() {
         </Box>
 
         {/* Form Component */}
-        <CreateEventForm onSubmit={onSubmit} error={error} loading={loading} />
+        <CreateEventForm error={error} loading={loading} onSubmit={onSubmit} />
       </Box>
     </DashboardLayout>
   );

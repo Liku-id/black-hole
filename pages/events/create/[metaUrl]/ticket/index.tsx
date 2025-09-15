@@ -43,6 +43,13 @@ const TicketPage = () => {
     TicketCategory | undefined
   >();
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (eventDetail?.eventStatus === 'draft') {
+      router.replace('/events');
+    }
+  }, [router.isReady, eventDetail]);
+
   if (!router.isReady) {
     return null;
   }
@@ -175,12 +182,7 @@ const TicketPage = () => {
     await onSubmit(`/events/create/${metaUrl}/assets`);
   };
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (eventDetail?.eventStatus === 'draft') {
-      router.replace('/events');
-    }
-  }, [router.isReady, eventDetail]);
+  
 
   return (
     <DashboardLayout>

@@ -23,9 +23,9 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
   return (
     <Box>
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="space-between"
-        alignItems="center"
         mb={2}
       >
         <H3 color="text.primary" fontWeight={700}>
@@ -45,18 +45,18 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
           {mainAsset && (
             <Grid item md={6} xs={12}>
               <Box
-                width="100%"
-                overflow="hidden"
                 bgcolor="grey.100"
+                overflow="hidden"
                 position="relative"
                 sx={{ aspectRatio: '16 / 9' }}
+                width="100%"
               >
                 <Image
-                  src={mainAsset.url}
-                  alt={mainAsset.key || 'Event asset'}
                   fill
-                  style={{ objectFit: 'cover' }}
                   unoptimized
+                  alt={mainAsset.key || 'Event asset'}
+                  src={mainAsset.url}
+                  style={{ objectFit: 'cover' }}
                 />
               </Box>
             </Grid>
@@ -67,20 +67,20 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
             <Grid item md={6} xs={12}>
               <Grid container spacing={2}>
                 {sideAssets.map((asset, index) => (
-                  <Grid item xs={6} key={asset.id || index}>
+                  <Grid key={asset.id || index} item xs={6}>
                     <Box
-                      width="100%"
-                      overflow="hidden"
                       bgcolor="grey.100"
+                      overflow="hidden"
                       position="relative"
                       sx={{ aspectRatio: '16 / 9' }}
+                      width="100%"
                     >
                       <Image
-                        src={asset.url}
-                        alt={asset.key || `Event asset ${index + 2}`}
                         fill
-                        style={{ objectFit: 'cover' }}
                         unoptimized
+                        alt={asset.key || `Event asset ${index + 2}`}
+                        src={asset.url}
+                        style={{ objectFit: 'cover' }}
                       />
                     </Box>
                   </Grid>
@@ -91,13 +91,13 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
         </Grid>
       ) : (
         <Box
-          display="flex"
           alignItems="center"
-          justifyContent="center"
-          height="380px"
+          bgcolor="background.paper"
           border="2px dashed"
           borderColor="grey.100"
-          bgcolor="background.paper"
+          display="flex"
+          height="380px"
+          justifyContent="center"
         >
           <H3 color="text.secondary">No assets available</H3>
         </Box>

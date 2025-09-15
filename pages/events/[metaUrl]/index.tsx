@@ -60,11 +60,11 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return (
     <Box
+      bgcolor={statusConfig.backgroundColor}
+      borderRadius="10px"
+      color={statusConfig.color}
       component="span"
       padding="3px 7px"
-      borderRadius="10px"
-      bgcolor={statusConfig.backgroundColor}
-      color={statusConfig.color}
     >
       <Overline>{statusConfig.displayName}</Overline>
     </Box>
@@ -114,26 +114,26 @@ function EventDetail() {
 
       {/* Back Button */}
       <Box
-        display="flex"
         alignItems="center"
+        display="flex"
         gap={1}
         mb={2}
-        onClick={() => router.push(`/events`)}
         sx={{ cursor: 'pointer' }}
+        onClick={() => router.push(`/events`)}
       >
-        <Image src="/icon/back.svg" alt="Back" width={24} height={24} />
+        <Image alt="Back" height={24} src="/icon/back.svg" width={24} />
         <Caption color="text.secondary" component="span">
           Back To Event List
         </Caption>
       </Box>
 
       {/* Title */}
-      <H2 color="text.primary" mb="21px" fontWeight={700}>
+      <H2 color="text.primary" fontWeight={700} mb="21px">
         Event Detail
       </H2>
 
       {/* Event Name */}
-      <Box display="flex" alignItems="center" gap={2} mb="16px">
+      <Box alignItems="center" display="flex" gap={2} mb="16px">
         <H3 color="text.primary" fontWeight={700}>
           Event Name: {eventDetail.name}
         </H3>

@@ -141,30 +141,30 @@ function EditEvent() {
 
       {/* Back Button */}
       <Box
-        display="flex"
         alignItems="center"
+        display="flex"
         gap={1}
         mb={2}
-        onClick={() => router.back()}
         sx={{ cursor: 'pointer' }}
+        onClick={() => router.back()}
       >
-        <Image src="/icon/back.svg" alt="Back" width={24} height={24} />
+        <Image alt="Back" height={24} src="/icon/back.svg" width={24} />
         <Caption color="text.secondary" component="span">
           Back To Event Detail
         </Caption>
       </Box>
 
       {/* Title */}
-      <H2 color="text.primary" mb="21px" fontWeight={700}>
+      <H2 color="text.primary" fontWeight={700} mb="21px">
         Edit Event Detail
       </H2>
 
       {/* Main Card */}
       <Card sx={{ mb: 3 }}>
         <EventEditInfo
+          error={updateError}
           eventDetail={eventDetail}
           onSubmit={handleSubmit}
-          error={updateError}
         />
       </Card>
     </DashboardLayout>

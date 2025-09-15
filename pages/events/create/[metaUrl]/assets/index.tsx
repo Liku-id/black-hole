@@ -25,6 +25,13 @@ const AssetsPage = () => {
   const [loading, setLoading] = useState(false);
   const { eventDetail } = useEventDetail(metaUrl as string);
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (eventDetail?.eventStatus !== 'draft') {
+      router.replace('/events');
+    }
+  }, [router.isReady, eventDetail]);
+
   if (!router.isReady) {
     return null;
   }
@@ -116,12 +123,7 @@ const AssetsPage = () => {
     } 
   };
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (eventDetail?.eventStatus !== 'draft') {
-      router.replace('/events');
-    }
-  }, [router.isReady, eventDetail]);
+  
 
   return (
     <DashboardLayout>
@@ -136,12 +138,12 @@ const AssetsPage = () => {
 
         <Card>
           <EventAssetsForm
-            onFilesChange={handleFilesChange}
             showError={showError}
+            onFilesChange={handleFilesChange}
           />
 
           <Box display="flex" gap="24px" justifyContent="flex-end">
-            <Button variant="primary" onClick={handleSubmitEvent} disabled={loading}>
+            <Button disabled={loading} variant="primary" onClick={handleSubmitEvent}>
               {loading ? 'Submitting...' : 'Submit Event'}
             </Button>
           </Box>

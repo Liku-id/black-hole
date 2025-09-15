@@ -205,14 +205,14 @@ export const EventTicketsEditForm = ({
         </StyledTableContainer>
       ) : (
         <Box
-          display="flex"
           alignItems="center"
-          justifyContent="center"
-          height="200px"
+          bgcolor="background.paper"
           border="2px dashed"
           borderColor={showError ? 'error.main' : 'grey.100'}
-          bgcolor="background.paper"
           borderRadius="8px"
+          display="flex"
+          height="200px"
+          justifyContent="center"
         >
           <Box textAlign="center">
             <Body2
