@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { useRef, useState } from 'react';
 
 import { Body2 } from '@/components/common';
@@ -62,7 +62,6 @@ export default function Tabs({
   onTabChange,
   borderless = false
 }: TabsProps) {
-  const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -110,7 +109,7 @@ export default function Tabs({
         <TabItem
           key={tab.id}
           active={activeTab === tab.id}
-          onClick={(e) => {
+          onClick={() => {
             if (dragDistance < 5) {
               onTabChange(tab.id);
             }

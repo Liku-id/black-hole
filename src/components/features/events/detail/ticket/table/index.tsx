@@ -7,8 +7,8 @@ import {
   StyledTableHead,
   StyledTableBody
 } from '@/components/common';
-import { dateUtils, formatPrice } from '@/utils';
 import { TicketType } from '@/types/event';
+import { dateUtils, formatPrice } from '@/utils';
 
 interface EventDetailTicketTableProps {
   ticketTypes: TicketType[];

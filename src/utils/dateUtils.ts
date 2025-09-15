@@ -5,6 +5,66 @@ import { format, isValid, parseISO } from 'date-fns';
  */
 export const dateUtils = {
   /**
+   * Normalize timezone string to "+HH:MM" format
+   */
+  normTz: (tz?: string): string => {
+    if (!tz) return '+07:00';
+    const m = tz.match(/([+-]\d{2}):?(\d{2})/);
+    if (m) return `${m[1]}:${m[2]}`;
+    return '+07:00';
+  },
+
+  /**
+   * Build UTC ISO string (YYYY-MM-DDTHH:mm:ss.sssZ) from local parts
+   * Expects: date "YYYY-MM-DD", time "HH:mm", tz like "+07:00" or "+0700"
+   */
+  toIsoFromParts: (params: {
+    date: string;
+    time: string;
+    timeZone?: string;
+  }): string => {
+    const { date, time, timeZone } = params;
+    const tz = dateUtils.normTz(timeZone);
+    return new Date(`${date}T${time}:00${tz}`).toISOString();
+  },
+
+  /**
+   * Build UTC ISO string at start of day from a date-only string and tz
+   * Expects date "YYYY-MM-DD" and optional tz (default +07:00)
+   */
+  toIsoStartOfDay: (date: string, timeZone = '+07:00'): string => {
+    const tz = dateUtils.normTz(timeZone);
+    return new Date(`${date}T00:00:00${tz}`).toISOString();
+  },
+
+  /**
+   * Ensure a given date-like string is converted to UTC ISO string
+   */
+  toIso: (value: string): string => {
+    if (!value) return '';
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? '' : d.toISOString();
+  },
+
+  /**
+   * Unified formatter: returns UTC ISO string from date with optional time and timezone
+   * - date: YYYY-MM-DD (required)
+   * - time: HH:mm (optional)
+   * - timeZone: +HH:MM or +HHMM (optional, defaults +07:00)
+   * If time is omitted, 00:00:00 at the provided timezone is used.
+   */
+  formatDateISO: (params: { date: string; time?: string; timeZone?: string }): string => {
+    const { date, time, timeZone } = params;
+    if (!date) return '';
+    const tz = dateUtils.normTz(timeZone);
+    const safeTime = typeof time === 'string' && /^\d{2}:\d{2}$/.test(time) ? time : '00:00';
+    const timePart = `${safeTime}:00`;
+    const dt = new Date(`${date}T${timePart}${tz}`);
+    if (isNaN(dt.getTime())) return '';
+    return dt.toISOString();
+  },
+  
+  /**
    * Format date to dd/mm/yyyy format
    * @param dateString - Date string to format
    * @returns Formatted date string in dd/mm/yyyy format
@@ -179,17 +239,17 @@ export const dateUtils = {
    */
   extractTimezone: (dateString: string): string => {
     if (!dateString) return '+07:00';
-    
+
     if (dateString.includes('Z')) {
-      return '+00:00';
+      return '+07:00';
     }
-    
+
     const timezoneMatch = dateString.match(/([+-]\d{2}):?(\d{2})/);
     if (timezoneMatch) {
       const [, hours, minutes] = timezoneMatch;
       return `${hours}:${minutes}`;
     }
-    
+
     return '+07:00';
   }
 };

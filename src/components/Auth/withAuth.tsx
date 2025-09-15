@@ -1,7 +1,8 @@
-import { useAuth } from '@/contexts/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+
+import { useAuth } from '@/contexts/AuthContext';
 
 interface WithAuthOptions {
   requireAuth?: boolean;

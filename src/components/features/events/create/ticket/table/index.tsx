@@ -8,7 +8,7 @@ import {
   StyledTableHead,
   StyledTableBody
 } from '@/components/common';
-import { dateUtils, formatPrice } from '@/utils';
+import { formatPrice, dateUtils } from '@/utils';
 
 interface TicketCategory {
   id: string;
@@ -133,12 +133,12 @@ const TicketTable: FC<TicketTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {ticket.salesStartDate}
+                    {dateUtils.formatDateTimeWIB(ticket.salesStartDate)}
                   </Body2>
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {ticket.salesEndDate}
+                    {dateUtils.formatDateTimeWIB(ticket.salesEndDate)}
                   </Body2>
                 </TableCell>
                 <TableCell align="right">

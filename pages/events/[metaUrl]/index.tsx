@@ -3,13 +3,14 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+
+import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H2, H3, Overline } from '@/components/common';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
-import { withAuth } from '@/components/Auth/withAuth';
 
 const StyledDivider = styled(Divider)({
   margin: '24px 0px',
@@ -22,25 +23,25 @@ const StatusBadge = ({ status }: { status: string }) => {
     const statusLower = status.toLowerCase();
 
     switch (statusLower) {
-      case 'event_status_ongoing':
+      case 'on_going':
         return {
           backgroundColor: 'success.light',
           color: 'success.main',
           displayName: 'Ongoing'
         };
-      case 'event_status_upcoming':
+      case 'approved':
         return {
           backgroundColor: 'info.light',
           color: 'info.main',
           displayName: 'Upcoming'
         };
-      case 'event_status_rejected':
+      case 'rejected':
         return {
           backgroundColor: 'warning.light',
           color: 'warning.main',
           displayName: 'Rejected'
         };
-      case 'event_status_on_review':
+      case 'on_review':
         return {
           backgroundColor: 'error.light',
           color: 'error.main',
@@ -49,7 +50,7 @@ const StatusBadge = ({ status }: { status: string }) => {
       default:
         return {
           backgroundColor: 'info.dark',
-          color: 'action.hover',
+          color: 'info.contrastText',
           displayName: 'Draft'
         };
     }
@@ -89,7 +90,7 @@ function EventDetail() {
         <Head>
           <title>Loading Event - Black Hole Dashboard</title>
         </Head>
-        <div>Loading...</div>
+        <Box>Loading...</Box>
       </DashboardLayout>
     );
   }
@@ -117,7 +118,7 @@ function EventDetail() {
         alignItems="center"
         gap={1}
         mb={2}
-        onClick={() => router.back()}
+        onClick={() => router.push(`/events`)}
         sx={{ cursor: 'pointer' }}
       >
         <Image src="/icon/back.svg" alt="Back" width={24} height={24} />

@@ -66,22 +66,45 @@ class TicketsService {
     }
   }
 
-  async createTicketTypes(
-    ticketTypes: TicketTypePayload[]
+  async createTicketType(
+    ticketType: TicketTypePayload
   ): Promise<CreateTicketTypesResponse> {
     try {
-      console.log(
-        '🔍 TicketsService - Payload:',
-        JSON.stringify(ticketTypes, null, 2)
-      );
       const response = await apiUtils.post<CreateTicketTypesResponse>(
         '/api/tickets/ticket-types/create',
-        ticketTypes,
-        'Failed to create ticket types'
+        ticketType,
+        'Failed to create ticket type'
       );
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
+    }
+  }
+
+  async updateTicketType(
+    id: string,
+    ticketType: TicketTypePayload
+  ): Promise<void> {
+    try {
+      await apiUtils.put<void>(
+        `/api/tickets/ticket-types/${id}`,
+        ticketType,
+        'Failed to update ticket type'
+      );
+    } catch (error) {
+      console.error('Error updating ticket type:', error);
+      throw error;
+    }
+  }
+
+  async deleteTicketType(id: string): Promise<void> {
+    try {
+      await apiUtils.delete<void>(
+        `/api/tickets/ticket-types/${id}`,
+        'Failed to delete ticket type'
+      );
+    } catch (error) {
+      console.error('Error deleting ticket type:', error);
       throw error;
     }
   }

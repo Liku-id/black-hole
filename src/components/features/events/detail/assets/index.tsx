@@ -1,5 +1,6 @@
 import { Box, Grid } from '@mui/material';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { Button, H3 } from '@/components/common';
 import { EventDetail } from '@/types/event';
@@ -9,14 +10,18 @@ interface EventDetailAssetsProps {
 }
 
 export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
+  const router = useRouter();
   const eventAssets = eventDetail.eventAssets?.slice(0, 5) || [];
   const assets = eventAssets.map((eventAsset) => eventAsset.asset);
   const mainAsset = assets[0];
   const sideAssets = assets.slice(1, 5);
 
+  const handleEditAssets = () => {
+    router.push(`/events/edit/${eventDetail.metaUrl}/assets`);
+  };
+
   return (
     <Box>
-      {/* Header */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -26,7 +31,11 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
         <H3 color="text.primary" fontWeight={700}>
           Event Assets
         </H3>
-        <Button variant="primary">Edit Thumbnail</Button>
+        {eventDetail.eventStatus !== "done" && eventDetail.eventStatus !== "on_review" && (
+          <Button variant="primary" onClick={handleEditAssets}>
+            Edit Thumbnail
+          </Button>
+        )}
       </Box>
 
       {/* Assets Grid */}
@@ -37,10 +46,10 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
             <Grid item md={6} xs={12}>
               <Box
                 width="100%"
-                height="278px"
                 overflow="hidden"
                 bgcolor="grey.100"
                 position="relative"
+                sx={{ aspectRatio: '16 / 9' }}
               >
                 <Image
                   src={mainAsset.url}
@@ -64,12 +73,14 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
                       overflow="hidden"
                       bgcolor="grey.100"
                       position="relative"
+                      sx={{ aspectRatio: '16 / 9' }}
                     >
                       <Image
                         src={asset.url}
                         alt={asset.key || `Event asset ${index + 2}`}
                         fill
                         style={{ objectFit: 'cover' }}
+                        unoptimized
                       />
                     </Box>
                   </Grid>

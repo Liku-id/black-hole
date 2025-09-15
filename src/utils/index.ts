@@ -41,16 +41,14 @@ export const {
 } = formatUtils;
 
 export const {
-  buildQueryString,
-  handleResponse,
+  getAuthToken,
+  createConfig,
+  handleAxiosError,
   makeRequest,
   get,
   post,
   put,
-  delete: deleteRequest,
-  uploadFile,
-  downloadFile,
-  retry
+  delete: deleteRequest
 } = apiUtils;
 
 export const {

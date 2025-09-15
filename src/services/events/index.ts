@@ -3,9 +3,34 @@ import {
   EventsFilters,
   EventsResponse,
   CreateEventRequest,
-  CreateEventResponse
+  CreateEventResponse,
+  EventDetail
 } from '@/types/event';
 import { apiUtils } from '@/utils/apiUtils';
+
+export interface CreateEventAssetRequest {
+  eventId: string;
+  assetId: string;
+  order: number;
+}
+
+export interface CreateEventAssetResponse {
+  statusCode: number;
+  message: string;
+  body: any;
+}
+
+export interface UpdateEventAssetRequest {
+  eventId: string;
+  assetId: string;
+  order: number;
+}
+
+export interface UpdateEventAssetResponse {
+  statusCode: number;
+  message: string;
+  body: any;
+}
 
 // Events Service
 class EventsService {
@@ -19,6 +44,7 @@ class EventsService {
       if (filters?.startDate) params.startDate = filters.startDate;
       if (filters?.endDate) params.endDate = filters.endDate;
       if (filters?.cityId) params.cityId = filters.cityId;
+      if (filters?.status) params.status = filters.status;
 
       return await apiUtils.get(
         '/api/events',
@@ -53,6 +79,82 @@ class EventsService {
       );
     } catch (error) {
       console.error('Error creating event:', error);
+      throw error;
+    }
+  }
+
+  async updateEvent({
+    metaUrl,
+    data
+  }: {
+    metaUrl: string;
+    data: CreateEventRequest;
+  }): Promise<EventDetail> {
+    try {
+      return await apiUtils.put<EventDetail>(
+        `/api/events/${metaUrl}/edit`,
+        { ...data },
+        'Failed to update event'
+      );
+    } catch (error) {
+      console.error('Error updating event:', error);
+      throw error;
+    }
+  }
+
+  // Event Asset operations
+  async createEventAsset(
+    data: CreateEventAssetRequest
+  ): Promise<CreateEventAssetResponse> {
+    try {
+      return await apiUtils.post<CreateEventAssetResponse>(
+        '/api/events/event-asset',
+        data,
+        'Failed to create event asset'
+      );
+    } catch (error) {
+      console.error('Error creating event asset:', error);
+      throw error;
+    }
+  }
+
+  async updateEventAsset(
+    id: string,
+    data: UpdateEventAssetRequest
+  ): Promise<UpdateEventAssetResponse> {
+    try {
+      return await apiUtils.put<UpdateEventAssetResponse>(
+        `/api/events/event-asset/${id}`,
+        data,
+        'Failed to update event asset'
+      );
+    } catch (error) {
+      console.error('Error updating event asset:', error);
+      throw error;
+    }
+  }
+
+  async deleteEventAsset(id: string): Promise<void> {
+    try {
+      await apiUtils.delete(
+        `/api/events/event-asset/${id}`,
+        'Failed to delete event asset'
+      );
+    } catch (error) {
+      console.error('Error deleting event asset:', error);
+      throw error;
+    }
+  }
+
+  async submitEvent(id: string): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        `/api/events/${id}/submission`,
+        {},
+        'Failed to submit event'
+      );
+    } catch (error) {
+      console.error('Error submitting event:', error);
       throw error;
     }
   }

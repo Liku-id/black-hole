@@ -25,8 +25,8 @@ interface SalesModalProps {
 
 const timeZoneOptions = [
   { value: '+07:00', label: 'WIB' },
-  { value: '+08:00', label: 'WITA' },
-  { value: '+09:00', label: 'WIT' }
+  { value: '+06:00', label: 'WITA' },
+  { value: '+05:00', label: 'WIT' }
 ];
 
 export const SalesModal = ({

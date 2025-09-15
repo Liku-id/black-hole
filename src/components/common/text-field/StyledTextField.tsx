@@ -29,10 +29,11 @@ export const StyledTextField = styled(TextField)<TextFieldProps>(
       },
 
       // When input has value (filled state)
-      '&:has(input:not(:placeholder-shown))': {
-        backgroundColor: theme.palette.background.default,
-        border: `1px solid ${theme.palette.primary.main}`
-      },
+      '&:has(input:not(:placeholder-shown)), &:has(textarea:not(:placeholder-shown))':
+        {
+          backgroundColor: theme.palette.background.default,
+          border: `1px solid ${theme.palette.primary.main}`
+        },
 
       '& input': {
         padding: '11px 16px',

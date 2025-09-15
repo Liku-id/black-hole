@@ -49,9 +49,10 @@ interface FormData {
 interface CreateEventFormProps {
   onSubmit: (data: FormData, isDraft?: boolean) => void;
   error?: string;
+  loading: boolean;
 }
 
-export const CreateEventForm = ({ onSubmit, error }: CreateEventFormProps) => {
+export const CreateEventForm = ({ onSubmit, error, loading }: CreateEventFormProps) => {
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
   const { eventTypes } = useEventTypes();
@@ -358,10 +359,10 @@ export const CreateEventForm = ({ onSubmit, error }: CreateEventFormProps) => {
             )}
 
             <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button variant="secondary" onClick={handleSaveDraft}>
+              <Button variant="secondary" onClick={handleSaveDraft} disabled={loading}>
                 Save Draft
               </Button>
-              <Button type="submit" variant="primary">
+              <Button type="submit" variant="primary" disabled={loading}>
                 Continue
               </Button>
             </Box>

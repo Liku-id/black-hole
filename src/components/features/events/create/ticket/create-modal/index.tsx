@@ -15,9 +15,17 @@ interface TicketFormData {
   quantity: string;
   maxPerUser: string;
   salesStartDate: string;
+  salesStartRawDate: string;
+  salesStartTime: string;
+  salesStartTimeZone: string;
   salesEndDate: string;
+  salesEndRawDate: string;
+  salesEndTime: string;
+  salesEndTimeZone: string;
   ticketStartDate: string;
+  ticketStartRawDate: string;
   ticketEndDate: string;
+  ticketEndRawDate: string;
 }
 
 interface TicketCategory {

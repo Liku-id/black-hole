@@ -12,8 +12,8 @@ interface EventTimeModalProps {
 
 const timeZoneOptions = [
   { value: '+07:00', label: 'WIB' },
-  { value: '+08:00', label: 'WITA' },
-  { value: '+09:00', label: 'WIT' }
+  { value: '+06:00', label: 'WITA' },
+  { value: '+05:00', label: 'WIT' }
 ];
 
 export const EventTimeModal: React.FC<EventTimeModalProps> = ({
@@ -22,7 +22,6 @@ export const EventTimeModal: React.FC<EventTimeModalProps> = ({
   onSave
 }) => {
   const { getValues, trigger } = useFormContext();
-
   const onSubmit = async () => {
     // Trigger validation for time fields
     const isStartTimeValid = await trigger('startTime');

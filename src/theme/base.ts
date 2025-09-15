@@ -46,9 +46,9 @@ export function themeCreator(): Theme {
       info: {
         main: '#8A38F5',
         light: '#F4ECFE',
-        dark: "#ECEEFC",
-        contrastText: '#3C50E0',
-      },
+        dark: '#ECEEFC',
+        contrastText: '#3C50E0'
+      }
     }
   });
 }

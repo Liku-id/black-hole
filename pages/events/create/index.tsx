@@ -2,10 +2,10 @@ import { Box } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { CreateEventForm } from '@/components/features/events/create/info';
-import { H4, Breadcrumb } from '@/components/common';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { withAuth } from '@/components/Auth/withAuth';
+import { H4, Breadcrumb } from '@/components/common';
+import { CreateEventForm } from '@/components/features/events/create/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
 import { CreateEventRequest } from '@/types/event';
@@ -35,10 +35,9 @@ interface FormData {
 
 function CreateEvent() {
   const [error, setError] = useState<string>('');
-  const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   const breadcrumbSteps = [
     { label: 'Event Detail', active: true },
@@ -48,11 +47,12 @@ function CreateEvent() {
 
   const onSubmit = async (data: FormData, isDraft: boolean = false) => {
     setError('');
+    setLoading(true);
 
     try {
       const payload: CreateEventRequest = {
         cityId: data.city,
-        eventOrganizerId: user?.id || '',
+        eventOrganizerId: '1a1d10df-81c2-4412-8093-5588dc2c6ba0',
         paymentMethodIds: data.paymentMethod,
         name: data.eventName,
         eventType: data.eventType,
@@ -69,23 +69,23 @@ function CreateEvent() {
           .toLowerCase()
           .replace(/\s+/g, '-')
           .replace(/[^a-z0-9-]/g, ''),
-        adminFee:
-          data.adminFeeType === '%'
-            ? (parseInt(data.adminFee) || 0) / 100
-            : parseInt(data.adminFee) || 0,
+        adminFee: parseInt(data.adminFee) || 0,
         tax: data.tax === 'true' ? parseInt(data.taxNominal) || 0 : 0
       };
-      console.log(payload);
       const response = await eventsService.createEvent(payload);
 
       if (isDraft) {
         router.push('/events');
       } else {
-        router.push(`/events/${response.body.metaUrl}/ticket`);
+        router.push(`/events/create/${response.body.metaUrl}/ticket`);
       }
     } catch (error: any) {
-      console.error('Failed to create event:', error);
-      setError(error.message || 'Failed to create event. Please try again.');
+      setLoading(false);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create event. Please try again.';
+      setError(errorMessage);
     }
   };
 
@@ -106,7 +106,7 @@ function CreateEvent() {
         </Box>
 
         {/* Form Component */}
-        <CreateEventForm onSubmit={onSubmit} error={error} />
+        <CreateEventForm onSubmit={onSubmit} error={error} loading={loading} />
       </Box>
     </DashboardLayout>
   );

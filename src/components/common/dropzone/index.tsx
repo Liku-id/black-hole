@@ -15,6 +15,8 @@ interface DropzoneProps {
   order?: number;
   error?: boolean;
   sx?: SxProps<Theme>;
+  existingFileUrl?: string;
+  style?: React.CSSProperties;
 }
 
 const Dropzone = ({
@@ -26,9 +28,14 @@ const Dropzone = ({
   maxSize = 2 * 1024 * 1024, // 2MB
   order,
   error = false,
-  sx = {}
+  sx = {},
+  existingFileUrl,
+  style
 }: DropzoneProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Use existing file URL if no new file is selected
+  const displayUrl = previewUrl || existingFileUrl;
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -42,7 +49,7 @@ const Dropzone = ({
     [onFileSelect]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept,
     maxSize,
@@ -76,16 +83,18 @@ const Dropzone = ({
         ...sx
       }}
       width={width}
+      style={style}
     >
       <input {...getInputProps()} />
 
-      {previewUrl ? (
+      {displayUrl ? (
         <>
           <Image
             fill
             alt="Preview"
-            src={previewUrl}
+            src={displayUrl}
             style={{ objectFit: 'cover' }}
+            unoptimized={!!existingFileUrl && !previewUrl}
           />
           {order && (
             <Box
