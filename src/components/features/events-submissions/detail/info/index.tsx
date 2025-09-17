@@ -77,8 +77,8 @@ const Field = ({
         border="1px solid"
         borderColor="primary.main"
         borderRadius={1}
-        p="12px 16px"
         overflow="scroll"
+        p="12px 16px"
         sx={{
           backgroundColor: 'primary.light',
           ...(isTextArea && { height: '216px' })
@@ -140,67 +140,67 @@ export const EventsSubmissionsInfo = ({
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Event Name*', 'name')}
-              value={eventDetail.name}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="name"
+              label={renderLabel('Event Name*', 'name')}
+              value={eventDetail.name}
             />
           </Grid>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Event Type*', 'event_type')}
-              value={eventDetail.eventType}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="eventType"
+              label={renderLabel('Event Type*', 'event_type')}
+              value={eventDetail.eventType}
             />
           </Grid>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Start & End Date*, Time*', ['start_date'])}
-              value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="startDate"
+              label={renderLabel('Start & End Date*, Time*', ['start_date'])}
+              value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`}
             />
           </Grid>
 
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Address*', 'address')}
-              value={eventDetail.address}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="address"
+              label={renderLabel('Address*', 'address')}
+              value={eventDetail.address}
             />
           </Grid>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Google Maps Link*', 'map_location_url')}
-              value={eventDetail.mapLocationUrl}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="mapLocationUrl"
+              label={renderLabel('Google Maps Link*', 'map_location_url')}
+              value={eventDetail.mapLocationUrl}
             />
           </Grid>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('City*', 'city')}
-              value={eventDetail.city?.name || '-'}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="cityId"
+              label={renderLabel('City*', 'city')}
+              value={eventDetail.city?.name || '-'}
             />
           </Grid>
           <Grid item xs={12}>
             <Field
               isTextArea
-              label={renderLabel('Event Description*', 'description')}
-              value={eventDetail.description}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="description"
+              label={renderLabel('Event Description*', 'description')}
+              value={eventDetail.description}
             />
           </Grid>
         </Grid>
@@ -210,45 +210,45 @@ export const EventsSubmissionsInfo = ({
           <Grid item xs={12}>
             <Field
               isTextArea
-              label={renderLabel('Terms & Condition*', 'term_and_conditions')}
-              value={eventDetail.termAndConditions}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="termAndConditions"
+              label={renderLabel('Terms & Condition*', 'term_and_conditions')}
+              value={eventDetail.termAndConditions}
             />
           </Grid>
           <Grid item xs={12}>
             <Field
+              eventDetail={eventDetail}
+              eventUpdateRequest={eventUpdateRequest}
+              fieldKey="adminFee"
               label={renderLabel('Admin Fee*', 'admin_fee')}
               value={
                 eventDetail.adminFee < 100
                   ? `${eventDetail.adminFee}%`
                   : `Rp ${eventDetail.adminFee}`
               }
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="adminFee"
             />
           </Grid>
           <Grid item xs={12}>
             <Field
+              eventDetail={eventDetail}
+              eventUpdateRequest={eventUpdateRequest}
+              fieldKey="paymentMethodIds"
               label={renderLabel('Payment Method*', 'payment_methods')}
               value={
                 eventDetail.paymentMethods?.map((pm) => pm.name).join(' / ') ||
                 ''
               }
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="paymentMethodIds"
             />
           </Grid>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Website URL*', 'website_url')}
-              value={eventDetail.websiteUrl || '-'}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="websiteUrl"
+              label={renderLabel('Website URL*', 'website_url')}
+              value={eventDetail.websiteUrl || '-'}
             />
           </Grid>
           <Grid item xs={12}>
@@ -256,11 +256,11 @@ export const EventsSubmissionsInfo = ({
           </Grid>
           <Grid item xs={12}>
             <Field
-              label={renderLabel('Tax Nominal*', 'tax')}
-              value={`${eventDetail.tax}%`}
               eventDetail={eventDetail}
               eventUpdateRequest={eventUpdateRequest}
               fieldKey="tax"
+              label={renderLabel('Tax Nominal*', 'tax')}
+              value={`${eventDetail.tax}%`}
             />
           </Grid>
         </Grid>

@@ -6,13 +6,13 @@ import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H3, Button } from '@/components/common';
-import { EventsSubmissionsInfo } from '@/components/features/events-submissions/detail/info';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { ApprovalModal } from '@/components/features/events-submissions/detail/approval-modal';
+import { EventsSubmissionsInfo } from '@/components/features/events-submissions/detail/info';
 import { RejectModal } from '@/components/features/events-submissions/detail/reject-modal';
 import { useEventsSubmissionDetail } from '@/hooks';
-import { eventSubmissionsService } from '@/services/events-submissions';
 import DashboardLayout from '@/layouts/dashboard';
+import { eventSubmissionsService } from '@/services/events-submissions';
 
 const StyledDivider = styled(Divider)({
   margin: '24px 0px',
@@ -135,8 +135,8 @@ function ApprovalDetail() {
         alignItems="center"
         display="flex"
         gap={2}
-        mb="16px"
         justifyContent="space-between"
+        mb="16px"
       >
         <Box alignItems="center" display="flex" gap={2}>
           <H3 color="text.primary" fontWeight={700}>
@@ -181,10 +181,10 @@ function ApprovalDetail() {
 
       {rejectMode ? (
         <Box
-          position="sticky"
           bottom={24}
           display="flex"
           justifyContent="center"
+          position="sticky"
           zIndex={100}
         >
           <Box
@@ -206,8 +206,8 @@ function ApprovalDetail() {
               Cancel
             </Button>
             <Button
-              onClick={() => setIsRejectOpen(true)}
               disabled={rejectedFields.length === 0}
+              onClick={() => setIsRejectOpen(true)}
             >
               Submit
             </Button>
@@ -216,20 +216,20 @@ function ApprovalDetail() {
       ) : null}
 
       <ApprovalModal
+        error={approveError}
+        eventName={submission.event?.name}
+        loading={approveLoading}
         open={isApproveOpen}
         onClose={() => setIsApproveOpen(false)}
         onConfirm={handleApprove}
-        eventName={submission.event?.name}
-        loading={approveLoading}
-        error={approveError}
       />
 
       <RejectModal
-        open={isRejectOpen}
-        onClose={() => setIsRejectOpen(false)}
-        loading={rejectLoading}
         error={rejectError}
+        loading={rejectLoading}
+        open={isRejectOpen}
         rejectedFields={rejectedFields}
+        onClose={() => setIsRejectOpen(false)}
         onConfirm={handleReject}
       />
     </DashboardLayout>

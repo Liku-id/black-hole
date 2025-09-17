@@ -1,5 +1,6 @@
 import { eventsService } from '@/services';
 import { Event, EventsFilters, EventCountByStatus } from '@/types/event';
+
 import { useApi } from '../../useApi';
 
 interface UseEventsReturn {

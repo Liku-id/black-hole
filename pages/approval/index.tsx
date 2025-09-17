@@ -2,6 +2,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
+
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, TextField } from '@/components/common';
 import SubmissionsTable from '@/components/features/events-submissions/table';
@@ -106,8 +107,8 @@ function Approval() {
             {/* Submissions Table */}
             {(loading || submissions.length > 0) && (
               <SubmissionsTable
-                submissions={submissions as any}
                 loading={loading}
+                submissions={submissions as any}
                 onRefresh={mutate}
               />
             )}
