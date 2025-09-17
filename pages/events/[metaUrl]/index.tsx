@@ -5,7 +5,8 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Card, Caption, H2, H3, Overline } from '@/components/common';
+import { Card, Caption, H2, H3 } from '@/components/common';
+import { StatusBadge } from '@/components/features/events/status-badge';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
@@ -18,58 +19,7 @@ const StyledDivider = styled(Divider)({
   borderWidth: '1px'
 });
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const getStatusStyle = (status: string) => {
-    const statusLower = status.toLowerCase();
-
-    switch (statusLower) {
-      case 'on_going':
-        return {
-          backgroundColor: 'success.light',
-          color: 'success.main',
-          displayName: 'Ongoing'
-        };
-      case 'approved':
-        return {
-          backgroundColor: 'info.light',
-          color: 'info.main',
-          displayName: 'Upcoming'
-        };
-      case 'rejected':
-        return {
-          backgroundColor: 'warning.light',
-          color: 'warning.main',
-          displayName: 'Rejected'
-        };
-      case 'on_review':
-        return {
-          backgroundColor: 'error.light',
-          color: 'error.main',
-          displayName: 'On Review'
-        };
-      default:
-        return {
-          backgroundColor: 'info.dark',
-          color: 'info.contrastText',
-          displayName: 'Draft'
-        };
-    }
-  };
-
-  const statusConfig = getStatusStyle(status);
-
-  return (
-    <Box
-      bgcolor={statusConfig.backgroundColor}
-      borderRadius="10px"
-      color={statusConfig.color}
-      component="span"
-      padding="3px 7px"
-    >
-      <Overline>{statusConfig.displayName}</Overline>
-    </Box>
-  );
-};
+// Using shared StatusBadge component
 
 function EventDetail() {
   const router = useRouter();

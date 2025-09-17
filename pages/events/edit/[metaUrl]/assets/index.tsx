@@ -155,8 +155,6 @@ const EditAssetsPage = () => {
     router.push(`/events/${metaUrl}`);
   };
 
-  
-
   return (
     <DashboardLayout>
       <Box>

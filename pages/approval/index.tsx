@@ -1,36 +1,32 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
-
 import { withAuth } from '@/components/Auth/withAuth';
-import { Tabs, Button, TextField } from '@/components/common';
-import EventsTable from '@/components/features/events/list/table';
-import { useEvents } from '@/hooks/features/events/useEvents';
+import { Tabs, TextField } from '@/components/common';
+import SubmissionsTable from '@/components/features/events-submissions/table';
+import { useEventsSubmissions } from '@/hooks/features/events-submissions/useEventsSubmissions';
 import DashboardLayout from '@/layouts/dashboard';
-import { EventsFilters } from '@/types/event';
+import { EventSubmissionsFilters } from '@/types/events-submission';
 import { useDebouncedCallback } from '@/utils';
 
-function Events() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('EVENT_STATUS_ON_GOING');
+function Approval() {
+  const [activeTab, setActiveTab] = useState('upcoming_draft');
   const [searchValue, setSearchValue] = useState('');
-  const [filters, setFilters] = useState<EventsFilters>({
+  const [filters, setFilters] = useState<EventSubmissionsFilters>({
     show: 10,
     page: 1,
-    status: 'EVENT_STATUS_ON_GOING',
-    name: ''
+    type: 'new',
+    search: ''
   });
 
-  const { events, eventCountByStatus, loading, error, mutate } =
-    useEvents(filters);
+  const { submissions, loading, error, mutate } = useEventsSubmissions(filters);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
       ...prev,
-      status: activeTab,
-      name: value,
+      type: activeTab === 'upcoming_draft' ? 'new' : 'update',
+      search: value,
       page: 1
     }));
   }, 1000);
@@ -45,48 +41,20 @@ function Events() {
     setActiveTab(newTab);
     setFilters((prev) => ({
       ...prev,
-      status: newTab,
+      type: newTab === 'upcoming_draft' ? 'new' : 'update',
       page: 1
     }));
   };
 
   const tabs = [
-    {
-      id: 'EVENT_STATUS_ON_GOING',
-      title: 'Ongoing',
-      quantity: eventCountByStatus && eventCountByStatus.onGoing
-    },
-    {
-      id: 'EVENT_STATUS_APPROVED',
-      title: 'Upcoming',
-      quantity: eventCountByStatus && eventCountByStatus.approved
-    },
-    {
-      id: 'EVENT_STATUS_DRAFT',
-      title: 'Draft',
-      quantity: eventCountByStatus && eventCountByStatus.draft
-    },
-    {
-      id: 'EVENT_STATUS_REJECTED',
-      title: 'Rejected',
-      quantity: eventCountByStatus && eventCountByStatus.rejected
-    },
-    {
-      id: 'EVENT_STATUS_ON_REVIEW',
-      title: 'On Review',
-      quantity: eventCountByStatus && eventCountByStatus.onReview
-    },
-    {
-      id: 'EVENT_STATUS_DONE',
-      title: 'Past',
-      quantity: eventCountByStatus && eventCountByStatus.done
-    }
+    { id: 'upcoming_draft', title: 'Upcoming Draft' },
+    { id: 'current_event', title: 'Current Event' }
   ];
 
   return (
     <DashboardLayout>
       <Head>
-        <title>Events - Black Hole Dashboard</title>
+        <title>Approval - Black Hole Dashboard</title>
       </Head>
 
       <Box>
@@ -98,11 +66,8 @@ function Events() {
           marginBottom="24px"
         >
           <Typography color="text.primary" fontSize="28px" fontWeight={700}>
-            Events
+            Approval
           </Typography>
-          <Button onClick={() => router.push('/events/create')}>
-            Create New Event
-          </Button>
         </Box>
 
         {/* Tabs Card */}
@@ -138,23 +103,23 @@ function Events() {
               />
             </Box>
 
-            {/* Events Table */}
-            {(loading || events.length > 0) && (
-              <EventsTable
-                events={events}
+            {/* Submissions Table */}
+            {(loading || submissions.length > 0) && (
+              <SubmissionsTable
+                submissions={submissions as any}
                 loading={loading}
                 onRefresh={mutate}
               />
             )}
 
             {/* Empty State */}
-            {!loading && events.length === 0 && !error && (
+            {!loading && submissions.length === 0 && !error && (
               <Box py={4} textAlign="center">
                 <Typography gutterBottom color="text.secondary" variant="h6">
-                  No events found
+                  No submissions found
                 </Typography>
                 <Typography color="text.secondary" variant="body2">
-                  There are no events in the system yet.
+                  There are no event submissions pending review.
                 </Typography>
               </Box>
             )}
@@ -163,7 +128,7 @@ function Events() {
             {error && (
               <Box py={4} textAlign="center">
                 <Typography gutterBottom variant="subtitle2">
-                  Failed to load events
+                  Failed to load submissions
                 </Typography>
                 <Typography variant="body2">{error}</Typography>
                 <Typography
@@ -171,7 +136,7 @@ function Events() {
                   sx={{ mt: 1 }}
                   variant="caption"
                 >
-                  Please check your backend connection and try again.
+                  Please check your connection and try again.
                 </Typography>
               </Box>
             )}
@@ -182,4 +147,4 @@ function Events() {
   );
 }
 
-export default withAuth(Events, { requireAuth: true });
+export default withAuth(Approval, { requireAuth: true });

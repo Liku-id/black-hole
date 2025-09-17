@@ -31,11 +31,12 @@ export const EventDetailAssets = ({ eventDetail }: EventDetailAssetsProps) => {
         <H3 color="text.primary" fontWeight={700}>
           Event Assets
         </H3>
-        {eventDetail.eventStatus !== "done" && eventDetail.eventStatus !== "on_review" && (
-          <Button variant="primary" onClick={handleEditAssets}>
-            Edit Thumbnail
-          </Button>
-        )}
+        {eventDetail.eventStatus !== 'done' &&
+          eventDetail.eventStatus !== 'on_review' && (
+            <Button variant="primary" onClick={handleEditAssets}>
+              Edit Thumbnail
+            </Button>
+          )}
       </Box>
 
       {/* Assets Grid */}

@@ -1,10 +1,4 @@
-import {
-  Box,
-  IconButton,
-  Table,
-  TableCell,
-  TableRow
-} from '@mui/material';
+import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
@@ -28,7 +22,9 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
   const router = useRouter();
 
   const handleViewClick = (event: Event) => {
-    const status = ((event as any).eventStatus || (event as any).status || '').toString().toLowerCase();
+    const status = ((event as any).eventStatus || (event as any).status || '')
+      .toString()
+      .toLowerCase();
     const meta = event.metaUrl;
 
     if (status && status !== 'draft') {

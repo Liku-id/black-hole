@@ -77,7 +77,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontSize: '14px',
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: '4px',
-    backgroundColor: "theme.palette.background.paper",
+    backgroundColor: 'theme.palette.background.paper',
     boxShadow: theme.shadows[8],
     padding: '24px'
   },
@@ -126,7 +126,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontFamily: '"Onest", sans-serif',
     display: 'inline-flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   '& .react-datepicker__day--outside-month': {
     color: theme.palette.text.secondary
@@ -134,10 +134,10 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
   '& .react-datepicker__day--today': {
     fontWeight: 600,
     backgroundColor: 'transparent',
-    color: "theme.palette.text.primary",
+    color: 'theme.palette.text.primary',
     '&:hover': {
       backgroundColor: `${theme.palette.primary.main} !important`,
-      color: `${theme.palette.common.white} !important`,
+      color: `${theme.palette.common.white} !important`
     }
   },
   '& .react-datepicker__day--selected': {
@@ -212,13 +212,13 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     }
   },
   '& .react-datepicker__month-read-view--down-arrow:after, & .react-datepicker__month-read-view--down-arrow:before':
-  {
-    display: 'none !important'
-  },
+    {
+      display: 'none !important'
+    },
   '& .react-datepicker__year-read-view--down-arrow:after, & .react-datepicker__year-read-view--down-arrow:before':
-  {
-    display: 'none !important'
-  },
+    {
+      display: 'none !important'
+    },
   '& .react-datepicker__month-select::-ms-expand': {
     display: 'none'
   },
@@ -226,13 +226,13 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     display: 'none'
   },
   '& .react-datepicker__month-select::-webkit-outer-spin-button, & .react-datepicker__month-select::-webkit-inner-spin-button':
-  {
-    display: 'none'
-  },
+    {
+      display: 'none'
+    },
   '& .react-datepicker__year-select::-webkit-outer-spin-button, & .react-datepicker__year-select::-webkit-inner-spin-button':
-  {
-    display: 'none'
-  },
+    {
+      display: 'none'
+    },
   '& .react-datepicker__month-select, & .react-datepicker__year-select': {
     backgroundImage: 'none !important',
     background: 'transparent !important'

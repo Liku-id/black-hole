@@ -1,10 +1,10 @@
 import { eventsService } from '@/services';
-import { Event, EventsFilters } from '@/types/event';
-
+import { Event, EventsFilters, EventCountByStatus } from '@/types/event';
 import { useApi } from '../../useApi';
 
 interface UseEventsReturn {
   events: Event[];
+  eventCountByStatus: EventCountByStatus;
   loading: boolean;
   error: string | null;
   mutate: () => void;
@@ -22,6 +22,7 @@ const useEvents = (filters?: EventsFilters): UseEventsReturn => {
 
   return {
     events: data?.body?.events || [],
+    eventCountByStatus: data?.body?.eventCountByStatus,
     loading,
     error,
     mutate,

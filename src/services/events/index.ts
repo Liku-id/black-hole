@@ -3,8 +3,7 @@ import {
   EventsFilters,
   EventsResponse,
   CreateEventRequest,
-  CreateEventResponse,
-  EventDetail
+  CreateEventResponse
 } from '@/types/event';
 import { apiUtils } from '@/utils/apiUtils';
 
@@ -89,9 +88,9 @@ class EventsService {
   }: {
     metaUrl: string;
     data: CreateEventRequest;
-  }): Promise<EventDetail> {
+  }): Promise<EventDetailResponse> {
     try {
-      return await apiUtils.put<EventDetail>(
+      return await apiUtils.put<EventDetailResponse>(
         `/api/events/${metaUrl}/edit`,
         { ...data },
         'Failed to update event'
