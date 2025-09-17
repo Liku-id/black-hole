@@ -6,10 +6,10 @@ import { useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H2, H3 } from '@/components/common';
-import { StatusBadge } from '@/components/features/events/status-badge';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
+import { StatusBadge } from '@/components/features/events/status-badge';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 

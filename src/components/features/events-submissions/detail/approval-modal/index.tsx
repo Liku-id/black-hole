@@ -22,24 +22,24 @@ export const ApprovalModal = ({
 }: ApprovalModalProps) => {
   return (
     <Modal
-      open={open}
-      onClose={onClose}
-      title="Approve Event Submission"
-      width={520}
-      height={error ? 280 : 240}
       footer={
         <Box display="flex" flexDirection="column" gap={1}>
           {error ? <Body2 color="error.main">{error}</Body2> : null}
           <Box display="flex" gap={1} justifyContent="flex-end">
-            <Button variant="secondary" onClick={onClose} disabled={loading}>
+            <Button disabled={loading} variant="secondary" onClick={onClose}>
               No
             </Button>
-            <Button onClick={onConfirm} disabled={loading}>
+            <Button disabled={loading} onClick={onConfirm}>
               Yes
             </Button>
           </Box>
         </Box>
       }
+      height={error ? 280 : 240}
+      open={open}
+      title="Approve Event Submission"
+      width={520}
+      onClose={onClose}
     >
       <Body2 color="text.secondary">
         Are you sure you want to approve the event "{eventName || 'this event'}

@@ -1,8 +1,8 @@
 import { Box } from '@mui/material';
+import { useState } from 'react';
 
 import { Body2, Button, TextField } from '@/components/common';
 import Modal from '@/components/common/modal';
-import { useState } from 'react';
 
 interface RejectModalProps {
   open: boolean;
@@ -25,27 +25,27 @@ export const RejectModal = ({
 
   return (
     <Modal
-      open={open}
-      onClose={onClose}
-      title="Reject Event Submission"
-      width={560}
-      height={320}
       footer={
         <Box display="flex" flexDirection="column" gap={1}>
           {error ? <Body2 color="error.main">{error}</Body2> : null}
           <Box display="flex" gap={1} justifyContent="flex-end">
-            <Button variant="secondary" onClick={onClose} disabled={loading}>
+            <Button disabled={loading} variant="secondary" onClick={onClose}>
               No
             </Button>
             <Button
-              onClick={() => onConfirm(reason)}
               disabled={loading || !reason.trim()}
+              onClick={() => onConfirm(reason)}
             >
               Yes
             </Button>
           </Box>
         </Box>
       }
+      height={320}
+      open={open}
+      title="Reject Event Submission"
+      width={560}
+      onClose={onClose}
     >
       <Body2 color="text.secondary" mb={2}>
         Are you sure you want to reject this event submission?
@@ -58,10 +58,10 @@ export const RejectModal = ({
           </Body2>
           <Box
             bgcolor="error.light"
-            borderRadius={1}
-            p={1}
             border="1px solid"
             borderColor="error.main"
+            borderRadius={1}
+            p={1}
           >
             <Body2 color="error.main">
               {rejectedFields
@@ -90,10 +90,10 @@ export const RejectModal = ({
       )}
 
       <TextField
+        fullWidth
         placeholder="Enter rejection reason"
         value={reason}
         onChange={(e: any) => setReason(e.target.value)}
-        fullWidth
       />
     </Modal>
   );

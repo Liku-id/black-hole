@@ -23,8 +23,8 @@ const EventField = ({
       border="1px solid"
       borderColor="primary.main"
       borderRadius={1}
-      p="12px 16px"
       overflow="scroll"
+      p="12px 16px"
       sx={{
         backgroundColor: 'primary.light',
         ...(isTextArea && { height: '216px' })
