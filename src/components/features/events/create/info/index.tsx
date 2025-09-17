@@ -52,7 +52,11 @@ interface CreateEventFormProps {
   loading: boolean;
 }
 
-export const CreateEventForm = ({ onSubmit, error, loading }: CreateEventFormProps) => {
+export const CreateEventForm = ({
+  onSubmit,
+  error,
+  loading
+}: CreateEventFormProps) => {
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
   const { eventTypes } = useEventTypes();
@@ -359,7 +363,11 @@ export const CreateEventForm = ({ onSubmit, error, loading }: CreateEventFormPro
             )}
 
             <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button disabled={loading} variant="secondary" onClick={handleSaveDraft}>
+              <Button
+                disabled={loading}
+                variant="secondary"
+                onClick={handleSaveDraft}
+              >
                 Save Draft
               </Button>
               <Button disabled={loading} type="submit" variant="primary">

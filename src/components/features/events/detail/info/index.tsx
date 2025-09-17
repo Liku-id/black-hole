@@ -24,6 +24,7 @@ const EventField = ({
       borderColor="primary.main"
       borderRadius={1}
       p="12px 16px"
+      overflow="scroll"
       sx={{
         backgroundColor: 'primary.light',
         ...(isTextArea && { height: '216px' })
@@ -51,15 +52,16 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
         <H3 color="text.primary" fontWeight={700}>
           Event Detail
         </H3>
-        {eventDetail.eventStatus !== "done" && eventDetail.eventStatus !== "on_review" && (
-          <Button
-            variant="primary"
-            onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
-          >
-            Edit Detail Event
-          </Button>
-        )}
-
+        {eventDetail.eventStatus !== 'done' &&
+          eventDetail.eventStatus !== 'on_review' &&
+          eventDetail.is_requested === false && (
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+            >
+              Edit Detail Event
+            </Button>
+          )}
       </Box>
       <Grid container spacing={2}>
         {/* Left Grid */}
@@ -115,7 +117,11 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
             <Grid item xs={12}>
               <EventField
                 label="Admin Fee*"
-                value={eventDetail.adminFee < 100 ? `${eventDetail.adminFee}%` : `Rp ${eventDetail.adminFee}`}
+                value={
+                  eventDetail.adminFee < 100
+                    ? `${eventDetail.adminFee}%`
+                    : `Rp ${eventDetail.adminFee}`
+                }
               />
             </Grid>
             <Grid item xs={12}>
@@ -127,6 +133,9 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
                     .join(' / ') || ''
                 }
               />
+            </Grid>
+            <Grid item xs={12}>
+              <EventField label="Website Url*" value={eventDetail.websiteUrl} />
             </Grid>
             <Grid item xs={12}>
               <EventField label="Tax*" value={eventDetail.tax ? 'Yes' : 'No'} />

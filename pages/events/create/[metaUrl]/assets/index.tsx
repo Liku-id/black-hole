@@ -96,7 +96,10 @@ const AssetsPage = () => {
             privacy: 'PUBLIC',
             fileGroup: 'EVENT'
           });
-          newAssetIds.push({ assetId: uploadResponse.body.asset.id, order: orderCounter });
+          newAssetIds.push({
+            assetId: uploadResponse.body.asset.id,
+            order: orderCounter
+          });
         }
         orderCounter += 1;
       }
@@ -120,10 +123,8 @@ const AssetsPage = () => {
         'Failed to submit event assets. Please try again.';
       console.log(errorMessage);
       setLoading(false);
-    } 
+    }
   };
-
-  
 
   return (
     <DashboardLayout>
@@ -143,7 +144,11 @@ const AssetsPage = () => {
           />
 
           <Box display="flex" gap="24px" justifyContent="flex-end">
-            <Button disabled={loading} variant="primary" onClick={handleSubmitEvent}>
+            <Button
+              disabled={loading}
+              variant="primary"
+              onClick={handleSubmitEvent}
+            >
               {loading ? 'Submitting...' : 'Submit Event'}
             </Button>
           </Box>

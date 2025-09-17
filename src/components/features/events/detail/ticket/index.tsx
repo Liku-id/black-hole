@@ -28,11 +28,14 @@ export const EventDetailTicket = ({ eventDetail }: EventDetailTicketProps) => {
         <H3 color="text.primary" fontWeight={700}>
           Event Detail Ticket
         </H3>
-        {eventDetail.eventStatus !== "done" && eventDetail.eventStatus !== "on_review" && (
-          <Button variant="primary" onClick={handleEditTickets}>
-            Edit Ticket Detail
-          </Button>
-        )}
+        {eventDetail.eventStatus !== 'done' &&
+          eventDetail.eventStatus !== 'on_review' &&
+          eventDetail.eventStatus !== 'on_going' &&
+          eventDetail.eventStatus !== 'approved' && (
+            <Button variant="primary" onClick={handleEditTickets}>
+              Edit Ticket Detail
+            </Button>
+          )}
       </Box>
 
       {/* Ticket Category Label */}

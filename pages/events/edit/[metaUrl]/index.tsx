@@ -88,7 +88,7 @@ function EditEvent() {
         data: payload
       });
 
-      if (result && result.id) {
+      if (result && result.body && result.body.id) {
         router.push(`/events/${metaUrl}`);
       }
     } catch (error) {
@@ -98,16 +98,20 @@ function EditEvent() {
           ? error.message
           : 'Failed to update event. Please try again.'
       );
-    } finally {
       setIsUpdating(false);
     }
   };
 
   useEffect(() => {
     if (!router.isReady) return;
-    const status = (eventDetail?.eventStatus);
-    if (status === 'draft' || status === 'on_review' || status === 'done') {
-      router.replace("/events");
+    const status = eventDetail?.eventStatus;
+    if (
+      status === 'draft' ||
+      status === 'on_review' ||
+      status === 'done' ||
+      eventDetail?.is_requested
+    ) {
+      router.replace(`/events`);
     }
   }, [router.isReady, eventDetail]);
 

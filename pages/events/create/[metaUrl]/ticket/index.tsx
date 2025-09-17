@@ -3,7 +3,14 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Button, Card, H4, Body1, Breadcrumb, Overline } from '@/components/common';
+import {
+  Button,
+  Card,
+  H4,
+  Body1,
+  Breadcrumb,
+  Overline
+} from '@/components/common';
 import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
 import TicketTable from '@/components/features/events/create/ticket/table';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
@@ -181,8 +188,6 @@ const TicketPage = () => {
   const handleContinue = async () => {
     await onSubmit(`/events/create/${metaUrl}/assets`);
   };
-
-  
 
   return (
     <DashboardLayout>

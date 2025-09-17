@@ -63,6 +63,15 @@ export interface EventAsset {
   asset: Asset;
 }
 
+export interface EventCountByStatus {
+  approved: number;
+  done: number;
+  draft: number;
+  onGoing: number;
+  onReview: number;
+  rejected: number;
+}
+
 export interface Event {
   id: string;
   name: string;
@@ -79,6 +88,7 @@ export interface Event {
   paymentMethods: PaymentMethod[];
   lowestPriceTicketType: TicketType;
   eventAssets: EventAsset[];
+  eventCountByStatus: EventCountByStatus;
 }
 
 // Event Detail specific interfaces
@@ -157,6 +167,7 @@ export interface EventDetail {
   tax: number;
   feeThresholds: FeeThreshold[];
   eventAssets: EventAsset[];
+  is_requested: boolean;
 }
 
 export interface EventDetailResponse {
@@ -169,6 +180,7 @@ export interface EventsResponse {
   message: string;
   body: {
     events: Event[];
+    eventCountByStatus: EventCountByStatus;
     show: number;
     page: number;
     total: string;

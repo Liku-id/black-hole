@@ -32,7 +32,7 @@ import {
 import { ChangeEvent, FC, useState } from 'react';
 
 import { EventOrganizer } from '@/types/organizer';
-import { formatPhoneNumber, truncate , dateUtils } from '@/utils';
+import { formatPhoneNumber, truncate, dateUtils } from '@/utils';
 
 interface OrganizersTableProps {
   organizers: EventOrganizer[];

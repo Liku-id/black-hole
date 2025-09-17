@@ -26,6 +26,7 @@ const drawerWidth = 290;
 const menuItems = [
   { text: 'Dashboard', icon: '/icon/dashboard.svg', path: '/dashboard' },
   { text: 'Event', icon: '/icon/event.svg', path: '/events' },
+  { text: 'Approval', icon: '/icon/approval.svg', path: '/approval' },
   { text: 'Finance', icon: '/icon/finance.svg', path: '/finance' },
   { text: 'Ticket', icon: '/icon/ticket.svg', path: '/tickets' },
   { text: 'Account', icon: '/icon/account.svg', path: '/account' }
@@ -58,44 +59,46 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         Menu
       </Body1>
       <List sx={{ padding: 0 }}>
-        {menuItems.map((item) => (
-          <ListItem
-            key={item.text}
-            button
-            selected={router.pathname === item.path}
-            sx={{
-              alignItems: 'center',
-              padding: '16px',
-              margin: 0,
-              '&.Mui-selected': {
-                backgroundColor: 'secondary.dark',
+        {menuItems.map((item) => {
+          return (
+            <ListItem
+              key={item.text}
+              button
+              selected={router.pathname === item.path}
+              sx={{
+                alignItems: 'center',
+                padding: '16px',
+                margin: 0,
+                '&.Mui-selected': {
+                  backgroundColor: 'secondary.dark',
+                  '&:hover': {
+                    backgroundColor: 'secondary.dark'
+                  }
+                },
                 '&:hover': {
                   backgroundColor: 'secondary.dark'
                 }
-              },
-              '&:hover': {
-                backgroundColor: 'secondary.dark'
-              }
-            }}
-            onClick={() => router.push(item.path)}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 'auto',
-                marginRight: '8px'
               }}
+              onClick={() => router.push(item.path)}
             >
-              <Image alt={item.text} height={24} src={item.icon} width={24} />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Body2 color="text.secondary" fontSize="14px">
-                  {item.text}
-                </Body2>
-              }
-            />
-          </ListItem>
-        ))}
+              <ListItemIcon
+                sx={{
+                  minWidth: 'auto',
+                  marginRight: '8px'
+                }}
+              >
+                <Image alt={item.text} height={24} src={item.icon} width={24} />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Body2 color="text.secondary" fontSize="14px">
+                    {item.text}
+                  </Body2>
+                }
+              />
+            </ListItem>
+          );
+        })}
       </List>
 
       {/* User Menu */}

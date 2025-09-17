@@ -53,17 +53,22 @@ export const dateUtils = {
    * - timeZone: +HH:MM or +HHMM (optional, defaults +07:00)
    * If time is omitted, 00:00:00 at the provided timezone is used.
    */
-  formatDateISO: (params: { date: string; time?: string; timeZone?: string }): string => {
+  formatDateISO: (params: {
+    date: string;
+    time?: string;
+    timeZone?: string;
+  }): string => {
     const { date, time, timeZone } = params;
     if (!date) return '';
     const tz = dateUtils.normTz(timeZone);
-    const safeTime = typeof time === 'string' && /^\d{2}:\d{2}$/.test(time) ? time : '00:00';
+    const safeTime =
+      typeof time === 'string' && /^\d{2}:\d{2}$/.test(time) ? time : '00:00';
     const timePart = `${safeTime}:00`;
     const dt = new Date(`${date}T${timePart}${tz}`);
     if (isNaN(dt.getTime())) return '';
     return dt.toISOString();
   },
-  
+
   /**
    * Format date to dd/mm/yyyy format
    * @param dateString - Date string to format
