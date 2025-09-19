@@ -10,6 +10,7 @@ import React, {
 
 import { authService } from '@/services';
 import { AuthState, LoginRequest, User } from '@/types/auth';
+import { apiUtils } from '@/utils/apiUtils';
 
 import { useToast } from './ToastContext';
 
@@ -24,7 +25,7 @@ type AuthAction =
   | { type: 'LOGIN_START' }
   | {
       type: 'LOGIN_SUCCESS';
-      payload: { user: User; accessToken: string; refreshToken: string };
+      payload: { user: User };
     }
   | { type: 'LOGIN_ERROR'; payload: string }
   | { type: 'LOGOUT_START' }
@@ -33,7 +34,7 @@ type AuthAction =
   | { type: 'CLEAR_ERROR' }
   | {
       type: 'RESTORE_SESSION';
-      payload: { user: User; accessToken: string; refreshToken: string };
+      payload: { user: User };
     }
   | { type: 'SESSION_RESTORED' };
 
@@ -56,8 +57,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: action.payload.user,
-        accessToken: action.payload.accessToken,
-        refreshToken: action.payload.refreshToken,
+        accessToken: null, // No longer stored on client
+        refreshToken: null, // No longer stored on client
         isAuthenticated: true,
         isLoading: false
       };
@@ -105,22 +106,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const router = useRouter();
   const { showError } = useToast();
 
-  // Restore session on app start
+  // Restore session on app start by checking server-side session
   useEffect(() => {
-    const restoreSession = () => {
+    const restoreSession = async () => {
       try {
-        const storedUser = localStorage.getItem('auth_user');
-        const storedAccessToken = localStorage.getItem('auth_access_token');
-        const storedRefreshToken = localStorage.getItem('auth_refresh_token');
-
-        if (storedUser && storedAccessToken && storedRefreshToken) {
-          const user = JSON.parse(storedUser);
+        const response = await apiUtils.get('/api/auth/session');
+        
+        if (response.isAuthenticated && response.user) {
           dispatch({
             type: 'RESTORE_SESSION',
             payload: {
-              user,
-              accessToken: storedAccessToken,
-              refreshToken: storedRefreshToken
+              user: response.user
             }
           });
         } else {
@@ -129,10 +125,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (error) {
         console.error('Failed to restore session:', error);
-        // Clear invalid stored data
-        localStorage.removeItem('auth_user');
-        localStorage.removeItem('auth_access_token');
-        localStorage.removeItem('auth_refresh_token');
         // Mark session restoration as complete with no authentication
         dispatch({ type: 'SESSION_RESTORED' });
       }
@@ -148,16 +140,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.login(data);
 
-      const { user, accessToken, refreshToken } = response.body;
-
-      // Store in localStorage
-      localStorage.setItem('auth_user', JSON.stringify(user));
-      localStorage.setItem('auth_access_token', accessToken);
-      localStorage.setItem('auth_refresh_token', refreshToken);
+      const { user } = response.body;
 
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: { user, accessToken, refreshToken }
+        payload: { user }
       });
 
       // Redirect to intended route or dashboard
@@ -184,11 +171,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout error:', err);
       // Continue with logout even if API call fails
     } finally {
-      // Clear localStorage
-      localStorage.removeItem('auth_user');
-      localStorage.removeItem('auth_access_token');
-      localStorage.removeItem('auth_refresh_token');
-
       dispatch({ type: 'LOGOUT_SUCCESS' });
       router.replace('/login');
     }

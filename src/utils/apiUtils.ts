@@ -1,15 +1,22 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 /**
  * API utilities for common operations using axios
  */
 export const apiUtils = {
   /**
-   * Get authentication token from localStorage
-   * @returns Auth token or null
+   * Clear session when auth expires
    */
-  getAuthToken: (): string | null => {
-    return localStorage.getItem('auth_access_token');
+  clearExpiredSession: async (): Promise<void> => {
+    try {
+      await axios.post('/api/auth/clear-session');
+      // Reload the page to trigger auth context update
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to clear expired session:', error);
+      // Force reload anyway
+      window.location.reload();
+    }
   },
 
   /**
@@ -18,16 +25,14 @@ export const apiUtils = {
    * @returns AxiosRequestConfig
    */
   createConfig: (additionalConfig?: AxiosRequestConfig): AxiosRequestConfig => {
-    const token = apiUtils.getAuthToken();
-
     return {
       timeout: 30000, // 30 second timeout
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
         ...additionalConfig?.headers
       },
+      withCredentials: true, // Include session cookies
       ...additionalConfig
     };
   },
@@ -48,7 +53,12 @@ export const apiUtils = {
       // Server responded with error status
       const { data, status } = error.response;
 
-      if (data && typeof data === 'object') {
+      // Check if it's an authentication error
+      if (status === 401) {
+        // Clear session when auth expires
+        apiUtils.clearExpiredSession();
+        errorMessage = 'Session expired. Please log in again.';
+      } else if (data && typeof data === 'object') {
         const errorData = data as any;
         if (errorData.message) {
           errorMessage = errorData.message;
