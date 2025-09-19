@@ -110,24 +110,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        // First check if session exists
-        const sessionResponse = await apiUtils.get('/api/auth/session');
+        const response = await apiUtils.get('/api/auth/session');
         
-        if (sessionResponse.isAuthenticated) {
-          // If session exists, get fresh user data from /auth/me
-          const meResponse = await apiUtils.get('/api/auth/me');
-          
-          if (meResponse.statusCode === 0 && meResponse.body) {
-            dispatch({
-              type: 'RESTORE_SESSION',
-              payload: {
-                user: meResponse.body
-              }
-            });
-          } else {
-            // Invalid user data, mark as not authenticated
-            dispatch({ type: 'SESSION_RESTORED' });
-          }
+        if (response.isAuthenticated && response.user) {
+          dispatch({
+            type: 'RESTORE_SESSION',
+            payload: {
+              user: response.user
+            }
+          });
         } else {
           // No valid session found, mark as not authenticated
           dispatch({ type: 'SESSION_RESTORED' });
@@ -147,24 +138,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // First login to establish session
-      await authService.login(data);
+      const response = await authService.login(data);
 
-      // Then get fresh user data from /auth/me
-      const meResponse = await apiUtils.get('/api/auth/me');
-      
-      if (meResponse.statusCode === 0 && meResponse.body) {
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: { user: meResponse.body }
-        });
+      const { user } = response.body;
 
-        // Redirect to intended route or dashboard
-        const redirectTo = (router.query.redirect as string) || '/dashboard';
-        router.replace(redirectTo);
-      } else {
-        throw new Error('Failed to get user data after login');
-      }
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user }
+      });
+
+      // Redirect to intended route or dashboard
+      const redirectTo = (router.query.redirect as string) || '/dashboard';
+      router.replace(redirectTo);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
@@ -179,7 +164,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      await authService.logout();
+      if (state.user) {
+        await authService.logout({ userId: state.user.id });
+      }
     } catch (err) {
       console.error('Logout error:', err);
       // Continue with logout even if API call fails

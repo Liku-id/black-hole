@@ -1,25 +1,21 @@
-import { Logout as LogoutIcon, Menu as MenuIcon } from '@mui/icons-material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import {
-  AppBar,
   Box,
+  AppBar,
+  Toolbar,
   Container,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
-  Toolbar
+  IconButton
 } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { Body1, Body2 } from '@/components/common';
-import { useAuth } from '@/contexts/AuthContext';
-import { formatRoleName } from '@/types/auth';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -38,29 +34,10 @@ const menuItems = [
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
-  const { user, logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };
-
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleProfileMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = async () => {
-    handleProfileMenuClose();
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
   };
 
   const drawer = (
@@ -132,60 +109,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         padding="16px"
       >
         <Box alignItems="center" display="flex" justifyContent="space-between">
-          <Box 
-            alignItems="center" 
-            display="flex"
-            sx={{ 
-              cursor: 'pointer', 
-              flex: 1,
-              '&:hover': {
-                opacity: 0.8
-              },
-              transition: 'opacity 0.2s ease'
-            }}
-            onClick={handleProfileMenuOpen}
-          >
-            {user?.profilePicture?.url ? (
-              <Box
-                alt={user.fullName || 'Profile'}
-                component="img"
-                src={user.profilePicture.url}
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '8px', // Rounded square as per design
-                  marginRight: '8px',
-                  objectFit: 'cover'
-                }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '8px', // Rounded square as per design
-                  marginRight: '8px',
-                  backgroundColor: 'secondary.dark',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <Body2 color="text.secondary" fontSize="16px" fontWeight="600">
-                  {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-                </Body2>
-              </Box>
-            )}
+          <Box alignItems="center" display="flex">
+            <Box
+              borderRadius="8px"
+              height="40px"
+              marginRight="8px"
+              sx={{ backgroundColor: 'secondary.dark' }}
+              width="40px"
+            />
             <Box>
-              <Body2 color="common.white" fontSize="14px" fontWeight="500">
-                {user?.fullName || 'EKUID Creative Organizer'}
+              <Body2 color="text.secondary" fontSize="14px">
+                EKUID Creative Organizer
               </Body2>
               <Body2
                 color="text.secondary"
                 fontSize="12px"
-                sx={{ marginTop: '4px', opacity: 0.7 }}
+                sx={{ marginTop: '8px' }}
               >
-                {user?.role?.name ? formatRoleName(user.role.name) : 'Admin'}
+                Admin
               </Body2>
             </Box>
           </Box>
@@ -193,31 +134,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             alt="Arrow"
             height={16}
             src="/icon/accordion-arrow.svg"
-            style={{ opacity: 0.7 }}
             width={16}
           />
         </Box>
-
-        <Menu
-          anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          open={Boolean(anchorEl)}
-          transformOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          onClose={handleProfileMenuClose}
-        >
-          <MenuItem onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Logout</ListItemText>
-          </MenuItem>
-        </Menu>
       </Box>
     </Box>
   );
