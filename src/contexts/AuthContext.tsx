@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const restoreSession = async () => {
       try {
         const response = await apiUtils.get('/api/auth/session');
-        
+
         if (response.isAuthenticated && response.user) {
           dispatch({
             type: 'RESTORE_SESSION',
