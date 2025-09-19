@@ -1,3 +1,5 @@
+import { EventOrganizer } from './organizer';
+
 export enum UserRole {
   ADMIN = 'admin',
   BUSINESS_DEVELOPMENT = 'business_development',
@@ -34,11 +36,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  statusCode: number;
   message: string;
   body: {
-    accessToken: string;
-    refreshToken: string;
     user: {
       id: string;
       fullName: string;
@@ -117,6 +116,14 @@ export interface User {
   updatedAt: string;
 }
 
+// Union type for user data that can be either a regular user or event organizer
+export type AuthUser = User | EventOrganizer;
+
+// Type guard to check if user is an event organizer
+export const isEventOrganizer = (user: AuthUser): user is EventOrganizer => {
+  return 'organizer_type' in user;
+};
+
 // Legacy User interface for backward compatibility
 export interface LegacyUser {
   id: string;
@@ -136,7 +143,7 @@ export interface LegacyUser {
 }
 
 export interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;

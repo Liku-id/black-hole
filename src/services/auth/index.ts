@@ -1,4 +1,10 @@
-import { LoginRequest, LoginResponse, LogoutResponse } from '@/types/auth';
+import {
+  LoginRequest,
+  LoginResponse,
+  LogoutResponse,
+  MeResponse
+} from '@/types/auth';
+import { EventOrganizerMeResponse } from '@/types/organizer';
 import { apiUtils } from '@/utils/apiUtils';
 
 class AuthService {
@@ -31,6 +37,32 @@ class AuthService {
           'Unable to connect to server. Please check your internet connection and try again.'
         );
       }
+      throw error;
+    }
+  }
+
+  async getMe(): Promise<MeResponse> {
+    try {
+      return await apiUtils.get<MeResponse>(
+        '/api/auth/me',
+        undefined,
+        'Failed to get user data'
+      );
+    } catch (error) {
+      console.error('Get me error:', error);
+      throw error;
+    }
+  }
+
+  async getEventOrganizerMe(): Promise<EventOrganizerMeResponse> {
+    try {
+      return await apiUtils.get<EventOrganizerMeResponse>(
+        '/api/event-organizers/me',
+        undefined,
+        'Failed to get event organizer data'
+      );
+    } catch (error) {
+      console.error('Get event organizer me error:', error);
       throw error;
     }
   }

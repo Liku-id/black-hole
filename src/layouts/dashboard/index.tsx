@@ -19,7 +19,8 @@ import { useState } from 'react';
 
 import { Body1, Body2 } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatRoleName } from '@/types/auth';
+import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
+import { EventOrganizer } from '@/types/organizer';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -132,11 +133,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         padding="16px"
       >
         <Box alignItems="center" display="flex" justifyContent="space-between">
-          <Box 
-            alignItems="center" 
+          <Box
+            alignItems="center"
             display="flex"
-            sx={{ 
-              cursor: 'pointer', 
+            sx={{
+              cursor: 'pointer',
               flex: 1,
               '&:hover': {
                 opacity: 0.8
@@ -145,49 +146,192 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             }}
             onClick={handleProfileMenuOpen}
           >
-            {user?.profilePicture?.url ? (
-              <Box
-                alt={user.fullName || 'Profile'}
-                component="img"
-                src={user.profilePicture.url}
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '8px', // Rounded square as per design
-                  marginRight: '8px',
-                  objectFit: 'cover'
-                }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '8px', // Rounded square as per design
-                  marginRight: '8px',
-                  backgroundColor: 'secondary.dark',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <Body2 color="text.secondary" fontSize="16px" fontWeight="600">
-                  {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-                </Body2>
-              </Box>
-            )}
-            <Box>
-              <Body2 color="common.white" fontSize="14px" fontWeight="500">
-                {user?.fullName || 'EKUID Creative Organizer'}
-              </Body2>
-              <Body2
-                color="text.secondary"
-                fontSize="12px"
-                sx={{ marginTop: '4px', opacity: 0.7 }}
-              >
-                {user?.role?.name ? formatRoleName(user.role.name) : 'Admin'}
-              </Body2>
-            </Box>
+            {(() => {
+              if (!user) {
+                return (
+                  <>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '8px',
+                        marginRight: '8px',
+                        backgroundColor: 'secondary.dark',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Body2
+                        color="text.secondary"
+                        fontSize="16px"
+                        fontWeight="600"
+                      >
+                        U
+                      </Body2>
+                    </Box>
+                    <Box>
+                      <Body2
+                        color="common.white"
+                        fontSize="14px"
+                        fontWeight="500"
+                      >
+                        EKUID Creative Organizer
+                      </Body2>
+                      <Body2
+                        color="text.secondary"
+                        fontSize="12px"
+                        sx={{ marginTop: '4px', opacity: 0.7 }}
+                      >
+                        Admin
+                      </Body2>
+                    </Box>
+                  </>
+                );
+              }
+
+              // Handle event organizer user type
+              if (isEventOrganizer(user)) {
+                const organizer = user as EventOrganizer;
+                const profilePictureUrl = organizer.asset?.url;
+                const displayName = organizer.full_name || organizer.name;
+                const userRole = 'Event Organizer PIC';
+
+                return (
+                  <>
+                    {profilePictureUrl ? (
+                      <Box
+                        alignItems="center"
+                        bgcolor="common.white"
+                        borderRadius={2}
+                        display="flex"
+                        height={40}
+                        justifyContent="center"
+                        mr={1}
+                        width={40}
+                      >
+                        <Box
+                          alt="Profile Picture"
+                          component="img"
+                          height="100%"
+                          src={profilePictureUrl}
+                          style={{ borderRadius: 8 }}
+                          width="100%"
+                        />
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '8px',
+                          marginRight: '8px',
+                          backgroundColor: 'secondary.dark',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <Body2
+                          color="text.secondary"
+                          fontSize="16px"
+                          fontWeight="600"
+                        >
+                          {displayName?.charAt(0)?.toUpperCase() || 'U'}
+                        </Body2>
+                      </Box>
+                    )}
+                    <Box>
+                      <Body2
+                        color="common.white"
+                        fontSize="14px"
+                        fontWeight="500"
+                      >
+                        {displayName || 'EKUID Creative Organizer'}
+                      </Body2>
+                      <Body2
+                        color="text.secondary"
+                        fontSize="12px"
+                        sx={{ marginTop: '4px', opacity: 0.7 }}
+                      >
+                        {userRole}
+                      </Body2>
+                    </Box>
+                  </>
+                );
+              }
+
+              // Handle regular user type
+              const regularUser = user as User;
+              const profilePictureUrl = regularUser.profilePicture?.url;
+              const displayName = regularUser.fullName;
+              const userRole = regularUser.role?.name
+                ? formatRoleName(regularUser.role.name)
+                : 'Admin';
+
+              return (
+                <>
+                  {profilePictureUrl ? (
+                    <Box
+                      alignItems="center"
+                      bgcolor="common.white"
+                      borderRadius={2}
+                      display="flex"
+                      height={40}
+                      justifyContent="center"
+                      mr={1}
+                      width={40}
+                    >
+                      <Box
+                        alt="Profile Picture"
+                        component="img"
+                        height="100%"
+                        src={profilePictureUrl}
+                        style={{ borderRadius: 8 }}
+                        width="100%"
+                      />
+                    </Box>
+                  ) : (
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '8px',
+                        marginRight: '8px',
+                        backgroundColor: 'secondary.dark',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Body2
+                        color="text.secondary"
+                        fontSize="16px"
+                        fontWeight="600"
+                      >
+                        {displayName?.charAt(0)?.toUpperCase() || 'U'}
+                      </Body2>
+                    </Box>
+                  )}
+                  <Box>
+                    <Body2
+                      color="common.white"
+                      fontSize="14px"
+                      fontWeight="500"
+                    >
+                      {displayName || 'EKUID Creative Organizer'}
+                    </Body2>
+                    <Body2
+                      color="text.secondary"
+                      fontSize="12px"
+                      sx={{ marginTop: '4px', opacity: 0.7 }}
+                    >
+                      {userRole}
+                    </Body2>
+                  </Box>
+                </>
+              );
+            })()}
           </Box>
           <Image
             alt="Arrow"
@@ -202,12 +346,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           anchorEl={anchorEl}
           anchorOrigin={{
             vertical: 'top',
-            horizontal: 'right',
+            horizontal: 'right'
           }}
           open={Boolean(anchorEl)}
           transformOrigin={{
             vertical: 'bottom',
-            horizontal: 'right',
+            horizontal: 'right'
           }}
           onClose={handleProfileMenuClose}
         >
