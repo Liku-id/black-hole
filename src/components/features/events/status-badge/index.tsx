@@ -34,6 +34,12 @@ const getStatusStyle = (value: string) => {
         color: 'error.main',
         displayName: 'On Review'
       };
+    case 'pending':
+      return {
+        backgroundColor: 'warning.light',
+        color: 'warning.main',
+        displayName: 'Pending'
+      };
     default:
       return {
         backgroundColor: 'info.dark',

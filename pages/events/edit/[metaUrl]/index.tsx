@@ -25,13 +25,33 @@ function EditEvent() {
     // Handle null/undefined cases
     if (newValue == null && originalValue == null) return false;
     if (newValue == null || originalValue == null) return true;
-    
+
     // For arrays, compare stringified versions
     if (Array.isArray(newValue) && Array.isArray(originalValue)) {
-      return JSON.stringify(newValue.sort()) !== JSON.stringify(originalValue.sort());
+      return (
+        JSON.stringify(newValue.sort()) !== JSON.stringify(originalValue.sort())
+      );
     }
-    
-    return newValue !== originalValue;
+
+    // Convert both to string for comparison to handle type differences
+    return String(newValue) !== String(originalValue);
+  };
+
+  // Special function to compare dates (ISO strings)
+  const hasDateChanged = (newDateISO: string, originalDateISO: string) => {
+    // Handle empty/null cases
+    if (!newDateISO && !originalDateISO) return false;
+    if (!newDateISO || !originalDateISO) return true;
+
+    // Compare as Date objects to handle timezone differences
+    try {
+      const newDate = new Date(newDateISO);
+      const originalDate = new Date(originalDateISO);
+      return newDate.getTime() !== originalDate.getTime();
+    } catch {
+      // Fallback to string comparison if date parsing fails
+      return newDateISO !== originalDateISO;
+    }
   };
 
   // Handle form submission
@@ -80,20 +100,30 @@ function EditEvent() {
         : `https://${formData.googleMapsLink}`;
 
       // Calculate admin fee and tax
-      const calculatedAdminFee = formData.adminFeeType === '%'
-        ? parseInt(formData.adminFee)
-        : parseInt(formData.adminFee);
-      const calculatedTax = formData.tax === 'true' ? parseInt(formData.taxNominal || '0') : 0;
+      const calculatedAdminFee =
+        formData.adminFeeType === '%'
+          ? parseInt(formData.adminFee)
+          : parseInt(formData.adminFee);
+      const calculatedTax =
+        formData.tax === 'true' ? parseInt(formData.taxNominal || '0') : 0;
 
       // Build payload with only changed fields
       const payload: any = {};
 
-      // Check each field for changes
-      if (hasChanged(formData.city, eventDetail?.city)) {
+      // Always include required fields
+      payload.eventOrganizerId = eventDetail?.eventOrganizer?.id || '';
+
+      // Check each field for changes and only add to payload if changed
+      if (hasChanged(formData.city, eventDetail?.city?.id)) {
         payload.cityId = formData.city;
       }
 
-      if (hasChanged(formData.paymentMethod, eventDetail?.paymentMethods?.map(pm => pm.id))) {
+      if (
+        hasChanged(
+          formData.paymentMethod,
+          eventDetail?.paymentMethods.map((pm: any) => pm.id)
+        )
+      ) {
         payload.paymentMethodIds = formData.paymentMethod;
       }
 
@@ -117,15 +147,18 @@ function EditEvent() {
         payload.mapLocationUrl = processedGoogleMapsUrl;
       }
 
-      if (hasChanged(startDateISO, eventDetail?.startDate)) {
+      // Only include dates if they actually changed
+      if (hasDateChanged(startDateISO, eventDetail?.startDate || '')) {
         payload.startDate = startDateISO;
       }
 
-      if (hasChanged(endDateISO, eventDetail?.endDate)) {
+      if (hasDateChanged(endDateISO, eventDetail?.endDate || '')) {
         payload.endDate = endDateISO;
       }
 
-      if (hasChanged(formData.termsAndConditions, eventDetail?.termAndConditions)) {
+      if (
+        hasChanged(formData.termsAndConditions, eventDetail?.termAndConditions)
+      ) {
         payload.termAndConditions = formData.termsAndConditions;
       }
 
@@ -141,23 +174,16 @@ function EditEvent() {
         payload.tax = calculatedTax;
       }
 
-      // Always include required fields if they exist
-      if (eventDetail?.eventOrganizer?.id) {
-        payload.eventOrganizerId = eventDetail.eventOrganizer.id;
-      }
-      
-      if (metaUrl) {
-        payload.metaUrl = metaUrl as string;
-      }
+      // Check if there are any actual changes (excluding required fields)
+      const requiredFields = ['eventOrganizerId', 'metaUrl'];
+      const changedFields = Object.keys(payload).filter(
+        (key) => !requiredFields.includes(key)
+      );
 
-      // Check if there are any changes to send
-      if (Object.keys(payload).length <= 2) { // Only eventOrganizerId and metaUrl
-        console.log('No changes detected, skipping update');
+      if (changedFields.length === 0) {
         setIsUpdating(false);
         return;
       }
-
-      console.log('Payload with only changed fields:', payload);
 
       const result = await eventsService.updateEvent({
         metaUrl: eventDetail?.id || '',
