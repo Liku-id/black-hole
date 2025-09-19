@@ -41,6 +41,7 @@ export const {
 } = formatUtils;
 
 export const {
+  clearExpiredSession,
   createConfig,
   handleAxiosError,
   makeRequest,

@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import { authService } from '@/services';
-import { AuthState, LoginRequest, User } from '@/types/auth';
+import { AuthState, AuthUser, LoginRequest, UserRole } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 
 import { useToast } from './ToastContext';
@@ -25,7 +25,7 @@ type AuthAction =
   | { type: 'LOGIN_START' }
   | {
       type: 'LOGIN_SUCCESS';
-      payload: { user: User };
+      payload: { user: AuthUser };
     }
   | { type: 'LOGIN_ERROR'; payload: string }
   | { type: 'LOGOUT_START' }
@@ -34,7 +34,7 @@ type AuthAction =
   | { type: 'CLEAR_ERROR' }
   | {
       type: 'RESTORE_SESSION';
-      payload: { user: User };
+      payload: { user: AuthUser };
     }
   | { type: 'SESSION_RESTORED' };
 
@@ -110,15 +110,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const response = await apiUtils.get('/api/auth/session');
+        // First check if session exists
+        const sessionResponse = await apiUtils.get('/api/auth/session');
 
-        if (response.isAuthenticated && response.user) {
-          dispatch({
-            type: 'RESTORE_SESSION',
-            payload: {
-              user: response.user
+        if (sessionResponse.isAuthenticated && sessionResponse.user) {
+          // Session exists and we have user data with role information
+          try {
+            let userData;
+
+            // Check if user is event organizer PIC from session data
+            if (sessionResponse.user.role === UserRole.EVENT_ORGANIZER_PIC) {
+              // Get event organizer specific data
+              try {
+                const organizerResponse =
+                  await authService.getEventOrganizerMe();
+                if (
+                  organizerResponse.statusCode === 0 &&
+                  organizerResponse.body
+                ) {
+                  userData = organizerResponse.body;
+                } else {
+                  throw new Error('Failed to get event organizer data');
+                }
+              } catch (error) {
+                console.error(
+                  'Failed to fetch event organizer data during session restore, falling back to regular user data:',
+                  error
+                );
+                // Fallback to regular user data
+                const meResponse = await authService.getMe();
+                if (meResponse.statusCode === 0 && meResponse.body) {
+                  userData = meResponse.body;
+                } else {
+                  throw new Error('Failed to get user data');
+                }
+              }
+            } else {
+              // Get regular user data
+              const meResponse = await authService.getMe();
+              if (meResponse.statusCode === 0 && meResponse.body) {
+                userData = meResponse.body;
+              } else {
+                throw new Error('Failed to get user data');
+              }
             }
-          });
+
+            dispatch({
+              type: 'RESTORE_SESSION',
+              payload: {
+                user: userData
+              }
+            });
+          } catch (error) {
+            console.error('Failed to fetch user data:', error);
+            dispatch({ type: 'SESSION_RESTORED' });
+          }
         } else {
           // No valid session found, mark as not authenticated
           dispatch({ type: 'SESSION_RESTORED' });
@@ -138,18 +184,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const response = await authService.login(data);
+      // First login to establish session and get user role
+      const loginResponse = await authService.login(data);
 
-      const { user } = response.body;
+      // Check user role from login response to determine which /me endpoint to call
+      if (loginResponse && loginResponse.body && loginResponse.body.user) {
+        let userData;
 
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: { user }
-      });
+        // Check if user is event organizer PIC
+        if (loginResponse.body.user.role === UserRole.EVENT_ORGANIZER_PIC) {
+          // Get event organizer specific data
+          try {
+            const organizerResponse = await authService.getEventOrganizerMe();
+            if (organizerResponse.statusCode === 0 && organizerResponse.body) {
+              userData = organizerResponse.body;
+            } else {
+              throw new Error('Failed to get event organizer data');
+            }
+          } catch (error) {
+            console.error(
+              'Failed to fetch event organizer data, falling back to regular user data:',
+              error
+            );
+            // Fallback to regular user data
+            const meResponse = await authService.getMe();
+            if (meResponse.statusCode === 0 && meResponse.body) {
+              userData = meResponse.body;
+            } else {
+              throw new Error('Failed to get user data');
+            }
+          }
+        } else {
+          // Get regular user data
+          const meResponse = await authService.getMe();
+          if (meResponse.statusCode === 0 && meResponse.body) {
+            userData = meResponse.body;
+          } else {
+            throw new Error('Failed to get user data');
+          }
+        }
 
-      // Redirect to intended route or dashboard
-      const redirectTo = (router.query.redirect as string) || '/dashboard';
-      router.replace(redirectTo);
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: { user: userData }
+        });
+
+        // Redirect to intended route or dashboard
+        const redirectTo = (router.query.redirect as string) || '/dashboard';
+        router.replace(redirectTo);
+      } else {
+        throw new Error('Failed to authenticate user');
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
@@ -164,9 +249,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      if (state.user) {
-        await authService.logout({ userId: state.user.id });
-      }
+      await authService.logout();
     } catch (err) {
       console.error('Logout error:', err);
       // Continue with logout even if API call fails

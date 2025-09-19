@@ -1,9 +1,10 @@
 import {
   LoginRequest,
   LoginResponse,
-  LogoutRequest,
-  LogoutResponse
+  LogoutResponse,
+  MeResponse
 } from '@/types/auth';
+import { EventOrganizerMeResponse } from '@/types/organizer';
 import { apiUtils } from '@/utils/apiUtils';
 
 class AuthService {
@@ -23,11 +24,11 @@ class AuthService {
     }
   }
 
-  async logout(data: LogoutRequest): Promise<LogoutResponse> {
+  async logout(): Promise<LogoutResponse> {
     try {
       return await apiUtils.post<LogoutResponse>(
         '/api/auth/logout',
-        data,
+        {},
         'Logout failed'
       );
     } catch (error) {
@@ -36,6 +37,32 @@ class AuthService {
           'Unable to connect to server. Please check your internet connection and try again.'
         );
       }
+      throw error;
+    }
+  }
+
+  async getMe(): Promise<MeResponse> {
+    try {
+      return await apiUtils.get<MeResponse>(
+        '/api/auth/me',
+        undefined,
+        'Failed to get user data'
+      );
+    } catch (error) {
+      console.error('Get me error:', error);
+      throw error;
+    }
+  }
+
+  async getEventOrganizerMe(): Promise<EventOrganizerMeResponse> {
+    try {
+      return await apiUtils.get<EventOrganizerMeResponse>(
+        '/api/event-organizers/me',
+        undefined,
+        'Failed to get event organizer data'
+      );
+    } catch (error) {
+      console.error('Get event organizer me error:', error);
       throw error;
     }
   }
