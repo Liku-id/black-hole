@@ -12,6 +12,22 @@ export const ALLOWED_ROLES = [
   UserRole.EVENT_ORGANIZER_PIC
 ];
 
+export const formatRoleName = (roleName: string): string => {
+  const roleMap: Record<string, string> = {
+    admin: 'Admin',
+    business_development: 'Business Development',
+    event_organizer_pic: 'Event Organizer PIC'
+  };
+
+  return (
+    roleMap[roleName.toLowerCase()] ||
+    roleName
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  );
+};
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -42,8 +58,30 @@ export interface LoginResponse {
   };
 }
 
-export interface LogoutRequest {
-  userId: string;
+export interface MeResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    id: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    ktpNumber: string;
+    dateOfBirth: string;
+    gender: string;
+    isVerified: boolean;
+    isGuest: boolean;
+    role: {
+      id: string;
+      name: string;
+    };
+    profilePicture: {
+      id: string;
+      url: string;
+    };
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 export interface LogoutResponse {
@@ -58,6 +96,29 @@ export interface ErrorResponse {
 }
 
 export interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  ktpNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  isVerified: boolean;
+  isGuest: boolean;
+  role: {
+    id: string;
+    name: string;
+  };
+  profilePicture: {
+    id: string;
+    url: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Legacy User interface for backward compatibility
+export interface LegacyUser {
   id: string;
   fullName: string;
   email: string;
