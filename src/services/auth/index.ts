@@ -1,9 +1,4 @@
-import {
-  LoginRequest,
-  LoginResponse,
-  LogoutRequest,
-  LogoutResponse
-} from '@/types/auth';
+import { LoginRequest, LoginResponse, LogoutResponse } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 
 class AuthService {
@@ -23,11 +18,11 @@ class AuthService {
     }
   }
 
-  async logout(data: LogoutRequest): Promise<LogoutResponse> {
+  async logout(): Promise<LogoutResponse> {
     try {
       return await apiUtils.post<LogoutResponse>(
         '/api/auth/logout',
-        data,
+        {},
         'Logout failed'
       );
     } catch (error) {

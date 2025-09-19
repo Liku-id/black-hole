@@ -46,6 +46,12 @@ const getStatusStyle = (value: string) => {
         color: 'success.main',
         displayName: 'Paid'
       };
+    case 'pending':
+      return {
+        backgroundColor: 'warning.light',
+        color: 'warning.main',
+        displayName: 'Pending'
+      };
     default:
       return {
         backgroundColor: 'info.dark',

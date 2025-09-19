@@ -20,6 +20,40 @@ function EditEvent() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string>('');
 
+  // Helper function to compare values and check if they've changed
+  const hasChanged = (newValue: any, originalValue: any) => {
+    // Handle null/undefined cases
+    if (newValue == null && originalValue == null) return false;
+    if (newValue == null || originalValue == null) return true;
+
+    // For arrays, compare stringified versions
+    if (Array.isArray(newValue) && Array.isArray(originalValue)) {
+      return (
+        JSON.stringify(newValue.sort()) !== JSON.stringify(originalValue.sort())
+      );
+    }
+
+    // Convert both to string for comparison to handle type differences
+    return String(newValue) !== String(originalValue);
+  };
+
+  // Special function to compare dates (ISO strings)
+  const hasDateChanged = (newDateISO: string, originalDateISO: string) => {
+    // Handle empty/null cases
+    if (!newDateISO && !originalDateISO) return false;
+    if (!newDateISO || !originalDateISO) return true;
+
+    // Compare as Date objects to handle timezone differences
+    try {
+      const newDate = new Date(newDateISO);
+      const originalDate = new Date(originalDateISO);
+      return newDate.getTime() !== originalDate.getTime();
+    } catch {
+      // Fallback to string comparison if date parsing fails
+      return newDateISO !== originalDateISO;
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (formData: any) => {
     if (isUpdating) return;
@@ -60,28 +94,96 @@ function EditEvent() {
         ? `${formatDateFns(endDateObj, 'yyyy-MM-dd')}T${endTime}:00${timezone}`
         : eventDetail?.endDate || '';
 
-      const payload = {
-        cityId: formData.city,
-        eventOrganizerId: eventDetail?.eventOrganizer?.id || '',
-        paymentMethodIds: formData.paymentMethod,
-        name: formData.eventName,
-        eventType: formData.eventType,
-        description: formData.eventDescription,
-        address: formData.address,
-        mapLocationUrl: formData.googleMapsLink.startsWith('http')
-          ? formData.googleMapsLink
-          : `https://${formData.googleMapsLink}`,
-        startDate: startDateISO,
-        endDate: endDateISO,
-        termAndConditions: formData.termsAndConditions,
-        websiteUrl: formData.websiteUrl,
-        metaUrl: metaUrl as string,
-        adminFee:
-          formData.adminFeeType === '%'
-            ? parseInt(formData.adminFee)
-            : parseInt(formData.adminFee),
-        tax: formData.tax === 'true' ? parseInt(formData.taxNominal || '0') : 0
-      };
+      // Process Google Maps URL
+      const processedGoogleMapsUrl = formData.googleMapsLink?.startsWith('http')
+        ? formData.googleMapsLink
+        : `https://${formData.googleMapsLink}`;
+
+      // Calculate admin fee and tax
+      const calculatedAdminFee =
+        formData.adminFeeType === '%'
+          ? parseInt(formData.adminFee)
+          : parseInt(formData.adminFee);
+      const calculatedTax =
+        formData.tax === 'true' ? parseInt(formData.taxNominal || '0') : 0;
+
+      // Build payload with only changed fields
+      const payload: any = {};
+
+      // Always include required fields
+      payload.eventOrganizerId = eventDetail?.eventOrganizer?.id || '';
+
+      // Check each field for changes and only add to payload if changed
+      if (hasChanged(formData.city, eventDetail?.city?.id)) {
+        payload.cityId = formData.city;
+      }
+
+      if (
+        hasChanged(
+          formData.paymentMethod,
+          eventDetail?.paymentMethods.map((pm: any) => pm.id)
+        )
+      ) {
+        payload.paymentMethodIds = formData.paymentMethod;
+      }
+
+      if (hasChanged(formData.eventName, eventDetail?.name)) {
+        payload.name = formData.eventName;
+      }
+
+      if (hasChanged(formData.eventType, eventDetail?.eventType)) {
+        payload.eventType = formData.eventType;
+      }
+
+      if (hasChanged(formData.eventDescription, eventDetail?.description)) {
+        payload.description = formData.eventDescription;
+      }
+
+      if (hasChanged(formData.address, eventDetail?.address)) {
+        payload.address = formData.address;
+      }
+
+      if (hasChanged(processedGoogleMapsUrl, eventDetail?.mapLocationUrl)) {
+        payload.mapLocationUrl = processedGoogleMapsUrl;
+      }
+
+      // Only include dates if they actually changed
+      if (hasDateChanged(startDateISO, eventDetail?.startDate || '')) {
+        payload.startDate = startDateISO;
+      }
+
+      if (hasDateChanged(endDateISO, eventDetail?.endDate || '')) {
+        payload.endDate = endDateISO;
+      }
+
+      if (
+        hasChanged(formData.termsAndConditions, eventDetail?.termAndConditions)
+      ) {
+        payload.termAndConditions = formData.termsAndConditions;
+      }
+
+      if (hasChanged(formData.websiteUrl, eventDetail?.websiteUrl)) {
+        payload.websiteUrl = formData.websiteUrl;
+      }
+
+      if (hasChanged(calculatedAdminFee, eventDetail?.adminFee)) {
+        payload.adminFee = calculatedAdminFee;
+      }
+
+      if (hasChanged(calculatedTax, eventDetail?.tax)) {
+        payload.tax = calculatedTax;
+      }
+
+      // Check if there are any actual changes (excluding required fields)
+      const requiredFields = ['eventOrganizerId', 'metaUrl'];
+      const changedFields = Object.keys(payload).filter(
+        (key) => !requiredFields.includes(key)
+      );
+
+      if (changedFields.length === 0) {
+        setIsUpdating(false);
+        return;
+      }
 
       const result = await eventsService.updateEvent({
         metaUrl: eventDetail?.id || '',

@@ -96,7 +96,7 @@ function ApprovalDetail() {
       setIsRejectOpen(false);
       setRejectMode(false);
       setRejectedFields([]);
-      // router.push('/events');
+      router.push(submission.type === 'new' ? '/events' : '/approval');
     } catch (e) {
       const msg =
         (e as any)?.response?.data?.message ||
@@ -142,9 +142,15 @@ function ApprovalDetail() {
           <H3 color="text.primary" fontWeight={700}>
             Event Name: {submission.event?.name}
           </H3>
-          <StatusBadge status={submission.event?.eventStatus} />
+          <StatusBadge
+            status={
+              submission.type === 'new'
+                ? submission.event?.eventStatus
+                : submission.eventUpdateRequest?.status
+            }
+          />
         </Box>
-        {!rejectMode ? (
+        {!rejectMode && submission.eventUpdateRequest?.status !== 'rejected' ? (
           <Box display="flex" gap={1}>
             <Button
               variant="secondary"
