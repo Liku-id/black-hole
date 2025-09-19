@@ -34,6 +34,18 @@ const getStatusStyle = (value: string) => {
         color: 'error.main',
         displayName: 'On Review'
       };
+    case 'failed':
+      return {
+        backgroundColor: 'error.light',
+        color: 'error.main',
+        displayName: 'Failed'
+      };
+    case 'paid':
+      return {
+        backgroundColor: 'success.light',
+        color: 'success.main',
+        displayName: 'Paid'
+      };
     default:
       return {
         backgroundColor: 'info.dark',
