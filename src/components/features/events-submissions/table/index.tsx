@@ -28,7 +28,7 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
   const router = useRouter();
 
   const handleViewClick = (submission: EventSubmission) => {
-    const id = submission.id;
+    const id = submission.event?.id || submission.eventUpdateRequest?.id;
     router.push(`/approval/${id}`);
   };
 

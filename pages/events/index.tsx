@@ -1,19 +1,11 @@
-import { Box, Card, CardContent } from '@mui/material';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import {
-  Tabs,
-  Button,
-  TextField,
-  H2,
-  Body1,
-  Body2,
-  Caption
-} from '@/components/common';
+import { Tabs, Button, TextField } from '@/components/common';
 import EventsTable from '@/components/features/events/list/table';
 import { useEvents } from '@/hooks/features/events/useEvents';
 import DashboardLayout from '@/layouts/dashboard';
@@ -105,9 +97,9 @@ function Events() {
           justifyContent="space-between"
           marginBottom="24px"
         >
-          <H2 color="text.primary" fontWeight={700}>
+          <Typography color="text.primary" fontSize="28px" fontWeight={700}>
             Events
-          </H2>
+          </Typography>
           <Button onClick={() => router.push('/events/create')}>
             Create New Event
           </Button>
@@ -158,23 +150,29 @@ function Events() {
             {/* Empty State */}
             {!loading && events.length === 0 && !error && (
               <Box py={4} textAlign="center">
-                <Body1 gutterBottom color="text.secondary">
+                <Typography gutterBottom color="text.secondary" variant="h6">
                   No events found
-                </Body1>
-                <Body2 color="text.secondary">
+                </Typography>
+                <Typography color="text.secondary" variant="body2">
                   There are no events in the system yet.
-                </Body2>
+                </Typography>
               </Box>
             )}
 
             {/* Error Alert */}
             {error && (
               <Box py={4} textAlign="center">
-                <Body2 gutterBottom>Failed to load events</Body2>
-                <Body2>{error}</Body2>
-                <Caption color="text.secondary" sx={{ mt: 1 }}>
+                <Typography gutterBottom variant="subtitle2">
+                  Failed to load events
+                </Typography>
+                <Typography variant="body2">{error}</Typography>
+                <Typography
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                  variant="caption"
+                >
                   Please check your backend connection and try again.
-                </Caption>
+                </Typography>
               </Box>
             )}
           </CardContent>

@@ -43,15 +43,7 @@ class EventsService {
       if (filters?.startDate) params.startDate = filters.startDate;
       if (filters?.endDate) params.endDate = filters.endDate;
       if (filters?.cityId) params.cityId = filters.cityId;
-      if (filters?.status) {
-        if (Array.isArray(filters.status)) {
-          filters.status.forEach((status, index) => {
-            params[`status[${index}]`] = status;
-          });
-        } else {
-          params.status = filters.status;
-        }
-      }
+      if (filters?.status) params.status = filters.status;
 
       return await apiUtils.get(
         '/api/events',

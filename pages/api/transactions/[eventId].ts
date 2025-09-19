@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 
-import { apiRouteUtils } from '@/utils/apiRouteUtils';
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -12,22 +10,50 @@ export default async function handler(
 
   try {
     const { eventId } = req.query;
+    const { page, limit } = req.query;
 
     if (!eventId || typeof eventId !== 'string') {
       return res.status(400).json({ message: 'Invalid eventId parameter' });
     }
 
-    // Use apiRouteUtils pattern but with dynamic endpoint
-    const getHandler = apiRouteUtils.createGetHandler({
-      endpoint: `/events/${eventId}/transactions`,
-      timeout: 10000
+    const backendUrl = process.env.BACKEND_URL || 'http://172.16.1.33:8080';
+
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    if (page) queryParams.append('page', page as string);
+    if (limit) queryParams.append('limit', limit as string);
+
+    const queryString = queryParams.toString();
+    const backendEndpoint = `${backendUrl}/events/${eventId}/transactions${
+      queryString ? `?${queryString}` : ''
+    }`;
+
+    const response = await fetch(backendEndpoint, {
+      method: req.method,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        // Forward any auth headers if needed
+        ...(req.headers.authorization && {
+          Authorization: req.headers.authorization
+        })
+      }
     });
 
-    return await getHandler(req, res);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return res.status(response.status).json({
+        message: `Backend API error: ${response.statusText}`,
+        ...errorData
+      });
+    }
+
+    const data = await response.json();
+    return res.status(200).json(data);
   } catch (error) {
-    console.error('Error in event transactions handler:', error);
+    console.error('Error fetching event transactions from backend:', error);
     return res.status(500).json({
-      message: 'Failed to process event transactions request',
+      message: 'Failed to fetch event transactions from backend API',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
