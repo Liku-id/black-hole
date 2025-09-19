@@ -12,6 +12,7 @@ export default async function handler(
 
   try {
     const session = await getSession(req, res);
+    const { userId } = req.body;
 
     // Mock logout for development/testing
     if (!process.env.BACKEND_URL) {
@@ -30,19 +31,12 @@ export default async function handler(
     }
 
     // Real backend call
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
-
-    // Add authorization header if user is logged in and has access token
-    if (session.accessToken) {
-      headers['Authorization'] = `Bearer ${session.accessToken}`;
-    }
-
     const response = await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
       method: 'POST',
-      headers,
-      body: JSON.stringify({})
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId })
     });
 
     const data = await response.json();

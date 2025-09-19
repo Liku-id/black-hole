@@ -138,8 +138,7 @@ The dashboard is fully responsive with:
 Authentication is handled through:
 
 - `AuthContext` for global auth state
-- `withAuth` HOC (Higher-Order Component) for route protection
-- Iron-session for secure server-side session management
+- `ProtectedRoute` component for route protection
 - API routes for login/logout functionality
 
 ## 🎨 Design System

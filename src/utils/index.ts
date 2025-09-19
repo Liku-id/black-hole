@@ -11,8 +11,8 @@ export {
   dateUtils,
   formatUtils,
   stringUtils,
-  useDebouncedCallback,
-  validationUtils
+  validationUtils,
+  useDebouncedCallback
 };
 
 // Re-export commonly used utilities for easier access
@@ -41,7 +41,7 @@ export const {
 } = formatUtils;
 
 export const {
-  clearExpiredSession,
+  getAuthToken,
   createConfig,
   handleAxiosError,
   makeRequest,

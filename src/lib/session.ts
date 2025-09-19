@@ -3,24 +3,10 @@ import { SessionOptions } from 'iron-session';
 export interface SessionData {
   user?: {
     id: string;
-    fullName: string;
     email: string;
-    phoneNumber: string;
-    ktpNumber: string;
-    dateOfBirth: string;
-    gender: string;
-    isVerified: boolean;
-    isGuest: boolean;
-    role: {
-      id: string;
-      name: string;
-    };
-    profilePicture: {
-      id: string;
-      url: string;
-    };
-    createdAt: string;
-    updatedAt: string;
+    firstName?: string;
+    lastName?: string;
+    role?: string;
   };
   accessToken?: string;
   refreshToken?: string;
