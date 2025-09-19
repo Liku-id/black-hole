@@ -11,23 +11,23 @@ export default async function handler(
   }
 
   try {
-    const { eventId } = req.query;
+    const { id } = req.query;
 
-    if (!eventId || typeof eventId !== 'string') {
-      return res.status(400).json({ message: 'Invalid eventId parameter' });
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ message: 'Invalid id parameter' });
     }
 
     // Use apiRouteUtils pattern but with dynamic endpoint
     const getHandler = apiRouteUtils.createGetHandler({
-      endpoint: `/events/${eventId}/transactions`,
+      endpoint: `/withdrawal/summary/${id}`,
       timeout: 10000
     });
 
     return await getHandler(req, res);
   } catch (error) {
-    console.error('Error in event transactions handler:', error);
+    console.error('Error in withdrawal summary handler:', error);
     return res.status(500).json({
-      message: 'Failed to process event transactions request',
+      message: 'Failed to process withdrawal summary request',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }

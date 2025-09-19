@@ -195,7 +195,7 @@ export interface EventsFilters {
   name?: string;
   startDate?: string;
   endDate?: string;
-  status?: string;
+  status?: string | string[];
 }
 
 export interface EventTypesResponse {
