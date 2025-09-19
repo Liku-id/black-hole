@@ -1,29 +1,25 @@
+import { useApi } from '@/hooks/useApi';
 import { transactionsService } from '@/services';
-import { TransactionsFilters, TransactionsResponse } from '@/types/transaction';
+import { TransactionsResponse } from '@/types/transaction';
 
-import { useApi } from '../../useApi';
-
-interface UseTransactionsReturn {
-  data: TransactionsResponse | null;
-  isLoading: boolean;
+interface UseEventTransactionsReturn {
+  transactions: any[];
+  loading: boolean;
   error: string | null;
-  refetch: () => void;
+  mutate: () => void;
 }
 
-const useTransactions = (
-  eventId: string,
-  filters?: TransactionsFilters
-): UseTransactionsReturn => {
-  const { data, loading, error, mutate } = useApi(
-    eventId ? ['/api/transactions', eventId, filters] : null,
-    () => transactionsService.getEventTransactions(eventId, filters)
+const useTransactions = (eventId?: string): UseEventTransactionsReturn => {
+  const { data, error, mutate } = useApi<TransactionsResponse>(
+    eventId ? ['/api/transactions', eventId] : null,
+    () => transactionsService.getEventTransactions(eventId!)
   );
 
   return {
-    data: data || null,
-    isLoading: loading,
-    error,
-    refetch: mutate
+    transactions: data?.transactions || [],
+    loading: !data && !error,
+    error: error,
+    mutate
   };
 };
 
