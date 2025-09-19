@@ -39,6 +39,7 @@ const getStatusStyle = (value: string) => {
         backgroundColor: 'warning.light',
         color: 'warning.main',
         displayName: 'Pending'
+      };
     case 'failed':
       return {
         backgroundColor: 'error.light',
