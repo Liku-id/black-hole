@@ -132,11 +132,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         padding="16px"
       >
         <Box alignItems="center" display="flex" justifyContent="space-between">
-          <Box 
-            alignItems="center" 
+          <Box
+            alignItems="center"
             display="flex"
-            sx={{ 
-              cursor: 'pointer', 
+            sx={{
+              cursor: 'pointer',
               flex: 1,
               '&:hover': {
                 opacity: 0.8
@@ -202,12 +202,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           anchorEl={anchorEl}
           anchorOrigin={{
             vertical: 'top',
-            horizontal: 'right',
+            horizontal: 'right'
           }}
           open={Boolean(anchorEl)}
           transformOrigin={{
             vertical: 'bottom',
-            horizontal: 'right',
+            horizontal: 'right'
           }}
           onClose={handleProfileMenuClose}
         >

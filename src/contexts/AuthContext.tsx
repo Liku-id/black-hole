@@ -112,11 +112,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         // First check if session exists
         const sessionResponse = await apiUtils.get('/api/auth/session');
-        
+
         if (sessionResponse.isAuthenticated) {
           // If session exists, get fresh user data from /auth/me
           const meResponse = await apiUtils.get('/api/auth/me');
-          
+
           if (meResponse.statusCode === 0 && meResponse.body) {
             dispatch({
               type: 'RESTORE_SESSION',
@@ -152,7 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Then get fresh user data from /auth/me
       const meResponse = await apiUtils.get('/api/auth/me');
-      
+
       if (meResponse.statusCode === 0 && meResponse.body) {
         dispatch({
           type: 'LOGIN_SUCCESS',
