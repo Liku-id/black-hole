@@ -86,6 +86,7 @@ export const OrganizerEditForm = ({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedAssetId, setUploadedAssetId] = useState<string | null>(null);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -108,8 +109,8 @@ export const OrganizerEditForm = ({
   useEffect(() => {
     const formData = convertEventOrganizerToForm(eventOrganizer);
 
-    // Set initial image preview from existing asset
-    if (eventOrganizer.asset?.url) {
+    // Set initial image preview from existing asset (only if no user interaction yet)
+    if (eventOrganizer.asset?.url && !hasUserInteracted) {
       setImagePreview(eventOrganizer.asset.url);
       setUploadedAssetId(eventOrganizer.asset_id || null);
     }
@@ -120,21 +121,16 @@ export const OrganizerEditForm = ({
         setValue(key as keyof FormData, value as any);
       }
     });
-  }, [eventOrganizer, setValue]);
-
-  // Handle image preview when file is selected
-  useEffect(() => {
-    if (watchedProfilePicture) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(watchedProfilePicture);
-    }
-  }, [watchedProfilePicture]);
+  }, [eventOrganizer, setValue, hasUserInteracted]);
 
   const handleImageUpload = (file: File) => {
-    // Just set the file and preview, upload will happen on form submit
+    // Mark that user has interacted
+    setHasUserInteracted(true);
+    
+    // Clear any existing preview first
+    setImagePreview(null);
+    
+    // Set the file and create new preview
     setValue('profilePicture', file);
 
     // Create preview
@@ -146,9 +142,36 @@ export const OrganizerEditForm = ({
   };
 
   const handleImageRemove = () => {
+    // Mark that user has interacted
+    setHasUserInteracted(true);
+    
     setValue('profilePicture', null);
     setImagePreview(null);
     setUploadedAssetId(null);
+    
+    // Clear the file input
+    const fileInput = document.getElementById('profile-picture-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  // Helper function to get display text for profile picture
+  const getProfilePictureDisplayText = () => {
+    // If user has selected a new file, show file name
+    if (watchedProfilePicture && watchedProfilePicture instanceof File) {
+      return watchedProfilePicture.name;
+    }
+    
+    // If there's an existing asset from backend, show filename from key
+    if (eventOrganizer.asset?.key && !hasUserInteracted) {
+      const keyParts = eventOrganizer.asset.key.split('/');
+      const filename = keyParts[keyParts.length - 1];
+      return filename;
+    }
+    
+    // Default text
+    return 'max 2 MB • File type: .jpeg / .jpg / .png';
   };
 
   const handleFormSubmit = async (data: FormData) => {
@@ -381,7 +404,7 @@ export const OrganizerEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Address*"
+                  label="Address"
                   name="address"
                   placeholder="Your address"
                   rules={{
@@ -411,7 +434,7 @@ export const OrganizerEditForm = ({
                     }}
                   >
                     <Body2 color="text.secondary">
-                      {'max 2 MB • File type: .jpeg / .jpg / .png'}
+                      {getProfilePictureDisplayText()}
                     </Body2>
 
                     {imagePreview ? (
@@ -432,6 +455,7 @@ export const OrganizerEditForm = ({
                           height={24}
                         />
                         <input
+                          id="profile-picture-upload"
                           hidden
                           type="file"
                           accept="image/*"

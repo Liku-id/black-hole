@@ -1,17 +1,29 @@
 import { EventOrganizer } from '@/types/organizer';
 import { Box } from '@mui/material';
 import { Body2 } from '@/components/common';
+import { LegelFormDetailInfo } from './detail';
 
 interface LegalFormProps {
   eventOrganizer?: EventOrganizer | null;
   loading?: boolean;
   error?: string | null;
+  mode?: 'view' | 'edit';
 }
 
-const LegalForm = ({ eventOrganizer, loading, error }: LegalFormProps) => {
+const LegalForm = ({
+  eventOrganizer,
+  loading,
+  mode,
+  error
+}: LegalFormProps) => {
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="200px"
+      >
         <Body2>Loading legal information...</Body2>
       </Box>
     );
@@ -19,18 +31,34 @@ const LegalForm = ({ eventOrganizer, loading, error }: LegalFormProps) => {
 
   if (error) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <Body2 color="error.main">Failed to load legal information: {error}</Body2>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="200px"
+      >
+        <Body2 color="error.main">
+          Failed to load legal information: {error}
+        </Body2>
       </Box>
     );
   }
 
   if (!eventOrganizer) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="200px"
+      >
         <Body2>No legal information found</Body2>
       </Box>
     );
+  }
+
+  if (mode === 'view') {
+    return <LegelFormDetailInfo organizerDetail={eventOrganizer} />;
   }
 
   return (
@@ -39,7 +67,9 @@ const LegalForm = ({ eventOrganizer, loading, error }: LegalFormProps) => {
       <Box mt={2}>
         <Body2>NIK: {eventOrganizer.nik || 'Not provided'}</Body2>
         <Body2>NPWP: {eventOrganizer.npwp || 'Not provided'}</Body2>
-        <Body2>Organizer Type: {eventOrganizer.organizer_type || 'Not specified'}</Body2>
+        <Body2>
+          Organizer Type: {eventOrganizer.organizer_type || 'Not specified'}
+        </Body2>
         <Body2>Full Name: {eventOrganizer.full_name || 'Not provided'}</Body2>
         <Body2>PIC Name: {eventOrganizer.pic_name || 'Not provided'}</Body2>
         <Body2>PIC Title: {eventOrganizer.pic_title || 'Not provided'}</Body2>
