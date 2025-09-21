@@ -411,7 +411,7 @@ export const OrganizerEditForm = ({
                     }}
                   >
                     <Body2 color="text.secondary">
-                      {'max 2 MB b. File type: .jpeg / .jpg / .png'}
+                      {'max 2 MB • File type: .jpeg / .jpg / .png'}
                     </Body2>
 
                     {imagePreview ? (
@@ -424,33 +424,26 @@ export const OrganizerEditForm = ({
                         />
                       </IconButton>
                     ) : (
-                      <>
+                      <IconButton component="label" disabled={uploadingImage}>
+                        <Image
+                          src="/icon/upload.svg"
+                          alt="upload icon"
+                          width={24}
+                          height={24}
+                        />
                         <input
+                          hidden
                           type="file"
                           accept="image/*"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) {
-                              handleImageUpload(file);
-                            }
+                            if (file) handleImageUpload(file);
                           }}
-                          style={{ display: 'none' }}
-                          id="profile-picture-upload"
-                          disabled={uploadingImage}
                         />
-                        <label htmlFor="profile-picture-upload">
-                          <IconButton>
-                            <Image
-                              src="/icon/upload.svg"
-                              alt="upload icon"
-                              width={24}
-                              height={24}
-                            />
-                          </IconButton>
-                        </label>
-                      </>
+                      </IconButton>
                     )}
                   </Box>
+
                   {imagePreview && (
                     <Image
                       src={imagePreview}
@@ -463,7 +456,8 @@ export const OrganizerEditForm = ({
                         width: 'auto',
                         maxWidth: '100%',
                         objectFit: 'contain',
-                        display: 'block'
+                        display: 'block',
+                        marginTop: '8px'
                       }}
                     />
                   )}
