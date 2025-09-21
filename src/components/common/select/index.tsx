@@ -12,6 +12,7 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 import { Body2 } from '@/components/common';
 
 import { StyledTextField } from '../text-field/StyledTextField';
+import { ErrorOutline } from '@mui/icons-material';
 
 interface SelectOption {
   value: string;
@@ -30,6 +31,7 @@ interface CustomSelectProps
   fullWidth?: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  isRejected?: boolean;
 }
 
 export const CustomSelect = (props: CustomSelectProps) => {
@@ -55,6 +57,7 @@ const SimpleSelect = (props: CustomSelectProps) => {
     onChange,
     error,
     helperText,
+    isRejected,
     ...otherProps
   } = props;
 
@@ -82,8 +85,17 @@ const SimpleSelect = (props: CustomSelectProps) => {
   return (
     <Box>
       {label && (
-        <Body2 color="text.primary" display="block" mb={1}>
-          {label}
+        <Body2
+          color="text.primary"
+          sx={{
+            mb: 1,
+            display: isRejected ? 'flex' : 'block',
+            alignItems: 'center',
+            gap: 0.5
+          }}
+        >
+          {label}{' '}
+          {isRejected && <ErrorOutline fontSize="small" color="error" />}
         </Body2>
       )}
       <StyledTextField

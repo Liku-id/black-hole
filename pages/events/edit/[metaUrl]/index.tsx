@@ -56,6 +56,12 @@ function EditEvent() {
 
   // Handle form submission
   const handleSubmit = async (formData: any) => {
+
+    
+
+
+    
+
     if (isUpdating) return;
 
     setIsUpdating(true);
