@@ -1,41 +1,111 @@
 import Image from 'next/image';
-import { Box, Grid, Avatar } from '@mui/material';
+import { Box, Grid, Divider, Paper, Typography } from '@mui/material';
 
-import { Body2 } from '@/components/common';
-
-interface SocialMedia {
-  platform: string;
-  url: string;
-}
+import { Body2, H4 } from '@/components/common';
 
 interface OrganizerDetail {
   id: string;
-  name: string;
-  phoneNumber: string;
-  email: string;
-  address: string;
-  socialMedia: SocialMedia[];
-  aboutOrganizer: string;
-  profilePicture?: string;
-  pictName?: string;
-  rejectedFields?: string[];
-  rejectedReason?: string;
+  npwp_photo_id: string;
+  npwp_number: string;
+  npwp_address: string;
+  ktp_photo_id: string;
+  ktp_number: string;
+  ktp_address: string;
+  full_name: string;
+  pic_name: string;
+  pic_title: string;
+  organizer_type?: string;
 }
 
 interface OrganizerDetailProps {
   organizerDetail: OrganizerDetail;
 }
 
+// DocumentImage component for displaying KTP/NPWP images
+const DocumentImage = ({
+  title,
+  photoId,
+  alt
+}: {
+  title: string;
+  photoId: string;
+  alt: string;
+}) => (
+  <Box>
+    <Body2 color="text.primary" mb={1}>
+      {title}
+    </Body2>
+    <Box
+      sx={{
+        border: '1px solid',
+        borderColor: 'primary.main',
+        borderRadius: 1,
+        overflow: 'hidden',
+        backgroundColor: 'grey.50'
+      }}
+    >
+      {photoId ? (
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Image
+            src={`/api/images/${photoId}`}
+            alt={alt}
+            fill
+            style={{
+              objectFit: 'contain',
+              padding: '8px'
+            }}
+            onError={(e) => {
+              // Handle image load error - show placeholder
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              target.parentElement?.insertAdjacentHTML(
+                'beforeend',
+                `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 14px;">
+                  Image not available
+                </div>`
+              );
+            }}
+          />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            height: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'grey.100'
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ textAlign: 'center' }}
+          >
+            No {title.toLowerCase()} image available
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  </Box>
+);
+
 // OrganizerField component
 const OrganizerField = ({
   label,
-  value,
-  isTextArea = false,
-  icon
+  value
 }: {
   label: string;
   value: string;
-  isTextArea?: boolean;
   isRejected?: boolean;
   icon?: React.ReactNode;
 }) => (
@@ -50,73 +120,14 @@ const OrganizerField = ({
       overflow="scroll"
       sx={{
         display: 'flex',
-        alignItems: isTextArea ? 'flex-start' : 'center',
+        alignItems: 'center',
         backgroundColor: 'primary.light',
-        padding: icon ? '0' : isTextArea ? '14px 16px' : '0px 16px',
-        height: '46px',
-        ...(isTextArea && { height: '156px' })
+        padding: '0px 16px',
+        height: '46px'
       }}
     >
-      {icon && (
-        <Box
-          borderRight="1px solid"
-          borderColor="primary.main"
-          padding="0px 11px 0px 16px"
-          height="100%"
-          display="flex"
-          alignItems="center"
-          marginRight="10px"
-        >
-          {icon}
-        </Box>
-      )}
-      <Body2 color="text.primary">{value}</Body2>
+      <Body2 color="text.primary">{value || '-'}</Body2>
     </Box>
-  </Box>
-);
-
-
-
-
-// ProfilePictureField component
-const ProfilePictureField = ({
-  profilePicture,
-  pictName
-}: {
-  profilePicture?: string;
-  pictName?: string;
-}) => (
-  <Box>
-    <Body2 color="text.primary" mb={1}>
-      Profile Picture{' '}
-    </Body2>
-    <Box
-      border="1px solid"
-      borderColor="primary.main"
-      borderRadius={1}
-      p="12px 16px"
-      sx={{ backgroundColor: 'primary.light' }}
-    >
-      <Body2 color="text.primary">
-        {pictName || 'No profile picture uploaded'}
-      </Body2>
-    </Box>
-    {profilePicture && (
-      <Image
-        src={profilePicture}
-        alt="Profile Picture"
-        width={84}
-        height={84}
-        style={{
-          maxHeight: '100px',
-          height: 'auto',
-          width: 'auto',
-          maxWidth: '100%',
-          objectFit: 'contain',
-          display: 'block'
-        }}
-      />
-    )}
   </Box>
 );
 
@@ -125,57 +136,58 @@ export const LegelFormDetailInfo = ({
 }: OrganizerDetailProps) => {
   return (
     <>
+      <H4 fontWeight={600} marginBottom={2}>
+        {organizerDetail.organizer_type === 'individual'
+          ? 'Individual'
+          : 'Company'}
+      </H4>
+      <Divider sx={{ borderColor: 'text.secondary', marginBottom: 3 }} />
+
+      {/* Document Images Section */}
+      <Grid container spacing={3} mb={3}>
+        <Grid item md={6} xs={12}>
+          <DocumentImage
+            title="KTP Image"
+            photoId={organizerDetail.ktp_photo_id}
+            alt="KTP Document"
+          />
+        </Grid>
+        <Grid item md={6} xs={12}>
+          <DocumentImage
+            title="NPWP Image"
+            photoId={organizerDetail.npwp_photo_id}
+            alt="NPWP Document"
+          />
+        </Grid>
+      </Grid>
+
+      {/* Form Fields Section */}
       <Grid container spacing={3}>
         {/* Left Grid */}
         <Grid item md={6} xs={12}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <OrganizerField
-                label="Organizer Name*"
-                value={organizerDetail.name}
+                label="KTP Number*"
+                value={organizerDetail.ktp_number}
               />
             </Grid>
             <Grid item xs={12}>
               <OrganizerField
-                label="Phone Number*"
-                value={organizerDetail.phoneNumber}
-                icon={<Body2>+62</Body2>}
+                label="Address as in KTP"
+                value={organizerDetail.ktp_address}
               />
             </Grid>
             <Grid item xs={12}>
-              {organizerDetail.socialMedia &&
-              organizerDetail.socialMedia.length > 0 ? (
-                organizerDetail.socialMedia.map((social, index) => (
-                  <Box
-                    key={index}
-                    mb={index < organizerDetail.socialMedia.length - 1 ? 1 : 0}
-                  >
-                    <OrganizerField
-                      label={index === 0 ? 'Social Media' : ''}
-                      value={social.url}
-                      icon={
-                        <Image
-                          src={`/icon/${social.platform.toLowerCase()}.svg`}
-                          alt={social.platform.toLowerCase()}
-                          width={24}
-                          height={24}
-                        />
-                      }
-                    />
-                  </Box>
-                ))
-              ) : (
-                <OrganizerField
-                  label="Social Media"
-                  value="No social media links"
-                />
-              )}
+              <OrganizerField
+                label="Company NPWP Number*"
+                value={organizerDetail.npwp_number}
+              />
             </Grid>
             <Grid item xs={12}>
               <OrganizerField
-                label="About Organizer"
-                value={organizerDetail.aboutOrganizer}
-                isTextArea
+                label="Address as in NPWP"
+                value={organizerDetail.npwp_address}
               />
             </Grid>
           </Grid>
@@ -186,17 +198,20 @@ export const LegelFormDetailInfo = ({
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <OrganizerField
-                label="Email Address*"
-                value={organizerDetail.email}
+                label="Full Name as in NPWP"
+                value={organizerDetail.full_name}
               />
             </Grid>
             <Grid item xs={12}>
-              <OrganizerField label="Address" value={organizerDetail.address} />
+              <OrganizerField
+                label="PIC Name"
+                value={organizerDetail.pic_name}
+              />
             </Grid>
             <Grid item xs={12}>
-              <ProfilePictureField
-                profilePicture={organizerDetail.profilePicture}
-                pictName={organizerDetail.pictName}
+              <OrganizerField
+                label="PIC Title"
+                value={organizerDetail.pic_title}
               />
             </Grid>
           </Grid>

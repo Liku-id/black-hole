@@ -16,6 +16,8 @@ const LegalForm = ({
   mode,
   error
 }: LegalFormProps) => {
+  console.log(eventOrganizer, '<<eventOrganizer');
+
   if (loading) {
     return (
       <Box
@@ -63,27 +65,6 @@ const LegalForm = ({
 
   return (
     <Box>
-      <Body2>Legal Information for: {eventOrganizer.name}</Body2>
-      <Box mt={2}>
-        <Body2>NIK: {eventOrganizer.nik || 'Not provided'}</Body2>
-        <Body2>NPWP: {eventOrganizer.npwp || 'Not provided'}</Body2>
-        <Body2>
-          Organizer Type: {eventOrganizer.organizer_type || 'Not specified'}
-        </Body2>
-        <Body2>Full Name: {eventOrganizer.full_name || 'Not provided'}</Body2>
-        <Body2>PIC Name: {eventOrganizer.pic_name || 'Not provided'}</Body2>
-        <Body2>PIC Title: {eventOrganizer.pic_title || 'Not provided'}</Body2>
-      </Box>
-      {eventOrganizer.ktpPhoto && (
-        <Box mt={2}>
-          <Body2>KTP Photo: Available</Body2>
-        </Box>
-      )}
-      {eventOrganizer.npwpPhoto && (
-        <Box mt={2}>
-          <Body2>NPWP Photo: Available</Body2>
-        </Box>
-      )}
       <Body2 mt={2}>Legal Form Component (Coming Soon)</Body2>
     </Box>
   );

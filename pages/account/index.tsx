@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Box, Card, CardContent } from '@mui/material';
@@ -9,7 +9,8 @@ import DashboardLayout from '@/layouts/dashboard';
 import GeneralForm from '@/components/features/account/general-form';
 import LegalForm from '@/components/features/account/legal-form';
 import BankForm from '@/components/features/account/bank-form';
-import { useEventOrganizerMe } from '@/hooks';
+import { useEventOrganizerMe, useUpdateEventOrganizerGeneral } from '@/hooks';
+import { CreatorTypeModal } from '@/components/features/account/general-form/creator-type-modal';
 
 function Account() {
   const router = useRouter();
@@ -17,6 +18,7 @@ function Account() {
   const [activeLable, setActiveLable] = useState('General Information');
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [showCreatorModal, setShowCreatorModal] = useState(false);
 
   // Fetch organizer data for the general tab
   const {
@@ -24,6 +26,10 @@ function Account() {
     loading: organizerLoading,
     error: organizerError
   } = useEventOrganizerMe();
+
+  // Update organizer general info hook
+  const { updateOrganizer, loading: updateLoading } =
+    useUpdateEventOrganizerGeneral();
 
   const tabs = [
     {
@@ -54,6 +60,42 @@ function Account() {
     setIsEditing(false);
   };
 
+  // Show creator type modal if organizer_type is missing
+  useEffect(() => {
+    if (!organizerLoading && eventOrganizer && !eventOrganizer.organizer_type) {
+      setShowCreatorModal(true);
+    }
+  }, [eventOrganizer, organizerLoading]);
+
+  const handleCreatorModalClose = () => {
+    setShowCreatorModal(false);
+    // Redirect to dashboard if user closes modal
+    router.push('/dashboard');
+  };
+
+  const handleCreatorModalContinue = async (creatorType: string) => {
+    try {
+      if (eventOrganizer?.id) {
+        // Update organizer with selected type
+        await updateOrganizer(eventOrganizer.id, {
+          name: eventOrganizer.name || '',
+          description: eventOrganizer.description || '',
+          social_media_url: eventOrganizer.social_media_url || '{}',
+          address: eventOrganizer.address || '',
+          asset_id: eventOrganizer.asset_id || '',
+          organizer_type: creatorType
+        });
+
+        setShowCreatorModal(false);
+        // Refresh data to show updated organizer_type
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Failed to update organizer type:', error);
+      setError('Failed to update creator type. Please try again.');
+    }
+  };
+
   const showContent = () => {
     const commonProps = {
       eventOrganizer,
@@ -71,7 +113,9 @@ function Account() {
           />
         );
       case 'legal':
-        return <LegalForm {...commonProps} />;
+        return (
+          <LegalForm mode={isEditing ? 'edit' : 'view'} {...commonProps} />
+        );
       default:
         return <BankForm {...commonProps} />;
     }
@@ -149,6 +193,13 @@ function Account() {
             )}
           </CardContent>
         </Card>
+
+        {/* Creator Type Modal */}
+        <CreatorTypeModal
+          open={showCreatorModal}
+          onClose={handleCreatorModalClose}
+          onContinue={handleCreatorModalContinue}
+        />
       </Box>
     </DashboardLayout>
   );
