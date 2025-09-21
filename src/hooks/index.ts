@@ -7,6 +7,8 @@ export { useEvents } from './features/events/useEvents';
 export { useEventsSubmissions } from './features/events-submissions/useEventsSubmissions';
 export { useEventsSubmissionDetail } from './features/events-submissions/useEventsSubmissionDetail';
 export { useOrganizers } from './features/organizers/useOrganizers';
+export { useEventOrganizerMe } from './features/organizers/useEventOrganizerMe';
+export { useUpdateEventOrganizerGeneral } from './features/organizers/useUpdateEventOrganizerGeneral';
 export { useWithdrawalSummaries } from './features/withdrawal/useWithdrawalSummaries';
 export { useWithdrawalSummary } from './features/withdrawal/useWithdrawalSummary';
 export { useTransactions } from './features/transactions/useTransactions';
