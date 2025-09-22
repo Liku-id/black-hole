@@ -1,11 +1,13 @@
 import { EventOrganizer } from '@/types/organizer';
 import { Box } from '@mui/material';
 import { Body2 } from '@/components/common';
+import { BankFormDetailInfo } from './detail';
 
 interface BankFormProps {
   eventOrganizer?: EventOrganizer | null;
   loading?: boolean;
   error?: string | null;
+    mode?: 'view' | 'edit';
 }
 
 const BankForm = ({ eventOrganizer, loading, error }: BankFormProps) => {
@@ -31,6 +33,10 @@ const BankForm = ({ eventOrganizer, loading, error }: BankFormProps) => {
         <Body2>No bank information found</Body2>
       </Box>
     );
+  }
+
+ if (mode === 'view') {
+    return <BankFormDetailInfo organizerDetail={eventOrganizer} />;
   }
 
   return (
