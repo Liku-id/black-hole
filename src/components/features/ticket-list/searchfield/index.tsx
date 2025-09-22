@@ -22,21 +22,9 @@ export const SearchField = ({
 }: SearchFieldProps) => {
   return (
     <Card>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3
-        }}
-      >
+      <Box display="flex" flexDirection="column" gap={3}>
         {/* Header row with Select Event title and Scan Ticket button */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
+        <Box alignItems="center" display="flex" justifyContent="space-between">
           <H4
             sx={{
               color: 'text.primary'
@@ -51,7 +39,6 @@ export const SearchField = ({
               height: '46px',
               fontSize: '14px',
               fontWeight: 600,
-              textTransform: 'none',
               borderRadius: '4px',
               boxShadow: 'none',
               '&:hover': {

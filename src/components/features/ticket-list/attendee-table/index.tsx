@@ -190,20 +190,12 @@ export const AttendeeTable = ({
   return (
     <>
       <Card sx={{ mt: 3, p: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2
-          }}
-        >
+        <Box display="flex" flexDirection="column" gap={2}>
           {/* Attendee Details Header */}
           <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
+            alignItems="center"
+            display="flex"
+            justifyContent="space-between"
           >
             <H4
               sx={{
@@ -262,9 +254,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '60px'
+                      color: 'text.secondary'
                     }}
+                    width="60px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       No
@@ -273,9 +265,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '120px'
+                      color: 'text.secondary'
                     }}
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Ticket ID
@@ -284,9 +276,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '180px'
+                      color: 'text.secondary'
                     }}
+                    width="180px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Name
@@ -295,9 +287,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '120px'
+                      color: 'text.secondary'
                     }}
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Ticket Type
@@ -306,9 +298,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '150px'
+                      color: 'text.secondary'
                     }}
+                    width="150px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Phone Number
@@ -317,9 +309,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '100px'
+                      color: 'text.secondary'
                     }}
+                    width="100px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Date
@@ -328,9 +320,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '140px'
+                      color: 'text.secondary'
                     }}
+                    width="140px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Payment Method
@@ -339,9 +331,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '120px'
+                      color: 'text.secondary'
                     }}
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Redeem Status
@@ -350,9 +342,9 @@ export const AttendeeTable = ({
                   <TableCell
                     sx={{
                       fontWeight: 600,
-                      color: 'text.secondary',
-                      width: '80px'
+                      color: 'text.secondary'
                     }}
+                    width="80px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Action
@@ -363,14 +355,12 @@ export const AttendeeTable = ({
               <StyledTableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
                       <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: 2
-                        }}
+                        alignItems="center"
+                        display="flex"
+                        flexDirection="column"
+                        gap={2}
                       >
                         <Box
                           sx={{
@@ -392,7 +382,7 @@ export const AttendeeTable = ({
                   </TableRow>
                 ) : attendeeData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
                       <Body2 color="text.secondary">No tickets found</Body2>
                     </TableCell>
                   </TableRow>
@@ -449,7 +439,7 @@ export const AttendeeTable = ({
                             handleActionClick(e, attendee.ticketId)
                           }
                         >
-                          <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <Box display="flex" gap={0.5}>
                             <Box
                               sx={{
                                 width: 4,
@@ -486,10 +476,10 @@ export const AttendeeTable = ({
 
           {/* Pagination */}
           <Box
+            alignItems="center"
+            display="flex"
+            justifyContent="space-between"
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               mt: 2,
               pt: 2,
               borderTop: '1px solid #E2E8F0'
@@ -499,7 +489,7 @@ export const AttendeeTable = ({
               Showing {total === 0 ? 0 : currentPage * pageSize + 1} to{' '}
               {Math.min((currentPage + 1) * pageSize, total)} of {total} entries
             </Body2>
-            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+            <Box alignItems="center" display="flex" gap={0.5}>
               <IconButton
                 disabled={currentPage === 0}
                 sx={{
@@ -521,12 +511,12 @@ export const AttendeeTable = ({
 
               {/* Simple pagination - show current page and total pages */}
               <Box
+                alignItems="center"
+                display="flex"
+                justifyContent="center"
                 sx={{
                   width: 24,
                   height: 24,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   fontSize: '12px',
                   backgroundColor: 'primary.main',
                   color: 'white',
@@ -656,10 +646,10 @@ export const AttendeeTable = ({
         onClose={handleCloseModals}
       >
         <Box
+          alignItems="center"
+          display="flex"
+          justifyContent="space-between"
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             mb: 1.5
           }}
         >
@@ -679,23 +669,16 @@ export const AttendeeTable = ({
           </IconButton>
         </Box>
         <DialogContent sx={{ pt: 0, px: 0, pb: 1 }}>
-          <Body1 sx={{ textAlign: 'left', mb: 3 }}>
+          <Body1 sx={{ textAlign: 'left', mb: 4, mt: 2 }}>
             Are you sure you want to redeem this ticket?
           </Body1>
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 2,
-              justifyContent: 'flex-end'
-            }}
-          >
+          <Box display="flex" gap={2} justifyContent="flex-end">
             <Button
               sx={{
-                minWidth: '80px',
-                height: '40px',
-                fontSize: '14px',
+                minWidth: '81px',
+                height: '46px',
+                fontSize: '12px',
                 fontWeight: 500,
-                textTransform: 'none',
                 borderRadius: '4px',
                 backgroundColor: 'rgba(60, 80, 224, 0.1)',
                 color: 'primary.main',
@@ -713,11 +696,10 @@ export const AttendeeTable = ({
             <Button
               disabled={redeemLoading}
               sx={{
-                minWidth: '80px',
-                height: '40px',
-                fontSize: '14px',
+                minWidth: '102px',
+                height: '46px',
+                fontSize: '12px',
                 fontWeight: 500,
-                textTransform: 'none',
                 borderRadius: '4px',
                 backgroundColor: 'primary.main',
                 color: 'white',
@@ -732,7 +714,7 @@ export const AttendeeTable = ({
               onClick={handleConfirmRedeem}
             >
               {redeemLoading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box alignItems="center" display="flex" gap={1}>
                   <CircularProgress color="inherit" size={16} />
                   <span>Redeeming...</span>
                 </Box>
@@ -758,10 +740,10 @@ export const AttendeeTable = ({
         onClose={handleCloseModals}
       >
         <Box
+          alignItems="center"
+          display="flex"
+          justifyContent="space-between"
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             mb: 1.5
           }}
         >
@@ -782,24 +764,24 @@ export const AttendeeTable = ({
         </Box>
         <DialogContent sx={{ pt: 0, px: 0, pb: 1 }}>
           {selectedAttendee && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box display="flex" flexDirection="column" gap={1.5}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">User Name:</Body2>
                 <Body2 fontWeight={500}>{selectedAttendee.name}</Body2>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Ticket Type:</Body2>
                 <Body2 fontWeight={500}>{selectedAttendee.ticketType}</Body2>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Phone Number:</Body2>
                 <Body2 fontWeight={500}>{selectedAttendee.phoneNumber}</Body2>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Email:</Body2>
                 <Body2 fontWeight={500}>{user?.email || 'Not available'}</Body2>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Event Date:</Body2>
                 <Body2 fontWeight={500}>
                   {selectedEventData?.startDate
@@ -807,28 +789,25 @@ export const AttendeeTable = ({
                     : 'Not available'}
                 </Body2>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Transaction Date:</Body2>
                 <Body2 fontWeight={500}>
                   {dateUtils.formatDateDDMMYYYY(selectedAttendee.date)}
                 </Body2>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Transaction ID:</Body2>
                 <Body2 fontWeight={500}>
                   {selectedAttendee.transactionId || 'Not available'}
                 </Body2>
               </Box>
-              <Box
-                sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.5 }}
-              >
+              <Box display="flex" justifyContent="flex-end" sx={{ mt: 1.5 }}>
                 <Button
                   sx={{
                     minWidth: '80px',
                     height: '40px',
                     fontSize: '14px',
                     fontWeight: 500,
-                    textTransform: 'none',
                     borderRadius: '4px',
                     backgroundColor: 'primary.main',
                     color: 'white',

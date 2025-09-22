@@ -110,13 +110,13 @@ function Tickets() {
           <title>Tickets - Black Hole Dashboard</title>
         </Head>
         <Box
+          alignItems="center"
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          justifyContent="center"
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '400px',
-            gap: 2
+            minHeight: '400px'
           }}
         >
           <CircularProgress size={40} />
@@ -134,13 +134,13 @@ function Tickets() {
           <title>Tickets - Black Hole Dashboard</title>
         </Head>
         <Box
+          alignItems="center"
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          justifyContent="center"
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '400px',
-            gap: 2
+            minHeight: '400px'
           }}
         >
           <H3 color="error">Failed to load events</H3>
@@ -184,13 +184,13 @@ function Tickets() {
         {/* Show message when no event is selected */}
         {!selectedEvent && (
           <Box
+            alignItems="center"
+            display="flex"
+            flexDirection="column"
+            gap={2}
+            justifyContent="center"
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
               minHeight: '300px',
-              gap: 2,
               mt: 3
             }}
           >
