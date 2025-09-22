@@ -22,6 +22,7 @@ const StyledTableHead = styled(TableHead)({
 });
 
 const StyledTableBody = styled(TableBody)(({ theme }) => ({
+  overflow: 'scroll',
   '& .MuiTableRow-root': {
     borderTop: `1px solid ${theme.palette.grey[100]}`,
     '&:hover': {

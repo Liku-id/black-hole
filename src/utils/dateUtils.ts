@@ -190,5 +190,39 @@ export const dateUtils = {
     }
 
     return '+07:00';
+  },
+
+  formatDateRange: (startISO: string, endISO: string): string => {
+    const s = parseISO(startISO);
+    const e = parseISO(endISO);
+    if (!isValid(s) || !isValid(e)) return `${startISO} - ${endISO}`;
+
+    const sY = format(s, 'yyyy');
+    const eY = format(e, 'yyyy');
+    const sM = format(s, 'MMM');
+    const eM = format(e, 'MMM');
+    const sD = format(s, 'd');
+    const eD = format(e, 'd');
+    const sHM = format(s, 'HH:mm');
+    const eHM = format(e, 'HH:mm');
+
+    let datePart = '';
+
+    if (sY !== eY) {
+      // beda tahun → tampilkan lengkap keduanya
+      datePart = `${format(s, 'MMM d, yyyy')} – ${format(e, 'MMM d, yyyy')}`;
+    } else if (sM !== eM) {
+      // sama tahun, beda bulan → tampilkan bulan & hari masing2, tahun sekali
+      datePart = `${sM} ${sD} – ${eM} ${eD}, ${sY}`;
+    } else if (sD !== eD) {
+      // sama bulan & tahun, beda hari → tampilkan rentang hari, bulan & tahun sekali
+      datePart = `${sM} ${sD}–${eD}, ${sY}`;
+    } else {
+      // sama hari, bulan, tahun
+      datePart = `${sM} ${sD}, ${sY}`;
+    }
+
+    // waktu selalu ditampilkan sebagai rentang
+    return `${datePart} ${sHM}–${eHM} WIB`;
   }
 };
