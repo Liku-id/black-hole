@@ -1,6 +1,6 @@
-import { Autocomplete, Box, Divider, Typography } from '@mui/material';
+import { Autocomplete, Box, Divider } from '@mui/material';
 
-import { Button, Card, TextField } from '@/components/common';
+import { Button, Card, H4, TextField } from '@/components/common';
 
 interface EventOption {
   value: string;
@@ -37,15 +37,13 @@ export const SearchField = ({
             alignItems: 'center'
           }}
         >
-          <Typography
+          <H4
             sx={{
-              fontSize: '18px',
-              fontWeight: 600,
               color: 'text.primary'
             }}
           >
             Select Event
-          </Typography>
+          </H4>
 
           <Button
             sx={{

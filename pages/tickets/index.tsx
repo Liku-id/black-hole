@@ -1,8 +1,9 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import Head from 'next/head';
 import { useMemo, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
+import { Body1, Body2, H3 } from '@/components/common';
 import { AttendeeTable, SearchField } from '@/components/features/ticket-list';
 import { useEvents, useTickets } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
@@ -112,9 +113,9 @@ function Tickets() {
           }}
         >
           <CircularProgress size={40} />
-          <Typography color="text.secondary" variant="body1">
+          <Body1 color="text.secondary">
             Loading events...
-          </Typography>
+          </Body1>
         </Box>
       </DashboardLayout>
     );
@@ -137,12 +138,12 @@ function Tickets() {
             gap: 2
           }}
         >
-          <Typography color="error" variant="h6">
+          <H3 color="error">
             Failed to load events
-          </Typography>
-          <Typography color="text.secondary" variant="body2">
+          </H3>
+          <Body2 color="text.secondary">
             {eventsError}
-          </Typography>
+          </Body2>
         </Box>
       </DashboardLayout>
     );
@@ -191,12 +192,12 @@ function Tickets() {
               mt: 3
             }}
           >
-            <Typography color="text.secondary" variant="h6">
+            <H3 color="text.secondary">
               Select an event to view attendee details
-            </Typography>
-            <Typography color="text.secondary" variant="body2">
+            </H3>
+            <Body2 color="text.secondary">
               Choose an event from the dropdown above to see ticket information
-            </Typography>
+            </Body2>
           </Box>
         )}
       </Box>

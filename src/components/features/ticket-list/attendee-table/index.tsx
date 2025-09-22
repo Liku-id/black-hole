@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Card,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -13,17 +14,17 @@ import {
   Table,
   TableCell,
   TableRow,
-  Typography
+  TextField
 } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Card, TextField } from '@/components/common';
 import {
   StyledTableBody,
   StyledTableContainer,
   StyledTableHead
 } from '@/components/common/table';
+import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { ticketsService } from '@/services';
 import { TicketStatus } from '@/types/ticket';
@@ -191,15 +192,13 @@ export const AttendeeTable = ({
               alignItems: 'center'
             }}
           >
-            <Typography
+            <H4
               sx={{
-                fontSize: '18px',
-                fontWeight: 600,
                 color: 'text.primary'
               }}
             >
               Attendee Details
-            </Typography>
+            </H4>
 
             <TextField
               InputProps={{
@@ -249,93 +248,84 @@ export const AttendeeTable = ({
                 <TableRow>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '60px'
                     }}
                   >
-                    No
+                    <Body2 color="text.secondary" fontWeight={600}>No</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '120px'
                     }}
                   >
-                    Ticket ID
+                    <Body2 color="text.secondary" fontWeight={600}>Ticket ID</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '180px'
                     }}
                   >
-                    Name
+                    <Body2 color="text.secondary" fontWeight={600}>Name</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '120px'
                     }}
                   >
-                    Ticket Type
+                    <Body2 color="text.secondary" fontWeight={600}>Ticket Type</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '150px'
                     }}
                   >
-                    Phone Number
+                    <Body2 color="text.secondary" fontWeight={600}>Phone Number</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '100px'
                     }}
                   >
-                    Date
+                    <Body2 color="text.secondary" fontWeight={600}>Date</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '140px'
                     }}
                   >
-                    Payment Method
+                    <Body2 color="text.secondary" fontWeight={600}>Payment Method</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '120px'
                     }}
                   >
-                    Redeem Status
+                    <Body2 color="text.secondary" fontWeight={600}>Redeem Status</Body2>
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: '14px',
                       fontWeight: 600,
                       color: 'text.secondary',
                       width: '80px'
                     }}
                   >
-                    Action
+                    <Body2 color="text.secondary" fontWeight={600}>Action</Body2>
                   </TableCell>
                 </TableRow>
               </StyledTableHead>
@@ -365,63 +355,39 @@ export const AttendeeTable = ({
                             }
                           }}
                         />
-                        <Typography
-                          color="text.secondary"
-                          sx={{ fontSize: '14px' }}
-                        >
-                          Loading tickets...
-                        </Typography>
+                        <Body2 color="text.secondary">Loading tickets...</Body2>
                       </Box>
                     </TableCell>
                   </TableRow>
                 ) : attendeeData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
-                      <Typography
-                        color="text.secondary"
-                        sx={{ fontSize: '14px' }}
-                      >
-                        No tickets found
-                      </Typography>
+                      <Body2 color="text.secondary">No tickets found</Body2>
                     </TableCell>
                   </TableRow>
                 ) : (
                   attendeeData.map((attendee) => (
                     <TableRow key={attendee.ticketId}>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.no}
+                      <TableCell>
+                        <Body2>{attendee.no}</Body2>
                       </TableCell>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.ticketId}
+                      <TableCell>
+                        <Body2>{attendee.ticketId}</Body2>
                       </TableCell>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.name}
+                      <TableCell>
+                        <Body2>{attendee.name}</Body2>
                       </TableCell>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.ticketType}
+                      <TableCell>
+                        <Body2>{attendee.ticketType}</Body2>
                       </TableCell>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.phoneNumber}
+                      <TableCell>
+                        <Body2>{attendee.phoneNumber}</Body2>
                       </TableCell>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.date}
+                      <TableCell>
+                        <Body2>{attendee.date}</Body2>
                       </TableCell>
-                      <TableCell
-                        sx={{ fontSize: '14px', color: 'text.primary' }}
-                      >
-                        {attendee.paymentMethod}
+                      <TableCell>
+                        <Body2>{attendee.paymentMethod}</Body2>
                       </TableCell>
                       <TableCell>
                         <Box
@@ -430,13 +396,15 @@ export const AttendeeTable = ({
                             px: 2,
                             py: 0.5,
                             borderRadius: '10px',
-                            fontSize: '10px',
-                            fontWeight: 600,
                             backgroundColor: `${getStatusDisplay(attendee.redeemStatus).color}20`,
-                            color: getStatusDisplay(attendee.redeemStatus).color
                           }}
                         >
-                          {getStatusDisplay(attendee.redeemStatus).text}
+                          <Caption 
+                            color={getStatusDisplay(attendee.redeemStatus).color}
+                            fontWeight={600}
+                          >
+                            {getStatusDisplay(attendee.redeemStatus).text}
+                          </Caption>
                         </Box>
                       </TableCell>
                       <TableCell>
@@ -492,10 +460,10 @@ export const AttendeeTable = ({
               borderTop: '1px solid #E2E8F0'
             }}
           >
-            <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
+            <Body2 color="text.secondary">
               Showing {total === 0 ? 0 : currentPage * pageSize + 1} to{' '}
               {Math.min((currentPage + 1) * pageSize, total)} of {total} entries
-            </Typography>
+            </Body2>
             <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
               <IconButton
                 disabled={currentPage === 0}
@@ -535,11 +503,9 @@ export const AttendeeTable = ({
               </Box>
 
               {Math.ceil(total / pageSize) > 1 && (
-                <Typography
-                  sx={{ fontSize: '12px', color: 'text.secondary', mx: 0.5 }}
-                >
+                <Caption color="text.secondary" sx={{ mx: 0.5 }}>
                   of {Math.ceil(total / pageSize)}
-                </Typography>
+                </Caption>
               )}
 
               <IconButton
@@ -678,16 +644,9 @@ export const AttendeeTable = ({
           </IconButton>
         </Box>
         <DialogContent sx={{ pt: 0, px: 0, pb: 1 }}>
-          <Typography
-            sx={{
-              fontSize: '14px',
-              color: 'text.primary',
-              textAlign: 'left',
-              mb: 3
-            }}
-          >
+          <Body1 sx={{ textAlign: 'left', mb: 3 }}>
             Are you sure you want to redeem this ticket?
-          </Typography>
+          </Body1>
           <Box
             sx={{
               display: 'flex',
@@ -790,102 +749,32 @@ export const AttendeeTable = ({
           {selectedAttendee && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  User Name:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  {selectedAttendee.name}
-                </Typography>
+                <Body2 color="text.secondary">User Name:</Body2>
+                <Body2 fontWeight={500}>{selectedAttendee.name}</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  Ticket Type:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  {selectedAttendee.ticketType}
-                </Typography>
+                <Body2 color="text.secondary">Ticket Type:</Body2>
+                <Body2 fontWeight={500}>{selectedAttendee.ticketType}</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  Phone Number:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  {selectedAttendee.phoneNumber}
-                </Typography>
+                <Body2 color="text.secondary">Phone Number:</Body2>
+                <Body2 fontWeight={500}>{selectedAttendee.phoneNumber}</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  Email:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  edgar.alamsjah@example.com
-                </Typography>
+                <Body2 color="text.secondary">Email:</Body2>
+                <Body2 fontWeight={500}>edgar.alamsjah@example.com</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  Event Date:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  25/12/2026
-                </Typography>
+                <Body2 color="text.secondary">Event Date:</Body2>
+                <Body2 fontWeight={500}>25/12/2026</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  Transaction Date:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  {selectedAttendee.date}
-                </Typography>
+                <Body2 color="text.secondary">Transaction Date:</Body2>
+                <Body2 fontWeight={500}>{selectedAttendee.date}</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                  Transaction ID:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: 'text.primary',
-                    fontWeight: 500
-                  }}
-                >
-                  1234567890
-                </Typography>
+                <Body2 color="text.secondary">Transaction ID:</Body2>
+                <Body2 fontWeight={500}>1234567890</Body2>
               </Box>
               <Box
                 sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.5 }}
