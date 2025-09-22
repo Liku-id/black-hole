@@ -15,7 +15,7 @@ import { StyledTextField } from '../text-field/StyledTextField';
 import { ErrorOutline } from '@mui/icons-material';
 
 interface SelectOption {
-  value: string;
+  value: any;
   label: string;
 }
 

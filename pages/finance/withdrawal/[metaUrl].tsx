@@ -5,19 +5,19 @@ import { useRouter } from 'next/router';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2 } from '@/components/common';
-import { WithdrawalForm } from '@/components/features/finance/withdrawal/withdrawal-form';
-import { useEvents } from '@/hooks';
+import { WithdrawalForm } from '@/components/features/finance/withdrawal/form';
+import { useEventDetail, useWithdrawalSummary } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 
 function WithdrawalDetail() {
   const router = useRouter();
-  const { eventId } = router.query as { eventId: string };
+  const { metaUrl } = router.query as { metaUrl: string };
 
-  const { events } = useEvents({
-    status: ['EVENT_STATUS_ON_GOING', 'EVENT_STATUS_DONE']
-  });
+  const { eventDetail } = useEventDetail(metaUrl);
 
-  const selectedEvent = events.find((event) => event.id === eventId);
+  const { summary, loading: summaryLoading } = useWithdrawalSummary(
+    eventDetail?.id
+  );
 
   return (
     <DashboardLayout>
@@ -43,13 +43,18 @@ function WithdrawalDetail() {
       {/* Title */}
       <Box mb={3}>
         <H2 color="text.primary" fontSize="28px" fontWeight={700}>
-          Withdrawal Event: {selectedEvent?.name || 'Loading...'}
+          Withdrawal Event: {eventDetail?.name || 'Loading...'}
         </H2>
       </Box>
 
       {/* Main Content */}
       <Box mb={3}>
-        <WithdrawalForm eventId={eventId} />
+        <WithdrawalForm
+          eventDetail={eventDetail}
+          eventId={eventDetail?.id || ''}
+          summary={summary}
+          summaryLoading={summaryLoading}
+        />
       </Box>
     </DashboardLayout>
   );

@@ -194,7 +194,6 @@ function EditEvent() {
         router.push(`/events/${metaUrl}`);
       }
     } catch (error) {
-      console.error('Error updating event:', error);
       setUpdateError(
         error instanceof Error
           ? error.message

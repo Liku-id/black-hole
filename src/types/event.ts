@@ -91,6 +91,8 @@ export interface Event {
   lowestPriceTicketType: TicketType;
   eventAssets: EventAsset[];
   eventCountByStatus: EventCountByStatus;
+  startDate: string;
+  endDate: string;
 }
 
 // Event Detail specific interfaces
