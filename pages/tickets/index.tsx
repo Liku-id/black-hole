@@ -73,13 +73,12 @@ function Tickets() {
   const attendeeData = transformTicketData(tickets);
 
   const handleScanTicket = () => {
-    if (!selectedEvent) {
-      // TODO: Show error message - no event selected
-      console.log('Please select an event first');
-      return;
-    }
-    // TODO: Implement ticket scanning functionality
-    console.log('Scanning ticket for event:', selectedEvent);
+    // Open scan ticket page in new tab - use different URLs based on environment
+    const scanTicketUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://wukong.co.id/ticket/auth' 
+      : 'https://staging-aws.wukong.co.id/ticket/auth';
+    
+    window.open(scanTicketUrl, '_blank');
   };
 
   const handleEventChange = (value: string) => {

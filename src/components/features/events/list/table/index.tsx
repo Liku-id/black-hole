@@ -5,9 +5,9 @@ import { FC } from 'react';
 
 import {
   Body2,
+  StyledTableBody,
   StyledTableContainer,
-  StyledTableHead,
-  StyledTableBody
+  StyledTableHead
 } from '@/components/common';
 import { Event } from '@/types/event';
 import { dateUtils } from '@/utils';

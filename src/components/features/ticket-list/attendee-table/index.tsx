@@ -13,8 +13,7 @@ import {
   MenuItem,
   Table,
   TableCell,
-  TableRow,
-  TextField
+  TableRow
 } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -24,6 +23,7 @@ import {
   StyledTableContainer,
   StyledTableHead
 } from '@/components/common/table';
+import { StyledTextField } from '@/components/common/text-field/StyledTextField';
 import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -205,7 +205,7 @@ export const AttendeeTable = ({
               Attendee Details
             </H4>
 
-            <TextField
+            <StyledTextField
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -222,21 +222,7 @@ export const AttendeeTable = ({
               sx={{
                 width: '300px',
                 '& .MuiOutlinedInput-root': {
-                  height: '40px',
-                  fontSize: '14px',
-                  '& fieldset': {
-                    borderColor: '#E2E8F0',
-                    borderRadius: '8px'
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main'
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main'
-                  }
-                },
-                '& .MuiInputBase-input': {
-                  py: 0
+                  height: '40px'
                 }
               }}
               value={searchQuery}
@@ -256,7 +242,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="60px"
+                    width="50px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       No
@@ -267,7 +253,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="120px"
+                    width="100px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Ticket ID
@@ -278,7 +264,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="180px"
+                    width="140px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Name
@@ -289,7 +275,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="120px"
+                    width="100px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Ticket Type
@@ -300,7 +286,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="150px"
+                    width="110px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Phone Number
@@ -311,7 +297,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="100px"
+                    width="80px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Date
@@ -322,7 +308,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="140px"
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Payment Method
@@ -333,7 +319,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="120px"
+                    width="100px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Redeem Status
@@ -344,7 +330,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="80px"
+                    width="60px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Action
@@ -439,7 +425,7 @@ export const AttendeeTable = ({
                             handleActionClick(e, attendee.ticketId)
                           }
                         >
-                          <Box display="flex" gap={0.5}>
+                          <Box display="flex" flexDirection="column" gap={0.5}>
                             <Box
                               sx={{
                                 width: 4,
