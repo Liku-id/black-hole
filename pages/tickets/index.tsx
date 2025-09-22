@@ -197,9 +197,6 @@ function Tickets() {
             <H3 color="text.secondary">
               Select an event to view attendee details
             </H3>
-            <Body2 color="text.secondary">
-              Choose an event from the dropdown above to see ticket information
-            </Body2>
           </Box>
         )}
       </Box>
