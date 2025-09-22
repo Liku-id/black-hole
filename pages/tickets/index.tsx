@@ -18,11 +18,12 @@ const transformTicketData = (tickets: Ticket[]) => {
     name: ticket.visitor_name || 'Unknown Visitor',
     ticketType: ticket.ticket_name || 'Standard',
     phoneNumber: '-', // Not available in current API response
-    date: ticket.created_at
-      ? new Date(ticket.created_at).toLocaleDateString('en-GB')
-      : new Date().toLocaleDateString('en-GB'),
+    date: ticket.created_at || new Date().toISOString(),
     paymentMethod: 'N/A', // Not available in current API response
-    redeemStatus: ticket.ticket_status || 'pending'
+    redeemStatus: ticket.ticket_status || 'pending',
+    email: undefined, // Not available in current API response
+    eventDate: ticket.issued_at || undefined,
+    transactionId: ticket.transaction_id
   }));
 };
 
@@ -61,6 +62,12 @@ function Tickets() {
     value: event.id,
     label: event.name
   }));
+
+  // Get selected event data for detailed information
+  const selectedEventData = useMemo(() => {
+    if (!selectedEvent) return null;
+    return events.find((event) => event.id === selectedEvent) || null;
+  }, [selectedEvent, events]);
 
   // Transform tickets for table
   const attendeeData = transformTicketData(tickets);
@@ -113,9 +120,7 @@ function Tickets() {
           }}
         >
           <CircularProgress size={40} />
-          <Body1 color="text.secondary">
-            Loading events...
-          </Body1>
+          <Body1 color="text.secondary">Loading events...</Body1>
         </Box>
       </DashboardLayout>
     );
@@ -138,12 +143,8 @@ function Tickets() {
             gap: 2
           }}
         >
-          <H3 color="error">
-            Failed to load events
-          </H3>
-          <Body2 color="text.secondary">
-            {eventsError}
-          </Body2>
+          <H3 color="error">Failed to load events</H3>
+          <Body2 color="text.secondary">{eventsError}</Body2>
         </Box>
       </DashboardLayout>
     );
@@ -172,6 +173,7 @@ function Tickets() {
             loading={ticketsLoading}
             pageSize={apiCurrentShow}
             searchQuery={searchQuery}
+            selectedEventData={selectedEventData}
             total={apiTotal}
             onPageChange={handlePageChange}
             onRedeemTicket={handleRedeemTicket}

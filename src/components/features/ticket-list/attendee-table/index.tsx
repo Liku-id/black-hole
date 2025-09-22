@@ -25,13 +25,15 @@ import {
   StyledTableHead
 } from '@/components/common/table';
 import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ticketsService } from '@/services';
 import { TicketStatus } from '@/types/ticket';
+import { dateUtils } from '@/utils';
 
 interface AttendeeData {
   no: number;
-  id: string; // Database ID for API calls
+  id: string;
   ticketId: string;
   name: string;
   ticketType: string;
@@ -39,6 +41,9 @@ interface AttendeeData {
   date: string;
   paymentMethod: string;
   redeemStatus: TicketStatus;
+  email?: string;
+  eventDate?: string;
+  transactionId?: string;
 }
 
 interface AttendeeTableProps {
@@ -52,6 +57,12 @@ interface AttendeeTableProps {
   pageSize?: number;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  selectedEventData?: {
+    id: string;
+    name: string;
+    startDate?: string;
+    endDate?: string;
+  } | null;
 }
 
 export const AttendeeTable = ({
@@ -63,7 +74,8 @@ export const AttendeeTable = ({
   total = 0,
   currentPage = 0,
   pageSize = 10,
-  onPageChange
+  onPageChange,
+  selectedEventData
   // onPageSizeChange // Not implemented in current design
 }: AttendeeTableProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -76,6 +88,7 @@ export const AttendeeTable = ({
   const [redeemLoading, setRedeemLoading] = useState(false);
 
   const { showSuccess, showError } = useToast();
+  const { user } = useAuth();
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -176,7 +189,7 @@ export const AttendeeTable = ({
 
   return (
     <>
-      <Card sx={{ mt: 3 }}>
+      <Card sx={{ mt: 3, p: 3 }}>
         <Box
           sx={{
             display: 'flex',
@@ -253,7 +266,9 @@ export const AttendeeTable = ({
                       width: '60px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>No</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      No
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -262,7 +277,9 @@ export const AttendeeTable = ({
                       width: '120px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Ticket ID</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Ticket ID
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -271,7 +288,9 @@ export const AttendeeTable = ({
                       width: '180px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Name</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Name
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -280,7 +299,9 @@ export const AttendeeTable = ({
                       width: '120px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Ticket Type</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Ticket Type
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -289,7 +310,9 @@ export const AttendeeTable = ({
                       width: '150px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Phone Number</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Phone Number
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -298,7 +321,9 @@ export const AttendeeTable = ({
                       width: '100px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Date</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Date
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -307,7 +332,9 @@ export const AttendeeTable = ({
                       width: '140px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Payment Method</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Payment Method
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -316,7 +343,9 @@ export const AttendeeTable = ({
                       width: '120px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Redeem Status</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Redeem Status
+                    </Body2>
                   </TableCell>
                   <TableCell
                     sx={{
@@ -325,7 +354,9 @@ export const AttendeeTable = ({
                       width: '80px'
                     }}
                   >
-                    <Body2 color="text.secondary" fontWeight={600}>Action</Body2>
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Action
+                    </Body2>
                   </TableCell>
                 </TableRow>
               </StyledTableHead>
@@ -384,7 +415,9 @@ export const AttendeeTable = ({
                         <Body2>{attendee.phoneNumber}</Body2>
                       </TableCell>
                       <TableCell>
-                        <Body2>{attendee.date}</Body2>
+                        <Body2>
+                          {dateUtils.formatDateDDMMYYYY(attendee.date)}
+                        </Body2>
                       </TableCell>
                       <TableCell>
                         <Body2>{attendee.paymentMethod}</Body2>
@@ -396,11 +429,13 @@ export const AttendeeTable = ({
                             px: 2,
                             py: 0.5,
                             borderRadius: '10px',
-                            backgroundColor: `${getStatusDisplay(attendee.redeemStatus).color}20`,
+                            backgroundColor: `${getStatusDisplay(attendee.redeemStatus).color}20`
                           }}
                         >
-                          <Caption 
-                            color={getStatusDisplay(attendee.redeemStatus).color}
+                          <Caption
+                            color={
+                              getStatusDisplay(attendee.redeemStatus).color
+                            }
                             fontWeight={600}
                           >
                             {getStatusDisplay(attendee.redeemStatus).text}
@@ -762,19 +797,27 @@ export const AttendeeTable = ({
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Body2 color="text.secondary">Email:</Body2>
-                <Body2 fontWeight={500}>edgar.alamsjah@example.com</Body2>
+                <Body2 fontWeight={500}>{user?.email || 'Not available'}</Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Body2 color="text.secondary">Event Date:</Body2>
-                <Body2 fontWeight={500}>25/12/2026</Body2>
+                <Body2 fontWeight={500}>
+                  {selectedEventData?.startDate
+                    ? dateUtils.formatDateDDMMYYYY(selectedEventData.startDate)
+                    : 'Not available'}
+                </Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Body2 color="text.secondary">Transaction Date:</Body2>
-                <Body2 fontWeight={500}>{selectedAttendee.date}</Body2>
+                <Body2 fontWeight={500}>
+                  {dateUtils.formatDateDDMMYYYY(selectedAttendee.date)}
+                </Body2>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Body2 color="text.secondary">Transaction ID:</Body2>
-                <Body2 fontWeight={500}>1234567890</Body2>
+                <Body2 fontWeight={500}>
+                  {selectedAttendee.transactionId || 'Not available'}
+                </Body2>
               </Box>
               <Box
                 sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.5 }}
