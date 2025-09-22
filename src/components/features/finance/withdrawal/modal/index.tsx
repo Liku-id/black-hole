@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import React from 'react';
 
-import { Body2, Button, Caption, Modal, Overline } from '@/components/common';
+import { Body2, Button, Modal, Overline } from '@/components/common';
 
 interface WithdrawalModalProps {
   open: boolean;

@@ -10,7 +10,7 @@ import SubmissionsTable from '@/components/features/events-submissions/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEventsSubmissions } from '@/hooks/features/events-submissions/useEventsSubmissions';
 import DashboardLayout from '@/layouts/dashboard';
-import { isEventOrganizer, User } from '@/types/auth';
+import { User } from '@/types/auth';
 import { EventSubmissionsFilters } from '@/types/events-submission';
 import { useDebouncedCallback } from '@/utils';
 
