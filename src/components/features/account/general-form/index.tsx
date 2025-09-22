@@ -92,6 +92,15 @@ const GeneralForm = ({
   mode = 'view',
   onCancel
 }: GeneralFormProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const {
+    updateOrganizer,
+    loading: updateLoading,
+    error: updateErrorState
+  } = useUpdateEventOrganizerGeneral();
+  const { mutate: refetchOrganizer } = useEventOrganizerMe();
+
   if (loading) {
     return (
       <Box
@@ -136,16 +145,6 @@ const GeneralForm = ({
 
   // Use provided organizerDetail if available, otherwise use fetched data
   const finalOrganizerDetail = organizerDetail || organizerDetailData;
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [updateError, setUpdateError] = useState<string | null>(null);
-  const {
-    updateOrganizer,
-    loading: updateLoading,
-    error: updateErrorState
-  } = useUpdateEventOrganizerGeneral();
-  const { mutate: refetchOrganizer } = useEventOrganizerMe();
-
 
   const handleCancel = () => {
     setIsEditing(false);
