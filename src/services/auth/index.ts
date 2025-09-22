@@ -66,55 +66,6 @@ class AuthService {
       throw error;
     }
   }
-
-  async updateEventOrganizerGeneral(
-    eoId: string,
-    data: {
-      name: string;
-      description: string;
-      social_media_url: string;
-      address: string;
-      asset_id: string;
-      organizer_type?: string;
-    }
-  ): Promise<any> {
-    try {
-      return await apiUtils.post(
-        `/api/event-organizers/${eoId}/general`,
-        data,
-        'Failed to update event organizer general information'
-      );
-    } catch (error) {
-      console.error('Update event organizer general error:', error);
-      throw error;
-    }
-  }
-
-  async updateEventOrganizerLegal(
-    eoId: string,
-    data: {
-      npwp_photo_id: string;
-      npwp_number: string;
-      npwp_address: string;
-      full_name: string;
-      ktp_photo_id?: string;
-      ktp_number?: string;
-      ktp_address?: string;
-      pic_name?: string;
-      pic_title?: string;
-    }
-  ): Promise<any> {
-    try {
-      return await apiUtils.post(
-        `/api/event-organizers/${eoId}/legal`,
-        data,
-        'Failed to update event organizer legal information'
-      );
-    } catch (error) {
-      console.error('Update event organizer legal error:', error);
-      throw error;
-    }
-  }
 }
 
 const authService = new AuthService();

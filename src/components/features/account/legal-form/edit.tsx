@@ -12,46 +12,52 @@ import {
 } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
 import { assetsService } from '@/services';
+import { stringUtils } from '@/utils';
+import { ConfirmationModal } from './confirmation-modal';
 
 interface LegalEditFormProps {
   eventOrganizer: EventOrganizer;
   onSubmit?: (data: any) => void;
-  onCancel?: () => void;
   error?: string | null;
   loading?: boolean;
 }
 
 interface FormData {
   npwp_number: string;
-  npwp_address: string;
   ktp_number: string;
   ktp_address: string;
-  full_name: string;
   pic_name: string;
   pic_title: string;
+  npwp_address: string;
+  full_name: string;
 }
 
 export const LegalEditForm = ({
   eventOrganizer,
   onSubmit,
-  onCancel,
   error,
   loading
 }: LegalEditFormProps) => {
   const [ktpPhotoId, setKtpPhotoId] = useState<string>('');
   const [npwpPhotoId, setNpwpPhotoId] = useState<string>('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [ktpFile, setKtpFile] = useState<File | null>(null);
+  const [npwpFile, setNpwpFile] = useState<File | null>(null);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [formData, setFormData] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const isIndividual = eventOrganizer.organizer_type === 'individual';
 
   const methods = useForm<FormData>({
     defaultValues: {
-      npwp_number: eventOrganizer.npwp || '',
-      npwp_address: eventOrganizer.npwp_address || '',
+      npwp_number: stringUtils.formatNpwpNumber(eventOrganizer.npwp || ''),
       ktp_number: eventOrganizer.nik || '',
       ktp_address: eventOrganizer.ktp_address || '',
-      full_name: eventOrganizer.full_name || '',
       pic_name: eventOrganizer.pic_name || '',
-      pic_title: eventOrganizer.pic_title || ''
+      pic_title: eventOrganizer.pic_title || '',
+      npwp_address: eventOrganizer.npwp_address || '',
+      full_name: eventOrganizer.full_name || ''
     }
   });
 
@@ -67,54 +73,172 @@ export const LegalEditForm = ({
     }
   }, [eventOrganizer]);
 
-  const handleKtpUpload = async (file: File) => {
-    try {
-      const response = await assetsService.uploadAsset(file);
-      setKtpPhotoId(response.body.asset.id);
-    } catch (error) {
-      console.error('Failed to upload KTP image:', error);
+  const handleKtpUpload = (file: File) => {
+    // Validate file size (max 1MB)
+    if (file.size > 1024 * 1024) {
+      setUploadError('File size must be less than 1MB');
+      return;
     }
+
+    setKtpFile(file);
+    setUploadError(null);
   };
 
-  const handleNpwpUpload = async (file: File) => {
-    try {
-      const response = await assetsService.uploadAsset(file);
-      setNpwpPhotoId(response.body.asset.id);
-    } catch (error) {
-      console.error('Failed to upload NPWP image:', error);
+  const handleNpwpUpload = (file: File) => {
+    // Validate file size (max 1MB)
+    if (file.size > 1024 * 1024) {
+      setUploadError('File size must be less than 1MB');
+      return;
     }
+
+    setNpwpFile(file);
+    setUploadError(null);
   };
 
   const handleKtpRemove = () => {
+    setKtpFile(null);
     setKtpPhotoId('');
   };
 
   const handleNpwpRemove = () => {
+    setNpwpFile(null);
     setNpwpPhotoId('');
   };
 
   const handleFormSubmit = async (data: FormData) => {
+    setUploadError(null);
+
+    // Early validation for individual organizer
+    if (isIndividual) {
+      // Required fields for individual
+      if (!data.npwp_number.trim()) {
+        setUploadError('NPWP number is required');
+        return;
+      }
+      if (!data.ktp_number.trim()) {
+        setUploadError('NIK number is required');
+        return;
+      }
+      if (!data.ktp_address.trim()) {
+        setUploadError('KTP address is required');
+        return;
+      }
+      if (!data.pic_name.trim()) {
+        setUploadError('PIC name is required');
+        return;
+      }
+      // PIC title is optional for individual
+      if (!npwpPhotoId && !npwpFile) {
+        setUploadError('NPWP photo is required');
+        return;
+      }
+      if (!ktpPhotoId && !ktpFile) {
+        setUploadError('KTP photo is required');
+        return;
+      }
+    } else {
+      // Required fields for institutional
+      if (!data.npwp_number.trim()) {
+        setUploadError('Company NPWP number is required');
+        return;
+      }
+      if (!data.npwp_address.trim()) {
+        setUploadError('Address as in NPWP is required');
+        return;
+      }
+      if (!data.full_name.trim()) {
+        setUploadError('Full name as in NPWP is required');
+        return;
+      }
+      if (!npwpPhotoId && !npwpFile) {
+        setUploadError('NPWP photo is required');
+        return;
+      }
+    }
+
+    // Store form data and show confirmation modal
+    setFormData(data);
+    setShowConfirmationModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!formData) return;
+
+    setUploadError(null);
+    setIsProcessing(true); // Start loading immediately
+
     try {
-      const payload: any = {
-        npwp_photo_id: npwpPhotoId,
-        npwp_number: data.npwp_number,
-        npwp_address: data.npwp_address,
-        full_name: data.full_name
+      let finalKtpPhotoId = ktpPhotoId;
+      let finalNpwpPhotoId = npwpPhotoId;
+
+      // Upload KTP file if new file is selected
+      if (ktpFile) {
+        try {
+          const ktpResponse = await assetsService.uploadAsset(ktpFile);
+          finalKtpPhotoId = ktpResponse.body.asset.id;
+        } catch (error) {
+          setUploadError('Failed to upload KTP image. Please try again.');
+          setShowConfirmationModal(false);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // Upload NPWP file if new file is selected
+      if (npwpFile) {
+        try {
+          const npwpResponse = await assetsService.uploadAsset(npwpFile);
+          finalNpwpPhotoId = npwpResponse.body.asset.id;
+        } catch (error) {
+          setUploadError('Failed to upload NPWP image. Please try again.');
+          setShowConfirmationModal(false);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // Create payload based on organizer type
+      let payload: any = {
+        npwp_photo_id: finalNpwpPhotoId,
+        npwp_number: formData.npwp_number // Send formatted NPWP number (99.999.999.9-999.999)
       };
 
       if (isIndividual) {
-        payload.ktp_photo_id = ktpPhotoId;
-        payload.ktp_number = data.ktp_number;
-        payload.ktp_address = data.ktp_address;
-        payload.pic_name = data.pic_name;
-        payload.pic_title = data.pic_title;
+        // Individual Creator - only send required fields
+        payload = {
+          npwp_photo_id: finalNpwpPhotoId,
+          npwp_number: formData.npwp_number,
+          ktp_photo_id: finalKtpPhotoId,
+          ktp_number: formData.ktp_number,
+          ktp_address: formData.ktp_address,
+          pic_name: formData.pic_name
+        };
+
+        // Only include pic_title if it has a value
+        if (formData.pic_title && formData.pic_title.trim()) {
+          payload.pic_title = formData.pic_title;
+        }
+      } else {
+        // Institutional Creator - only send required fields
+        payload = {
+          npwp_photo_id: finalNpwpPhotoId,
+          npwp_number: formData.npwp_number,
+          npwp_address: formData.npwp_address,
+          full_name: formData.full_name
+        };
       }
 
       if (onSubmit) {
-        onSubmit(payload);
+        await onSubmit(payload);
       }
+
+      setShowConfirmationModal(false);
+      setIsProcessing(false);
     } catch (error) {
       console.error('Failed to submit legal form:', error);
+      setUploadError('Failed to submit form. Please try again.');
+      setShowConfirmationModal(false);
+      setIsProcessing(false);
     }
   };
 
@@ -136,7 +260,7 @@ export const LegalEditForm = ({
               <Dropzone
                 accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
                 height="200px"
-                maxSize={2 * 1024 * 1024} // 2MB
+                maxSize={1024 * 1024} // 1MB
                 width="100%"
                 existingFileUrl={eventOrganizer.ktpPhoto?.url}
                 onFileSelect={handleKtpUpload}
@@ -161,6 +285,13 @@ export const LegalEditForm = ({
           </Grid>
         </Grid>
 
+        {/* Upload Error Display */}
+        {uploadError && (
+          <Box marginBottom={2}>
+            <Overline color="error.main">{uploadError}</Overline>
+          </Box>
+        )}
+
         {/* Form Fields Section */}
         <Grid container spacing={3}>
           {/* Left Grid */}
@@ -169,54 +300,59 @@ export const LegalEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label={isIndividual ? 'NPWP Number*' : 'Company NPWP Number*'}
+                  label="NPWP Number*"
                   name="npwp_number"
-                  placeholder={
-                    isIndividual
-                      ? '00.000.000.0-000.000'
-                      : '00.000.000.0-000.000'
-                  }
+                  placeholder="00.000.000.0-000.000"
+                  formatValue={stringUtils.formatNpwpNumber}
                   rules={{
                     required: 'NPWP number is required'
                   }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Address as in NPWP*"
-                  name="npwp_address"
-                  placeholder="Address as in NPWP"
-                  rules={{
-                    required: 'NPWP address is required'
-                  }}
-                />
-              </Grid>
-              {isIndividual && (
-                <>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="KTP Number*"
-                      name="ktp_number"
-                      placeholder="5651782373637846"
-                      rules={{
-                        required: 'KTP number is required'
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="KTP Address*"
-                      name="ktp_address"
-                      placeholder="KTP Address"
-                      rules={{
-                        required: 'KTP address is required'
-                      }}
-                    />
-                  </Grid>
-                </>
+
+              {isIndividual ? (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="NIK Number*"
+                    name="ktp_number"
+                    placeholder="5651782373637846"
+                    InputProps={{
+                      inputProps: {
+                        maxLength: 16,
+                        pattern: '[0-9]*',
+                        inputMode: 'numeric'
+                      }
+                    }}
+                    rules={{
+                      required: 'NIK number is required',
+                      pattern: {
+                        value: /^\d{16}$/,
+                        message: 'NIK must be exactly 16 digits'
+                      },
+                      minLength: {
+                        value: 16,
+                        message: 'NIK must be exactly 16 digits'
+                      },
+                      maxLength: {
+                        value: 16,
+                        message: 'NIK must be exactly 16 digits'
+                      }
+                    }}
+                  />
+                </Grid>
+              ) : (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Address as in NPWP*"
+                    name="npwp_address"
+                    placeholder="Address as in NPWP"
+                    rules={{
+                      required: 'Address as in NPWP is required'
+                    }}
+                  />
+                </Grid>
               )}
             </Grid>
           </Grid>
@@ -224,33 +360,52 @@ export const LegalEditForm = ({
           {/* Right Grid */}
           <Grid item md={6} xs={12}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Full Name as in NPWP*"
-                  name="full_name"
-                  placeholder="Full Name as in NPWP"
-                  rules={{
-                    required: 'Full name is required'
-                  }}
-                />
-              </Grid>
-              {isIndividual && (
+              {isIndividual ? (
                 <>
+                  {/* Individual Creator Fields */}
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
                       label="PIC Full Name*"
                       name="pic_name"
                       placeholder="PIC Full Name"
+                      rules={{
+                        required: 'PIC Full Name is required'
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="PIC Title*"
+                      label="PIC KTP Address*"
+                      name="ktp_address"
+                      placeholder="PIC KTP Address"
+                      rules={{
+                        required: 'PIC KTP Address is required'
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="PIC Title"
                       name="pic_title"
-                      placeholder="PIC Title"
+                      placeholder="PIC Title (Optional)"
+                    />
+                  </Grid>
+                </>
+              ) : (
+                <>
+                  {/* Institutional Creator Fields */}
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Full Name as in NPWP*"
+                      name="full_name"
+                      placeholder="Full Name as in NPWP"
+                      rules={{
+                        required: 'Full Name as in NPWP is required'
+                      }}
                     />
                   </Grid>
                 </>
@@ -268,15 +423,31 @@ export const LegalEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
-            <Button type="button" variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" disabled={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={
+                loading ||
+                (!npwpPhotoId && !npwpFile) ||
+                (isIndividual && !ktpPhotoId && !ktpFile)
+              }
+            >
               {loading ? 'Updating...' : 'Save Legal Document'}
             </Button>
           </Box>
         </Box>
       </form>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        open={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        onConfirm={handleConfirmSubmit}
+        title="Confirm!"
+        declaration="I hereby declare that all information provided in the attached documents is true and accurate. Should any error, fraud, or falsification be discovered and/or proven, PT. Aku Rela Kamu Bahagia shall be released from any liability or consequences arising from the use of such data or documents."
+        confirmButtonText="Confirm and Save"
+        loading={isProcessing || loading}
+      />
     </FormProvider>
   );
 };

@@ -51,9 +51,8 @@ export const CreatorTypeModal = ({
       <Box
         sx={{
           backgroundColor: 'white',
-          borderRadius: 2,
           padding: 3,
-          width: '90%',
+          width: '445px',
           maxWidth: 600,
           position: 'relative'
         }}
@@ -80,19 +79,18 @@ export const CreatorTypeModal = ({
               key={type.value}
               sx={{
                 flex: 1,
-                border:
+                border: '1px solid',
+
+                borderColor:
                   selectedType === type.value
-                    ? '2px solid #1976d2'
-                    : '1px solid #e0e0e0',
-                borderRadius: 2,
-                padding: 3,
+                    ? 'primary.main'
+                    : 'text.secondary',
+                padding: 2,
                 cursor: 'pointer',
-                backgroundColor:
-                  selectedType === type.value ? '#f3f8ff' : 'white',
                 transition: 'all 0.2s ease-in-out',
                 '&:hover': {
-                  borderColor: '#1976d2',
-                  backgroundColor: '#f3f8ff'
+                  borderColor: 'primary.main',
+                  backgroundColor: 'background.default'
                 }
               }}
               onClick={() => setSelectedType(type.value)}
@@ -103,9 +101,9 @@ export const CreatorTypeModal = ({
                   checked={selectedType === type.value}
                   onChange={() => setSelectedType(type.value)}
                   sx={{
-                    color: '#1976d2',
+                    color: 'text.secondary',
                     '&.Mui-checked': {
-                      color: '#1976d2'
+                      color: 'primary.main'
                     }
                   }}
                 />

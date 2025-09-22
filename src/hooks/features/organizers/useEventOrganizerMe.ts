@@ -1,10 +1,10 @@
-import { authService } from '@/services';
+import { eventOrganizerService } from '@/services/event-organizer';
 import { EventOrganizer } from '@/types/organizer';
 
 import { useApi } from '../../useApi';
 
 interface UseEventOrganizerMeReturn {
-  eventOrganizer: EventOrganizer | null;
+  data: EventOrganizer | null;
   loading: boolean;
   error: string | null;
   mutate: () => void;
@@ -13,11 +13,11 @@ interface UseEventOrganizerMeReturn {
 const useEventOrganizerMe = (): UseEventOrganizerMeReturn => {
   const { data, loading, error, mutate } = useApi(
     ['/api/event-organizers/me'],
-    () => authService.getEventOrganizerMe()
+    () => eventOrganizerService.getEventOrganizerMe()
   );
 
   return {
-    eventOrganizer: data?.body || null,
+    data: data?.body || null,
     loading,
     error,
     mutate

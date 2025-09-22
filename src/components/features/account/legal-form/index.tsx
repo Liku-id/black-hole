@@ -6,7 +6,7 @@ import { Body2 } from '@/components/common';
 
 import { EventOrganizer } from '@/types/organizer';
 
-import { useUpdateEventOrganizerLegal } from '@/hooks';
+import { useUpdateEventOrganizerLegal } from '@/hooks/features/organizers/useUpdateEventOrganizerLegal';
 
 import { LegalFormDetailInfo } from './detail';
 import { LegalEditForm } from './edit';
@@ -16,7 +16,7 @@ interface LegalFormProps {
   loading?: boolean;
   error?: string | null;
   mode?: 'view' | 'edit';
-  onCancel?: () => void;
+  onRefresh?: () => void;
 }
 
 const LegalForm = ({
@@ -24,23 +24,24 @@ const LegalForm = ({
   loading,
   mode,
   error,
-  onCancel
+  onRefresh
 }: LegalFormProps) => {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const {
-    updateLegal,
-    loading: updateLoading,
+    mutate: updateLegal,
+    isPending: updateLoading,
     error: updateErrorState
   } = useUpdateEventOrganizerLegal();
 
   const handleSubmit = async (data: any) => {
     try {
       if (eventOrganizer?.id) {
-        await updateLegal(eventOrganizer.id, data);
+        await updateLegal({
+          eoId: eventOrganizer.id,
+          payload: data
+        });
         setUpdateError(null);
-        if (onCancel) {
-          onCancel();
-        }
+        onRefresh && onRefresh();
       }
     } catch (err) {
       setUpdateError(
@@ -102,7 +103,6 @@ const LegalForm = ({
         eventOrganizer={eventOrganizer}
         error={updateError || updateErrorState}
         loading={updateLoading}
-        onCancel={onCancel}
         onSubmit={handleSubmit}
       />
     );

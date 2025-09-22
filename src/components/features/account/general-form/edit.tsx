@@ -28,7 +28,6 @@ interface FormData {
 interface OrganizerEditFormProps {
   eventOrganizer: EventOrganizer;
   onSubmit?: (data: any) => void;
-  onCancel?: () => void;
   error?: string;
   loading?: boolean;
 }
@@ -68,7 +67,6 @@ const convertEventOrganizerToForm = (
 export const OrganizerEditForm = ({
   eventOrganizer,
   onSubmit,
-  onCancel,
   error,
   loading = false
 }: OrganizerEditFormProps) => {
@@ -92,6 +90,9 @@ export const OrganizerEditForm = ({
 
   const { watch, setValue, handleSubmit } = methods;
   const watchedProfilePicture = watch('profilePicture');
+  const watchedTiktok = watch('tiktok');
+  const watchedInstagram = watch('instagram');
+  const watchedTwitter = watch('twitter');
 
   // Initialize form with organizer data
   useEffect(() => {
@@ -258,7 +259,7 @@ export const OrganizerEditForm = ({
               <Grid item xs={12}>
                 <Box>
                   <Body2 color="text.primary" mb={1}>
-                    Social Media
+                    Social Media*
                   </Body2>
 
                   {/* TikTok */}
@@ -279,14 +280,16 @@ export const OrganizerEditForm = ({
                         </Box>
                       }
                       endComponent={
-                        <IconButton onClick={() => setValue('tiktok', '')}>
-                          <Image
-                            src="/icon/trash.svg"
-                            alt="trash icon"
-                            width={20}
-                            height={20}
-                          />
-                        </IconButton>
+                        watchedTiktok && watchedTiktok.trim() ? (
+                          <IconButton onClick={() => setValue('tiktok', '')}>
+                            <Image
+                              src="/icon/trash.svg"
+                              alt="trash icon"
+                              width={20}
+                              height={20}
+                            />
+                          </IconButton>
+                        ) : null
                       }
                     />
                   </Box>
@@ -309,14 +312,16 @@ export const OrganizerEditForm = ({
                         </Box>
                       }
                       endComponent={
-                        <IconButton onClick={() => setValue('instagram', '')}>
-                          <Image
-                            src="/icon/trash.svg"
-                            alt="trash icon"
-                            width={20}
-                            height={20}
-                          />
-                        </IconButton>
+                        watchedInstagram && watchedInstagram.trim() ? (
+                          <IconButton onClick={() => setValue('instagram', '')}>
+                            <Image
+                              src="/icon/trash.svg"
+                              alt="trash icon"
+                              width={20}
+                              height={20}
+                            />
+                          </IconButton>
+                        ) : null
                       }
                     />
                   </Box>
@@ -339,14 +344,16 @@ export const OrganizerEditForm = ({
                         </Box>
                       }
                       endComponent={
-                        <IconButton onClick={() => setValue('twitter', '')}>
-                          <Image
-                            src="/icon/trash.svg"
-                            alt="trash icon"
-                            width={20}
-                            height={20}
-                          />
-                        </IconButton>
+                        watchedTwitter && watchedTwitter.trim() ? (
+                          <IconButton onClick={() => setValue('twitter', '')}>
+                            <Image
+                              src="/icon/trash.svg"
+                              alt="trash icon"
+                              width={20}
+                              height={20}
+                            />
+                          </IconButton>
+                        ) : null
                       }
                     />
                   </Box>
@@ -391,7 +398,7 @@ export const OrganizerEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Address"
+                  label="Address*"
                   name="address"
                   placeholder="Your address"
                   rules={{
@@ -403,9 +410,12 @@ export const OrganizerEditForm = ({
               {/* Profile Picture */}
               <Grid item xs={12}>
                 <Box>
-                  <Body2 color="text.primary" mb={1}>
-                    Profile Picture
-                  </Body2>
+                  <Box display="flex" alignItems="center" gap={1} mb={1}>
+                    <Body2 color="text.primary">Profile Picture* </Body2>
+                    <Overline sx={{ color: 'text.secondary' }}>
+                      This will use as a creator logo
+                    </Overline>
+                  </Box>
 
                   <Box
                     border="1px solid"
@@ -456,11 +466,9 @@ export const OrganizerEditForm = ({
                   </Box>
 
                   {imagePreview && (
-                    <Image
+                    <img
                       src={imagePreview}
                       alt="Profile preview"
-                      width={84}
-                      height={84}
                       style={{
                         maxHeight: '100px',
                         height: 'auto',
@@ -487,9 +495,6 @@ export const OrganizerEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
-            <Button type="button" variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
             <Button
               type="submit"
               variant="primary"

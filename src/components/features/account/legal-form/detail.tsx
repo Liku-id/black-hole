@@ -134,7 +134,7 @@ export const LegalFormDetailInfo = ({
       <Grid container spacing={3} mb={3}>
         <Grid item md={6} xs={12}>
           <DocumentImage
-            title={isIndividual ? 'KTP Image' : 'NPWP Image'}
+            title={isIndividual ? 'KTP Image*' : 'NPWP Image*'}
             asset={
               isIndividual
                 ? organizerDetail.ktpPhoto
@@ -146,7 +146,7 @@ export const LegalFormDetailInfo = ({
         {isIndividual && (
           <Grid item md={6} xs={12}>
             <DocumentImage
-              title="NPWP Image"
+              title="NPWP Image*"
               asset={organizerDetail.npwpPhoto}
               alt="NPWP Document"
             />
@@ -209,6 +209,12 @@ export const LegalFormDetailInfo = ({
                   <OrganizerField
                     label="PIC KTP Address*"
                     value={organizerDetail.ktp_address || '-'}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="PIC Title"
+                    value={organizerDetail.pic_title || '-'}
                   />
                 </Grid>
               </>

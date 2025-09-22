@@ -60,11 +60,6 @@ export default async function handler(
       ...(organizer_type && { organizer_type })
     };
 
-    console.log('Updating event organizer general info:', {
-      eo_id,
-      payload
-    });
-
     // Call the backend endpoint
     const response = await fetch(
       `${process.env.BACKEND_URL}/event-organizers/${eo_id}/general`,

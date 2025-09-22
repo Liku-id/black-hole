@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Box, Grid } from '@mui/material';
 
-import { Body2 } from '@/components/common';
+import { Body2, Overline } from '@/components/common';
 
 interface SocialMedia {
   platform: string;
@@ -84,9 +84,12 @@ const ProfilePictureField = ({
   pictName?: string;
 }) => (
   <Box>
-    <Body2 color="text.primary" mb={1}>
-      Profile Picture{' '}
-    </Body2>
+    <Box display="flex" alignItems="center" gap={1} mb={1}>
+      <Body2 color="text.primary">Profile Picture* </Body2>
+      <Overline sx={{ color: 'text.secondary' }}>
+        This will use as a creator logo
+      </Overline>
+    </Box>
     <Box
       border="1px solid"
       borderColor="primary.main"
@@ -99,11 +102,9 @@ const ProfilePictureField = ({
       </Body2>
     </Box>
     {profilePicture && (
-      <Image
+      <img
         src={profilePicture}
         alt="Profile Picture"
-        width={84}
-        height={84}
         style={{
           maxHeight: '100px',
           height: 'auto',
@@ -136,8 +137,12 @@ export const OrganizerDetailInfo = ({
             <Grid item xs={12}>
               <OrganizerField
                 label="Phone Number*"
-                value={organizerDetail.phoneNumber}
-                icon={<Body2>+62</Body2>}
+                value={organizerDetail.phoneNumber?.slice(3) || ''}
+                icon={
+                  <Body2>
+                    {organizerDetail.phoneNumber?.slice(0, 3) || '+62'}
+                  </Body2>
+                }
               />
             </Grid>
             <Grid item xs={12}>
@@ -149,7 +154,7 @@ export const OrganizerDetailInfo = ({
                     mb={index < organizerDetail.socialMedia.length - 1 ? 1 : 0}
                   >
                     <OrganizerField
-                      label={index === 0 ? 'Social Media' : ''}
+                      label={index === 0 ? 'Social Media*' : ''}
                       value={social.url}
                       icon={
                         <Image
@@ -164,14 +169,14 @@ export const OrganizerDetailInfo = ({
                 ))
               ) : (
                 <OrganizerField
-                  label="Social Media"
+                  label="Social Media*"
                   value="No social media links"
                 />
               )}
             </Grid>
             <Grid item xs={12}>
               <OrganizerField
-                label="About Organizer"
+                label="About Organizer*"
                 value={organizerDetail.aboutOrganizer}
                 isTextArea
               />
@@ -189,7 +194,10 @@ export const OrganizerDetailInfo = ({
               />
             </Grid>
             <Grid item xs={12}>
-              <OrganizerField label="Address" value={organizerDetail.address} />
+              <OrganizerField
+                label="Address*"
+                value={organizerDetail.address}
+              />
             </Grid>
             <Grid item xs={12}>
               <ProfilePictureField
