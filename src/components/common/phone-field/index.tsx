@@ -59,14 +59,6 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
   // Local state for display value (what user sees)
   const [displayValue, setDisplayValue] = useState<string>('');
 
-  // Handle country code change
-  const handleCountryCodeChange = (newCountryCode: string) => {
-    setSelectedCountryCode(newCountryCode);
-    // Update the form value with new country code only if there's input
-    const combinedValue = displayValue ? newCountryCode + displayValue : '';
-    setValue(name, combinedValue);
-  };
-
   // Handle phone number input change
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;

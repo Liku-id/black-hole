@@ -10,7 +10,7 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { Event } from '@/types/event';
-import { dateUtils, formatPrice } from '@/utils';
+import { dateUtils } from '@/utils';
 
 interface EventsTableProps {
   events: Event[];

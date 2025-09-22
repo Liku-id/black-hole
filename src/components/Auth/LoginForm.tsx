@@ -1,18 +1,11 @@
-import {
-  Alert,
-  alpha,
-  Box,
-  Card,
-  CardContent,
-  CircularProgress,
-  styled
-} from '@mui/material';
+import { alpha, Box, Card, CardContent, styled } from '@mui/material';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Image from 'next/image';
 
 import { TextField, Button, H2, Body2, Caption } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
+import { validationUtils } from '@/utils';
 
 const LoginCard = styled(Card)(
   ({ theme }) => `
@@ -35,11 +28,6 @@ const LogoWrapper = styled(Box)(
     margin-bottom: ${theme.spacing(3)};
 `
 );
-
-export const email = (value: string) =>
-  value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)
-    ? 'Invalid email format'
-    : undefined;
 
 interface LoginFormData {
   email: string;
@@ -68,7 +56,6 @@ const LoginForm: React.FC = () => {
       await login(data);
     } catch (err) {
       console.error('Login error:', err);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -106,7 +93,7 @@ const LoginForm: React.FC = () => {
                   placeholder="Email Address"
                   rules={{
                     required: 'Email is required',
-                    validate: email
+                    validate: validationUtils.emailValidator
                   }}
                   type="email"
                 />
@@ -121,9 +108,12 @@ const LoginForm: React.FC = () => {
                   placeholder="Password"
                   rules={{
                     required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
+                    validate: (value: string) => {
+                      if (!value) return undefined;
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return undefined;
                     }
                   }}
                   type="password"
@@ -131,39 +121,22 @@ const LoginForm: React.FC = () => {
               </Box>
 
               {error && (
-                <Box mb={3}>
-                  <Alert
-                    severity="error"
-                    sx={{
-                      borderRadius: 8,
-                      '& .MuiAlert-message': {
-                        fontSize: 14,
-                        fontWeight: 500
-                      }
-                    }}
-                  >
-                    {error}
-                  </Alert>
+                <Box
+                  mb={3}
+                  borderRadius={0}
+                  fontSize="14px"
+                  width="100%"
+                  color="error.main"
+                  bgcolor="error.light"
+                  p={2}
+                  textAlign="center"
+                >
+                  {error}
                 </Box>
               )}
 
-              <Button
-                disabled={isFormDisabled}
-                sx={{ width: '100%', height: '48px' }}
-                type="submit"
-              >
-                {isFormDisabled ? (
-                  <>
-                    <CircularProgress
-                      color="inherit"
-                      size={20}
-                      sx={{ mr: 1 }}
-                    />
-                    Signing In...
-                  </>
-                ) : (
-                  'Sign In'
-                )}
+              <Button fullWidth disabled={isFormDisabled} type="submit">
+                Sign In
               </Button>
             </form>
           </FormProvider>

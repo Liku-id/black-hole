@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Checkbox,
-  CircularProgress,
   FormControlLabel,
   Grid,
   styled
@@ -12,6 +11,7 @@ import {
 import React, { useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import {
   TextField,
@@ -176,9 +176,20 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
               <Grid container spacing={3}>
                 {/* Left Column */}
                 <Grid item xs={12} md={6}>
+                  {/* Address */}
+                  <Box mb={3}>
+                    <TextField
+                      fullWidth
+                      name="address"
+                      label="Address *"
+                      placeholder="Address"
+                      rules={{ required: 'Address is required' }}
+                    />
+                  </Box>
+
                   {/* Social Media */}
                   <Box mb={3}>
-                    <Body2 color="text.primary" mb={2} display="block">
+                    <Body2 color="text.primary" mb={1} display="block">
                       Social media *
                     </Body2>
                     {methods.formState.errors.socialMedia && (
@@ -194,81 +205,52 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                         gap={1}
                         width="100%"
                       >
-                        <Box
-                          sx={{
-                            position: 'relative',
-                            width: '100%'
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              left: 16,
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              zIndex: 1,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 24,
-                              height: 24
-                            }}
-                          >
-                            <Image
-                              src={link.icon}
-                              alt={link.platform}
-                              width={24}
-                              height={24}
-                            />
-                          </Box>
-                          <input
-                            type="text"
-                            placeholder="Link Profile Account"
-                            value={link.url}
-                            onChange={(e) =>
-                              handleSocialMediaChange(index, e.target.value)
-                            }
-                            style={{
-                              width: '100%',
-                              height: '44px',
-                              padding: '11px 16px 11px 48px',
-                              border: '1px solid #E0E0E0',
-                              borderRadius: '4px',
-                              fontSize: '14px',
-                              fontFamily: '"Onest", sans-serif',
-                              outline: 'none',
-                              transition: 'all 0.2s ease-in-out'
-                            }}
-                            onFocus={(e) => {
-                              e.target.style.borderColor = '#1976d2';
-                              e.target.style.backgroundColor = '#fafafa';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.borderColor = '#E0E0E0';
-                              e.target.style.backgroundColor = '#ffffff';
-                            }}
-                          />
-                          {link.url !== '' && (
-                            <Box
-                              sx={{
-                                position: 'absolute',
-                                right: 16,
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                cursor: 'pointer',
-                                zIndex: 1
-                              }}
-                              onClick={() => removeSocialMediaLink(index)}
-                            >
-                              <Image
-                                src="/icon/trash.svg"
-                                alt="Delete"
+                        <TextField
+                          fullWidth
+                          placeholder="Link Profile Account"
+                          value={link.url}
+                          onChange={(e) =>
+                            handleSocialMediaChange(index, e.target.value)
+                          }
+                          InputProps={{
+                            startAdornment: (
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
                                 width={24}
                                 height={24}
-                              />
-                            </Box>
-                          )}
-                        </Box>
+                                mr={1}
+                              >
+                                <Image
+                                  src={link.icon}
+                                  alt={link.platform}
+                                  width={24}
+                                  height={24}
+                                />
+                              </Box>
+                            ),
+                            endAdornment: link.url !== '' && (
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                                width={24}
+                                height={24}
+                                ml={1}
+                                sx={{ cursor: 'pointer' }}
+                                onClick={() => removeSocialMediaLink(index)}
+                              >
+                                <Image
+                                  src="/icon/trash.svg"
+                                  alt="Delete"
+                                  width={24}
+                                  height={24}
+                                />
+                              </Box>
+                            )
+                          }}
+                        />
                       </Box>
                     ))}
                   </Box>
@@ -276,25 +258,10 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
 
                 {/* Right Column */}
                 <Grid item xs={12} md={6}>
-                  {/* Address */}
-                  <Box mb={3}>
-                    <Body2 color="text.primary" mb={1} display="block">
-                      Address *
-                    </Body2>
-                    <TextField
-                      fullWidth
-                      name="address"
-                      placeholder="Address"
-                      rules={{ required: 'Address is required' }}
-                    />
-                  </Box>
-
                   {/* About Organizer */}
                   <Box mb={3}>
-                    <Body2 color="text.primary" mb={2} display="block">
-                      About Organizer *
-                    </Body2>
                     <TextArea
+                      label="About Organizer *"
                       fullWidth
                       name="aboutOrganizer"
                       placeholder="Max 1000 Characters"
@@ -302,6 +269,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                         required: 'About organizer is required'
                       }}
                       maxLength={1000}
+                      height="260px"
                     />
                   </Box>
                 </Grid>
@@ -311,12 +279,10 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
               <Box
                 mt={4}
                 mb={4}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
               >
                 <FormControlLabel
                   sx={{ m: '0px' }}
@@ -343,32 +309,38 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                       flexWrap="wrap"
                       alignItems="center"
                       gap={0.5}
-                      sx={{
-                        maxWidth: '315px'
-                      }}
+                      maxWidth="315px"
                     >
                       <Caption color="text.primary">I agree to the </Caption>
-                      <Caption
-                        color="primary.main"
-                        sx={{
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          fontWeight: 500
-                        }}
+                      <Link
+                        href="/terms-and-conditions"
+                        target="_blank"
+                        passHref
                       >
-                        terms and conditions
-                      </Caption>
+                        <Caption
+                          color="primary.main"
+                          fontWeight={500}
+                          sx={{
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          terms and conditions
+                        </Caption>
+                      </Link>
                       <Caption color="text.primary"> and </Caption>
-                      <Caption
-                        color="primary.main"
-                        sx={{
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          fontWeight: 500
-                        }}
-                      >
-                        privacy policy
-                      </Caption>
+                      <Link href="/privacy-policy" target="_blank" passHref>
+                        <Caption
+                          color="primary.main"
+                          fontWeight={500}
+                          sx={{
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          privacy policy
+                        </Caption>
+                      </Link>
                       <Caption color="text.primary">
                         applicable at Wukong
                       </Caption>
@@ -398,18 +370,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                 }}
                 type="submit"
               >
-                {isLoading ? (
-                  <>
-                    <CircularProgress
-                      color="inherit"
-                      size={20}
-                      sx={{ mr: 1 }}
-                    />
-                    Processing...
-                  </>
-                ) : (
-                  'Sign Up'
-                )}
+                {isLoading ? 'Processing...' : 'Sign Up'}
               </Button>
             </form>
           </FormProvider>

@@ -24,8 +24,12 @@ interface TicketFormData {
   salesEndTimeZone: string;
   ticketStartDate: string;
   ticketStartRawDate: string;
+  ticketStartTime: string;
+  ticketStartTimeZone: string;
   ticketEndDate: string;
   ticketEndRawDate: string;
+  ticketEndTime: string;
+  ticketEndTimeZone: string;
 }
 
 interface TicketCategory {

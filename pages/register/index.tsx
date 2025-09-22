@@ -22,7 +22,7 @@ const Register: NextPage = () => {
   const [otpExpiredIn, setOtpExpiredIn] = useState(300);
 
   const router = useRouter();
-  const { showSuccess, showError } = useToast();
+  const { showInfo, showError } = useToast();
 
   const handleBasicInfoSubmit = (data: RegisterRequest) => {
     setRegistrationData(data);
@@ -35,14 +35,13 @@ const Register: NextPage = () => {
       setIsLoading(true);
       setProfileData(data);
 
-      // Request OTP when moving to OTP step
       const otpResponse = await registerService.requestOTP({
         phoneNumber: phoneNumber
       });
 
       setOtpExpiredIn(otpResponse.expiredIn);
       setActiveStep(2);
-      showSuccess('OTP sent successfully!');
+      showInfo('OTP sent successfully!');
     } catch (error) {
       console.error('OTP request failed:', error);
       const errorMessage =
@@ -57,14 +56,12 @@ const Register: NextPage = () => {
     try {
       setIsLoading(true);
 
-      // Verify OTP
       const otpResponse = await registerService.verifyOTP({
         phoneNumber,
         code: otp
       });
 
       if (otpResponse.success) {
-        // Create event organizer without profile picture
         const socialMediaUrl = JSON.stringify(
           profileData!.socialMedia.reduce(
             (acc, link) => {
@@ -77,7 +74,6 @@ const Register: NextPage = () => {
           )
         );
 
-        // Pastikan asset_id disertakan sesuai kebutuhan tipe CreateEventOrganizerRequest
         await registerService.createEventOrganizer({
           name: registrationData!.organizerName,
           email: registrationData!.email,
@@ -87,22 +83,15 @@ const Register: NextPage = () => {
           address: profileData!.address,
           description: profileData!.aboutOrganizer
         });
-
-        showSuccess('Registrasi berhasil diselesaikan!');
-
-        // Redirect ke login setelah registrasi berhasil
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
+        showInfo('Registrasi berhasil diselesaikan!');
+        router.push('/login');
       }
     } catch (error) {
-      console.error('Registration failed:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'Registration failed';
       showError(errorMessage);
-      setIsLoading(false); // Only stop loading on error
+      setIsLoading(false);
     }
-    // Note: Loading state continues until redirect happens
   };
 
   const handleResendOTP = async () => {
@@ -112,9 +101,8 @@ const Register: NextPage = () => {
         phoneNumber
       });
       setOtpExpiredIn(otpResponse.expiredIn);
-      showSuccess('OTP resent successfully!');
+      showInfo('OTP resent successfully!');
     } catch (error) {
-      console.error('Failed to resend OTP:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to resend OTP';
       showError(errorMessage);
@@ -151,17 +139,13 @@ const Register: NextPage = () => {
 
   return (
     <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'primary.dark',
-        py: 3
-      }}
+      minHeight={'100vh'}
+      display={'flex'}
+      alignItems={'center'}
+      justifyContent={'center'}
+      p={3}
+      bgcolor={'primary.dark'}
     >
-      {/* Step Content */}
       <Container maxWidth="lg">{renderStepContent()}</Container>
     </Box>
   );

@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   CardContent,
-  CircularProgress,
   styled
 } from '@mui/material';
 import React, { useState } from 'react';
@@ -266,15 +265,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     InputProps={{
                       endAdornment: (
                         <Box
+                          display="flex"
+                          alignItems="center"
+                          mr={1}
                           component="span"
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
                           sx={{
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            mr: 1
+                            cursor: 'pointer'
                           }}
                         >
                           <Image
@@ -303,18 +302,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   }}
                   type="submit"
                 >
-                  {isFormDisabled ? (
-                    <>
-                      <CircularProgress
-                        color="inherit"
-                        size={20}
-                        sx={{ mr: 1 }}
-                      />
-                      Checking Credential...
-                    </>
-                  ) : (
-                    'Continue'
-                  )}
+                  {isFormDisabled ? 'Loading...' : 'Continue'}
                 </Button>
               </form>
             </FormProvider>

@@ -10,12 +10,14 @@ export const apiUtils = {
   clearExpiredSession: async (): Promise<void> => {
     try {
       await axios.post('/api/auth/clear-session');
-      // Reload the page to trigger auth context update
-      window.location.reload();
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     } catch (error) {
       console.error('Failed to clear expired session:', error);
-      // Force reload anyway
-      window.location.reload();
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
   },
 
@@ -55,9 +57,15 @@ export const apiUtils = {
 
       // Check if it's an authentication error
       if (status === 401) {
-        // Clear session when auth expires
-        apiUtils.clearExpiredSession();
-        errorMessage = 'Session expired. Please log in again.';
+        // Check if it's a login attempt (login endpoint) or session expired
+        if (error.config?.url?.includes('/api/auth/login')) {
+          if (data && typeof data === 'object' && (data as any).message) {
+            errorMessage = (data as any).message;
+          }
+        } else {
+          apiUtils.clearExpiredSession();
+          errorMessage = 'Session expired. Please log in again.';
+        }
       } else if (data && typeof data === 'object') {
         const errorData = data as any;
         if (errorData.message) {

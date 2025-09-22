@@ -17,23 +17,16 @@ function LoginPage() {
       </Head>
 
       <Box
+        minHeight={'100vh'}
+        display={'flex'}
+        alignItems={'center'}
+        justifyContent={'center'}
+        p={3}
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: 'primary.dark',
-          p: 3
+          bgcolor: 'primary.dark'
         }}
       >
-        <Container
-          maxWidth="sm"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
+        <Container maxWidth="sm">
           <LoginForm />
         </Container>
       </Box>

@@ -15,13 +15,18 @@ interface CustomTextAreaProps extends Omit<TextFieldProps, 'variant'> {
   error?: boolean;
   maxLength?: number;
   isRejected?: boolean;
+  height?: string | number;
 }
 
-const getTextAreaStyles = (value: unknown, theme: any) => {
+const getTextAreaStyles = (
+  value: unknown,
+  theme: any,
+  height: string | number = '182px'
+) => {
   const hasValue = value && typeof value === 'string' && value.trim() !== '';
   return {
     '& .MuiOutlinedInput-root': {
-      height: '182px',
+      height: height,
       alignItems: 'flex-start',
       overflowY: 'auto',
       backgroundColor: hasValue
@@ -48,7 +53,7 @@ const getTextAreaStyles = (value: unknown, theme: any) => {
 };
 
 export const CustomTextArea = (props: CustomTextAreaProps) => {
-  const { label, name, rules, error, maxLength, ...otherProps } = props;
+  const { label, name, rules, error, maxLength, height, ...otherProps } = props;
 
   // If name is provided, use React Hook Form
   if (name) {
@@ -68,7 +73,7 @@ export const CustomTextArea = (props: CustomTextAreaProps) => {
         error={error}
         inputProps={{ maxLength }}
         rows={4}
-        sx={(theme) => getTextAreaStyles(otherProps.value, theme)}
+        sx={(theme) => getTextAreaStyles(otherProps.value, theme, height)}
         variant="outlined"
         {...otherProps}
       />
@@ -82,6 +87,7 @@ const FormTextArea = ({
   rules,
   maxLength,
   isRejected,
+  height,
   ...props
 }: CustomTextAreaProps) => {
   const {
@@ -130,7 +136,7 @@ const FormTextArea = ({
             helperText={fieldError?.message as string}
             inputProps={{ maxLength }}
             rows={4}
-            sx={(theme) => getTextAreaStyles(field.value, theme)}
+            sx={(theme) => getTextAreaStyles(field.value, theme, height)}
             variant="outlined"
             {...otherProps}
           />

@@ -47,12 +47,13 @@ const FinanceWithdrawal = () => {
   };
 
   const projectOptions = events.map((event) => ({
-    value: event,
+    value: event.id,
     label: event.name
   }));
 
-  const handleProjectChange = (value: Event) => {
-    setSelectedProject(value);
+  const handleProjectChange = (value: string) => {
+    const selectedEvent = events.find(event => event.id === value);
+    setSelectedProject(selectedEvent || null);
   };
 
   useEffect(() => {
@@ -96,7 +97,7 @@ const FinanceWithdrawal = () => {
           label=""
           options={projectOptions}
           placeholder={loading ? 'Loading events...' : 'Choose Project'}
-          value={selectedProject || null}
+          value={selectedProject?.id || ''}
           onChange={handleProjectChange}
         />
       </Box>
