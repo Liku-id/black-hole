@@ -17,6 +17,7 @@ import { PaymentMethodSelector } from '@/components/features/events/create/info/
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
 import { EventDetail } from '@/types/event';
 import { dateUtils } from '@/utils';
+import { RejectedReason } from '../../detail/info';
 
 // Admin Fee Type Options
 const adminFeeTypeOptions = [
@@ -168,256 +169,288 @@ export const EventEditInfo = ({
     }
   };
 
+  const isFieldRejected = (field: string) => {
+    return (
+      eventDetail.eventStatus === 'rejected' &&
+      eventDetail.rejectedFields?.includes(field)
+    );
+  };
+
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(handleFormSubmit)}>
-        <Grid container spacing={3}>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Event Name*"
-              name="eventName"
-              placeholder="Your Event Name"
-              rules={{
-                required: 'Event name is required'
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <Select
-              fullWidth
-              label="Event Type*"
-              name="eventType"
-              options={eventTypeOptions}
-              placeholder="Select event type"
-              rules={{
-                required: 'Event type is required'
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              InputProps={{
-                readOnly: true
-              }}
-              label="Start & End Date*"
-              name="dateRange"
-              placeholder="Select date range"
-              rules={{
-                required: 'Date range is required'
-              }}
-              sx={{
-                '& .MuiInputBase-input': {
-                  cursor: 'pointer'
-                }
-              }}
-              value={watchedDateRange}
-              onClick={() => setDateModalOpen(true)}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              InputProps={{
-                readOnly: true
-              }}
-              label="Start & End Time*"
-              name="timeRange"
-              placeholder="Select time range"
-              rules={{
-                required: 'Time range is required'
-              }}
-              sx={{
-                '& .MuiInputBase-input': {
-                  cursor: 'pointer'
-                }
-              }}
-              value={watchedTimeRange}
-              onClick={() => setTimeModalOpen(true)}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Address*"
-              name="address"
-              placeholder="Location"
-              rules={{
-                required: 'Address is required'
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Google Maps Link*"
-              name="googleMapsLink"
-              placeholder="Location Link"
-              rules={{
-                required: 'Google Maps link is required'
-              }}
-              startComponent={<Caption color="text.primary">HTTPS://</Caption>}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Website Url*"
-              name="websiteUrl"
-              placeholder="Website Url"
-              rules={{
-                required: 'Website URL is required'
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <Select
-              fullWidth
-              label="City*"
-              name="city"
-              options={cityOptions}
-              placeholder="Select City"
-              rules={{
-                required: 'City is required'
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <DropdownSelector
-                      defaultLabel="%"
-                      options={adminFeeTypeOptions}
-                      selectedValue={watchedAdminFeeType}
-                      onValueChange={(type) => setValue('adminFeeType', type)}
-                    />
-                  </InputAdornment>
-                )
-              }}
-              label="Admin Fee*"
-              name="adminFee"
-              placeholder={
-                watchedAdminFeeType === '%'
-                  ? 'Admin fee percentage'
-                  : 'Admin fee amount'
-              }
-              rules={{
-                required: 'Admin fee is required',
-                pattern: {
-                  value: /^\d+$/,
-                  message: 'Admin fee must be a number'
-                },
-                validate: (value) => {
-                  if (watchedAdminFeeType === '%' && parseInt(value) >= 100) {
-                    return 'Admin fee percentage must be less than 100%';
-                  }
-                  return true;
-                }
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <PaymentMethodSelector
-              fullWidth
-              groupedPaymentMethods={paymentMethods}
-              label="Payment Method*"
-              name="paymentMethod"
-              placeholder="Select payment methods for your event"
-              rules={{
-                required: 'Payment method is required'
-              }}
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <Select
-              fullWidth
-              label="Tax*"
-              name="tax"
-              options={taxOptions}
-              placeholder="Select Tax Type"
-              rules={{
-                required: 'Tax selection is required'
-              }}
-            />
-          </Grid>
-          {watchedTax === 'true' && (
+    <>
+      {/* Rejected Reason */}
+      <RejectedReason reason={eventDetail.rejectedReason} />
+
+      <FormProvider {...methods}>
+        <form onSubmit={methods.handleSubmit(handleFormSubmit)}>
+          <Grid container spacing={3}>
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
-                endComponent={<Caption color="text.primary">%</Caption>}
-                label="Tax Nominal*"
-                name="taxNominal"
-                placeholder="Tax percentage"
+                label="Event Name*"
+                name="eventName"
+                placeholder="Your Event Name"
                 rules={{
-                  required: 'Tax nominal is required when tax is enabled',
-                  pattern: {
-                    value: /^\d+$/,
-                    message: 'Tax nominal must be a number'
-                  }
+                  required: 'Event name is required'
                 }}
+                isRejected={isFieldRejected('name')}
               />
             </Grid>
-          )}
-        </Grid>
-
-        {/* TextArea fields - always on same row */}
-        <Grid container marginTop={1} spacing={3}>
-          <Grid item md={6} xs={12}>
-            <TextArea
-              fullWidth
-              label="Event Description*"
-              maxLength={3000}
-              name="eventDescription"
-              placeholder="Max. 3000 characters"
-              rules={{
-                required: 'Event description is required'
-              }}
-            />
+            <Grid item md={6} xs={12}>
+              <Select
+                fullWidth
+                label="Event Type*"
+                name="eventType"
+                options={eventTypeOptions}
+                placeholder="Select event type"
+                rules={{
+                  required: 'Event type is required'
+                }}
+                isRejected={isFieldRejected('event_type')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                InputProps={{
+                  readOnly: true
+                }}
+                label="Start & End Date*"
+                name="dateRange"
+                placeholder="Select date range"
+                rules={{
+                  required: 'Date range is required'
+                }}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    cursor: 'pointer'
+                  }
+                }}
+                value={watchedDateRange}
+                onClick={() => setDateModalOpen(true)}
+                isRejected={
+                  isFieldRejected('start_date') || isFieldRejected('end_date')
+                }
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                InputProps={{
+                  readOnly: true
+                }}
+                label="Start & End Time*"
+                name="timeRange"
+                placeholder="Select time range"
+                rules={{
+                  required: 'Time range is required'
+                }}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    cursor: 'pointer'
+                  }
+                }}
+                value={watchedTimeRange}
+                onClick={() => setTimeModalOpen(true)}
+                isRejected={
+                  isFieldRejected('start_date') || isFieldRejected('end_date')
+                }
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="Address*"
+                name="address"
+                placeholder="Location"
+                rules={{
+                  required: 'Address is required'
+                }}
+                isRejected={isFieldRejected('address')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="Google Maps Link*"
+                name="googleMapsLink"
+                placeholder="Location Link"
+                rules={{
+                  required: 'Google Maps link is required'
+                }}
+                startComponent={
+                  <Caption color="text.primary">HTTPS://</Caption>
+                }
+                isRejected={isFieldRejected('map_location_url')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="Website Url*"
+                name="websiteUrl"
+                placeholder="Website Url"
+                rules={{
+                  required: 'Website URL is required'
+                }}
+                isRejected={isFieldRejected('website_url')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <Select
+                fullWidth
+                label="City*"
+                name="city"
+                options={cityOptions}
+                placeholder="Select City"
+                rules={{
+                  required: 'City is required'
+                }}
+                isRejected={isFieldRejected('city')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DropdownSelector
+                        defaultLabel="%"
+                        options={adminFeeTypeOptions}
+                        selectedValue={watchedAdminFeeType}
+                        onValueChange={(type) => setValue('adminFeeType', type)}
+                      />
+                    </InputAdornment>
+                  )
+                }}
+                label="Admin Fee*"
+                name="adminFee"
+                placeholder={
+                  watchedAdminFeeType === '%'
+                    ? 'Admin fee percentage'
+                    : 'Admin fee amount'
+                }
+                rules={{
+                  required: 'Admin fee is required',
+                  pattern: {
+                    value: /^\d+$/,
+                    message: 'Admin fee must be a number'
+                  },
+                  validate: (value) => {
+                    if (watchedAdminFeeType === '%' && parseInt(value) >= 100) {
+                      return 'Admin fee percentage must be less than 100%';
+                    }
+                    return true;
+                  }
+                }}
+                isRejected={isFieldRejected('admin_fee')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <PaymentMethodSelector
+                fullWidth
+                groupedPaymentMethods={paymentMethods}
+                label="Payment Method*"
+                name="paymentMethod"
+                placeholder="Select payment methods for your event"
+                rules={{
+                  required: 'Payment method is required'
+                }}
+                isRejected={isFieldRejected('payment_methods')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <Select
+                fullWidth
+                label="Tax*"
+                name="tax"
+                options={taxOptions}
+                placeholder="Select Tax Type"
+                rules={{
+                  required: 'Tax selection is required'
+                }}
+                isRejected={isFieldRejected('tax')}
+              />
+            </Grid>
+            {watchedTax === 'true' && (
+              <Grid item md={6} xs={12}>
+                <TextField
+                  fullWidth
+                  endComponent={<Caption color="text.primary">%</Caption>}
+                  label="Tax Nominal*"
+                  name="taxNominal"
+                  placeholder="Tax percentage"
+                  rules={{
+                    required: 'Tax nominal is required when tax is enabled',
+                    pattern: {
+                      value: /^\d+$/,
+                      message: 'Tax nominal must be a number'
+                    }
+                  }}
+                  isRejected={isFieldRejected('tax')}
+                />
+              </Grid>
+            )}
           </Grid>
-          <Grid item md={6} xs={12}>
-            <TextArea
-              fullWidth
-              label="Terms & Conditions*"
-              name="termsAndConditions"
-              placeholder="Your Terms & Condition for Event"
-              rules={{
-                required: 'Terms and conditions are required'
-              }}
-            />
-          </Grid>
-        </Grid>
 
-        {/* Buttons */}
-        <Box marginTop={4} textAlign="right">
-          {error && (
-            <Box marginBottom={2}>
-              <Overline color="error.main">{error}</Overline>
+          {/* TextArea fields - always on same row */}
+          <Grid container marginTop={1} spacing={3}>
+            <Grid item md={6} xs={12}>
+              <TextArea
+                fullWidth
+                label="Event Description*"
+                maxLength={3000}
+                name="eventDescription"
+                placeholder="Max. 3000 characters"
+                rules={{
+                  required: 'Event description is required'
+                }}
+                isRejected={isFieldRejected('description')}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextArea
+                fullWidth
+                label="Terms & Conditions*"
+                name="termsAndConditions"
+                placeholder="Your Terms & Condition for Event"
+                rules={{
+                  required: 'Terms and conditions are required'
+                }}
+                isRejected={isFieldRejected('term_and_conditions')}
+              />
+            </Grid>
+          </Grid>
+
+          {/* Buttons */}
+          <Box marginTop={4} textAlign="right">
+            {error && (
+              <Box marginBottom={2}>
+                <Overline color="error.main">{error}</Overline>
+              </Box>
+            )}
+
+            <Box display="flex" gap={2} justifyContent="flex-end">
+              <Button type="submit" variant="primary">
+                Update Event
+              </Button>
             </Box>
-          )}
-
-          <Box display="flex" gap={2} justifyContent="flex-end">
-            <Button type="submit" variant="primary">
-              Update Event
-            </Button>
           </Box>
-        </Box>
 
-        <EventDateModal
-          open={dateModalOpen}
-          onClose={() => setDateModalOpen(false)}
-          onSave={handleDateSave}
-        />
+          <EventDateModal
+            open={dateModalOpen}
+            onClose={() => setDateModalOpen(false)}
+            onSave={handleDateSave}
+          />
 
-        <EventTimeModal
-          open={timeModalOpen}
-          onClose={() => setTimeModalOpen(false)}
-          onSave={handleTimeSave}
-        />
-      </form>
-    </FormProvider>
+          <EventTimeModal
+            open={timeModalOpen}
+            onClose={() => setTimeModalOpen(false)}
+            onSave={handleTimeSave}
+          />
+        </form>
+      </FormProvider>
+    </>
   );
 };

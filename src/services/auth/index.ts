@@ -66,6 +66,29 @@ class AuthService {
       throw error;
     }
   }
+
+  async updateEventOrganizerGeneral(
+    eoId: string,
+    data: {
+      name: string;
+      description: string;
+      social_media_url: string;
+      address: string;
+      asset_id: string;
+      organizer_type?: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/event-organizers/${eoId}/general`,
+        data,
+        'Failed to update event organizer general information'
+      );
+    } catch (error) {
+      console.error('Update event organizer general error:', error);
+      throw error;
+    }
+  }
 }
 
 const authService = new AuthService();
