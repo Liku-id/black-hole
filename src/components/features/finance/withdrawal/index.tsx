@@ -52,8 +52,8 @@ const FinanceWithdrawal = () => {
   }));
 
   const handleProjectChange = (value: string) => {
-    const selectedEvent = events.find((event) => event.id === value) || null;
-    setSelectedProject(selectedEvent);
+    const selectedEvent = events.find(event => event.id === value);
+    setSelectedProject(selectedEvent || null);
   };
 
   useEffect(() => {

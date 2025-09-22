@@ -1,6 +1,7 @@
 import { apiUtils } from './apiUtils';
 import { dateUtils } from './dateUtils';
 import { useDebouncedCallback } from './debounceUtils';
+import { fileUtils } from './fileUtils';
 import { formatUtils } from './formatUtils';
 import { stringUtils } from './stringUtils';
 import { validationUtils } from './validationUtils';
@@ -9,6 +10,7 @@ export type { ValidationErrors } from './validationUtils';
 export {
   apiUtils,
   dateUtils,
+  fileUtils,
   formatUtils,
   stringUtils,
   useDebouncedCallback,
@@ -52,6 +54,16 @@ export const {
 } = apiUtils;
 
 export const {
+  convertFileToBase64,
+  convertFileToDataURL,
+  getFileExtension,
+  getFileSize,
+  isValidFileType,
+  isValidFileSize,
+  downloadFile
+} = fileUtils;
+
+export const {
   isValidEmail,
   isValidPhoneNumber,
   isValidNIK,
@@ -68,6 +80,7 @@ export const {
 // Common utility functions
 export const utils = {
   date: dateUtils,
+  file: fileUtils,
   string: stringUtils,
   format: formatUtils,
   validation: validationUtils,
