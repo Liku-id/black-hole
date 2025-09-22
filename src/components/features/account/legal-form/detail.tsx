@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { Box, Grid, Divider, Typography } from '@mui/material';
 
 import { Body1, Body2 } from '@/components/common';
@@ -42,23 +41,24 @@ const DocumentImage = ({
             justifyContent: 'center'
           }}
         >
-          <Image
+          <img
             src={asset.url}
             alt={alt}
-            fill
             style={{
               objectFit: 'contain',
-              padding: '8px'
+              padding: '4px',
+              width: '100%',
+              height: '100%',
+              display: 'block'
             }}
             onError={(e) => {
-              // Handle image load error - show placeholder
-              const target = e.target as HTMLImageElement;
+              const target = e.currentTarget as HTMLImageElement;
               target.style.display = 'none';
-              target.parentElement?.insertAdjacentHTML(
-                'beforeend',
+              target.insertAdjacentHTML(
+                'afterend',
                 `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 14px;">
-                  Image not available
-                </div>`
+        Image not available
+      </div>`
               );
             }}
           />
@@ -186,7 +186,7 @@ export const LegalFormDetailInfo = ({
                 </Grid>
                 <Grid item xs={12}>
                   <OrganizerField
-                    label="Address as in NPWP"
+                    label="Address as in NPWP*"
                     value={organizerDetail.npwp_address || '-'}
                   />
                 </Grid>
@@ -201,7 +201,7 @@ export const LegalFormDetailInfo = ({
               <>
                 <Grid item xs={12}>
                   <OrganizerField
-                    label="PIC Full Name"
+                    label="PIC Full Name*"
                     value={organizerDetail.pic_name || '-'}
                   />
                 </Grid>
@@ -222,8 +222,8 @@ export const LegalFormDetailInfo = ({
               <>
                 <Grid item xs={12}>
                   <OrganizerField
-                    label="Full Name as in NPWP"
-                    value={organizerDetail.full_name || '-'}
+                    label="Full Name as in NPWP*"
+                    value={organizerDetail.pic_name || '-'}
                   />
                 </Grid>
               </>
