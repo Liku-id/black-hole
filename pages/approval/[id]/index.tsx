@@ -2,7 +2,7 @@ import { Box, Divider, styled } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H3, Button } from '@/components/common';
@@ -10,9 +10,11 @@ import { StatusBadge } from '@/components/features/events/status-badge';
 import { ApprovalModal } from '@/components/features/events-submissions/detail/approval-modal';
 import { EventsSubmissionsInfo } from '@/components/features/events-submissions/detail/info';
 import { RejectModal } from '@/components/features/events-submissions/detail/reject-modal';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEventsSubmissionDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventSubmissionsService } from '@/services/events-submissions';
+import { User } from '@/types/auth';
 
 const StyledDivider = styled(Divider)({
   margin: '24px 0px',
@@ -22,6 +24,7 @@ const StyledDivider = styled(Divider)({
 
 // Using shared StatusBadge component
 function ApprovalDetail() {
+  const { user } = useAuth();
   const router = useRouter();
   const { id } = router.query;
   const [isApproveOpen, setIsApproveOpen] = useState(false);
@@ -36,6 +39,15 @@ function ApprovalDetail() {
   const { submission, loading, error } = useEventsSubmissionDetail(
     id as string
   );
+
+  useEffect(() => {
+    if (user) {
+      const userRole = (user as User).role?.name;
+      if (userRole !== 'admin' && userRole !== 'business_development') {
+        router.push('/events');
+      }
+    }
+  }, [user, router]);
 
   if (loading) {
     return (
@@ -96,7 +108,7 @@ function ApprovalDetail() {
       setIsRejectOpen(false);
       setRejectMode(false);
       setRejectedFields([]);
-      // router.push('/events');
+      router.push(submission.type === 'new' ? '/events' : '/approval');
     } catch (e) {
       const msg =
         (e as any)?.response?.data?.message ||
@@ -142,9 +154,15 @@ function ApprovalDetail() {
           <H3 color="text.primary" fontWeight={700}>
             Event Name: {submission.event?.name}
           </H3>
-          <StatusBadge status={submission.event?.eventStatus} />
+          <StatusBadge
+            status={
+              submission.type === 'new'
+                ? submission.event?.eventStatus
+                : submission.eventUpdateRequest?.status
+            }
+          />
         </Box>
-        {!rejectMode ? (
+        {!rejectMode && submission.eventUpdateRequest?.status !== 'rejected' ? (
           <Box display="flex" gap={1}>
             <Button
               variant="secondary"

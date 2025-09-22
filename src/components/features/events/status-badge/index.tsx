@@ -10,6 +10,12 @@ const getStatusStyle = (value: string) => {
   const statusLower = (value || '').toLowerCase();
 
   switch (statusLower) {
+    case 'done':
+      return {
+        backgroundColor: 'error.light',
+        color: 'error.main',
+        displayName: 'Done'
+      };
     case 'on_going':
       return {
         backgroundColor: 'success.light',
@@ -33,6 +39,24 @@ const getStatusStyle = (value: string) => {
         backgroundColor: 'error.light',
         color: 'error.main',
         displayName: 'On Review'
+      };
+    case 'pending':
+      return {
+        backgroundColor: 'warning.light',
+        color: 'warning.main',
+        displayName: 'Pending'
+      };
+    case 'failed':
+      return {
+        backgroundColor: 'error.light',
+        color: 'error.main',
+        displayName: 'Failed'
+      };
+    case 'paid':
+      return {
+        backgroundColor: 'success.light',
+        color: 'success.main',
+        displayName: 'Paid'
       };
     default:
       return {

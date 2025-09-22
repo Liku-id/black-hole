@@ -26,7 +26,14 @@ function LoginPage() {
           p: 3
         }}
       >
-        <Container maxWidth="sm">
+        <Container
+          maxWidth="sm"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
           <LoginForm />
         </Container>
       </Box>

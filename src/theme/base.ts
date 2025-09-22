@@ -20,15 +20,16 @@ export function themeCreator(): Theme {
         secondary: '#8694AA'
       },
       grey: {
-        100: '#E2E8F0'
+        100: '#E2E8F0',
+        '200': '#D9D9D9'
       },
       background: {
         default: '#F1F5F9',
         paper: '#FFFFFF'
       },
       error: {
-        main: '#FF1943',
-        light: '#FCF0FB'
+        main: '#E7031E',
+        light: '#FDE6E9'
       },
       common: {
         black: '#000000',

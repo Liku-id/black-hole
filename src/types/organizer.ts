@@ -1,7 +1,11 @@
 export interface BankInfo {
   id: string;
   name: string;
-  logo: string;
+  logo?: string;
+  channelCode: string;
+  channelType: string;
+  minAmount: number;
+  maxAmount: number;
 }
 
 export interface BankInformation {
@@ -11,8 +15,24 @@ export interface BankInformation {
   accountHolderName: string;
   createdAt: string;
   updatedAt: string;
-  deletedAt: string;
+  deletedAt: string | null;
   bank: BankInfo;
+}
+
+export interface Asset {
+  id: string;
+  type: string;
+  url: string;
+  bucket: string;
+  key: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventOrganizerPic {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface EventOrganizer {
@@ -32,10 +52,25 @@ export interface EventOrganizer {
   nik: string;
   npwp: string;
   xenplatform_id: string;
+  organizer_type: string;
+  npwp_address: string;
+  ktp_address: string;
+  full_name: string;
+  pic_name: string;
   created_at: string;
   updated_at: string;
-  deleted_at: string;
+  deleted_at: string | null;
   bank_information: BankInformation | null;
+  event_organizer_pic: EventOrganizerPic | null;
+  asset: Asset | null;
+  ktpPhoto: Asset | null;
+  npwpPhoto: Asset | null;
+}
+
+export interface EventOrganizerMeResponse {
+  statusCode: number;
+  message: string;
+  body: EventOrganizer;
 }
 
 export interface EventOrganizersResponse {

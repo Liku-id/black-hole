@@ -28,7 +28,7 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
   const router = useRouter();
 
   const handleViewClick = (submission: EventSubmission) => {
-    const id = submission.event?.id || submission.eventUpdateRequest?.id;
+    const id = submission.id;
     router.push(`/approval/${id}`);
   };
 
@@ -68,6 +68,11 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
             <TableCell sx={{ width: '20%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Submitted At
+              </Body2>
+            </TableCell>
+            <TableCell sx={{ width: '20%' }}>
+              <Body2 color="text.secondary" fontSize="14px">
+                Request Status
               </Body2>
             </TableCell>
             <TableCell align="right" sx={{ width: '5%' }}>
@@ -112,6 +117,15 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
                     ? dateUtils.formatDateDDMMYYYY(submission.createdAt)
                     : '-'}
                 </Body2>
+              </TableCell>
+              <TableCell>
+                {submission.eventUpdateRequest?.status ? (
+                  <StatusBadge status={submission.eventUpdateRequest.status} />
+                ) : (
+                  <Body2 color="text.primary" fontSize="14px">
+                    -
+                  </Body2>
+                )}
               </TableCell>
               <TableCell align="right">
                 <IconButton

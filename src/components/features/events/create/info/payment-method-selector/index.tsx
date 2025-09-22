@@ -5,6 +5,7 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
 import { Body2, Accordion, Checkbox } from '@/components/common';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
+import { ErrorOutline } from '@mui/icons-material';
 
 interface PaymentMethod {
   id: string;
@@ -34,6 +35,7 @@ interface PaymentMethodSelectorProps {
   groupedPaymentMethods: Record<string, PaymentMethod[]>;
   placeholder?: string;
   fullWidth?: boolean;
+  isRejected?: boolean;
 }
 
 export const PaymentMethodSelector = ({
@@ -42,7 +44,8 @@ export const PaymentMethodSelector = ({
   rules,
   groupedPaymentMethods,
   placeholder,
-  fullWidth
+  fullWidth,
+  isRejected
 }: PaymentMethodSelectorProps) => {
   const {
     control,
@@ -92,8 +95,17 @@ export const PaymentMethodSelector = ({
       render={({ field }) => (
         <Box ref={containerRef} position="relative">
           {label && (
-            <Body2 color="text.primary" display="block" mb={1}>
+            <Body2
+              color="text.primary"
+              sx={{
+                mb: 1,
+                display: isRejected ? 'flex' : 'block',
+                alignItems: 'center',
+                gap: 0.5
+              }}
+            >
               {label}
+              {isRejected && <ErrorOutline fontSize="small" color="error" />}
             </Body2>
           )}
 

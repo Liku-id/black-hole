@@ -6,6 +6,7 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 import { Body2 } from '@/components/common';
 
 import { StyledTextField } from '../text-field/StyledTextField';
+import { ErrorOutline } from '@mui/icons-material';
 
 interface CustomTextAreaProps extends Omit<TextFieldProps, 'variant'> {
   label?: string;
@@ -13,6 +14,7 @@ interface CustomTextAreaProps extends Omit<TextFieldProps, 'variant'> {
   rules?: RegisterOptions;
   error?: boolean;
   maxLength?: number;
+  isRejected?: boolean;
 }
 
 const getTextAreaStyles = (value: unknown, theme: any) => {
@@ -79,6 +81,7 @@ const FormTextArea = ({
   name,
   rules,
   maxLength,
+  isRejected,
   ...props
 }: CustomTextAreaProps) => {
   const {
@@ -107,8 +110,17 @@ const FormTextArea = ({
       render={({ field }) => (
         <Box>
           {label && (
-            <Body2 color="text.primary" marginBottom="8px">
-              {label}
+            <Body2
+              color="text.primary"
+              sx={{
+                mb: 1,
+                display: isRejected ? 'flex' : 'block',
+                alignItems: 'center',
+                gap: 0.5
+              }}
+            >
+              {label}{' '}
+              {isRejected && <ErrorOutline fontSize="small" color="error" />}
             </Body2>
           )}
           <StyledTextField

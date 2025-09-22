@@ -7,6 +7,7 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 import { Body2 } from '@/components/common';
 
 import { StyledTextField } from './StyledTextField';
+import { ErrorOutline } from '@mui/icons-material';
 
 interface CustomTextFieldProps extends Omit<TextFieldProps, 'variant'> {
   label?: string;
@@ -16,6 +17,7 @@ interface CustomTextFieldProps extends Omit<TextFieldProps, 'variant'> {
   rules?: RegisterOptions;
   error?: boolean;
   helperText?: string;
+  isRejected?: boolean;
 }
 
 export const CustomTextField = (props: CustomTextFieldProps) => {
@@ -70,7 +72,12 @@ export const CustomTextField = (props: CustomTextFieldProps) => {
 };
 
 // Form TextField with React Hook Form integration
-const FormTextField = ({ name, rules, ...props }: CustomTextFieldProps) => {
+const FormTextField = ({
+  name,
+  rules,
+  isRejected,
+  ...props
+}: CustomTextFieldProps) => {
   const {
     control,
     formState: { errors }
@@ -101,8 +108,17 @@ const FormTextField = ({ name, rules, ...props }: CustomTextFieldProps) => {
       render={({ field }) => (
         <Box>
           {label && (
-            <Body2 color="text.primary" sx={{ mb: 1, display: 'block' }}>
-              {label}
+            <Body2
+              color="text.primary"
+              sx={{
+                mb: 1,
+                display: isRejected ? 'flex' : 'block',
+                alignItems: 'center',
+                gap: 0.5
+              }}
+            >
+              {label}{' '}
+              {isRejected && <ErrorOutline fontSize="small" color="error" />}
             </Body2>
           )}
           <StyledTextField
