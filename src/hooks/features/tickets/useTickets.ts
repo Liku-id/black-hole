@@ -14,10 +14,10 @@ interface UseTicketsReturn {
   currentShow: number;
 }
 
-const useTickets = (filters: TicketsFilters): UseTicketsReturn => {
+const useTickets = (filters: TicketsFilters | null): UseTicketsReturn => {
   const { data, loading, error, mutate } = useApi(
-    ['/api/tickets', filters],
-    () => ticketsService.getTickets(filters)
+    filters ? ['/api/tickets', filters] : null,
+    () => (filters ? ticketsService.getTickets(filters) : Promise.resolve(null))
   );
 
   return {
@@ -25,7 +25,10 @@ const useTickets = (filters: TicketsFilters): UseTicketsReturn => {
     loading,
     error,
     mutate,
-    total: parseInt(data?.body?.total || '0'),
+    total:
+      typeof data?.body?.total === 'string'
+        ? parseInt(data.body.total)
+        : data?.body?.total || 0,
     totalPage: data?.body?.totalPage || 0,
     currentPage: data?.body?.page || 0,
     currentShow: data?.body?.show || 10

@@ -39,11 +39,15 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     message: string,
     severity: 'success' | 'error' | 'warning' | 'info'
   ) => {
-    setToast({
-      open: true,
-      message,
-      severity
-    });
+    try {
+      setToast({
+        open: true,
+        message,
+        severity
+      });
+    } catch (error) {
+      console.error('Error showing toast:', error);
+    }
   };
 
   const showSuccess = (message: string) => showToast(message, 'success');
@@ -58,7 +62,11 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     if (reason === 'clickaway') {
       return;
     }
-    setToast((prev) => ({ ...prev, open: false }));
+    try {
+      setToast((prev) => ({ ...prev, open: false }));
+    } catch (error) {
+      console.error('Error closing toast:', error);
+    }
   };
 
   return (
@@ -67,19 +75,49 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     >
       {children}
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        key={toast.message + toast.severity + toast.open}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={4000}
         open={toast.open}
+        sx={{
+          '& .MuiSnackbar-root': {
+            position: 'fixed',
+            top: '20px !important'
+          }
+        }}
+        TransitionComponent={undefined}
         onClose={handleClose}
       >
-        <Alert
-          severity={toast.severity}
-          sx={{ width: '100%' }}
-          variant="filled"
-          onClose={handleClose}
-        >
-          {toast.message}
-        </Alert>
+        {toast.severity === 'success' &&
+        toast.message.toLowerCase().includes('ticket redeemed') ? (
+          <Alert
+            icon={false}
+            severity="success"
+            sx={{
+              width: '100%',
+              backgroundColor: 'primary.main',
+              borderRadius: '24px',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: 500,
+              px: 3,
+              py: 0.75,
+              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)'
+            }}
+            variant="filled"
+          >
+            Ticket Redeemed
+          </Alert>
+        ) : (
+          <Alert
+            severity={toast.severity}
+            sx={{ width: '100%' }}
+            variant="filled"
+            onClose={handleClose}
+          >
+            {toast.message}
+          </Alert>
+        )}
       </Snackbar>
     </ToastContext.Provider>
   );

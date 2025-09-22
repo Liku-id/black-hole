@@ -1,76 +1,68 @@
-import { Box } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { AttendeeTable, SearchField } from '@/components/features/ticket-list';
+import { useEvents, useTickets } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
+import { Ticket } from '@/types/ticket';
+
+// Transform ticket data to match UI expectations
+const transformTicketData = (tickets: Ticket[]) => {
+  return tickets.map((ticket, index) => ({
+    no: index + 1,
+    id: ticket.id, // Database ID needed for API calls
+    ticketId: ticket.ticket_id || `TKT-${index + 1}`,
+    name: ticket.visitor_name || 'Unknown Visitor',
+    ticketType: ticket.ticket_name || 'Standard',
+    phoneNumber: '-', // Not available in current API response
+    date: ticket.created_at
+      ? new Date(ticket.created_at).toLocaleDateString('en-GB')
+      : new Date().toLocaleDateString('en-GB'),
+    paymentMethod: 'N/A', // Not available in current API response
+    redeemStatus: ticket.ticket_status || 'pending'
+  }));
+};
 
 function Tickets() {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
 
-  // Mock events data - replace with actual API call
-  const eventOptions = [
-    { value: 'event1', label: 'Conference 2024' },
-    { value: 'event2', label: 'Music Festival Summer' },
-    { value: 'event3', label: 'Tech Meetup January' },
-    { value: 'event4', label: 'Art Exhibition 2024' }
-  ];
+  // Get events list for dropdown
+  const { events, loading: eventsLoading, error: eventsError } = useEvents();
 
-  // Mock attendee data - replace with actual API call
-  const attendeeData = [
-    {
-      no: 1,
-      ticketId: '8912322',
-      name: 'Mahabul Munir',
-      ticketType: 'VVIP',
-      phoneNumber: '+62 81328623934',
-      date: '06/12/2026',
-      paymentMethod: 'QRIS',
-      redeemStatus: 'Redeemed' as const
-    },
-    {
-      no: 2,
-      ticketId: '8912323',
-      name: 'Vincent Bonku',
-      ticketType: 'Regular',
-      phoneNumber: '+62 81328623934',
-      date: '06/12/2026',
-      paymentMethod: 'VA Mandiri',
-      redeemStatus: 'Redeemed' as const
-    },
-    {
-      no: 3,
-      ticketId: '8912324',
-      name: 'Edgar Bero',
-      ticketType: 'Regular',
-      phoneNumber: '+62 81328623934',
-      date: '06/12/2026',
-      paymentMethod: 'VA BCA',
-      redeemStatus: 'Unredeemed' as const
-    },
-    {
-      no: 4,
-      ticketId: '8912325',
-      name: 'Nabila Kharisma',
-      ticketType: 'Regular',
-      phoneNumber: '+62 81328623934',
-      date: '06/12/2026',
-      paymentMethod: 'VA BRI',
-      redeemStatus: 'Redeemed' as const
-    },
-    {
-      no: 5,
-      ticketId: '8912326',
-      name: 'M salfuloh Noor',
-      ticketType: 'Regular',
-      phoneNumber: '+62 81328623934',
-      date: '06/12/2026',
-      paymentMethod: 'VA BRI',
-      redeemStatus: 'Unredeemed' as const
-    }
-  ];
+  // Create stable filters object to prevent unnecessary re-renders
+  const ticketFilters = useMemo(() => {
+    if (!selectedEvent) return null;
+
+    return {
+      eventId: selectedEvent,
+      page: currentPage,
+      show: 10,
+      search: searchQuery
+    };
+  }, [selectedEvent, currentPage, searchQuery]);
+
+  // Get tickets data when event is selected
+  const {
+    tickets,
+    total: apiTotal,
+    currentPage: apiCurrentPage,
+    currentShow: apiCurrentShow,
+    loading: ticketsLoading,
+    mutate: mutateTickets
+  } = useTickets(ticketFilters);
+
+  // Transform events for dropdown options
+  const eventOptions = events.map((event) => ({
+    value: event.id,
+    label: event.name
+  }));
+
+  // Transform tickets for table
+  const attendeeData = transformTicketData(tickets);
 
   const handleScanTicket = () => {
     if (!selectedEvent) {
@@ -84,16 +76,77 @@ function Tickets() {
 
   const handleEventChange = (value: string) => {
     setSelectedEvent(value);
+    setCurrentPage(0); // Reset to first page when event changes
   };
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+    setCurrentPage(0); // Reset to first page when searching
   };
 
-  const handleRedeemTicket = (ticketId: string) => {
-    console.log('Redeem ticket:', ticketId);
-    // TODO: Implement redeem functionality
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
+
+  const handleRedeemTicket = (_ticketId: string) => {
+    // The actual redeem API call is handled in the AttendeeTable component
+    // This function is called after successful redeem to refresh the data
+    mutateTickets();
+  };
+
+  // Show loading spinner for initial page load
+  if (eventsLoading) {
+    return (
+      <DashboardLayout>
+        <Head>
+          <title>Tickets - Black Hole Dashboard</title>
+        </Head>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '400px',
+            gap: 2
+          }}
+        >
+          <CircularProgress size={40} />
+          <Typography color="text.secondary" variant="body1">
+            Loading events...
+          </Typography>
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
+  // Show error if events failed to load
+  if (eventsError) {
+    return (
+      <DashboardLayout>
+        <Head>
+          <title>Tickets - Black Hole Dashboard</title>
+        </Head>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '400px',
+            gap: 2
+          }}
+        >
+          <Typography color="error" variant="h6">
+            Failed to load events
+          </Typography>
+          <Typography color="text.secondary" variant="body2">
+            {eventsError}
+          </Typography>
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -110,13 +163,42 @@ function Tickets() {
           onScanTicket={handleScanTicket}
         />
 
-        {/* Attendee Details Section */}
-        <AttendeeTable
-          attendeeData={attendeeData}
-          searchQuery={searchQuery}
-          onRedeemTicket={handleRedeemTicket}
-          onSearchChange={handleSearchChange}
-        />
+        {/* Attendee Details Section - only show when event is selected */}
+        {selectedEvent && (
+          <AttendeeTable
+            attendeeData={attendeeData}
+            currentPage={apiCurrentPage}
+            loading={ticketsLoading}
+            pageSize={apiCurrentShow}
+            searchQuery={searchQuery}
+            total={apiTotal}
+            onPageChange={handlePageChange}
+            onRedeemTicket={handleRedeemTicket}
+            onSearchChange={handleSearchChange}
+          />
+        )}
+
+        {/* Show message when no event is selected */}
+        {!selectedEvent && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '300px',
+              gap: 2,
+              mt: 3
+            }}
+          >
+            <Typography color="text.secondary" variant="h6">
+              Select an event to view attendee details
+            </Typography>
+            <Typography color="text.secondary" variant="body2">
+              Choose an event from the dropdown above to see ticket information
+            </Typography>
+          </Box>
+        )}
       </Box>
     </DashboardLayout>
   );

@@ -46,7 +46,7 @@ export const SearchField = ({
           >
             Select Event
           </Typography>
-          
+
           <Button
             sx={{
               width: '130px',
@@ -117,9 +117,7 @@ export const SearchField = ({
               >
                 {option.label}
               </Box>
-              {index < eventOptions.length - 1 && (
-                <Divider sx={{ mx: 2 }} />
-              )}
+              {index < eventOptions.length - 1 && <Divider sx={{ mx: 2 }} />}
             </Box>
           )}
           sx={{
@@ -130,7 +128,10 @@ export const SearchField = ({
               padding: 0
             }
           }}
-          value={eventOptions.find(option => option.value === selectedEvent) || null}
+          value={
+            eventOptions.find((option) => option.value === selectedEvent) ||
+            null
+          }
           onChange={(_, newValue) => {
             onEventChange(newValue ? newValue.value : '');
           }}
