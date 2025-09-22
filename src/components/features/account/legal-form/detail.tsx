@@ -1,34 +1,21 @@
 import Image from 'next/image';
-import { Box, Grid, Divider, Paper, Typography } from '@mui/material';
+import { Box, Grid, Divider, Typography } from '@mui/material';
 
-import { Body2, H4 } from '@/components/common';
+import { Body1, Body2, H4 } from '@/components/common';
+import { EventOrganizer } from '@/types/organizer';
 
-interface OrganizerDetail {
-  id: string;
-  npwp_photo_id: string;
-  npwp_number: string;
-  npwp_address: string;
-  ktp_photo_id: string;
-  ktp_number: string;
-  ktp_address: string;
-  full_name: string;
-  pic_name: string;
-  pic_title: string;
-  organizer_type?: string;
-}
-
-interface OrganizerDetailProps {
-  organizerDetail: OrganizerDetail;
+interface LegalFormDetailProps {
+  organizerDetail: EventOrganizer;
 }
 
 // DocumentImage component for displaying KTP/NPWP images
 const DocumentImage = ({
   title,
-  photoId,
+  asset,
   alt
 }: {
   title: string;
-  photoId: string;
+  asset: any;
   alt: string;
 }) => (
   <Box>
@@ -44,7 +31,7 @@ const DocumentImage = ({
         backgroundColor: 'grey.50'
       }}
     >
-      {photoId ? (
+      {asset?.url ? (
         <Box
           sx={{
             position: 'relative',
@@ -56,7 +43,7 @@ const DocumentImage = ({
           }}
         >
           <Image
-            src={`/api/images/${photoId}`}
+            src={asset.url}
             alt={alt}
             fill
             style={{
@@ -131,34 +118,40 @@ const OrganizerField = ({
   </Box>
 );
 
-export const LegelFormDetailInfo = ({
+export const LegalFormDetailInfo = ({
   organizerDetail
-}: OrganizerDetailProps) => {
+}: LegalFormDetailProps) => {
+  const isIndividual = organizerDetail.organizer_type === 'individual';
+
   return (
     <>
-      <H4 fontWeight={600} marginBottom={2}>
-        {organizerDetail.organizer_type === 'individual'
-          ? 'Individual'
-          : 'Company'}
-      </H4>
+      <Body1 fontWeight={600} marginBottom={2}>
+        {isIndividual ? 'Individual Creator' : 'Company Creator'}
+      </Body1>
       <Divider sx={{ borderColor: 'text.secondary', marginBottom: 3 }} />
 
       {/* Document Images Section */}
       <Grid container spacing={3} mb={3}>
         <Grid item md={6} xs={12}>
           <DocumentImage
-            title="KTP Image"
-            photoId={organizerDetail.ktp_photo_id}
-            alt="KTP Document"
+            title={isIndividual ? 'KTP Image' : 'NPWP Image'}
+            asset={
+              isIndividual
+                ? organizerDetail.ktpPhoto
+                : organizerDetail.npwpPhoto
+            }
+            alt={isIndividual ? 'KTP Document' : 'NPWP Document'}
           />
         </Grid>
-        <Grid item md={6} xs={12}>
-          <DocumentImage
-            title="NPWP Image"
-            photoId={organizerDetail.npwp_photo_id}
-            alt="NPWP Document"
-          />
-        </Grid>
+        {isIndividual && (
+          <Grid item md={6} xs={12}>
+            <DocumentImage
+              title="NPWP Image"
+              asset={organizerDetail.npwpPhoto}
+              alt="NPWP Document"
+            />
+          </Grid>
+        )}
       </Grid>
 
       {/* Form Fields Section */}
@@ -166,54 +159,69 @@ export const LegelFormDetailInfo = ({
         {/* Left Grid */}
         <Grid item md={6} xs={12}>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="KTP Number*"
-                value={organizerDetail.ktp_number}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="Address as in KTP"
-                value={organizerDetail.ktp_address}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="Company NPWP Number*"
-                value={organizerDetail.npwp_number}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="Address as in NPWP"
-                value={organizerDetail.npwp_address}
-              />
-            </Grid>
+            {isIndividual ? (
+              <>
+                {/* Individual Creator Fields */}
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="NPWP Number*"
+                    value={organizerDetail.npwp || '-'}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="NIK Number*"
+                    value={organizerDetail.nik || '-'}
+                  />
+                </Grid>
+              </>
+            ) : (
+              <>
+                {/* Institutional Creator Fields */}
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="Company NPWP Number*"
+                    value={organizerDetail.npwp || '-'}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="Address as in NPWP"
+                    value={organizerDetail.npwp_address || '-'}
+                  />
+                </Grid>
+              </>
+            )}
           </Grid>
         </Grid>
 
-        {/* Right Grid */}
         <Grid item md={6} xs={12}>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="Full Name as in NPWP"
-                value={organizerDetail.full_name}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="PIC Name"
-                value={organizerDetail.pic_name}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OrganizerField
-                label="PIC Title"
-                value={organizerDetail.pic_title}
-              />
-            </Grid>
+            {isIndividual ? (
+              <>
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="PIC Full Name"
+                    value={organizerDetail.pic_name || '-'}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="PIC KTP Address*"
+                    value={organizerDetail.ktp_address || '-'}
+                  />
+                </Grid>
+              </>
+            ) : (
+              <>
+                <Grid item xs={12}>
+                  <OrganizerField
+                    label="Full Name as in NPWP"
+                    value={organizerDetail.full_name || '-'}
+                  />
+                </Grid>
+              </>
+            )}
           </Grid>
         </Grid>
       </Grid>

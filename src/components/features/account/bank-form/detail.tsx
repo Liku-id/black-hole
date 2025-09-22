@@ -1,24 +1,10 @@
-import Image from 'next/image';
-import { Box, Grid, Divider, Paper, Typography } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
-import { Body2, H4 } from '@/components/common';
+import { Body2 } from '@/components/common';
+import { EventOrganizer } from '@/types/organizer';
 
-interface OrganizerDetail {
-  id: string;
-  npwp_photo_id: string;
-  npwp_number: string;
-  npwp_address: string;
-  ktp_photo_id: string;
-  ktp_number: string;
-  ktp_address: string;
-  full_name: string;
-  pic_name: string;
-  pic_title: string;
-  organizer_type?: string;
-}
-
-interface OrganizerDetailProps {
-  organizerDetail: OrganizerDetail;
+interface BankFormDetailProps {
+  organizerDetail: EventOrganizer;
 }
 
 // OrganizerField component
@@ -55,13 +41,9 @@ const OrganizerField = ({
 
 export const BankFormDetailInfo = ({
   organizerDetail
-}: OrganizerDetailProps) => {
+}: BankFormDetailProps) => {
   return (
     <>
-      <H4 fontWeight={600} marginBottom={2}>
-        Bank Account Number
-      </H4>
-
       {/* Form Fields Section */}
       <Grid container spacing={3}>
         {/* Left Grid */}
@@ -69,14 +51,16 @@ export const BankFormDetailInfo = ({
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <OrganizerField
-                label="KTP Number*"
-                value={organizerDetail.ktp_number}
+                label="Bank Account Number"
+                value={organizerDetail.bank_information?.accountNumber || '-'}
               />
             </Grid>
             <Grid item xs={12}>
               <OrganizerField
-                label="Address as in KTP"
-                value={organizerDetail.ktp_address}
+                label="Bank Account Holder Name"
+                value={
+                  organizerDetail.bank_information?.accountHolderName || '-'
+                }
               />
             </Grid>
           </Grid>
@@ -87,8 +71,8 @@ export const BankFormDetailInfo = ({
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <OrganizerField
-                label="Full Name as in NPWP"
-                value={organizerDetail.full_name}
+                label="Bank Name"
+                value={organizerDetail.bank_information?.bank?.name || '-'}
               />
             </Grid>
           </Grid>

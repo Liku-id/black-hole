@@ -10,7 +10,7 @@ interface BankFormProps {
     mode?: 'view' | 'edit';
 }
 
-const BankForm = ({ eventOrganizer, loading, error }: BankFormProps) => {
+const BankForm = ({ eventOrganizer, loading, error, mode }: BankFormProps) => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -35,21 +35,13 @@ const BankForm = ({ eventOrganizer, loading, error }: BankFormProps) => {
     );
   }
 
- if (mode === 'view') {
+  if (mode === 'view') {
     return <BankFormDetailInfo organizerDetail={eventOrganizer} />;
   }
 
   return (
     <Box>
-      <Body2>Bank Information for: {eventOrganizer.name}</Body2>
-      {eventOrganizer.bank_information && (
-        <Box mt={2}>
-          <Body2>Bank: {eventOrganizer.bank_information.bank.name}</Body2>
-          <Body2>Account Number: {eventOrganizer.bank_information.accountNumber}</Body2>
-          <Body2>Account Holder: {eventOrganizer.bank_information.accountHolderName}</Body2>
-        </Box>
-      )}
-      <Body2 mt={2}>Bank Form Component (Coming Soon)</Body2>
+      <Body2>Bank Form Edit Component (Coming Soon)</Body2>
     </Box>
   );
 };

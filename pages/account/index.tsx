@@ -10,7 +10,7 @@ import GeneralForm from '@/components/features/account/general-form';
 import LegalForm from '@/components/features/account/legal-form';
 import BankForm from '@/components/features/account/bank-form';
 import { useEventOrganizerMe, useUpdateEventOrganizerGeneral } from '@/hooks';
-import { CreatorTypeModal } from '@/components/features/account/general-form/creator-type-modal';
+import { CreatorTypeModal } from '@/components/features/account/creator-type-modal';
 
 function Account() {
   const router = useRouter();
@@ -114,10 +114,14 @@ function Account() {
         );
       case 'legal':
         return (
-          <LegalForm mode={isEditing ? 'edit' : 'view'} {...commonProps} />
+          <LegalForm 
+            mode={isEditing ? 'edit' : 'view'} 
+            onCancel={handleCancelEdit}
+            {...commonProps} 
+          />
         );
       default:
-        return <BankForm {...commonProps} />;
+        return <BankForm mode={isEditing ? 'edit' : 'view'} {...commonProps} />;
     }
   };
 

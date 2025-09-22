@@ -50,8 +50,9 @@ export const CreatorTypeModal = ({
       <Box
         sx={{
           backgroundColor: 'white',
+          borderRadius: 2,
           padding: 3,
-          width: '438px',
+          width: '90%',
           maxWidth: 600,
           position: 'relative'
         }}
@@ -67,7 +68,12 @@ export const CreatorTypeModal = ({
             Choose Creator Type
           </H3>
           <IconButton onClick={onClose} size="small">
-            <Image src="/icon/close.svg" alt="Close" width={20} height={20} />
+            <Image
+              src="/icon/close.svg"
+              alt="Close"
+              width={20}
+              height={20}
+            />
           </IconButton>
         </Box>
 
@@ -78,14 +84,19 @@ export const CreatorTypeModal = ({
               key={type.value}
               sx={{
                 flex: 1,
-                border: '1px solid',
-                borderColor:
-                  selectedType === type.value ? 'primary.main' : 'grey.200',
-                padding: 2,
+                border: selectedType === type.value 
+                  ? '2px solid #1976d2' 
+                  : '1px solid #e0e0e0',
+                borderRadius: 2,
+                padding: 3,
                 cursor: 'pointer',
+                backgroundColor: selectedType === type.value 
+                  ? '#f3f8ff' 
+                  : 'white',
                 transition: 'all 0.2s ease-in-out',
                 '&:hover': {
-                  borderColor: 'primary.main'
+                  borderColor: '#1976d2',
+                  backgroundColor: '#f3f8ff'
                 }
               }}
               onClick={() => setSelectedType(type.value)}
@@ -96,16 +107,21 @@ export const CreatorTypeModal = ({
                   checked={selectedType === type.value}
                   onChange={() => setSelectedType(type.value)}
                   sx={{
-                    color: 'grey.200',
+                    color: '#1976d2',
                     '&.Mui-checked': {
-                      color: 'primary.main'
+                      color: '#1976d2'
                     }
                   }}
                 />
               </Box>
 
               {/* Icon */}
-              <Box display="flex" justifyContent="center" mb={2}>
+              <Box 
+                display="flex" 
+                justifyContent="center" 
+                mb={2}
+                sx={{ height: 60 }}
+              >
                 <Image
                   src={type.icon}
                   alt={type.label}

@@ -89,6 +89,32 @@ class AuthService {
       throw error;
     }
   }
+
+  async updateEventOrganizerLegal(
+    eoId: string,
+    data: {
+      npwp_photo_id: string;
+      npwp_number: string;
+      npwp_address: string;
+      full_name: string;
+      ktp_photo_id?: string;
+      ktp_number?: string;
+      ktp_address?: string;
+      pic_name?: string;
+      pic_title?: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/event-organizers/${eoId}/legal`,
+        data,
+        'Failed to update event organizer legal information'
+      );
+    } catch (error) {
+      console.error('Update event organizer legal error:', error);
+      throw error;
+    }
+  }
 }
 
 const authService = new AuthService();

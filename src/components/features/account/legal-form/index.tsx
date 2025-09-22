@@ -1,22 +1,50 @@
 import { EventOrganizer } from '@/types/organizer';
 import { Box } from '@mui/material';
 import { Body2 } from '@/components/common';
-import { LegelFormDetailInfo } from './detail';
+import { LegalFormDetailInfo } from './detail';
+import { LegalEditForm } from './edit';
+import { useUpdateEventOrganizerLegal } from '@/hooks';
+import { useState } from 'react';
 
 interface LegalFormProps {
   eventOrganizer?: EventOrganizer | null;
   loading?: boolean;
   error?: string | null;
   mode?: 'view' | 'edit';
+  onCancel?: () => void;
 }
 
 const LegalForm = ({
   eventOrganizer,
   loading,
   mode,
-  error
+  error,
+  onCancel
 }: LegalFormProps) => {
-  console.log(eventOrganizer, '<<eventOrganizer');
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const {
+    updateLegal,
+    loading: updateLoading,
+    error: updateErrorState
+  } = useUpdateEventOrganizerLegal();
+
+  const handleSubmit = async (data: any) => {
+    try {
+      if (eventOrganizer?.id) {
+        await updateLegal(eventOrganizer.id, data);
+        setUpdateError(null);
+        if (onCancel) {
+          onCancel();
+        }
+      }
+    } catch (err) {
+      setUpdateError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update legal information'
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -60,12 +88,24 @@ const LegalForm = ({
   }
 
   if (mode === 'view') {
-    return <LegelFormDetailInfo organizerDetail={eventOrganizer} />;
+    return <LegalFormDetailInfo organizerDetail={eventOrganizer} />;
+  }
+
+  if (mode === 'edit') {
+    return (
+      <LegalEditForm
+        eventOrganizer={eventOrganizer}
+        onSubmit={handleSubmit}
+        onCancel={onCancel}
+        error={updateError || updateErrorState}
+        loading={updateLoading}
+      />
+    );
   }
 
   return (
     <Box>
-      <Body2 mt={2}>Legal Form Component (Coming Soon)</Body2>
+      <Body2 mt={2}>Legal Form Edit Component (Coming Soon)</Body2>
     </Box>
   );
 };
