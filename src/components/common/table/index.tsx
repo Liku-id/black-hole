@@ -22,7 +22,7 @@ const StyledTableHead = styled(TableHead)({
 });
 
 const StyledTableBody = styled(TableBody)(({ theme }) => ({
-  overflow: 'scroll',  
+  overflow: 'scroll',
   '& .MuiTableRow-root': {
     borderTop: `1px solid ${theme.palette.grey[100]}`,
     '&:hover': {
@@ -31,7 +31,7 @@ const StyledTableBody = styled(TableBody)(({ theme }) => ({
   },
   '& .MuiTableCell-body': {
     border: 'none',
-    borderTop: `1px solid ${theme.palette.grey[100]}`,    
+    borderTop: `1px solid ${theme.palette.grey[100]}`
   },
   '& .MuiTableCell-root': {
     padding: '16px 0px'

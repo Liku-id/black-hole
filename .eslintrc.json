@@ -39,15 +39,8 @@
         }
       }
     ],
-    "react/jsx-sort-props": [
-      "error",
-      {
-        "callbacksLast": true,
-        "shorthandFirst": true,
-        "ignoreCase": true,
-        "reservedFirst": true
-      }
-    ]
+    "react/jsx-sort-props": "warn",
+    "import/order": "warn"
   },
   "settings": {
     "import/resolver": {

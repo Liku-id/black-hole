@@ -25,4 +25,3 @@ const useEventOrganizerMe = (): UseEventOrganizerMeReturn => {
 };
 
 export { useEventOrganizerMe };
-

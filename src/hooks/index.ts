@@ -9,6 +9,7 @@ export { useEventsSubmissionDetail } from './features/events-submissions/useEven
 export { useOrganizers } from './features/organizers/useOrganizers';
 export { useEventOrganizerMe } from './features/organizers/useEventOrganizerMe';
 export { useUpdateEventOrganizerGeneral } from './features/organizers/useUpdateEventOrganizerGeneral';
+export { useUpdateEventOrganizerLegal } from './features/organizers/useUpdateEventOrganizerLegal';
 export { useWithdrawalSummaries } from './features/withdrawal/useWithdrawalSummaries';
 export { useWithdrawalSummary } from './features/withdrawal/useWithdrawalSummary';
 export { useTransactions } from './features/transactions/useTransactions';

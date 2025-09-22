@@ -118,7 +118,8 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
               </TableCell>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                   {dateUtils.formatDateDDMMYYYY(event.startDate)} - {dateUtils.formatDateDDMMYYYY(event.endDate)}
+                  {dateUtils.formatDateDDMMYYYY(event.startDate)} -{' '}
+                  {dateUtils.formatDateDDMMYYYY(event.endDate)}
                 </Body2>
               </TableCell>
               <TableCell>

@@ -1,29 +1,62 @@
-import { EventOrganizer } from '@/types/organizer';
+import { useState } from 'react';
+
 import { Box } from '@mui/material';
+
 import { Body2 } from '@/components/common';
-import { LegelFormDetailInfo } from './detail';
+
+import { EventOrganizer } from '@/types/organizer';
+
+import { useUpdateEventOrganizerLegal } from '@/hooks';
+
+import { LegalFormDetailInfo } from './detail';
+import { LegalEditForm } from './edit';
 
 interface LegalFormProps {
   eventOrganizer?: EventOrganizer | null;
   loading?: boolean;
   error?: string | null;
   mode?: 'view' | 'edit';
+  onCancel?: () => void;
 }
 
 const LegalForm = ({
   eventOrganizer,
   loading,
   mode,
-  error
+  error,
+  onCancel
 }: LegalFormProps) => {
-  console.log(eventOrganizer, '<<eventOrganizer');
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const {
+    updateLegal,
+    loading: updateLoading,
+    error: updateErrorState
+  } = useUpdateEventOrganizerLegal();
+
+  const handleSubmit = async (data: any) => {
+    try {
+      if (eventOrganizer?.id) {
+        await updateLegal(eventOrganizer.id, data);
+        setUpdateError(null);
+        if (onCancel) {
+          onCancel();
+        }
+      }
+    } catch (err) {
+      setUpdateError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update legal information'
+      );
+    }
+  };
 
   if (loading) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="200px"
       >
         <Body2>Loading legal information...</Body2>
@@ -34,9 +67,9 @@ const LegalForm = ({
   if (error) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="200px"
       >
         <Body2 color="error.main">
@@ -49,9 +82,9 @@ const LegalForm = ({
   if (!eventOrganizer) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="200px"
       >
         <Body2>No legal information found</Body2>
@@ -60,12 +93,24 @@ const LegalForm = ({
   }
 
   if (mode === 'view') {
-    return <LegelFormDetailInfo organizerDetail={eventOrganizer} />;
+    return <LegalFormDetailInfo organizerDetail={eventOrganizer} />;
+  }
+
+  if (mode === 'edit') {
+    return (
+      <LegalEditForm
+        eventOrganizer={eventOrganizer}
+        error={updateError || updateErrorState}
+        loading={updateLoading}
+        onCancel={onCancel}
+        onSubmit={handleSubmit}
+      />
+    );
   }
 
   return (
     <Box>
-      <Body2 mt={2}>Legal Form Component (Coming Soon)</Body2>
+      <Body2 mt={2}>Legal Form Edit Component (Coming Soon)</Body2>
     </Box>
   );
 };

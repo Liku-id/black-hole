@@ -49,10 +49,12 @@ class AssetsService {
     }
   }
 
-  async uploadAsset(data: UploadAssetRequest | File): Promise<UploadAssetResponse> {
+  async uploadAsset(
+    data: UploadAssetRequest | File
+  ): Promise<UploadAssetResponse> {
     try {
       let requestData: UploadAssetRequest;
-      
+
       if (data instanceof File) {
         // Convert File to base64
         const base64 = await new Promise<string>((resolve) => {

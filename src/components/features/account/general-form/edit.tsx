@@ -1,4 +1,4 @@
-import { Box, Grid, IconButton, InputAdornment } from '@mui/material';
+import { Box, Grid, IconButton } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
@@ -6,18 +6,12 @@ import {
   TextField,
   TextArea,
   Button,
-  Caption,
   Overline,
-  DropdownSelector,
   Body2
 } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
 import { assetsService } from '@/services';
 import Image from 'next/image';
-import { Upload, UploadFile } from '@mui/icons-material';
-
-// Social Media Platforms (static)
-const socialMediaPlatforms = ['tiktok', 'instagram', 'twitter'];
 
 interface FormData {
   name: string;
@@ -29,11 +23,6 @@ interface FormData {
   twitter: string;
   aboutOrganizer: string;
   profilePicture: File | null;
-}
-
-interface SocialMedia {
-  platform: string;
-  url: string;
 }
 
 interface OrganizerEditFormProps {
@@ -85,7 +74,6 @@ export const OrganizerEditForm = ({
 }: OrganizerEditFormProps) => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploadedAssetId, setUploadedAssetId] = useState<string | null>(null);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   const methods = useForm<FormData>({
@@ -112,7 +100,6 @@ export const OrganizerEditForm = ({
     // Set initial image preview from existing asset (only if no user interaction yet)
     if (eventOrganizer.asset?.url && !hasUserInteracted) {
       setImagePreview(eventOrganizer.asset.url);
-      setUploadedAssetId(eventOrganizer.asset_id || null);
     }
 
     // Set form values
@@ -126,10 +113,10 @@ export const OrganizerEditForm = ({
   const handleImageUpload = (file: File) => {
     // Mark that user has interacted
     setHasUserInteracted(true);
-    
+
     // Clear any existing preview first
     setImagePreview(null);
-    
+
     // Set the file and create new preview
     setValue('profilePicture', file);
 
@@ -144,13 +131,14 @@ export const OrganizerEditForm = ({
   const handleImageRemove = () => {
     // Mark that user has interacted
     setHasUserInteracted(true);
-    
+
     setValue('profilePicture', null);
     setImagePreview(null);
-    setUploadedAssetId(null);
-    
+
     // Clear the file input
-    const fileInput = document.getElementById('profile-picture-upload') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      'profile-picture-upload'
+    ) as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
     }
@@ -162,14 +150,14 @@ export const OrganizerEditForm = ({
     if (watchedProfilePicture && watchedProfilePicture instanceof File) {
       return watchedProfilePicture.name;
     }
-    
+
     // If there's an existing asset from backend, show filename from key
     if (eventOrganizer.asset?.key && !hasUserInteracted) {
       const keyParts = eventOrganizer.asset.key.split('/');
       const filename = keyParts[keyParts.length - 1];
       return filename;
     }
-    
+
     // Default text
     return 'max 2 MB • File type: .jpeg / .jpg / .png';
   };
@@ -187,7 +175,6 @@ export const OrganizerEditForm = ({
             data.profilePicture
           );
           finalAssetId = uploadResponse.body.asset.id;
-          setUploadedAssetId(finalAssetId);
         } catch (uploadError) {
           console.error('Failed to upload image:', uploadError);
           setUploadingImage(false);
@@ -500,6 +487,13 @@ export const OrganizerEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
             <Button
               type="submit"
               variant="primary"

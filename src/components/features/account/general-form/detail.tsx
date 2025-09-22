@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Box, Grid, Avatar } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
 import { Body2 } from '@/components/common';
 
@@ -75,9 +75,6 @@ const OrganizerField = ({
   </Box>
 );
 
-
-
-
 // ProfilePictureField component
 const ProfilePictureField = ({
   profilePicture,
@@ -113,7 +110,8 @@ const ProfilePictureField = ({
           width: 'auto',
           maxWidth: '100%',
           objectFit: 'contain',
-          display: 'block'
+          display: 'block',
+          marginTop: '8px'
         }}
       />
     )}
