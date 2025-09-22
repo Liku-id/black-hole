@@ -256,7 +256,7 @@ export const OrganizerEditForm = ({
               <Grid item xs={12}>
                 <Box>
                   <Body2 color="text.primary" mb={1}>
-                    Social Media
+                    Social Media*
                   </Body2>
 
                   {/* TikTok */}
@@ -389,7 +389,7 @@ export const OrganizerEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Address"
+                  label="Address*"
                   name="address"
                   placeholder="Your address"
                   rules={{
@@ -401,9 +401,12 @@ export const OrganizerEditForm = ({
               {/* Profile Picture */}
               <Grid item xs={12}>
                 <Box>
-                  <Body2 color="text.primary" mb={1}>
-                    Profile Picture
-                  </Body2>
+                  <Box display="flex" alignItems="center" gap={1} mb={1}>
+                    <Body2 color="text.primary">Profile Picture* </Body2>
+                    <Overline sx={{ color: 'text.secondary' }}>
+                      This will use as a creator logo
+                    </Overline>
+                  </Box>
 
                   <Box
                     border="1px solid"

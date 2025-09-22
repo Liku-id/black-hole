@@ -39,11 +39,11 @@ export default async function handler(
       ktp_number,
       ktp_address,
       pic_name,
-      pic_title
+      pic_title,
     }: UpdateLegalRequest = req.body;
 
     // Validate required fields
-    if (!npwp_photo_id || !npwp_number || !npwp_address || !full_name) {
+    if (!npwp_photo_id || !npwp_number) {
       return res.status(400).json({
         message:
           'Missing required fields: npwp_photo_id, npwp_number, npwp_address, full_name'
