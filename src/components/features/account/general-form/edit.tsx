@@ -487,11 +487,7 @@ export const OrganizerEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onCancel}
-            >
+            <Button type="button" variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
             <Button

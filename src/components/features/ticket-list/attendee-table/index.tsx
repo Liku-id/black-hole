@@ -87,7 +87,7 @@ export const AttendeeTable = ({
   );
   const [redeemLoading, setRedeemLoading] = useState(false);
 
-  const { showSuccess, showError } = useToast();
+  const { showInfo, showError } = useToast();
   const { user } = useAuth();
 
   const handleActionClick = (
@@ -162,7 +162,7 @@ export const AttendeeTable = ({
         ticketStatus: 'redeemed'
       });
 
-      showSuccess('Ticket redeemed successfully!');
+      showInfo('Ticket Redeemed');
 
       // Call the parent component's redeem handler to refresh data
       onRedeemTicket(selectedAttendee.id);
