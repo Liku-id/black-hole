@@ -146,7 +146,7 @@ export const LegalEditForm = ({
         setUploadError('Address as in NPWP is required');
         return;
       }
-      if (!data.full_name.trim()) {
+      if (!data.pic_name.trim()) {
         setUploadError('Full name as in NPWP is required');
         return;
       }
@@ -224,7 +224,8 @@ export const LegalEditForm = ({
           npwp_photo_id: finalNpwpPhotoId,
           npwp_number: formData.npwp_number,
           npwp_address: formData.npwp_address,
-          full_name: formData.full_name
+          pic_name: formData.pic_name,
+          full_name: eventOrganizer.full_name // Keep full_name unchanged
         };
       }
 
@@ -401,7 +402,7 @@ export const LegalEditForm = ({
                     <TextField
                       fullWidth
                       label="Full Name as in NPWP*"
-                      name="full_name"
+                      name="pic_name"
                       placeholder="Full Name as in NPWP"
                       rules={{
                         required: 'Full Name as in NPWP is required'
