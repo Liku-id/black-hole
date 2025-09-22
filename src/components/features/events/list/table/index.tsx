@@ -118,7 +118,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
               </TableCell>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  -
+                  {dateUtils.formatDateDDMMYYYY(event.startDate)}
                 </Body2>
               </TableCell>
               <TableCell>
@@ -137,13 +137,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
               </TableCell>
               <TableCell>
                 <Body2 color="primary.main" fontSize="14px" fontWeight={700}>
-                  {event.lowestPriceTicketType?.price &&
-                  event.lowestPriceTicketType?.purchased_amount
-                    ? formatPrice(
-                        event.lowestPriceTicketType.price *
-                          event.lowestPriceTicketType.purchased_amount
-                      )
-                    : '-'}
+                  {'-'}
                 </Body2>
               </TableCell>
               <TableCell align="right">

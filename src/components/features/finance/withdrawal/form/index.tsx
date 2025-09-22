@@ -1,70 +1,77 @@
 import { Box, Grid, useTheme } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Body2, Caption, TextField } from '@/components/common';
-import { withdrawalService } from '@/services';
-import { WithdrawalSummary } from '@/services/withdrawal';
+import { Body2, Button, Caption, Select, TextField } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { withdrawalService, WithdrawalSummary } from '@/services/withdrawal';
+import { isEventOrganizer } from '@/types/auth';
+import { EventDetail } from '@/types/event';
 import { formatUtils } from '@/utils';
+
+import { WithdrawalModal } from '../modal';
 
 interface WithdrawalFormProps {
   eventId: string;
+  eventDetail: EventDetail | null;
+  summary: WithdrawalSummary | null;
+  summaryLoading: boolean;
 }
 
 interface WithdrawalFormData {
   withdrawalName: string;
   withdrawalAmount: string;
+  bankAccount: string;
+  accountHolderName: string;
+  accountNumber: string;
 }
 
-export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
+export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
+  eventId,
+  eventDetail,
+  summary,
+  summaryLoading
+}) => {
   const theme = useTheme();
-  const [summary, setSummary] = useState<WithdrawalSummary | null>(null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const router = useRouter();
+  const { user } = useAuth();
+  const { showInfo } = useToast();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [withdrawalLoading, setWithdrawalLoading] = useState(false);
+  const [withdrawalError, setWithdrawalError] = useState<string | null>(null);
+
+  // Get bank information from user data
+  const bankInfo =
+    user && isEventOrganizer(user) ? user.bank_information : null;
 
   const methods = useForm<WithdrawalFormData>({
     defaultValues: {
-      withdrawalName: '',
-      withdrawalAmount: ''
+      withdrawalName: bankInfo?.accountHolderName || '',
+      withdrawalAmount: '',
+      bankAccount: bankInfo
+        ? `${bankInfo.bank.name} - ${bankInfo.accountNumber}`
+        : '',
+      accountHolderName: bankInfo?.accountHolderName || '',
+      accountNumber: bankInfo?.accountNumber || ''
     }
   });
 
-  const { watch } = methods;
+  const { watch, formState } = methods;
   const withdrawalAmount = watch('withdrawalAmount');
+  const { isValid } = formState;
 
-  // Fetch withdrawal summary
-  const fetchSummary = async () => {
-    if (!eventId) return;
-
-    setSummaryLoading(true);
-    setSummaryError(null);
-
-    try {
-      const response = await withdrawalService.getSummaryByEventId(eventId);
-      setSummary(response.body);
-    } catch (err) {
-      setSummaryError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to fetch withdrawal summary'
-      );
-    } finally {
-      setSummaryLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSummary();
-  }, [eventId]);
-
-  // Calculate fees and totals
   const calculateFees = () => {
     const amount = parseFloat(withdrawalAmount) || 0;
-    const platformFee = amount * 0.05; // 5% platform fee
-    const adminFee = amount * 0.02; // 2% admin fee
-    const withdrawalFee = 5000; // Fixed withdrawal fee
+    const platformFee = eventDetail?.tax ? (amount * eventDetail.tax) / 100 : 0;
+    const adminFee = eventDetail?.adminFee
+      ? eventDetail.adminFee < 100
+        ? (amount * eventDetail.adminFee) / 100
+        : eventDetail.adminFee
+      : 0;
+    const withdrawalFee = 0;
     const grandTotal = amount + platformFee + adminFee + withdrawalFee;
-
     return {
       platformFee,
       adminFee,
@@ -75,9 +82,47 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
 
   const fees = calculateFees();
 
-  // const handleSubmit = (data: WithdrawalFormData) => {
-  //   console.log(data);
-  // };
+  const handleWithdrawalClick = async () => {
+    setWithdrawalError(null);
+    const isValid = await methods.trigger();
+    if (isValid) {
+      setModalOpen(true);
+    }
+  };
+
+  const handleWithdrawalConfirm = async () => {
+    const formData = methods.getValues();
+
+    setWithdrawalLoading(true);
+    setWithdrawalError(null);
+
+    try {
+      const response = await withdrawalService.createWithdrawal({
+        eventId,
+        requestedAmount: formData.withdrawalAmount,
+        bankId: bankInfo?.bankId || '',
+        accountNumber: formData.accountNumber,
+        accountHolderName: formData.accountHolderName
+      });
+
+      if (response.statusCode !== 200) {
+        throw new Error(response.message || 'Failed to process withdrawal');
+      }
+
+      showInfo('Withdrawal Success!');
+      router.push('/finance');
+    } catch (error) {
+      setWithdrawalError(
+        error instanceof Error ? error.message : 'Failed to process withdrawal'
+      );
+      setWithdrawalLoading(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setWithdrawalError(null);
+  };
 
   return (
     <FormProvider {...methods}>
@@ -86,6 +131,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
         <Grid item md={8} xs={12}>
           <Box bgcolor="background.paper" borderRadius={1} padding="24px">
             <TextField
+              disabled
               fullWidth
               label="Withdrawal Name*"
               name="withdrawalName"
@@ -102,7 +148,6 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
             <Box mb={2}>
               <Caption
                 borderBottom={`1px solid ${theme.palette.grey[200]}`}
-                color="text.secondary"
                 paddingBottom={2}
               >
                 Total Revenue
@@ -117,7 +162,6 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
             <Box mb={2}>
               <Caption
                 borderBottom={`1px solid ${theme.palette.grey[200]}`}
-                color="text.secondary"
                 paddingBottom={2}
               >
                 Balance on Hold
@@ -134,7 +178,6 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
             <Box mb={4}>
               <Caption
                 borderBottom={`1px solid ${theme.palette.grey[200]}`}
-                color="text.secondary"
                 paddingBottom={2}
               >
                 Available for Withdrawal
@@ -163,7 +206,11 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
                   placeholder="Add Withdrawal Amount here"
                   rules={{
                     required: 'Withdrawal amount is required',
-                    min: { value: 1, message: 'Amount must be greater than 0' }
+                    min: { value: 1, message: 'Amount must be greater than 0' },
+                    max: {
+                      value: summary ? parseFloat(summary.availableAmount) : 0,
+                      message: `Amount cannot exceed available balance of ${summary ? formatUtils.formatPrice(parseFloat(summary.availableAmount)) : 'Rp 0'}`
+                    }
                   }}
                   startComponent={<Box marginRight={1}>Rp</Box>}
                 />
@@ -196,7 +243,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
                 >
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
-                      <Caption color="text.primary">Buyer Admin Fee</Caption>
+                      <Caption color="text.primary" fontWeight={700}>
+                        Buyer Admin Fee
+                      </Caption>
                     </Grid>
                     <Grid item xs={6}>
                       <Caption color="error.main">
@@ -215,7 +264,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
                 >
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
-                      <Caption color="text.primary">Withdrawal Fee</Caption>
+                      <Caption color="text.primary" fontWeight={700}>
+                        Withdrawal Fee
+                      </Caption>
                     </Grid>
                     <Grid item xs={6}>
                       <Caption color="error.main">
@@ -234,7 +285,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
                 >
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
-                      <Caption color="text.primary" fontWeight={600}>
+                      <Caption color="text.primary" fontWeight={700}>
                         Grand Total
                       </Caption>
                     </Grid>
@@ -248,13 +299,22 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
                   </Grid>
                 </Box>
 
-                <Box mt={1}>
+                <Box mb={4} mt={1}>
                   <Caption color="text.secondary">
                     * Estimated withdrawal acceptance time is 2-3 working days
                   </Caption>
                   <Caption color="text.secondary">
                     ** You can only make a withdrawal once a day
                   </Caption>
+                </Box>
+
+                <Box textAlign="right">
+                  <Button
+                    disabled={!withdrawalAmount || summaryLoading || !isValid}
+                    onClick={handleWithdrawalClick}
+                  >
+                    Withdraw
+                  </Button>
                 </Box>
               </Grid>
             </Grid>
@@ -264,58 +324,43 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ eventId }) => {
         {/* Right Grid - Summary (4/12) */}
         <Grid item md={4} xs={12}>
           <Box bgcolor="background.paper" borderRadius={1} padding="24px">
-            <Body2 color="text.primary" fontSize="16px" fontWeight={600} mb={2}>
-              Withdrawal Summary
+            <Body2 color="text.primary" fontSize="16px" fontWeight={600} mb={5}>
+              Bank Account
             </Body2>
 
-            {summaryLoading ? (
-              <Caption color="text.secondary">Loading...</Caption>
-            ) : summaryError ? (
-              <Caption color="error.main">{summaryError}</Caption>
-            ) : summary ? (
-              <Box>
-                <Box mb={2}>
-                  <Caption color="text.secondary">Available Amount</Caption>
-                  <Body2 color="text.primary" fontSize="16px" fontWeight={600}>
-                    {formatUtils.formatPrice(
-                      parseFloat(summary.availableAmount)
-                    )}
-                  </Body2>
-                </Box>
-
-                <Box mb={2}>
-                  <Caption color="text.secondary">Total Revenue</Caption>
-                  <Body2 color="text.primary" fontSize="16px">
-                    {formatUtils.formatPrice(parseFloat(summary.totalAmount))}
-                  </Body2>
-                </Box>
-
-                <Box>
-                  <Caption color="text.secondary">Balance on Hold</Caption>
-                  <Body2 color="text.primary" fontSize="16px">
-                    {formatUtils.formatPrice(
-                      parseFloat(summary.pendingSettlementAmount)
-                    )}
-                  </Body2>
-                </Box>
-              </Box>
-            ) : (
-              <Caption color="text.secondary">No data available</Caption>
-            )}
+            <Select
+              disabled
+              fullWidth
+              label="Bank Account"
+              name="bankAccount"
+              options={
+                bankInfo
+                  ? [
+                      {
+                        value: `${bankInfo.bank.name} - ${bankInfo.accountNumber}`,
+                        label: `${bankInfo.bank.name} - ${bankInfo.accountNumber}`
+                      }
+                    ]
+                  : []
+              }
+              placeholder={
+                bankInfo
+                  ? `${bankInfo.bank.name} - ${bankInfo.accountNumber}`
+                  : 'No bank information available'
+              }
+              rules={{ required: 'Bank account is required' }}
+            />
           </Box>
         </Grid>
       </Grid>
 
-      {/* Submit Button */}
-      {/* <Box mt={3} display="flex" justifyContent="flex-end">
-        <Button
-          variant="primary"
-          onClick={methods.handleSubmit(handleSubmit)}
-          disabled={!withdrawalAmount || summaryLoading}
-        >
-          Submit Withdrawal
-        </Button>
-      </Box> */}
+      <WithdrawalModal
+        error={withdrawalError}
+        loading={withdrawalLoading}
+        open={modalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleWithdrawalConfirm}
+      />
     </FormProvider>
   );
 };

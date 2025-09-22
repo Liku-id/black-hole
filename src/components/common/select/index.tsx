@@ -14,7 +14,7 @@ import { Body2 } from '@/components/common';
 import { StyledTextField } from '../text-field/StyledTextField';
 
 interface SelectOption {
-  value: string;
+  value: any;
   label: string;
 }
 
@@ -28,8 +28,8 @@ interface CustomSelectProps
   options: SelectOption[];
   placeholder?: string;
   fullWidth?: boolean;
-  value?: string;
-  onChange?: (value: string) => void;
+  value?: any;
+  onChange?: (value: any) => void;
 }
 
 export const CustomSelect = (props: CustomSelectProps) => {

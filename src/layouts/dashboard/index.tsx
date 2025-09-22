@@ -43,6 +43,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
+  // Get user role for menu access control
+  const userRole =
+    user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -84,11 +88,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </Body1>
       <List sx={{ padding: 0 }}>
         {menuItems.map((item) => {
+          if (
+            item.text === 'Approval' &&
+            userRole !== 'admin' &&
+            userRole !== 'business_development'
+          ) {
+            return null;
+          }
+
           return (
             <ListItem
               key={item.text}
-              button
-              selected={router.pathname === item.path}
               sx={{
                 alignItems: 'center',
                 padding: '16px',

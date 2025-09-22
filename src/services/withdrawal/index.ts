@@ -24,6 +24,47 @@ export interface WithdrawalSummaryResponse {
   body: WithdrawalSummary;
 }
 
+export interface WithdrawalRequest {
+  eventId: string;
+  requestedAmount: string;
+  bankId: string;
+  accountNumber: string;
+  accountHolderName: string;
+}
+
+export interface FeeSnapshot {
+  threshold: string;
+  platformFee: number;
+  feeAmount: number;
+}
+
+export interface WithdrawalResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    id: string;
+    withdrawalId: string;
+    eventId: string;
+    eventOrganizerId: string;
+    createdBy: string;
+    requestedAmount: string;
+    totalFee: number;
+    amountReceived: string;
+    status: string;
+    approvedBy: string;
+    approvedAt: string;
+    rejectedBy: string;
+    rejectedAt: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string;
+    feeSnapshot: FeeSnapshot[];
+    bankId: string;
+    accountNumber: string;
+    accountHolderName: string;
+  };
+}
+
 class WithdrawalService {
   async getSummaries(): Promise<WithdrawalSummariesResponse> {
     return apiUtils.get<WithdrawalSummariesResponse>(
@@ -40,6 +81,15 @@ class WithdrawalService {
       `/api/withdrawal/summary/${eventId}`,
       undefined,
       'Failed to fetch withdrawal summary'
+    );
+  }
+
+  async createWithdrawal(data: WithdrawalRequest): Promise<WithdrawalResponse> {
+    console.log(data);
+    return apiUtils.post<WithdrawalResponse>(
+      '/api/withdrawal',
+      data,
+      'Failed to create withdrawal request'
     );
   }
 }
