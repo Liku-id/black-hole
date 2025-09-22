@@ -1,59 +1,47 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
+
+// Transform query parameters for the backend API
+const transformQuery = (query: any) => {
+  const { eventId, page = '0', show = '10', search, ticketTypeIds } = query;
+
+  // Validate required parameters
+  if (!eventId || typeof eventId !== 'string') {
+    throw new Error('eventId is required');
+  }
+
+  const transformedQuery: any = {
+    eventId,
+    page: page.toString(),
+    show: show.toString()
+  };
+
+  if (search && typeof search === 'string') {
+    transformedQuery.search = search;
+  }
+
+  if (ticketTypeIds) {
+    const typeIds = Array.isArray(ticketTypeIds)
+      ? ticketTypeIds
+      : [ticketTypeIds];
+    typeIds.forEach((id, index) => {
+      transformedQuery[`ticketTypeIds[${index}]`] = id.toString();
+    });
+  }
+
+  return transformedQuery;
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+  const getHandler = apiRouteUtils.createGetHandler({
+    endpoint: '/tickets',
+    transformQuery,
+    timeout: 30000
+  });
 
-  try {
-    const { eventId, page, show, search } = req.query;
-
-    // Validate required parameters
-    if (!eventId || typeof eventId !== 'string') {
-      return res.status(400).json({ message: 'eventId is required' });
-    }
-
-    // Build query parameters
-    const params = new URLSearchParams();
-    params.append('eventId', eventId);
-
-    if (page) params.append('page', page.toString());
-    if (show) params.append('show', show.toString());
-    if (search) params.append('search', search.toString());
-
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-    const backendEndpoint = `${backendUrl}/tickets?${params.toString()}`;
-
-    const response = await fetch(backendEndpoint, {
-      method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        // Forward any auth headers if needed
-        ...(req.headers.authorization && {
-          Authorization: req.headers.authorization
-        })
-      }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return res.status(response.status).json({
-        message: `Backend API error: ${response.statusText}`,
-        ...errorData
-      });
-    }
-
-    const data = await response.json();
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error('Error fetching tickets from backend:', error);
-    return res.status(500).json({
-      message: 'Failed to fetch tickets from backend API',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+  return await getHandler(req, res);
 }

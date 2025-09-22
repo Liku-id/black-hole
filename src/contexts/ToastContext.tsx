@@ -1,4 +1,4 @@
-import { Snackbar, useTheme, Box } from '@mui/material';
+import { Box, Snackbar, useTheme } from '@mui/material';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 import { Body2 } from '@/components/common';
@@ -42,11 +42,15 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     message: string,
     severity: 'success' | 'error' | 'warning' | 'info'
   ) => {
-    setToast({
-      open: true,
-      message,
-      severity
-    });
+    try {
+      setToast({
+        open: true,
+        message,
+        severity
+      });
+    } catch (error) {
+      console.error('Error showing toast:', error);
+    }
   };
 
   const showSuccess = (message: string) => showToast(message, 'success');
@@ -61,7 +65,11 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     if (reason === 'clickaway') {
       return;
     }
-    setToast((prev) => ({ ...prev, open: false }));
+    try {
+      setToast((prev) => ({ ...prev, open: false }));
+    } catch (error) {
+      console.error('Error closing toast:', error);
+    }
   };
 
   // Get background color based on severity
@@ -89,6 +97,13 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={4000}
         open={toast.open}
+        sx={{
+          '& .MuiSnackbar-root': {
+            position: 'fixed',
+            top: '20px !important'
+          }
+        }}
+        TransitionComponent={undefined}
         onClose={handleClose}
       >
         <Box

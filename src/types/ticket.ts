@@ -1,3 +1,5 @@
+export type TicketStatus = 'pending' | 'issued' | 'cancelled' | 'redeemed';
+
 export interface Ticket {
   id: string;
   ticket_type_id: string;
@@ -5,13 +7,13 @@ export interface Ticket {
   ticket_id: string;
   ticket_name: string;
   visitor_name: string;
-  ticket_status: string;
+  ticket_status: TicketStatus;
   issued_at: string;
-  redeemed_at: string;
-  checked_in_at: string;
+  redeemed_at?: string;
+  checked_in_at?: string;
   created_at: string;
   updated_at: string;
-  deleted_at: string;
+  deleted_at?: string;
 }
 
 export interface TicketsResponse {
@@ -21,7 +23,7 @@ export interface TicketsResponse {
     tickets: Ticket[];
     show: number;
     page: number;
-    total: string;
+    total: number;
     totalPage: number;
   };
 }
@@ -42,4 +44,5 @@ export interface TicketsFilters {
   page?: number;
   show?: number;
   search?: string;
+  ticketTypeIds?: string[];
 }
