@@ -39,8 +39,9 @@
         }
       }
     ],
-    "react/jsx-sort-props": "warn",
-    "import/order": "warn"
+    "react/jsx-sort-props": "off",
+    "import/order": "off",
+    "react-hooks/rules-of-hooks": "error"
   },
   "settings": {
     "import/resolver": {
