@@ -43,7 +43,7 @@ const convertEventOrganizerToDetail = (
     try {
       // Parse JSON string to object
       const socialMediaObj = JSON.parse(organizer.social_media_url);
-      
+
       // Convert object to array format
       socialMedia = Object.entries(socialMediaObj).map(([platform, url]) => ({
         platform: platform.charAt(0).toUpperCase() + platform.slice(1), // Capitalize first letter
@@ -51,7 +51,7 @@ const convertEventOrganizerToDetail = (
       }));
     } catch (error) {
       console.warn('Failed to parse social_media_url:', error);
-      
+
       // Fallback: try to parse as comma-separated URLs
       try {
         const urls = organizer.social_media_url
@@ -62,7 +62,10 @@ const convertEventOrganizerToDetail = (
           url: url
         }));
       } catch (fallbackError) {
-        console.warn('Failed to parse social_media_url as comma-separated:', fallbackError);
+        console.warn(
+          'Failed to parse social_media_url as comma-separated:',
+          fallbackError
+        );
         socialMedia = [];
       }
     }
@@ -136,13 +139,13 @@ const GeneralForm = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
-  const { updateOrganizer, loading: updateLoading, error: updateErrorState } = useUpdateEventOrganizerGeneral();
+  const {
+    updateOrganizer,
+    loading: updateLoading,
+    error: updateErrorState
+  } = useUpdateEventOrganizerGeneral();
   const { mutate: refetchOrganizer } = useEventOrganizerMe();
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setUpdateError(null);
-  };
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -164,7 +167,9 @@ const GeneralForm = ({
         onCancel();
       }
     } catch (err) {
-      setUpdateError(err instanceof Error ? err.message : 'Failed to update organizer');
+      setUpdateError(
+        err instanceof Error ? err.message : 'Failed to update organizer'
+      );
     }
   };
 

@@ -1,5 +1,6 @@
-import { Box, Modal, IconButton, Radio, Typography } from '@mui/material';
 import { useState } from 'react';
+
+import { Box, Modal, IconButton, Radio, Typography } from '@mui/material';
 import Image from 'next/image';
 
 import { Button, H3 } from '@/components/common';
@@ -67,13 +68,8 @@ export const CreatorTypeModal = ({
           <H3 color="text.primary" fontWeight={700}>
             Choose Creator Type
           </H3>
-          <IconButton onClick={onClose} size="small">
-            <Image
-              src="/icon/close.svg"
-              alt="Close"
-              width={20}
-              height={20}
-            />
+          <IconButton size="small" onClick={onClose}>
+            <Image alt="Close" height={20} src="/icon/close.svg" width={20} />
           </IconButton>
         </Box>
 
@@ -84,15 +80,15 @@ export const CreatorTypeModal = ({
               key={type.value}
               sx={{
                 flex: 1,
-                border: selectedType === type.value 
-                  ? '2px solid #1976d2' 
-                  : '1px solid #e0e0e0',
+                border:
+                  selectedType === type.value
+                    ? '2px solid #1976d2'
+                    : '1px solid #e0e0e0',
                 borderRadius: 2,
                 padding: 3,
                 cursor: 'pointer',
-                backgroundColor: selectedType === type.value 
-                  ? '#f3f8ff' 
-                  : 'white',
+                backgroundColor:
+                  selectedType === type.value ? '#f3f8ff' : 'white',
                 transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   borderColor: '#1976d2',
@@ -116,9 +112,9 @@ export const CreatorTypeModal = ({
               </Box>
 
               {/* Icon */}
-              <Box 
-                display="flex" 
-                justifyContent="center" 
+              <Box
+                display="flex"
+                justifyContent="center"
                 mb={2}
                 sx={{ height: 60 }}
               >

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { authService } from '@/services';
 
 interface UpdateEventOrganizerLegalData {
@@ -14,34 +15,47 @@ interface UpdateEventOrganizerLegalData {
 }
 
 interface UseUpdateEventOrganizerLegalReturn {
-  updateLegal: (eoId: string, data: UpdateEventOrganizerLegalData) => Promise<any>;
+  updateLegal: (
+    eoId: string,
+    data: UpdateEventOrganizerLegalData
+  ) => Promise<any>;
   loading: boolean;
   error: string | null;
 }
 
-export const useUpdateEventOrganizerLegal = (): UseUpdateEventOrganizerLegalReturn => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const useUpdateEventOrganizerLegal =
+  (): UseUpdateEventOrganizerLegalReturn => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-  const updateLegal = async (eoId: string, data: UpdateEventOrganizerLegalData) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await authService.updateEventOrganizerLegal(eoId, data);
-      return response;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update legal information';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    const updateLegal = async (
+      eoId: string,
+      data: UpdateEventOrganizerLegalData
+    ) => {
+      setLoading(true);
+      setError(null);
 
-  return {
-    updateLegal,
-    loading,
-    error
+      try {
+        const response = await authService.updateEventOrganizerLegal(
+          eoId,
+          data
+        );
+        return response;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : 'Failed to update legal information';
+        setError(errorMessage);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return {
+      updateLegal,
+      loading,
+      error
+    };
   };
-};

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Box, Grid, Divider, Typography } from '@mui/material';
 
-import { Body1, Body2, H4 } from '@/components/common';
+import { Body1, Body2 } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
 
 interface LegalFormDetailProps {

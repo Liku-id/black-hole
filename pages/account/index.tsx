@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
+
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+
 import { Box, Card, CardContent } from '@mui/material';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, Button, H2, Body2, Caption, H4 } from '@/components/common';
-import DashboardLayout from '@/layouts/dashboard';
+import BankForm from '@/components/features/account/bank-form';
+import { CreatorTypeModal } from '@/components/features/account/creator-type-modal';
 import GeneralForm from '@/components/features/account/general-form';
 import LegalForm from '@/components/features/account/legal-form';
-import BankForm from '@/components/features/account/bank-form';
 import { useEventOrganizerMe, useUpdateEventOrganizerGeneral } from '@/hooks';
-import { CreatorTypeModal } from '@/components/features/account/creator-type-modal';
+import DashboardLayout from '@/layouts/dashboard';
 
 function Account() {
   const router = useRouter();
@@ -28,8 +30,7 @@ function Account() {
   } = useEventOrganizerMe();
 
   // Update organizer general info hook
-  const { updateOrganizer, loading: updateLoading } =
-    useUpdateEventOrganizerGeneral();
+  const { updateOrganizer } = useUpdateEventOrganizerGeneral();
 
   const tabs = [
     {
@@ -114,10 +115,10 @@ function Account() {
         );
       case 'legal':
         return (
-          <LegalForm 
-            mode={isEditing ? 'edit' : 'view'} 
+          <LegalForm
+            mode={isEditing ? 'edit' : 'view'}
             onCancel={handleCancelEdit}
-            {...commonProps} 
+            {...commonProps}
           />
         );
       default:
@@ -175,8 +176,8 @@ function Account() {
                 {activeLable}
               </H4>
               <Button
-                onClick={isEditing ? handleCancelEdit : handleEdit}
                 variant={isEditing ? 'secondary' : 'primary'}
+                onClick={isEditing ? handleCancelEdit : handleEdit}
               >
                 {isEditing ? 'Cancel' : `Edit ${activeLable}`}
               </Button>

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
+
 import { getSession, isAuthenticated } from '@/lib/sessionHelpers';
 
 interface UpdateLegalRequest {

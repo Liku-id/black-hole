@@ -1,10 +1,15 @@
-import { EventOrganizer } from '@/types/organizer';
+import { useState } from 'react';
+
 import { Box } from '@mui/material';
+
 import { Body2 } from '@/components/common';
+
+import { EventOrganizer } from '@/types/organizer';
+
+import { useUpdateEventOrganizerLegal } from '@/hooks';
+
 import { LegalFormDetailInfo } from './detail';
 import { LegalEditForm } from './edit';
-import { useUpdateEventOrganizerLegal } from '@/hooks';
-import { useState } from 'react';
 
 interface LegalFormProps {
   eventOrganizer?: EventOrganizer | null;
@@ -49,9 +54,9 @@ const LegalForm = ({
   if (loading) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="200px"
       >
         <Body2>Loading legal information...</Body2>
@@ -62,9 +67,9 @@ const LegalForm = ({
   if (error) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="200px"
       >
         <Body2 color="error.main">
@@ -77,9 +82,9 @@ const LegalForm = ({
   if (!eventOrganizer) {
     return (
       <Box
+        alignItems="center"
         display="flex"
         justifyContent="center"
-        alignItems="center"
         minHeight="200px"
       >
         <Body2>No legal information found</Body2>
@@ -95,10 +100,10 @@ const LegalForm = ({
     return (
       <LegalEditForm
         eventOrganizer={eventOrganizer}
-        onSubmit={handleSubmit}
-        onCancel={onCancel}
         error={updateError || updateErrorState}
         loading={updateLoading}
+        onCancel={onCancel}
+        onSubmit={handleSubmit}
       />
     );
   }

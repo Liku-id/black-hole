@@ -29,7 +29,9 @@ export default async function handler(
     const { eo_id } = req.query;
 
     if (!eo_id || typeof eo_id !== 'string') {
-      return res.status(400).json({ message: 'Event organizer ID is required' });
+      return res
+        .status(400)
+        .json({ message: 'Event organizer ID is required' });
     }
 
     // Validate request body

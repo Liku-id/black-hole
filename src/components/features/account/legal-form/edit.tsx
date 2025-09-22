@@ -4,7 +4,6 @@ import { useForm, FormProvider } from 'react-hook-form';
 
 import {
   TextField,
-  TextArea,
   Button,
   Body2,
   Dropzone,
@@ -12,7 +11,7 @@ import {
   Overline
 } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
-import { useApi } from '@/hooks';
+import { assetsService } from '@/services';
 
 interface LegalEditFormProps {
   eventOrganizer: EventOrganizer;
@@ -39,13 +38,8 @@ export const LegalEditForm = ({
   error,
   loading
 }: LegalEditFormProps) => {
-  const [ktpFile, setKtpFile] = useState<File | null>(null);
-  const [npwpFile, setNpwpFile] = useState<File | null>(null);
   const [ktpPhotoId, setKtpPhotoId] = useState<string>('');
   const [npwpPhotoId, setNpwpPhotoId] = useState<string>('');
-  const [uploadingKtp, setUploadingKtp] = useState(false);
-  const [uploadingNpwp, setUploadingNpwp] = useState(false);
-  const { uploadAsset } = useApi();
 
   const isIndividual = eventOrganizer.organizer_type === 'individual';
 
@@ -61,7 +55,7 @@ export const LegalEditForm = ({
     }
   });
 
-  const { handleSubmit, watch } = methods;
+  const { handleSubmit } = methods;
 
   // Initialize photo IDs from existing data
   useEffect(() => {
@@ -74,38 +68,28 @@ export const LegalEditForm = ({
   }, [eventOrganizer]);
 
   const handleKtpUpload = async (file: File) => {
-    setKtpFile(file);
-    setUploadingKtp(true);
     try {
-      const response = await uploadAsset(file);
-      setKtpPhotoId(response.id);
+      const response = await assetsService.uploadAsset(file);
+      setKtpPhotoId(response.body.asset.id);
     } catch (error) {
       console.error('Failed to upload KTP image:', error);
-    } finally {
-      setUploadingKtp(false);
     }
   };
 
   const handleNpwpUpload = async (file: File) => {
-    setNpwpFile(file);
-    setUploadingNpwp(true);
     try {
-      const response = await uploadAsset(file);
-      setNpwpPhotoId(response.id);
+      const response = await assetsService.uploadAsset(file);
+      setNpwpPhotoId(response.body.asset.id);
     } catch (error) {
       console.error('Failed to upload NPWP image:', error);
-    } finally {
-      setUploadingNpwp(false);
     }
   };
 
   const handleKtpRemove = () => {
-    setKtpFile(null);
     setKtpPhotoId('');
   };
 
   const handleNpwpRemove = () => {
-    setNpwpFile(null);
     setNpwpPhotoId('');
   };
 
@@ -284,6 +268,9 @@ export const LegalEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
+            <Button type="button" variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
             <Button type="submit" variant="primary" disabled={loading}>
               {loading ? 'Updating...' : 'Save Legal Document'}
             </Button>
@@ -293,4 +280,3 @@ export const LegalEditForm = ({
     </FormProvider>
   );
 };
-
