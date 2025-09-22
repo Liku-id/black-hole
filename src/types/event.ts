@@ -81,6 +81,8 @@ export interface Event {
   address: string;
   mapLocationUrl: string;
   metaUrl: string;
+  startDate: string;
+  endDate: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
@@ -89,6 +91,8 @@ export interface Event {
   lowestPriceTicketType: TicketType;
   eventAssets: EventAsset[];
   eventCountByStatus: EventCountByStatus;
+  startDate: string;
+  endDate: string;
 }
 
 // Event Detail specific interfaces
@@ -168,6 +172,8 @@ export interface EventDetail {
   feeThresholds: FeeThreshold[];
   eventAssets: EventAsset[];
   is_requested: boolean;
+  rejectedReason: string | null;
+  rejectedFields: string[] | null;
 }
 
 export interface EventDetailResponse {

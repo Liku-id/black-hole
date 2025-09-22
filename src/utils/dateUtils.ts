@@ -15,6 +15,64 @@ export const dateUtils = {
   },
 
   /**
+   * Parse date string and convert to WIB timezone
+   * @param dateString - Date string to parse
+   * @returns Date object in WIB timezone
+   */
+  parseToWIB: (dateString: string): Date | null => {
+    try {
+      if (!dateString) return null;
+
+      let date: Date;
+
+      // Handle the specific timestamp format with timezone
+      if (
+        dateString.includes('.') &&
+        dateString.includes('+') &&
+        dateString.includes('WIB')
+      ) {
+        // Parse format like "2025-06-23 23:12:22.552203 +0700 WIB"
+        // Remove the "WIB" text and milliseconds, then parse
+        const cleanedString = dateString
+          .replace(/\.\d+/, '')
+          .replace(' WIB', '');
+        date = new Date(cleanedString);
+      } else if (dateString.includes('+') && dateString.includes('UTC')) {
+        // Handle format like "2025-08-05 07:39:33.892619 +0000 UTC" or "2025-08-11 20:45:14 +0000 UTC"
+        // Remove the milliseconds (if any) and UTC text, then parse
+        const cleanedString = dateString
+          .replace(/\.\d+/, '')
+          .replace(' UTC', '');
+        date = new Date(cleanedString);
+      } else if (dateString.includes('Z') || dateString.includes('UTC')) {
+        // Handle UTC/Z format - convert to WIB (UTC+7)
+        const cleanedString = dateString
+          .replace(/ UTC$/, '')
+          .replace(/Z$/, '+00:00');
+        date = new Date(cleanedString);
+        // Add 7 hours to convert UTC to WIB
+        date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+      } else {
+        // Handle standard ISO format or other formats
+        date = parseISO(dateString);
+
+        // If the date is in UTC (no timezone specified or Z), convert to WIB
+        if (
+          dateString.includes('Z') ||
+          (!dateString.includes('+') && !dateString.includes('-'))
+        ) {
+          // Add 7 hours to convert UTC to WIB
+          date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+        }
+      }
+
+      return isValid(date) ? date : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
    * Build UTC ISO string (YYYY-MM-DDTHH:mm:ss.sssZ) from local parts
    * Expects: date "YYYY-MM-DD", time "HH:mm", tz like "+07:00" or "+0700"
    */
@@ -71,170 +129,46 @@ export const dateUtils = {
 
   /**
    * Format date to dd/mm/yyyy format
+   * Converts any timezone to WIB (UTC+7) for consistent display
    * @param dateString - Date string to format
    * @returns Formatted date string in dd/mm/yyyy format
    */
   formatDateDDMMYYYY: (dateString: string): string => {
-    try {
-      let date: Date;
-
-      // Handle the specific timestamp format with timezone
-      if (
-        dateString.includes('.') &&
-        dateString.includes('+') &&
-        dateString.includes('WIB')
-      ) {
-        // Parse format like "2025-06-23 23:12:22.552203 +0700 WIB"
-        // Remove the "WIB" text and milliseconds, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' WIB', '');
-        date = new Date(cleanedString);
-      } else if (dateString.includes('+') && dateString.includes('UTC')) {
-        // Handle format like "2025-08-05 07:39:33.892619 +0000 UTC" or "2025-08-11 20:45:14 +0000 UTC"
-        // Remove the milliseconds (if any) and UTC text, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' UTC', '');
-        date = new Date(cleanedString);
-      } else {
-        // Handle standard ISO format or other formats
-        date = parseISO(dateString);
-      }
-
-      if (!isValid(date)) return dateString;
-
-      // Format date in dd/mm/yyyy format
-      return format(date, 'dd/MM/yyyy');
-    } catch {
-      return dateString;
-    }
+    const date = dateUtils.parseToWIB(dateString);
+    return date ? format(date, 'dd/MM/yyyy') : dateString;
   },
 
   /**
    * Format date to MMM d, yyyy format (e.g., May 3, 2026)
+   * Converts any timezone to WIB (UTC+7) for consistent display
    * @param dateString - Date string to format
    * @returns Formatted date string in MMM d, yyyy format
    */
   formatDateMMMDYYYY: (dateString: string): string => {
-    try {
-      let date: Date;
-
-      // Handle the specific timestamp format with timezone
-      if (
-        dateString.includes('.') &&
-        dateString.includes('+') &&
-        dateString.includes('WIB')
-      ) {
-        // Parse format like "2025-06-23 23:12:22.552203 +0700 WIB"
-        // Remove the "WIB" text and milliseconds, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' WIB', '');
-        date = new Date(cleanedString);
-      } else if (dateString.includes('+') && dateString.includes('UTC')) {
-        // Handle format like "2025-08-05 07:39:33.892619 +0000 UTC" or "2025-08-11 20:45:14 +0000 UTC"
-        // Remove the milliseconds (if any) and UTC text, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' UTC', '');
-        date = new Date(cleanedString);
-      } else {
-        // Handle standard ISO format or other formats
-        date = parseISO(dateString);
-      }
-
-      if (!isValid(date)) return dateString;
-
-      // Format date in MMM d, yyyy format
-      return format(date, 'MMM d, yyyy');
-    } catch {
-      return dateString;
-    }
+    const date = dateUtils.parseToWIB(dateString);
+    return date ? format(date, 'MMM d, yyyy') : dateString;
   },
 
   /**
    * Format time to HH:mm format (e.g., 15:30)
+   * Converts any timezone to WIB (UTC+7) for consistent display
    * @param dateString - Date string to format
    * @returns Formatted time string in HH:mm format
    */
   formatTime: (dateString: string): string => {
-    try {
-      let date: Date;
-
-      // Handle the specific timestamp format with timezone
-      if (
-        dateString.includes('.') &&
-        dateString.includes('+') &&
-        dateString.includes('WIB')
-      ) {
-        // Parse format like "2025-06-23 23:12:22.552203 +0700 WIB"
-        // Remove the "WIB" text and milliseconds, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' WIB', '');
-        date = new Date(cleanedString);
-      } else if (dateString.includes('+') && dateString.includes('UTC')) {
-        // Handle format like "2025-08-05 07:39:33.892619 +0000 UTC" or "2025-08-11 20:45:14 +0000 UTC"
-        // Remove the milliseconds (if any) and UTC text, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' UTC', '');
-        date = new Date(cleanedString);
-      } else {
-        // Handle standard ISO format or other formats
-        date = parseISO(dateString);
-      }
-
-      if (!isValid(date)) return dateString;
-
-      // Format time in HH:mm format
-      return format(date, 'HH:mm');
-    } catch {
-      return dateString;
-    }
+    const date = dateUtils.parseToWIB(dateString);
+    return date ? format(date, 'HH:mm') : dateString;
   },
 
   /**
    * Format date to "MMM d, yyyy HH:mm WIB" format (e.g., May 3, 2026 15:30 WIB)
+   * Converts any timezone to WIB (UTC+7) for consistent display
    * @param dateString - Date string to format
    * @returns Formatted date string with time and WIB timezone
    */
   formatDateTimeWIB: (dateString: string): string => {
-    try {
-      let date: Date;
-
-      // Handle the specific timestamp format with timezone
-      if (
-        dateString.includes('.') &&
-        dateString.includes('+') &&
-        dateString.includes('WIB')
-      ) {
-        // Parse format like "2025-06-23 23:12:22.552203 +0700 WIB"
-        // Remove the "WIB" text and milliseconds, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' WIB', '');
-        date = new Date(cleanedString);
-      } else if (dateString.includes('+') && dateString.includes('UTC')) {
-        // Handle format like "2025-08-05 07:39:33.892619 +0000 UTC" or "2025-08-11 20:45:14 +0000 UTC"
-        // Remove the milliseconds (if any) and UTC text, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' UTC', '');
-        date = new Date(cleanedString);
-      } else {
-        // Handle standard ISO format or other formats
-        date = parseISO(dateString);
-      }
-
-      if (!isValid(date)) return dateString;
-
-      // Format date with time and WIB timezone
-      return format(date, 'MMM d, yyyy HH:mm') + ' WIB';
-    } catch {
-      return dateString;
-    }
+    const date = dateUtils.parseToWIB(dateString);
+    return date ? format(date, 'MMM d, yyyy HH:mm') + ' WIB' : dateString;
   },
 
   /**
@@ -256,5 +190,39 @@ export const dateUtils = {
     }
 
     return '+07:00';
+  },
+
+  formatDateRange: (startISO: string, endISO: string): string => {
+    const s = parseISO(startISO);
+    const e = parseISO(endISO);
+    if (!isValid(s) || !isValid(e)) return `${startISO} - ${endISO}`;
+
+    const sY = format(s, 'yyyy');
+    const eY = format(e, 'yyyy');
+    const sM = format(s, 'MMM');
+    const eM = format(e, 'MMM');
+    const sD = format(s, 'd');
+    const eD = format(e, 'd');
+    const sHM = format(s, 'HH:mm');
+    const eHM = format(e, 'HH:mm');
+
+    let datePart = '';
+
+    if (sY !== eY) {
+      // beda tahun → tampilkan lengkap keduanya
+      datePart = `${format(s, 'MMM d, yyyy')} – ${format(e, 'MMM d, yyyy')}`;
+    } else if (sM !== eM) {
+      // sama tahun, beda bulan → tampilkan bulan & hari masing2, tahun sekali
+      datePart = `${sM} ${sD} – ${eM} ${eD}, ${sY}`;
+    } else if (sD !== eD) {
+      // sama bulan & tahun, beda hari → tampilkan rentang hari, bulan & tahun sekali
+      datePart = `${sM} ${sD}–${eD}, ${sY}`;
+    } else {
+      // sama hari, bulan, tahun
+      datePart = `${sM} ${sD}, ${sY}`;
+    }
+
+    // waktu selalu ditampilkan sebagai rentang
+    return `${datePart} ${sHM}–${eHM} WIB`;
   }
 };

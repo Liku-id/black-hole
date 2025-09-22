@@ -1,5 +1,7 @@
-import { Alert, Snackbar } from '@mui/material';
+import { Box, Snackbar, useTheme } from '@mui/material';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+
+import { Body2 } from '@/components/common';
 
 interface ToastContextType {
   showSuccess: (message: string) => void;
@@ -29,6 +31,7 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
+  const theme = useTheme();
   const [toast, setToast] = useState<ToastState>({
     open: false,
     message: '',
@@ -69,13 +72,28 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     }
   };
 
+  // Get background color based on severity
+  const getBackgroundColor = (severity: string) => {
+    switch (severity) {
+      case 'info':
+        return '#3C50E0';
+      case 'success':
+        return theme.palette.success.main;
+      case 'error':
+        return theme.palette.error.main;
+      case 'warning':
+        return theme.palette.warning.main;
+      default:
+        return '#3C50E0';
+    }
+  };
+
   return (
     <ToastContext.Provider
       value={{ showSuccess, showError, showWarning, showInfo }}
     >
       {children}
       <Snackbar
-        key={toast.message + toast.severity + toast.open}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={4000}
         open={toast.open}
@@ -88,36 +106,18 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         TransitionComponent={undefined}
         onClose={handleClose}
       >
-        {toast.severity === 'success' &&
-        toast.message.toLowerCase().includes('ticket redeemed') ? (
-          <Alert
-            icon={false}
-            severity="success"
-            sx={{
-              width: '100%',
-              backgroundColor: 'primary.main',
-              borderRadius: '24px',
-              color: 'white',
-              fontSize: '14px',
-              fontWeight: 500,
-              px: 3,
-              py: 0.75,
-              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)'
-            }}
-            variant="filled"
-          >
-            Ticket Redeemed
-          </Alert>
-        ) : (
-          <Alert
-            severity={toast.severity}
-            sx={{ width: '100%' }}
-            variant="filled"
-            onClose={handleClose}
-          >
+        <Box
+          borderRadius="24px"
+          boxShadow={`0 4px 12px rgba(0, 0, 0, 0.15)`}
+          minWidth="200px"
+          padding="16px 24px"
+          sx={{ backgroundColor: getBackgroundColor(toast.severity) }}
+          textAlign="center"
+        >
+          <Body2 color="white" fontWeight={500}>
             {toast.message}
-          </Alert>
-        )}
+          </Body2>
+        </Box>
       </Snackbar>
     </ToastContext.Provider>
   );

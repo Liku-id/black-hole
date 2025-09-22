@@ -49,11 +49,34 @@ class AssetsService {
     }
   }
 
-  async uploadAsset(data: UploadAssetRequest): Promise<UploadAssetResponse> {
+  async uploadAsset(
+    data: UploadAssetRequest | File
+  ): Promise<UploadAssetResponse> {
     try {
+      let requestData: UploadAssetRequest;
+
+      if (data instanceof File) {
+        // Convert File to base64
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(data);
+        });
+
+        requestData = {
+          type: data.type,
+          file: base64.split(',')[1], // Remove data:image/... prefix
+          filename: data.name,
+          privacy: 'private',
+          fileGroup: 'USER'
+        };
+      } else {
+        requestData = data;
+      }
+
       return await apiUtils.post<UploadAssetResponse>(
         '/api/assets/upload',
-        data,
+        requestData,
         'Failed to upload asset'
       );
     } catch (error) {

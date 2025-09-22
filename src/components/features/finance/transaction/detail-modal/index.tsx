@@ -60,6 +60,16 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
         </Body2>
       </Box>
 
+      {/* Ticket Price */}
+      <Box alignItems="center" display="flex" justifyContent="space-between">
+        <Body2 color="text.secondary" fontSize="14px">
+          Ticket Price
+        </Body2>
+        <Body2 color="text.primary" fontSize="14px">
+          {formatUtils.formatPrice(transaction.ticketType.price) || 0}
+        </Body2>
+      </Box>
+
       {/* Transaction Number */}
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Body2 color="text.secondary" fontSize="14px">
@@ -115,7 +125,10 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
           {transaction.paymentBreakdown?.totalPrice
-            ? formatUtils.formatPrice(transaction.paymentBreakdown.totalPrice)
+            ? formatUtils.formatPrice(
+                transaction.paymentBreakdown.totalPrice +
+                  transaction.paymentMethod.paymentMethodFee
+              )
             : '-'}
         </Body2>
       </Box>

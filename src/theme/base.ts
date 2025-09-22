@@ -20,7 +20,8 @@ export function themeCreator(): Theme {
         secondary: '#8694AA'
       },
       grey: {
-        100: '#E2E8F0'
+        100: '#E2E8F0',
+        '200': '#D9D9D9'
       },
       background: {
         default: '#F1F5F9',
