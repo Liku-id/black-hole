@@ -37,7 +37,7 @@ const BankForm = ({
         eoId: eventOrganizer.id,
         payload: data
       });
-      onRefresh();
+      onRefresh && onRefresh();
     } catch (error) {
       console.error('Failed to update bank information:', error);
     }

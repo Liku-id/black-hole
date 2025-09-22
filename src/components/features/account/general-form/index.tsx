@@ -147,12 +147,12 @@ const GeneralForm = ({
 
   const handleSubmit = async (data: any) => {
     try {
-      updateOrganizer({
+      await updateOrganizer({
         eoId: eventOrganizer.id,
         payload: data
       });
       setUpdateError(null);
-      if (!updateLoading) onRefresh();
+      onRefresh && onRefresh();
     } catch (err) {
       setUpdateError(
         err instanceof Error ? err.message : 'Failed to update organizer'

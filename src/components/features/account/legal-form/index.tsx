@@ -36,12 +36,12 @@ const LegalForm = ({
   const handleSubmit = async (data: any) => {
     try {
       if (eventOrganizer?.id) {
-        updateLegal({
+        await updateLegal({
           eoId: eventOrganizer.id,
           payload: data
         });
         setUpdateError(null);
-        onRefresh();
+        onRefresh && onRefresh();
       }
     } catch (err) {
       setUpdateError(
