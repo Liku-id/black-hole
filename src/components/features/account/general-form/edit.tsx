@@ -90,6 +90,9 @@ export const OrganizerEditForm = ({
 
   const { watch, setValue, handleSubmit } = methods;
   const watchedProfilePicture = watch('profilePicture');
+  const watchedTiktok = watch('tiktok');
+  const watchedInstagram = watch('instagram');
+  const watchedTwitter = watch('twitter');
 
   // Initialize form with organizer data
   useEffect(() => {
@@ -277,14 +280,16 @@ export const OrganizerEditForm = ({
                         </Box>
                       }
                       endComponent={
-                        <IconButton onClick={() => setValue('tiktok', '')}>
-                          <Image
-                            src="/icon/trash.svg"
-                            alt="trash icon"
-                            width={20}
-                            height={20}
-                          />
-                        </IconButton>
+                        watchedTiktok && watchedTiktok.trim() ? (
+                          <IconButton onClick={() => setValue('tiktok', '')}>
+                            <Image
+                              src="/icon/trash.svg"
+                              alt="trash icon"
+                              width={20}
+                              height={20}
+                            />
+                          </IconButton>
+                        ) : null
                       }
                     />
                   </Box>
@@ -307,14 +312,16 @@ export const OrganizerEditForm = ({
                         </Box>
                       }
                       endComponent={
-                        <IconButton onClick={() => setValue('instagram', '')}>
-                          <Image
-                            src="/icon/trash.svg"
-                            alt="trash icon"
-                            width={20}
-                            height={20}
-                          />
-                        </IconButton>
+                        watchedInstagram && watchedInstagram.trim() ? (
+                          <IconButton onClick={() => setValue('instagram', '')}>
+                            <Image
+                              src="/icon/trash.svg"
+                              alt="trash icon"
+                              width={20}
+                              height={20}
+                            />
+                          </IconButton>
+                        ) : null
                       }
                     />
                   </Box>
@@ -337,14 +344,16 @@ export const OrganizerEditForm = ({
                         </Box>
                       }
                       endComponent={
-                        <IconButton onClick={() => setValue('twitter', '')}>
-                          <Image
-                            src="/icon/trash.svg"
-                            alt="trash icon"
-                            width={20}
-                            height={20}
-                          />
-                        </IconButton>
+                        watchedTwitter && watchedTwitter.trim() ? (
+                          <IconButton onClick={() => setValue('twitter', '')}>
+                            <Image
+                              src="/icon/trash.svg"
+                              alt="trash icon"
+                              width={20}
+                              height={20}
+                            />
+                          </IconButton>
+                        ) : null
                       }
                     />
                   </Box>
