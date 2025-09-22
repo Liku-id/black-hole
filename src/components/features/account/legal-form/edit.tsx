@@ -12,29 +12,25 @@ import {
 } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
 import { assetsService } from '@/services';
+import { stringUtils } from '@/utils';
 
 interface LegalEditFormProps {
   eventOrganizer: EventOrganizer;
   onSubmit?: (data: any) => void;
-  onCancel?: () => void;
   error?: string | null;
   loading?: boolean;
 }
 
 interface FormData {
   npwp_number: string;
-  npwp_address: string;
   ktp_number: string;
   ktp_address: string;
-  full_name: string;
   pic_name: string;
-  pic_title: string;
 }
 
 export const LegalEditForm = ({
   eventOrganizer,
   onSubmit,
-  onCancel,
   error,
   loading
 }: LegalEditFormProps) => {
@@ -45,13 +41,10 @@ export const LegalEditForm = ({
 
   const methods = useForm<FormData>({
     defaultValues: {
-      npwp_number: eventOrganizer.npwp || '',
-      npwp_address: eventOrganizer.npwp_address || '',
+      npwp_number: stringUtils.formatNpwpNumber(eventOrganizer.npwp || ''),
       ktp_number: eventOrganizer.nik || '',
       ktp_address: eventOrganizer.ktp_address || '',
-      full_name: eventOrganizer.full_name || '',
-      pic_name: eventOrganizer.pic_name || '',
-      pic_title: eventOrganizer.pic_title || ''
+      pic_name: eventOrganizer.pic_name || ''
     }
   });
 
@@ -97,18 +90,12 @@ export const LegalEditForm = ({
     try {
       const payload: any = {
         npwp_photo_id: npwpPhotoId,
-        npwp_number: data.npwp_number,
-        npwp_address: data.npwp_address,
-        full_name: data.full_name
+        npwp_number: stringUtils.cleanNpwpNumber(data.npwp_number),
+        ktp_photo_id: ktpPhotoId,
+        ktp_number: data.ktp_number,
+        ktp_address: data.ktp_address,
+        pic_name: data.pic_name
       };
-
-      if (isIndividual) {
-        payload.ktp_photo_id = ktpPhotoId;
-        payload.ktp_number = data.ktp_number;
-        payload.ktp_address = data.ktp_address;
-        payload.pic_name = data.pic_name;
-        payload.pic_title = data.pic_title;
-      }
 
       if (onSubmit) {
         onSubmit(payload);
@@ -169,13 +156,10 @@ export const LegalEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label={isIndividual ? 'NPWP Number*' : 'Company NPWP Number*'}
+                  label="NPWP Number*"
                   name="npwp_number"
-                  placeholder={
-                    isIndividual
-                      ? '00.000.000.0-000.000'
-                      : '00.000.000.0-000.000'
-                  }
+                  placeholder="00.000.000.0-000.000"
+                  formatValue={stringUtils.formatNpwpNumber}
                   rules={{
                     required: 'NPWP number is required'
                   }}
@@ -184,40 +168,14 @@ export const LegalEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Address as in NPWP*"
-                  name="npwp_address"
-                  placeholder="Address as in NPWP"
+                  label="NIK Number*"
+                  name="ktp_number"
+                  placeholder="5651782373637846"
                   rules={{
-                    required: 'NPWP address is required'
+                    required: 'NIK number is required'
                   }}
                 />
               </Grid>
-              {isIndividual && (
-                <>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="KTP Number*"
-                      name="ktp_number"
-                      placeholder="5651782373637846"
-                      rules={{
-                        required: 'KTP number is required'
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="KTP Address*"
-                      name="ktp_address"
-                      placeholder="KTP Address"
-                      rules={{
-                        required: 'KTP address is required'
-                      }}
-                    />
-                  </Grid>
-                </>
-              )}
             </Grid>
           </Grid>
 
@@ -227,34 +185,25 @@ export const LegalEditForm = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Full Name as in NPWP*"
-                  name="full_name"
-                  placeholder="Full Name as in NPWP"
+                  label="PIC Full Name*"
+                  name="pic_name"
+                  placeholder="PIC Full Name"
                   rules={{
-                    required: 'Full name is required'
+                    required: 'PIC Full Name is required'
                   }}
                 />
               </Grid>
-              {isIndividual && (
-                <>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="PIC Full Name*"
-                      name="pic_name"
-                      placeholder="PIC Full Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="PIC Title*"
-                      name="pic_title"
-                      placeholder="PIC Title"
-                    />
-                  </Grid>
-                </>
-              )}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="PIC KTP Address*"
+                  name="ktp_address"
+                  placeholder="PIC KTP Address"
+                  rules={{
+                    required: 'PIC KTP Address is required'
+                  }}
+                />
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
@@ -268,9 +217,6 @@ export const LegalEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
-            <Button type="button" variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
             <Button type="submit" variant="primary" disabled={loading}>
               {loading ? 'Updating...' : 'Save Legal Document'}
             </Button>

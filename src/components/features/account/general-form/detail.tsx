@@ -99,11 +99,9 @@ const ProfilePictureField = ({
       </Body2>
     </Box>
     {profilePicture && (
-      <Image
+      <img
         src={profilePicture}
         alt="Profile Picture"
-        width={84}
-        height={84}
         style={{
           maxHeight: '100px',
           height: 'auto',

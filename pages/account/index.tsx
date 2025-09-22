@@ -11,7 +11,8 @@ import BankForm from '@/components/features/account/bank-form';
 import { CreatorTypeModal } from '@/components/features/account/creator-type-modal';
 import GeneralForm from '@/components/features/account/general-form';
 import LegalForm from '@/components/features/account/legal-form';
-import { useEventOrganizerMe, useUpdateEventOrganizerGeneral } from '@/hooks';
+import { useEventOrganizerMe } from '@/hooks/features/organizers/useEventOrganizerMe';
+import { useUpdateEventOrganizerGeneral } from '@/hooks/features/organizers/useUpdateEventOrganizerGeneral';
 import DashboardLayout from '@/layouts/dashboard';
 
 function Account() {
@@ -24,13 +25,14 @@ function Account() {
 
   // Fetch organizer data for the general tab
   const {
-    eventOrganizer,
+    mutate: refetchOrganizer,
+    data: eventOrganizer,
     loading: organizerLoading,
     error: organizerError
   } = useEventOrganizerMe();
 
   // Update organizer general info hook
-  const { updateOrganizer } = useUpdateEventOrganizerGeneral();
+  const { mutate: updateOrganizer } = useUpdateEventOrganizerGeneral();
 
   const tabs = [
     {
@@ -53,21 +55,6 @@ function Account() {
     setIsEditing(false); // Reset edit mode when switching tabs
   };
 
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
-
-  // Show creator type modal if organizer_type is missing
-  useEffect(() => {
-    if (!organizerLoading && eventOrganizer && !eventOrganizer.organizer_type) {
-      setShowCreatorModal(true);
-    }
-  }, [eventOrganizer, organizerLoading]);
-
   const handleCreatorModalClose = () => {
     setShowCreatorModal(false);
     // Redirect to dashboard if user closes modal
@@ -78,24 +65,38 @@ function Account() {
     try {
       if (eventOrganizer?.id) {
         // Update organizer with selected type
-        await updateOrganizer(eventOrganizer.id, {
-          name: eventOrganizer.name || '',
-          description: eventOrganizer.description || '',
-          social_media_url: eventOrganizer.social_media_url || '{}',
-          address: eventOrganizer.address || '',
-          asset_id: eventOrganizer.asset_id || '',
-          organizer_type: creatorType
+        updateOrganizer({
+          eoId: eventOrganizer.id,
+          payload: {
+            name: eventOrganizer.name || '',
+            description: eventOrganizer.description || '',
+            social_media_url: eventOrganizer.social_media_url || '{}',
+            address: eventOrganizer.address || '',
+            asset_id: eventOrganizer.asset_id || '',
+            organizer_type: creatorType
+          }
         });
 
         setShowCreatorModal(false);
-        // Refresh data to show updated organizer_type
-        window.location.reload();
+        refetchOrganizer();
       }
     } catch (error) {
       console.error('Failed to update organizer type:', error);
       setError('Failed to update creator type. Please try again.');
     }
   };
+
+  const onRefresh = () => {
+    setIsEditing(false);
+    refetchOrganizer();
+  };
+
+  // Show creator type modal if organizer_type is missing
+  useEffect(() => {
+    if (!organizerLoading && eventOrganizer && !eventOrganizer.organizer_type) {
+      setShowCreatorModal(true);
+    }
+  }, [eventOrganizer, organizerLoading]);
 
   const showContent = () => {
     const commonProps = {
@@ -110,19 +111,25 @@ function Account() {
           <GeneralForm
             {...commonProps}
             mode={isEditing ? 'edit' : 'view'}
-            onCancel={handleCancelEdit}
+            onRefresh={onRefresh}
           />
         );
       case 'legal':
         return (
           <LegalForm
             mode={isEditing ? 'edit' : 'view'}
-            onCancel={handleCancelEdit}
+            onRefresh={onRefresh}
             {...commonProps}
           />
         );
       default:
-        return <BankForm mode={isEditing ? 'edit' : 'view'} {...commonProps} />;
+        return (
+          <BankForm
+            mode={isEditing ? 'edit' : 'view'}
+            onRefresh={onRefresh}
+            {...commonProps}
+          />
+        );
     }
   };
 
@@ -177,7 +184,7 @@ function Account() {
               </H4>
               <Button
                 variant={isEditing ? 'secondary' : 'primary'}
-                onClick={isEditing ? handleCancelEdit : handleEdit}
+                onClick={() => setIsEditing(!isEditing)}
               >
                 {isEditing ? 'Cancel' : `Edit ${activeLable}`}
               </Button>

@@ -18,6 +18,7 @@ interface CustomTextFieldProps extends Omit<TextFieldProps, 'variant'> {
   error?: boolean;
   helperText?: string;
   isRejected?: boolean;
+  formatValue?: (value: string) => string;
 }
 
 export const CustomTextField = (props: CustomTextFieldProps) => {
@@ -30,6 +31,7 @@ export const CustomTextField = (props: CustomTextFieldProps) => {
     rules,
     error,
     helperText,
+    formatValue,
     ...otherProps
   } = props;
 
@@ -76,6 +78,7 @@ const FormTextField = ({
   name,
   rules,
   isRejected,
+  formatValue,
   ...props
 }: CustomTextFieldProps) => {
   const {
@@ -123,6 +126,11 @@ const FormTextField = ({
           )}
           <StyledTextField
             {...field}
+            value={formatValue ? formatValue(field.value || '') : field.value}
+            onChange={(e) => {
+              const formattedValue = formatValue ? formatValue(e.target.value) : e.target.value;
+              field.onChange(formattedValue);
+            }}
             error={!!fieldError}
             helperText={fieldError?.message as string}
             InputProps={inputProps}
@@ -135,5 +143,8 @@ const FormTextField = ({
     />
   );
 };
+
+// Export TextField with formatValue support
+export const TextField = CustomTextField;
 
 export default CustomTextField;

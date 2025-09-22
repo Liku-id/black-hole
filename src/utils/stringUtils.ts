@@ -88,6 +88,52 @@ export const stringUtils = {
   },
 
   /**
+   * Format NPWP number with automatic masking
+   * @param value - Input value
+   * @returns Formatted NPWP number (99.999.999.9-999.999)
+   */
+  formatNpwpNumber: (value: string): string => {
+    if (!value) return '';
+    
+    // Remove all non-digit characters
+    const cleaned = value.replace(/\D/g, '');
+    
+    // Apply masking pattern: 99.999.999.9-999.999
+    let formatted = cleaned;
+    
+    if (cleaned.length > 0) {
+      formatted = cleaned.slice(0, 2);
+    }
+    if (cleaned.length > 2) {
+      formatted += '.' + cleaned.slice(2, 5);
+    }
+    if (cleaned.length > 5) {
+      formatted += '.' + cleaned.slice(5, 8);
+    }
+    if (cleaned.length > 8) {
+      formatted += '.' + cleaned.slice(8, 9);
+    }
+    if (cleaned.length > 9) {
+      formatted += '-' + cleaned.slice(9, 12);
+    }
+    if (cleaned.length > 12) {
+      formatted += '.' + cleaned.slice(12, 15);
+    }
+    
+    return formatted;
+  },
+
+  /**
+   * Remove NPWP formatting to get clean number
+   * @param npwpNumber - Formatted NPWP number
+   * @returns Clean number without formatting
+   */
+  cleanNpwpNumber: (npwpNumber: string): string => {
+    if (!npwpNumber) return '';
+    return npwpNumber.replace(/\D/g, '');
+  },
+
+  /**
    * Check if string is empty or only whitespace
    * @param text - Text to check
    * @returns True if empty or whitespace

@@ -3,7 +3,7 @@ import { OrganizerEditForm } from './edit';
 import { EventOrganizer } from '@/types/organizer';
 import { Box } from '@mui/material';
 import { Body2 } from '@/components/common';
-import { useUpdateEventOrganizerGeneral, useEventOrganizerMe } from '@/hooks';
+import { useUpdateEventOrganizerGeneral } from '@/hooks/features/organizers/useUpdateEventOrganizerGeneral';
 import { useState } from 'react';
 
 interface SocialMedia {
@@ -30,6 +30,7 @@ interface GeneralFormProps {
   error?: string | null;
   mode?: 'view' | 'edit';
   onCancel?: () => void;
+  onRefresh?: () => void;
 }
 
 // Helper function to convert API data to component format
@@ -90,16 +91,14 @@ const GeneralForm = ({
   loading,
   error,
   mode = 'view',
-  onCancel
+  onRefresh
 }: GeneralFormProps) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const {
-    updateOrganizer,
-    loading: updateLoading,
+    mutate: updateOrganizer,
+    isPending: updateLoading,
     error: updateErrorState
   } = useUpdateEventOrganizerGeneral();
-  const { mutate: refetchOrganizer } = useEventOrganizerMe();
 
   if (loading) {
     return (
@@ -146,25 +145,14 @@ const GeneralForm = ({
   // Use provided organizerDetail if available, otherwise use fetched data
   const finalOrganizerDetail = organizerDetail || organizerDetailData;
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    setUpdateError(null);
-    if (onCancel) {
-      onCancel();
-    }
-  };
-
   const handleSubmit = async (data: any) => {
     try {
-      await updateOrganizer(eventOrganizer.id, data);
-      setIsEditing(false);
+      updateOrganizer({
+        eoId: eventOrganizer.id,
+        payload: data
+      });
       setUpdateError(null);
-      // Refetch organizer data to get updated information
-      refetchOrganizer();
-      // Call parent cancel to exit edit mode
-      if (onCancel) {
-        onCancel();
-      }
+      if (!updateLoading) onRefresh();
     } catch (err) {
       setUpdateError(
         err instanceof Error ? err.message : 'Failed to update organizer'
@@ -172,16 +160,15 @@ const GeneralForm = ({
     }
   };
 
-  if (mode === 'view' && !isEditing) {
+  if (mode === 'view') {
     return <OrganizerDetailInfo organizerDetail={finalOrganizerDetail} />;
   }
 
-  if (mode === 'edit' || isEditing) {
+  if (mode === 'edit') {
     return (
       <OrganizerEditForm
         eventOrganizer={eventOrganizer}
         onSubmit={handleSubmit}
-        onCancel={handleCancel}
         error={updateError || updateErrorState}
         loading={updateLoading}
       />

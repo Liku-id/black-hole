@@ -28,7 +28,6 @@ interface FormData {
 interface OrganizerEditFormProps {
   eventOrganizer: EventOrganizer;
   onSubmit?: (data: any) => void;
-  onCancel?: () => void;
   error?: string;
   loading?: boolean;
 }
@@ -68,7 +67,6 @@ const convertEventOrganizerToForm = (
 export const OrganizerEditForm = ({
   eventOrganizer,
   onSubmit,
-  onCancel,
   error,
   loading = false
 }: OrganizerEditFormProps) => {
@@ -456,11 +454,9 @@ export const OrganizerEditForm = ({
                   </Box>
 
                   {imagePreview && (
-                    <Image
+                    <img
                       src={imagePreview}
                       alt="Profile preview"
-                      width={84}
-                      height={84}
                       style={{
                         maxHeight: '100px',
                         height: 'auto',
@@ -487,13 +483,6 @@ export const OrganizerEditForm = ({
           )}
 
           <Box display="flex" gap={2} justifyContent="flex-end">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
             <Button
               type="submit"
               variant="primary"
