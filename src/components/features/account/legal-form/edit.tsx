@@ -197,17 +197,36 @@ export const LegalEditForm = ({
         }
       }
 
-      const payload: any = {
+      // Create payload based on organizer type
+      let payload: any = {
         npwp_photo_id: finalNpwpPhotoId,
-        npwp_number: formData.npwp_number, // Send formatted NPWP number (99.999.999.9-999.999)
-        ktp_photo_id: finalKtpPhotoId,
-        ktp_number: formData.ktp_number,
-        ktp_address: formData.ktp_address,
-        pic_name: formData.pic_name,
-        pic_title: formData.pic_title,
-        npwp_address: formData.npwp_address,
-        full_name: formData.full_name
+        npwp_number: formData.npwp_number // Send formatted NPWP number (99.999.999.9-999.999)
       };
+
+      if (isIndividual) {
+        // Individual Creator - only send required fields
+        payload = {
+          npwp_photo_id: finalNpwpPhotoId,
+          npwp_number: formData.npwp_number,
+          ktp_photo_id: finalKtpPhotoId,
+          ktp_number: formData.ktp_number,
+          ktp_address: formData.ktp_address,
+          pic_name: formData.pic_name
+        };
+
+        // Only include pic_title if it has a value
+        if (formData.pic_title && formData.pic_title.trim()) {
+          payload.pic_title = formData.pic_title;
+        }
+      } else {
+        // Institutional Creator - only send required fields
+        payload = {
+          npwp_photo_id: finalNpwpPhotoId,
+          npwp_number: formData.npwp_number,
+          npwp_address: formData.npwp_address,
+          full_name: formData.full_name
+        };
+      }
 
       if (onSubmit) {
         await onSubmit(payload);
@@ -290,36 +309,51 @@ export const LegalEditForm = ({
                   }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="NIK Number*"
-                  name="ktp_number"
-                  placeholder="5651782373637846"
-                  InputProps={{
-                    inputProps: {
-                      maxLength: 16,
-                      pattern: '[0-9]*',
-                      inputMode: 'numeric'
-                    }
-                  }}
-                  rules={{
-                    required: 'NIK number is required',
-                    pattern: {
-                      value: /^\d{16}$/,
-                      message: 'NIK must be exactly 16 digits'
-                    },
-                    minLength: {
-                      value: 16,
-                      message: 'NIK must be exactly 16 digits'
-                    },
-                    maxLength: {
-                      value: 16,
-                      message: 'NIK must be exactly 16 digits'
-                    }
-                  }}
-                />
-              </Grid>
+
+              {isIndividual ? (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="NIK Number*"
+                    name="ktp_number"
+                    placeholder="5651782373637846"
+                    InputProps={{
+                      inputProps: {
+                        maxLength: 16,
+                        pattern: '[0-9]*',
+                        inputMode: 'numeric'
+                      }
+                    }}
+                    rules={{
+                      required: 'NIK number is required',
+                      pattern: {
+                        value: /^\d{16}$/,
+                        message: 'NIK must be exactly 16 digits'
+                      },
+                      minLength: {
+                        value: 16,
+                        message: 'NIK must be exactly 16 digits'
+                      },
+                      maxLength: {
+                        value: 16,
+                        message: 'NIK must be exactly 16 digits'
+                      }
+                    }}
+                  />
+                </Grid>
+              ) : (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Address as in NPWP*"
+                    name="npwp_address"
+                    placeholder="Address as in NPWP"
+                    rules={{
+                      required: 'Address as in NPWP is required'
+                    }}
+                  />
+                </Grid>
+              )}
             </Grid>
           </Grid>
 
@@ -363,17 +397,6 @@ export const LegalEditForm = ({
               ) : (
                 <>
                   {/* Institutional Creator Fields */}
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Address as in NPWP*"
-                      name="npwp_address"
-                      placeholder="Address as in NPWP"
-                      rules={{
-                        required: 'Address as in NPWP is required'
-                      }}
-                    />
-                  </Grid>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
