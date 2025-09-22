@@ -5,12 +5,12 @@ import { FC } from 'react';
 
 import {
   Body2,
+  StyledTableBody,
   StyledTableContainer,
-  StyledTableHead,
-  StyledTableBody
+  StyledTableHead
 } from '@/components/common';
 import { Event } from '@/types/event';
-import { dateUtils, formatPrice } from '@/utils';
+import { dateUtils } from '@/utils';
 
 interface EventsTableProps {
   events: Event[];
@@ -138,13 +138,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
               </TableCell>
               <TableCell>
                 <Body2 color="primary.main" fontSize="14px" fontWeight={700}>
-                  {event.lowestPriceTicketType?.price &&
-                  event.lowestPriceTicketType?.purchased_amount
-                    ? formatPrice(
-                        event.lowestPriceTicketType.price *
-                          event.lowestPriceTicketType.purchased_amount
-                      )
-                    : '-'}
+                  {'-'}
                 </Body2>
               </TableCell>
               <TableCell align="right">

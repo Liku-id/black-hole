@@ -1,17 +1,22 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, TextField } from '@/components/common';
 import SubmissionsTable from '@/components/features/events-submissions/table';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEventsSubmissions } from '@/hooks/features/events-submissions/useEventsSubmissions';
 import DashboardLayout from '@/layouts/dashboard';
+import { User } from '@/types/auth';
 import { EventSubmissionsFilters } from '@/types/events-submission';
 import { useDebouncedCallback } from '@/utils';
 
 function Approval() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('upcoming_draft');
   const [searchValue, setSearchValue] = useState('');
   const [filters, setFilters] = useState<EventSubmissionsFilters>({
@@ -22,6 +27,15 @@ function Approval() {
   });
 
   const { submissions, loading, error, mutate } = useEventsSubmissions(filters);
+
+  useEffect(() => {
+    if (user) {
+      const userRole = (user as User).role?.name;
+      if (userRole !== 'admin' && userRole !== 'business_development') {
+        router.push('/events');
+      }
+    }
+  }, [user, router]);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({

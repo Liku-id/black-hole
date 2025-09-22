@@ -1,5 +1,7 @@
-import { Alert, Snackbar } from '@mui/material';
+import { Box, Snackbar, useTheme } from '@mui/material';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+
+import { Body2 } from '@/components/common';
 
 interface ToastContextType {
   showSuccess: (message: string) => void;
@@ -29,6 +31,7 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
+  const theme = useTheme();
   const [toast, setToast] = useState<ToastState>({
     open: false,
     message: '',
@@ -39,11 +42,15 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     message: string,
     severity: 'success' | 'error' | 'warning' | 'info'
   ) => {
-    setToast({
-      open: true,
-      message,
-      severity
-    });
+    try {
+      setToast({
+        open: true,
+        message,
+        severity
+      });
+    } catch (error) {
+      console.error('Error showing toast:', error);
+    }
   };
 
   const showSuccess = (message: string) => showToast(message, 'success');
@@ -58,7 +65,27 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     if (reason === 'clickaway') {
       return;
     }
-    setToast((prev) => ({ ...prev, open: false }));
+    try {
+      setToast((prev) => ({ ...prev, open: false }));
+    } catch (error) {
+      console.error('Error closing toast:', error);
+    }
+  };
+
+  // Get background color based on severity
+  const getBackgroundColor = (severity: string) => {
+    switch (severity) {
+      case 'info':
+        return '#3C50E0';
+      case 'success':
+        return theme.palette.success.main;
+      case 'error':
+        return theme.palette.error.main;
+      case 'warning':
+        return theme.palette.warning.main;
+      default:
+        return '#3C50E0';
+    }
   };
 
   return (
@@ -67,19 +94,30 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     >
       {children}
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={4000}
         open={toast.open}
+        sx={{
+          '& .MuiSnackbar-root': {
+            position: 'fixed',
+            top: '20px !important'
+          }
+        }}
+        TransitionComponent={undefined}
         onClose={handleClose}
       >
-        <Alert
-          severity={toast.severity}
-          sx={{ width: '100%' }}
-          variant="filled"
-          onClose={handleClose}
+        <Box
+          borderRadius="24px"
+          boxShadow={`0 4px 12px rgba(0, 0, 0, 0.15)`}
+          minWidth="200px"
+          padding="16px 24px"
+          sx={{ backgroundColor: getBackgroundColor(toast.severity) }}
+          textAlign="center"
         >
-          {toast.message}
-        </Alert>
+          <Body2 color="white" fontWeight={500}>
+            {toast.message}
+          </Body2>
+        </Box>
       </Snackbar>
     </ToastContext.Provider>
   );

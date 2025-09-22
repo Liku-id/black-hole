@@ -12,8 +12,6 @@ import { authService } from '@/services';
 import { AuthState, AuthUser, LoginRequest, UserRole } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 
-import { useToast } from './ToastContext';
-
 interface AuthContextType extends AuthState {
   login: (data: LoginRequest) => Promise<void>;
   logout: () => Promise<void>;
@@ -104,7 +102,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { showError } = useToast();
 
   // Restore session on app start by checking server-side session
   useEffect(() => {
@@ -238,9 +235,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
-      showError(errorMessage);
       dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
-      throw err;
     }
   };
 

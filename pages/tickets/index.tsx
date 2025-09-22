@@ -1,10 +1,154 @@
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import Head from 'next/head';
+import { useMemo, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
+import { Body1, Body2, H3 } from '@/components/common';
+import { AttendeeTable, SearchField } from '@/components/features/ticket-list';
+import { useEvents, useTickets } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
+import { Ticket } from '@/types/ticket';
+
+// Transform ticket data to match UI expectations
+const transformTicketData = (tickets: Ticket[]) => {
+  return tickets.map((ticket, index) => ({
+    no: index + 1,
+    id: ticket.id, // Database ID needed for API calls
+    ticketId: ticket.ticket_id || `TKT-${index + 1}`,
+    name: ticket.visitor_name || 'Unknown Visitor',
+    ticketType: ticket.ticket_name || 'Standard',
+    phoneNumber: '-', // Not available in current API response
+    date: ticket.created_at || new Date().toISOString(),
+    paymentMethod: 'N/A', // Not available in current API response
+    redeemStatus: ticket.ticket_status || 'pending',
+    email: undefined, // Not available in current API response
+    eventDate: ticket.issued_at || undefined,
+    transactionId: ticket.transaction_id
+  }));
+};
 
 function Tickets() {
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Get events list for dropdown
+  const { events, loading: eventsLoading, error: eventsError } = useEvents();
+
+  // Create stable filters object to prevent unnecessary re-renders
+  const ticketFilters = useMemo(() => {
+    if (!selectedEvent) return null;
+
+    return {
+      eventId: selectedEvent,
+      page: currentPage,
+      show: 10,
+      search: searchQuery
+    };
+  }, [selectedEvent, currentPage, searchQuery]);
+
+  // Get tickets data when event is selected
+  const {
+    tickets,
+    total: apiTotal,
+    currentPage: apiCurrentPage,
+    currentShow: apiCurrentShow,
+    loading: ticketsLoading,
+    mutate: mutateTickets
+  } = useTickets(ticketFilters);
+
+  // Transform events for dropdown options
+  const eventOptions = events.map((event) => ({
+    value: event.id,
+    label: event.name
+  }));
+
+  // Get selected event data for detailed information
+  const selectedEventData = useMemo(() => {
+    if (!selectedEvent) return null;
+    return events.find((event) => event.id === selectedEvent) || null;
+  }, [selectedEvent, events]);
+
+  // Transform tickets for table
+  const attendeeData = transformTicketData(tickets);
+
+  const handleScanTicket = () => {
+    // Open scan ticket page in new tab - use different URLs based on environment
+    const scanTicketUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://wukong.co.id/ticket/auth' 
+      : 'https://staging-aws.wukong.co.id/ticket/auth';
+    
+    window.open(scanTicketUrl, '_blank');
+  };
+
+  const handleEventChange = (value: string) => {
+    setSelectedEvent(value);
+    setCurrentPage(0); // Reset to first page when event changes
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(0); // Reset to first page when searching
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleRedeemTicket = (_ticketId: string) => {
+    // The actual redeem API call is handled in the AttendeeTable component
+    // This function is called after successful redeem to refresh the data
+    mutateTickets();
+  };
+
+  // Show loading spinner for initial page load
+  if (eventsLoading) {
+    return (
+      <DashboardLayout>
+        <Head>
+          <title>Tickets - Black Hole Dashboard</title>
+        </Head>
+        <Box
+          alignItems="center"
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          justifyContent="center"
+          sx={{
+            minHeight: '400px'
+          }}
+        >
+          <CircularProgress size={40} />
+          <Body1 color="text.secondary">Loading events...</Body1>
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
+  // Show error if events failed to load
+  if (eventsError) {
+    return (
+      <DashboardLayout>
+        <Head>
+          <title>Tickets - Black Hole Dashboard</title>
+        </Head>
+        <Box
+          alignItems="center"
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          justifyContent="center"
+          sx={{
+            minHeight: '400px'
+          }}
+        >
+          <H3 color="error">Failed to load events</H3>
+          <Body2 color="text.secondary">{eventsError}</Body2>
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <Head>
@@ -12,25 +156,48 @@ function Tickets() {
       </Head>
 
       <Box>
-        <Typography gutterBottom variant="h4">
-          Tickets
-        </Typography>
-        <Typography color="text.secondary" sx={{ mb: 3 }} variant="body1">
-          Manage event tickets and sales
-        </Typography>
+        {/* Event Search Section */}
+        <SearchField
+          eventOptions={eventOptions}
+          selectedEvent={selectedEvent}
+          onEventChange={handleEventChange}
+          onScanTicket={handleScanTicket}
+        />
 
-        <Card>
-          <CardContent>
-            <Box py={4} textAlign="center">
-              <Typography gutterBottom color="text.secondary" variant="h6">
-                Tickets Management
-              </Typography>
-              <Typography color="text.secondary" variant="body2">
-                Ticket management features will be implemented here.
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
+        {/* Attendee Details Section - only show when event is selected */}
+        {selectedEvent && (
+          <AttendeeTable
+            attendeeData={attendeeData}
+            currentPage={apiCurrentPage}
+            loading={ticketsLoading}
+            pageSize={apiCurrentShow}
+            searchQuery={searchQuery}
+            selectedEventData={selectedEventData}
+            total={apiTotal}
+            onPageChange={handlePageChange}
+            onRedeemTicket={handleRedeemTicket}
+            onSearchChange={handleSearchChange}
+          />
+        )}
+
+        {/* Show message when no event is selected */}
+        {!selectedEvent && (
+          <Box
+            alignItems="center"
+            display="flex"
+            flexDirection="column"
+            gap={2}
+            justifyContent="center"
+            sx={{
+              minHeight: '300px',
+              mt: 3
+            }}
+          >
+            <H3 color="text.secondary">
+              Select an event to view attendee details
+            </H3>
+          </Box>
+        )}
       </Box>
     </DashboardLayout>
   );

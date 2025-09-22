@@ -1,18 +1,21 @@
 import { Box, Divider } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Body2, Caption, Select, Button } from '@/components/common';
+import { Body2, Button, Caption, Select } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks';
 import { withdrawalService } from '@/services';
 import { WithdrawalSummary } from '@/services/withdrawal';
+import { Event } from '@/types/event';
 import { formatUtils } from '@/utils/formatUtils';
 
 const FinanceWithdrawal = () => {
   const router = useRouter();
-
-  const [selectedProject, setSelectedProject] = useState<string>('');
+  const { user } = useAuth();
+  console.log(user);
+  const [selectedProject, setSelectedProject] = useState<Event | null>(null);
 
   const { events, loading } = useEvents({
     status: ['EVENT_STATUS_ON_GOING', 'EVENT_STATUS_DONE']
@@ -23,7 +26,7 @@ const FinanceWithdrawal = () => {
   const [summaryLoading, setSummaryLoading] = useState(false);
 
   const fetchSummary = async () => {
-    if (!selectedProject || selectedProject.trim() === '') {
+    if (!selectedProject) {
       setSummary(null);
       setSummaryLoading(false);
       return;
@@ -32,8 +35,9 @@ const FinanceWithdrawal = () => {
     setSummaryLoading(true);
 
     try {
-      const response =
-        await withdrawalService.getSummaryByEventId(selectedProject);
+      const response = await withdrawalService.getSummaryByEventId(
+        selectedProject.id
+      );
       setSummary(response.body);
     } catch (err) {
       console.error('Failed to fetch withdrawal summary:', err);
@@ -48,7 +52,8 @@ const FinanceWithdrawal = () => {
   }));
 
   const handleProjectChange = (value: string) => {
-    setSelectedProject(value);
+    const selectedEvent = events.find(event => event.id === value);
+    setSelectedProject(selectedEvent || null);
   };
 
   useEffect(() => {
@@ -57,7 +62,7 @@ const FinanceWithdrawal = () => {
 
   const handleWithdrawalClick = () => {
     if (selectedProject) {
-      router.push(`/finance/withdrawal/${selectedProject}`);
+      router.push(`/finance/withdrawal/${selectedProject.metaUrl}`);
     }
   };
 
@@ -92,7 +97,7 @@ const FinanceWithdrawal = () => {
           label=""
           options={projectOptions}
           placeholder={loading ? 'Loading events...' : 'Choose Project'}
-          value={selectedProject}
+          value={selectedProject?.id || ''}
           onChange={handleProjectChange}
         />
       </Box>

@@ -10,6 +10,12 @@ const getStatusStyle = (value: string) => {
   const statusLower = (value || '').toLowerCase();
 
   switch (statusLower) {
+    case 'done':
+      return {
+        backgroundColor: 'error.light',
+        color: 'error.main',
+        displayName: 'Done'
+      };
     case 'on_going':
       return {
         backgroundColor: 'success.light',

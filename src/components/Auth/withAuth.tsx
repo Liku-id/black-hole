@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -16,8 +16,9 @@ export function withAuth<P extends object>(
   const { requireAuth = true, redirectTo = '/login' } = options;
 
   const WithAuthComponent = (props: P) => {
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, error } = useAuth();
     const router = useRouter();
+    const [hasRedirected, setHasRedirected] = useState(false);
 
     useEffect(() => {
       // If authentication is required and user is not authenticated
@@ -29,15 +30,24 @@ export function withAuth<P extends object>(
       }
 
       // If user is authenticated and trying to access login page, redirect to dashboard
+      // But only if there's no error and we haven't redirected yet (to prevent redirect when login fails)
       if (
         !requireAuth &&
         !isLoading &&
         isAuthenticated &&
+        !error &&
+        !hasRedirected &&
         router.pathname === '/login'
       ) {
+        setHasRedirected(true);
         router.replace('/dashboard');
       }
-    }, [isAuthenticated, isLoading, requireAuth, router, redirectTo]);
+
+      // Reset redirect flag when error occurs
+      if (error && hasRedirected) {
+        setHasRedirected(false);
+      }
+    }, [isAuthenticated, isLoading, requireAuth, router, redirectTo, error]);
 
     // Show loading while checking authentication
     if (isLoading) {

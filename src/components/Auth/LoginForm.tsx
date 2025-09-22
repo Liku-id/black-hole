@@ -1,27 +1,21 @@
-import {
-  Alert,
-  alpha,
-  Box,
-  Card,
-  CardContent,
-  CircularProgress,
-  styled
-} from '@mui/material';
+import { alpha, Box, Card, CardContent, styled } from '@mui/material';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import Image from 'next/image';
 
-import { TextField, Button, H4, Body1 } from '@/components/common';
+import { TextField, Button, H2, Body2, Caption } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
+import { validationUtils } from '@/utils';
 
 const LoginCard = styled(Card)(
   ({ theme }) => `
     width: 100%;
     max-width: 420px;
-    padding: ${theme.spacing(3)};
-    margin: ${theme.spacing(2)};
-    background: ${alpha(theme.palette.background.paper, 0.95)};
+    padding: 56px 24px;
+    margin: auto;
+    background: ${alpha(theme.palette.background.paper, 1)};
     backdrop-filter: blur(10px);
-    border-radius: 12px;
+    border-radius: 0px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 `
 );
@@ -34,11 +28,6 @@ const LogoWrapper = styled(Box)(
     margin-bottom: ${theme.spacing(3)};
 `
 );
-
-export const email = (value: string) =>
-  value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)
-    ? 'Invalid email format'
-    : undefined;
 
 interface LoginFormData {
   email: string;
@@ -67,7 +56,6 @@ const LoginForm: React.FC = () => {
       await login(data);
     } catch (err) {
       console.error('Login error:', err);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -75,87 +63,105 @@ const LoginForm: React.FC = () => {
   const isFormDisabled = isSubmitting || isLoading;
 
   return (
-    <LoginCard elevation={6}>
-      <CardContent sx={{ p: 0 }}>
-        <LogoWrapper>{/* <Logo /> */}</LogoWrapper>
+    <Box>
+      <LogoWrapper>
+        <Image
+          alt="Wukong Logo"
+          height={48}
+          src="/logo/wukong.svg"
+          width={176}
+        />
+      </LogoWrapper>
 
-        <Box mb={4} textAlign="center">
-          <H4 gutterBottom color="text.primary">
-            Welcome Back
-          </H4>
-          <Body1 color="text.secondary">Please sign in to your account</Body1>
-        </Box>
+      <LoginCard elevation={6}>
+        <CardContent sx={{ p: 0, pb: '0px !important' }}>
+          <Box mb={5} textAlign={'center'}>
+            <H2 gutterBottom color="text.primary" fontWeight={700}>
+              Welcome Back,
+            </H2>
+            <Body2 color="text.secondary">Please sign in to your account</Body2>
+          </Box>
 
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <Box mb={3}>
-              <TextField
-                fullWidth
-                disabled={isFormDisabled}
-                label="Email Address"
-                name="email"
-                placeholder="Enter your email address"
-                rules={{
-                  required: 'Email is required',
-                  validate: email
-                }}
-                type="email"
-              />
-            </Box>
-
-            <Box mb={3}>
-              <TextField
-                fullWidth
-                disabled={isFormDisabled}
-                label="Password"
-                name="password"
-                placeholder="Enter your password"
-                rules={{
-                  required: 'Password is required',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters'
-                  }
-                }}
-                type="password"
-              />
-            </Box>
-
-            {error && (
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
               <Box mb={3}>
-                <Alert
-                  severity="error"
-                  sx={{
-                    borderRadius: 8,
-                    '& .MuiAlert-message': {
-                      fontSize: 14,
-                      fontWeight: 500
+                <TextField
+                  fullWidth
+                  disabled={isFormDisabled}
+                  label="Email Address"
+                  name="email"
+                  placeholder="Email Address"
+                  rules={{
+                    required: 'Email is required',
+                    validate: validationUtils.emailValidator
+                  }}
+                  type="email"
+                />
+              </Box>
+
+              <Box mb={3}>
+                <TextField
+                  fullWidth
+                  disabled={isFormDisabled}
+                  label="Password"
+                  name="password"
+                  placeholder="Password"
+                  rules={{
+                    required: 'Password is required',
+                    validate: (value: string) => {
+                      if (!value) return undefined;
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return undefined;
                     }
                   }}
+                  type="password"
+                />
+              </Box>
+
+              {error && (
+                <Box
+                  mb={3}
+                  borderRadius={0}
+                  fontSize="14px"
+                  width="100%"
+                  color="error.main"
+                  bgcolor="error.light"
+                  p={2}
+                  textAlign="center"
                 >
                   {error}
-                </Alert>
-              </Box>
-            )}
-
-            <Button
-              disabled={isFormDisabled}
-              sx={{ width: '100%', height: '48px' }}
-              type="submit"
-            >
-              {isFormDisabled ? (
-                <>
-                  <CircularProgress color="inherit" size={20} sx={{ mr: 1 }} />
-                  Signing In...
-                </>
-              ) : (
-                'Sign In'
+                </Box>
               )}
-            </Button>
-          </form>
-        </FormProvider>
-      </CardContent>
-    </LoginCard>
+
+              <Button fullWidth disabled={isFormDisabled} type="submit">
+                Sign In
+              </Button>
+            </form>
+          </FormProvider>
+
+          <Box
+            mt={5}
+            textAlign={'center'}
+            display="flex"
+            flexDirection="row"
+            justifyContent="center"
+            alignItems="center"
+            gap={1}
+          >
+            <Caption color="text.primary">Need an account?</Caption>
+            <Caption
+              color="info.contrastText"
+              sx={{ cursor: 'pointer' }}
+              onClick={() => (window.location.href = '/register')}
+            >
+              Sign up
+            </Caption>
+          </Box>
+        </CardContent>
+      </LoginCard>
+    </Box>
   );
 };
 

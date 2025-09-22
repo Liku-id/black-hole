@@ -24,8 +24,12 @@ interface TicketFormData {
   salesEndTimeZone: string;
   ticketStartDate: string;
   ticketStartRawDate: string;
+  ticketStartTime: string;
+  ticketStartTimeZone: string;
   ticketEndDate: string;
   ticketEndRawDate: string;
+  ticketEndTime: string;
+  ticketEndTimeZone: string;
 }
 
 interface TicketCategory {
@@ -72,7 +76,19 @@ export const TicketCreateModal = ({
       salesStartDate: '',
       salesEndDate: '',
       ticketStartDate: '',
-      ticketEndDate: ''
+      ticketEndDate: '',
+      salesStartRawDate: '',
+      salesEndRawDate: '',
+      ticketStartRawDate: '',
+      ticketEndRawDate: '',
+      salesStartTime: '',
+      salesEndTime: '',
+      ticketStartTime: '',
+      ticketEndTime: '',
+      salesStartTimeZone: '',
+      salesEndTimeZone: '',
+      ticketStartTimeZone: '',
+      ticketEndTimeZone: ''
     }
   });
 

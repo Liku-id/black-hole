@@ -1,4 +1,4 @@
-import { TicketsFilters, TicketsResponse } from '@/types/ticket';
+import { TicketsFilters, TicketsResponse, TicketStatus } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
 
 interface TicketTypePayload {
@@ -40,6 +40,16 @@ interface CreateTicketTypesResponse {
       ticketEndDate: string;
     }>;
   };
+}
+
+interface RedeemTicketPayload {
+  ticketStatus: TicketStatus;
+}
+
+interface RedeemTicketResponse {
+  statusCode: number;
+  message: string;
+  body?: any;
 }
 
 class TicketsService {
@@ -105,6 +115,23 @@ class TicketsService {
       );
     } catch (error) {
       console.error('Error deleting ticket type:', error);
+      throw error;
+    }
+  }
+
+  async redeemTicket(
+    id: string,
+    payload: RedeemTicketPayload
+  ): Promise<RedeemTicketResponse> {
+    try {
+      const response = await apiUtils.put<RedeemTicketResponse>(
+        `/api/tickets/${id}`,
+        payload,
+        'Failed to redeem ticket'
+      );
+      return response;
+    } catch (error) {
+      console.error('Error redeeming ticket:', error);
       throw error;
     }
   }
