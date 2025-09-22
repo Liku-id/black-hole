@@ -1,9 +1,9 @@
 import { Box, Divider } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Body2, Caption, Select, Button } from '@/components/common';
+import { Body2, Button, Caption, Select } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks';
 import { withdrawalService } from '@/services';
@@ -47,12 +47,13 @@ const FinanceWithdrawal = () => {
   };
 
   const projectOptions = events.map((event) => ({
-    value: event,
+    value: event.id,
     label: event.name
   }));
 
-  const handleProjectChange = (value: Event) => {
-    setSelectedProject(value);
+  const handleProjectChange = (value: string) => {
+    const selectedEvent = events.find((event) => event.id === value) || null;
+    setSelectedProject(selectedEvent);
   };
 
   useEffect(() => {
@@ -96,7 +97,7 @@ const FinanceWithdrawal = () => {
           label=""
           options={projectOptions}
           placeholder={loading ? 'Loading events...' : 'Choose Project'}
-          value={selectedProject || null}
+          value={selectedProject?.id || ''}
           onChange={handleProjectChange}
         />
       </Box>
