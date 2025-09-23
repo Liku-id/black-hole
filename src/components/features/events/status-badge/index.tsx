@@ -30,14 +30,14 @@ const getStatusStyle = (value: string) => {
       };
     case 'rejected':
       return {
-        backgroundColor: 'warning.light',
-        color: 'warning.main',
+        backgroundColor: 'error.light',
+        color: 'error.main',
         displayName: 'Rejected'
       };
     case 'on_review':
       return {
-        backgroundColor: 'error.light',
-        color: 'error.main',
+        backgroundColor: 'primary.light',
+        color: 'primary.main',
         displayName: 'On Review'
       };
     case 'pending':

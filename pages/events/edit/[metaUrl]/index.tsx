@@ -10,6 +10,7 @@ import { EventEditInfo } from '@/components/features/events/edit/info';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services';
+import { dateUtils } from '@/utils';
 
 function EditEvent() {
   const router = useRouter();
@@ -148,12 +149,30 @@ function EditEvent() {
       }
 
       // Only include dates if they actually changed
-      if (hasDateChanged(startDateISO, eventDetail?.startDate || '')) {
-        payload.startDate = startDateISO;
-      }
+      // Check if user actually modified the date/time fields
+      const hasDateRangeChanged = hasChanged(
+        formData.dateRange,
+        eventDetail.startDate && eventDetail.endDate
+          ? `${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)}`
+          : ''
+      );
 
-      if (hasDateChanged(endDateISO, eventDetail?.endDate || '')) {
-        payload.endDate = endDateISO;
+      const hasTimeRangeChanged = hasChanged(
+        formData.timeRange,
+        eventDetail.startDate && eventDetail.endDate
+          ? `${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB`
+          : ''
+      );
+
+      // Only include dates if user actually changed them
+      if (hasDateRangeChanged || hasTimeRangeChanged) {
+        if (hasDateChanged(startDateISO, eventDetail?.startDate || '')) {
+          payload.startDate = startDateISO;
+        }
+
+        if (hasDateChanged(endDateISO, eventDetail?.endDate || '')) {
+          payload.endDate = endDateISO;
+        }
       }
 
       if (

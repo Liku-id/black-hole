@@ -38,11 +38,18 @@ const Field = ({
           return oldDateRange !== newDateRange;
         case 'cityId':
           return eventDetail?.city?.id !== eventUpdateRequest[fieldKey];
-        case 'paymentMethodIds':
-          return (
-            JSON.stringify(eventDetail?.paymentMethods?.map((pm) => pm.id)) !==
-            JSON.stringify(eventUpdateRequest[fieldKey])
-          );
+        case 'paymentMethodIds': {
+          const a = (eventDetail?.paymentMethods ?? [])
+            .map((pm) => pm.id)
+            .filter(Boolean)
+            .slice()
+            .sort();
+
+          const b = (eventUpdateRequest[fieldKey] ?? []).slice().sort();
+
+          return JSON.stringify(a) !== JSON.stringify(b);
+        }
+
         default:
           return eventDetail?.[fieldKey] !== eventUpdateRequest[fieldKey];
       }
