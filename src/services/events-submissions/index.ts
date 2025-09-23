@@ -42,7 +42,7 @@ class EventSubmissionsService {
   }
 
   async approveOrRejectSubmission(
-    submissionId: string,
+    eventId: string,
     payload: {
       rejectedFields: string[];
       rejectedReason: string;
@@ -51,7 +51,7 @@ class EventSubmissionsService {
   ): Promise<any> {
     try {
       return await apiUtils.post(
-        `/api/events-submissions/${submissionId}/approval`,
+        `/api/events-submissions/${eventId}/approval`,
         payload,
         'Failed to submit approval decision'
       );

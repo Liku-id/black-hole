@@ -40,6 +40,8 @@ function ApprovalDetail() {
     id as string
   );
 
+  console.log(submission, '<<submission');
+
   useEffect(() => {
     if (user) {
       const userRole = (user as User).role?.name;
@@ -75,11 +77,14 @@ function ApprovalDetail() {
     setApproveError(null);
     setApproveLoading(true);
     try {
-      await eventSubmissionsService.approveOrRejectSubmission(submission.id, {
-        rejectedFields: [],
-        rejectedReason: '',
-        status: 'approved'
-      });
+      await eventSubmissionsService.approveOrRejectSubmission(
+        submission?.event?.id,
+        {
+          rejectedFields: [],
+          rejectedReason: '',
+          status: 'approved'
+        }
+      );
       setIsApproveOpen(false);
       router.push('/events');
     } catch (e) {
@@ -102,7 +107,7 @@ function ApprovalDetail() {
         status: 'rejected' as const
       };
       await eventSubmissionsService.approveOrRejectSubmission(
-        submission.id,
+        submission?.event?.id,
         payload
       );
       setIsRejectOpen(false);
