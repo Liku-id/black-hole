@@ -40,8 +40,6 @@ function ApprovalDetail() {
     id as string
   );
 
-  console.log(submission, '<<submission');
-
   useEffect(() => {
     if (user) {
       const userRole = (user as User).role?.name;
