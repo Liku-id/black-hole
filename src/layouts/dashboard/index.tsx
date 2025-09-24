@@ -47,6 +47,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const userRole =
     user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
 
+  // Get role from session for event organizer users
+  const sessionRole =
+    user && isEventOrganizer(user) ? 'event_organizer_pic' : userRole;
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -90,8 +94,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {menuItems.map((item) => {
           if (
             item.text === 'Approval' &&
-            userRole !== 'admin' &&
-            userRole !== 'business_development'
+            sessionRole !== 'admin' &&
+            sessionRole !== 'business_development'
+          ) {
+            return null;
+          }
+
+          // Hide Account menu if user is not event_organizer_pic
+          if (
+            item.text === 'Account' &&
+            sessionRole !== 'event_organizer_pic'
           ) {
             return null;
           }
@@ -204,7 +216,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               if (isEventOrganizer(user)) {
                 const organizer = user as EventOrganizer;
                 const profilePictureUrl = organizer.asset?.url;
-                const displayName = organizer.full_name || organizer.name;
+                const displayName = organizer.name;
                 const userRole = 'Event Organizer PIC';
 
                 return (
