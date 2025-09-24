@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import { authService } from '@/services';
-import { AuthState, AuthUser, LoginRequest, UserRole } from '@/types/auth';
+import { AuthState, AuthUser, LoginRequest, UserRole, ALLOWED_ROLES } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 
 interface AuthContextType extends AuthState {
@@ -111,6 +111,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const sessionResponse = await apiUtils.get('/api/auth/session');
 
         if (sessionResponse.isAuthenticated && sessionResponse.user) {
+          // Check if user role is allowed
+          const userRole = sessionResponse.user.role;
+          if (!userRole || !ALLOWED_ROLES.includes(userRole)) {
+            // Clear session for unauthorized role
+            await apiUtils.post('/api/auth/clear-session');
+            dispatch({ type: 'SESSION_RESTORED' });
+            return;
+          }
+
           // Session exists and we have user data with role information
           try {
             let userData;
@@ -233,7 +242,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Failed to authenticate user');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      let errorMessage = 'Login failed';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (err && typeof err === 'object' && 'response' in err) {
+        // Handle API error responses
+        const apiError = err as any;
+        if (apiError.response?.data?.message) {
+          errorMessage = apiError.response.data.message;
+        } else if (apiError.response?.data?.code === 'ROLE_NOT_ALLOWED') {
+          errorMessage = 'Access denied. Your role is not authorized to access this platform.';
+        }
+      }
+      
       setError(errorMessage);
       dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
     }
