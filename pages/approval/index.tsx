@@ -63,7 +63,8 @@ function Approval() {
 
   const tabs = [
     { id: 'upcoming_draft', title: 'Upcoming Draft' },
-    { id: 'current_event', title: 'Current Event' }
+    { id: 'current_event', title: 'Current Event' },
+    { id: 'withdrawal', title: 'Withdrawal' }
   ];
 
   return (

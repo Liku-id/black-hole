@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Button, Card, Caption, H2 } from '@/components/common';
+import { Button, Card, Caption, H2, Overline } from '@/components/common';
 import { EventAssetsEditForm } from '@/components/features/events/edit/assets';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
@@ -31,6 +31,7 @@ const EditAssetsPage = () => {
   const [assetChangeInfo, setAssetChangeInfo] =
     useState<AssetChangeInfo | null>(null);
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Ensure hooks are not called conditionally; redirect when ready
@@ -48,6 +49,11 @@ const EditAssetsPage = () => {
 
   const handleFilesChange = (changeInfo: AssetChangeInfo) => {
     setAssetChangeInfo(changeInfo);
+  };
+
+  const validateFileSize = (file: File): boolean => {
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    return file.size <= maxSize;
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -79,11 +85,28 @@ const EditAssetsPage = () => {
 
     if (!hasThumbnail) {
       setShowError(true);
+      setErrorMessage('Thumbnail is required');
       return;
+    }
+
+    // Validate file sizes for new files
+    if (assetChangeInfo.files.thumbnail && !validateFileSize(assetChangeInfo.files.thumbnail)) {
+      setShowError(true);
+      setErrorMessage('Thumbnail file size must be less than 2MB');
+      return;
+    }
+
+    for (const file of assetChangeInfo.files.supportingImages) {
+      if (file && !validateFileSize(file)) {
+        setShowError(true);
+        setErrorMessage('Supporting image file size must be less than 2MB');
+        return;
+      }
     }
 
     setIsLoading(true);
     setShowError(false);
+    setErrorMessage('');
 
     try {
       // Step 1: Delete removed event assets
@@ -144,9 +167,12 @@ const EditAssetsPage = () => {
       // Navigate back to event detail page
       router.push(`/events/${metaUrl}`);
     } catch (error: any) {
-      console.error('Failed to update event assets:', error);
-      alert('Failed to update assets. Please try again.');
-    } finally {
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to update event assets. Please try again.';
+      setErrorMessage(errorMsg);
+      setShowError(true);
       setIsLoading(false);
     }
   };
@@ -185,21 +211,34 @@ const EditAssetsPage = () => {
             onFilesChange={handleFilesChange}
           />
 
-          <Box display="flex" gap="24px" justifyContent="flex-end">
-            <Button
-              disabled={isLoading}
-              variant="secondary"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={isLoading}
-              variant="primary"
-              onClick={handleSubmitEvent}
-            >
-              {isLoading ? 'Updating...' : 'Update Assets'}
-            </Button>
+          <Box
+            display="flex"
+            gap="8px"
+            justifyContent="flex-end"
+            flexDirection="column"
+            alignItems="flex-end"
+          >
+            {showError && errorMessage && (
+              <Overline color="error.main" fontWeight={500}>
+                {errorMessage}
+              </Overline>
+            )}
+            <Box display="flex" gap="24px">
+              <Button
+                disabled={isLoading}
+                variant="secondary"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={isLoading}
+                variant="primary"
+                onClick={handleSubmitEvent}
+              >
+                {isLoading ? 'Updating...' : 'Update Assets'}
+              </Button>
+            </Box>
           </Box>
         </Card>
       </Box>
