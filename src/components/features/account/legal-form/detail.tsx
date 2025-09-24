@@ -223,7 +223,7 @@ export const LegalFormDetailInfo = ({
                 <Grid item xs={12}>
                   <OrganizerField
                     label="Full Name as in NPWP*"
-                    value={organizerDetail.pic_name || '-'}
+                    value={organizerDetail.full_name || '-'}
                   />
                 </Grid>
               </>

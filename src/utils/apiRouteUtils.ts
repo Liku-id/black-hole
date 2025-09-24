@@ -7,6 +7,7 @@ import {
   isAuthenticated,
   setSessionData
 } from '@/lib/sessionHelpers';
+import { ALLOWED_ROLES } from '@/types/auth';
 
 interface ApiRouteOptions {
   endpoint: string;
@@ -246,6 +247,16 @@ export const apiRouteUtils = {
 
         // Get the session and store tokens securely
         const session = await getSession(req, res);
+
+        // Check user role authorization
+        const userRole = response.data.body.user?.role;
+        if (!userRole || !ALLOWED_ROLES.includes(userRole)) {
+          return res.status(403).json({
+            message:
+              'Access denied. Your role is not authorized to access this platform.',
+            code: 'ROLE_NOT_ALLOWED'
+          });
+        }
 
         // Store user data and tokens in the encrypted session
         setSessionData(session, {

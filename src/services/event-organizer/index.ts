@@ -41,6 +41,10 @@ export interface UpdateBankPayload {
   account_holder_name: string;
 }
 
+export interface UpdateOrganizerTypePayload {
+  organizer_type: 'individual' | 'institutional';
+}
+
 export const eventOrganizerService = {
   getEventOrganizerMe: async (): Promise<EventOrganizerMeResponse> => {
     const response = await apiUtils.get<EventOrganizerMeResponse>(
@@ -92,6 +96,18 @@ export const eventOrganizerService = {
       '/api/banks',
       {},
       'Failed to fetch banks'
+    );
+    return response;
+  },
+
+  updateEventOrganizerType: async (
+    eoId: string,
+    payload: UpdateOrganizerTypePayload
+  ): Promise<EventOrganizer> => {
+    const response = await apiUtils.post<EventOrganizer>(
+      `/api/event-organizers/${eoId}/type`,
+      payload,
+      'Failed to update organizer type'
     );
     return response;
   }

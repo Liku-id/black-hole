@@ -74,9 +74,9 @@ export const LegalEditForm = ({
   }, [eventOrganizer]);
 
   const handleKtpUpload = (file: File) => {
-    // Validate file size (max 1MB)
-    if (file.size > 1024 * 1024) {
-      setUploadError('File size must be less than 1MB');
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError('File size must be less than 2MB');
       return;
     }
 
@@ -85,9 +85,9 @@ export const LegalEditForm = ({
   };
 
   const handleNpwpUpload = (file: File) => {
-    // Validate file size (max 1MB)
-    if (file.size > 1024 * 1024) {
-      setUploadError('File size must be less than 1MB');
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError('File size must be less than 2MB');
       return;
     }
 
@@ -146,7 +146,7 @@ export const LegalEditForm = ({
         setUploadError('Address as in NPWP is required');
         return;
       }
-      if (!data.pic_name.trim()) {
+      if (!data.full_name.trim()) {
         setUploadError('Full name as in NPWP is required');
         return;
       }
@@ -224,8 +224,7 @@ export const LegalEditForm = ({
           npwp_photo_id: finalNpwpPhotoId,
           npwp_number: formData.npwp_number,
           npwp_address: formData.npwp_address,
-          pic_name: formData.pic_name,
-          full_name: eventOrganizer.full_name // Keep full_name unchanged
+          full_name: formData.full_name
         };
       }
 
@@ -261,7 +260,7 @@ export const LegalEditForm = ({
               <Dropzone
                 accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
                 height="200px"
-                maxSize={1024 * 1024} // 1MB
+                maxSize={2 * 1024 * 1024} // 2MB
                 width="100%"
                 existingFileUrl={eventOrganizer.ktpPhoto?.url}
                 onFileSelect={handleKtpUpload}
@@ -402,7 +401,7 @@ export const LegalEditForm = ({
                     <TextField
                       fullWidth
                       label="Full Name as in NPWP*"
-                      name="pic_name"
+                      name="full_name"
                       placeholder="Full Name as in NPWP"
                       rules={{
                         required: 'Full Name as in NPWP is required'

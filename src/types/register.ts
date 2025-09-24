@@ -15,7 +15,7 @@ export interface RegisterProfileRequest {
 
 export interface SocialMediaLink {
   id: string;
-  platform: 'tiktok' | 'instagram' | 'x' | 'youtube' | 'other';
+  platform: 'tiktok' | 'instagram' | 'twitter' | 'youtube' | 'other';
   url: string;
   icon: string;
 }

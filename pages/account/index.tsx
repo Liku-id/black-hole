@@ -12,7 +12,7 @@ import { CreatorTypeModal } from '@/components/features/account/creator-type-mod
 import GeneralForm from '@/components/features/account/general-form';
 import LegalForm from '@/components/features/account/legal-form';
 import { useEventOrganizerMe } from '@/hooks/features/organizers/useEventOrganizerMe';
-import { useUpdateEventOrganizerGeneral } from '@/hooks/features/organizers/useUpdateEventOrganizerGeneral';
+import { useUpdateEventOrganizerType } from '@/hooks/features/organizers/useUpdateEventOrganizerType';
 import DashboardLayout from '@/layouts/dashboard';
 
 function Account() {
@@ -31,8 +31,8 @@ function Account() {
     error: organizerError
   } = useEventOrganizerMe();
 
-  // Update organizer general info hook
-  const { mutate: updateOrganizer } = useUpdateEventOrganizerGeneral();
+  // Update organizer type hook
+  const { mutate: updateOrganizerType, isPending: updateLoading, error: updateError } = useUpdateEventOrganizerType();
 
   const tabs = [
     {
@@ -64,16 +64,11 @@ function Account() {
   const handleCreatorModalContinue = async (creatorType: string) => {
     try {
       if (eventOrganizer?.id) {
-        // Update organizer with selected type
-        updateOrganizer({
+        // Update organizer type using dedicated endpoint
+        await updateOrganizerType({
           eoId: eventOrganizer.id,
           payload: {
-            name: eventOrganizer.name || '',
-            description: eventOrganizer.description || '',
-            social_media_url: eventOrganizer.social_media_url || '{}',
-            address: eventOrganizer.address || '',
-            asset_id: eventOrganizer.asset_id || '',
-            organizer_type: creatorType
+            organizer_type: creatorType as 'individual' | 'institutional'
           }
         });
 
@@ -194,10 +189,10 @@ function Account() {
             {showContent()}
 
             {/* Error Alert */}
-            {(error || organizerError) && (
+            {(error || organizerError || updateError) && (
               <Box py={4} textAlign="center">
                 <Body2 gutterBottom>Failed to load data</Body2>
-                <Body2>{error || organizerError}</Body2>
+                <Body2>{error || organizerError || updateError}</Body2>
                 <Caption color="text.secondary" sx={{ mt: 1 }}>
                   Please check your backend connection and try again.
                 </Caption>
@@ -211,6 +206,7 @@ function Account() {
           open={showCreatorModal}
           onClose={handleCreatorModalClose}
           onContinue={handleCreatorModalContinue}
+          loading={updateLoading}
         />
       </Box>
     </DashboardLayout>

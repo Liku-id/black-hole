@@ -72,6 +72,9 @@ export const apiUtils = {
           apiUtils.clearExpiredSession();
           errorMessage = 'Session expired. Please log in again.';
         }
+      } else if (status === 413) {
+        // Handle payload too large error
+        errorMessage = 'File size too large. Please ensure your files are less than 2MB and try again.';
       } else if (data && typeof data === 'object') {
         const errorData = data as any;
         if (errorData.message) {
