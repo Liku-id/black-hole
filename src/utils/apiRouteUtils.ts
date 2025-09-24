@@ -235,6 +235,13 @@ export const apiRouteUtils = {
       }
 
       try {
+        // Check if BACKEND_URL is configured
+        if (!process.env.BACKEND_URL) {
+          return res.status(500).json({
+            message: 'Server configuration error: BACKEND_URL not set'
+          });
+        }
+
         const url = `${process.env.BACKEND_URL}${options.endpoint}`;
 
         const response = await axios.post(url, req.body, {
@@ -276,10 +283,29 @@ export const apiRouteUtils = {
           }
         });
       } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          return res.status(error.response.status).json(error.response.data);
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+          } else if (error.request) {
+            // Request was made but no response received
+            return res.status(503).json({
+              message:
+                'Backend server is not responding. Please try again later.'
+            });
+          } else {
+            // Something else happened
+            return res.status(500).json({
+              message: 'Request failed: ' + error.message
+            });
+          }
         }
-        return res.status(500).json({ message: 'Internal server error' });
+
+        // Non-axios error
+        return res.status(500).json({
+          message:
+            'Internal server error: ' +
+            (error instanceof Error ? error.message : 'Unknown error')
+        });
       }
     };
   },
