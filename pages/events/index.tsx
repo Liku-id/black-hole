@@ -1,4 +1,4 @@
-import { Box, Card, CardContent } from '@mui/material';
+import { Box, Card, CardContent, Link } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -16,6 +16,7 @@ import {
 } from '@/components/common';
 import EventsTable from '@/components/features/events/list/table';
 import { useEvents } from '@/hooks/features/events/useEvents';
+import { useEventOrganizerMe } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { EventsFilters } from '@/types/event';
 import { useDebouncedCallback } from '@/utils';
@@ -33,6 +34,48 @@ function Events() {
 
   const { events, eventCountByStatus, loading, error, mutate } =
     useEvents(filters);
+
+  const { data: eventOrganizer } = useEventOrganizerMe();
+
+  // Function to check if organizer data is complete
+  const isOrganizerDataComplete = () => {
+    if (!eventOrganizer) return false;
+
+    // Check if organizer_type is empty or null
+    if (!eventOrganizer.organizer_type) return false;
+
+    if (eventOrganizer.organizer_type === 'individual') {
+      // Check required fields for individual organizer
+      const requiredFields = [
+        'ktp_photo_id',
+        'npwp_photo_id',
+        'nik',
+        'npwp',
+        'ktp_address',
+        'pic_name'
+      ];
+
+      return requiredFields.every((field) => {
+        const value = eventOrganizer[field as keyof typeof eventOrganizer];
+        return value && value.toString().trim() !== '';
+      });
+    } else if (eventOrganizer.organizer_type === 'institutional') {
+      // Check required fields for institutional organizer
+      const requiredFields = [
+        'npwp_photo_id',
+        'npwp',
+        'npwp_address',
+        'full_name'
+      ];
+
+      return requiredFields.every((field) => {
+        const value = eventOrganizer[field as keyof typeof eventOrganizer];
+        return value && value.toString().trim() !== '';
+      });
+    }
+
+    return false;
+  };
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
@@ -108,7 +151,10 @@ function Events() {
           <H2 color="text.primary" fontWeight={700}>
             Events
           </H2>
-          <Button onClick={() => router.push('/events/create')}>
+          <Button
+            onClick={() => router.push('/events/create')}
+            disabled={!isOrganizerDataComplete()}
+          >
             Create New Event
           </Button>
         </Box>
@@ -161,8 +207,33 @@ function Events() {
                 <Body1 gutterBottom color="text.secondary">
                   No events found
                 </Body1>
-                <Body2 color="text.secondary">
-                  There are no events in the system yet.
+                <Body2
+                  color={
+                    isOrganizerDataComplete()
+                      ? 'text.secondary'
+                      : 'text.primary'
+                  }
+                  sx={{ display: 'flex', justifyContent: 'center' }}
+                >
+                  {!isOrganizerDataComplete() ? (
+                    <>
+                      Please complete your registration data in the
+                      <Box
+                        onClick={() => router.push('/account')}
+                        sx={{
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                          color: 'primary.main',
+                          paddingX: 0.75
+                        }}
+                      >
+                        Account menu
+                      </Box>
+                      to create events.
+                    </>
+                  ) : (
+                    'There are no events in the system yet.'
+                  )}
                 </Body2>
               </Box>
             )}
