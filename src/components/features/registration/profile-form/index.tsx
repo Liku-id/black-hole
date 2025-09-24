@@ -57,7 +57,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
   const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLink[]>([
     { id: '1', platform: 'tiktok', url: '', icon: '/icon/tiktok.svg' },
     { id: '2', platform: 'instagram', url: '', icon: '/icon/instagram.svg' },
-    { id: '3', platform: 'x', url: '', icon: '/icon/twitter.svg' }
+    { id: '3', platform: 'twitter', url: '', icon: '/icon/twitter.svg' }
   ]);
 
   const methods = useForm<RegisterProfileRequest>({
