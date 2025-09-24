@@ -73,6 +73,7 @@ export const OrganizerEditForm = ({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -112,6 +113,15 @@ export const OrganizerEditForm = ({
   }, [eventOrganizer, setValue, hasUserInteracted]);
 
   const handleImageUpload = (file: File) => {
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError('File size must be less than 2MB');
+      return;
+    }
+
+    // Clear any previous errors
+    setUploadError(null);
+
     // Mark that user has interacted
     setHasUserInteracted(true);
 
@@ -135,6 +145,7 @@ export const OrganizerEditForm = ({
 
     setValue('profilePicture', null);
     setImagePreview(null);
+    setUploadError(null); // Clear any upload errors
 
     // Clear the file input
     const fileInput = document.getElementById(
@@ -164,11 +175,20 @@ export const OrganizerEditForm = ({
   };
 
   const handleFormSubmit = async (data: FormData) => {
+    // Clear any previous upload errors
+    setUploadError(null);
+
     try {
       let finalAssetId = eventOrganizer.asset_id; // Default to existing asset_id
 
       // Check if image has changed (new file uploaded)
       if (data.profilePicture) {
+        // Validate file size again before upload
+        if (data.profilePicture.size > 2 * 1024 * 1024) {
+          setUploadError('File size must be less than 2MB');
+          return;
+        }
+
         // Upload new image first
         setUploadingImage(true);
         try {
@@ -178,6 +198,7 @@ export const OrganizerEditForm = ({
           finalAssetId = uploadResponse.body.asset.id;
         } catch (uploadError) {
           console.error('Failed to upload image:', uploadError);
+          setUploadError('Failed to upload image. Please try again.');
           setUploadingImage(false);
           return; // Stop submission if upload fails
         } finally {
@@ -479,6 +500,13 @@ export const OrganizerEditForm = ({
                         marginTop: '8px'
                       }}
                     />
+                  )}
+
+                  {/* Upload Error Display */}
+                  {uploadError && (
+                    <Box marginTop={1}>
+                      <Overline color="error.main">{uploadError}</Overline>
+                    </Box>
                   )}
                 </Box>
               </Grid>

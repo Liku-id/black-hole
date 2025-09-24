@@ -43,6 +43,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
+  // Function to check if a menu item is active based on current path
+  const isMenuItemActive = (itemPath: string) => {
+    if (router.pathname === itemPath) {
+      return true;
+    }
+    
+    if (router.pathname.startsWith(itemPath) && router.pathname !== itemPath) {
+      // Special handling for /events path to avoid matching /events-submissions
+      if (itemPath === '/events' && router.pathname.startsWith('/events/')) {
+        return true;
+      }
+      // For other paths, only match direct children
+      const pathSegments = router.pathname.split('/');
+      const menuSegments = itemPath.split('/');
+      return pathSegments.length === menuSegments.length + 1;
+    }
+    
+    return false;
+  };
+
   // Get user role for menu access control
   const userRole =
     user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
@@ -108,9 +128,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             return null;
           }
 
+          const isActive = isMenuItemActive(item.path);
+          
           return (
             <ListItem
               key={item.text}
+              selected={isActive}
               sx={{
                 alignItems: 'center',
                 padding: '16px',
@@ -137,7 +160,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Body2 color="text.secondary" fontSize="14px">
+                  <Body2 
+                    color={isActive ? "primary.main" : "text.secondary"} 
+                    fontSize="14px"
+                    fontWeight={isActive ? "600" : "400"}
+                  >
                     {item.text}
                   </Body2>
                 }

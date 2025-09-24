@@ -262,7 +262,7 @@ export const LegalEditForm = ({
                 height="200px"
                 maxSize={2 * 1024 * 1024} // 2MB
                 width="100%"
-                existingFileUrl={eventOrganizer.ktpPhoto?.url}
+                existingFileUrl={ktpPhotoId ? eventOrganizer.ktpPhoto?.url : undefined}
                 onFileSelect={handleKtpUpload}
                 onFileRemove={handleKtpRemove}
               />
@@ -278,7 +278,7 @@ export const LegalEditForm = ({
               height="200px"
               maxSize={2 * 1024 * 1024} // 2MB
               width="100%"
-              existingFileUrl={eventOrganizer.npwpPhoto?.url}
+              existingFileUrl={npwpPhotoId ? eventOrganizer.npwpPhoto?.url : undefined}
               onFileSelect={handleNpwpUpload}
               onFileRemove={handleNpwpRemove}
             />
