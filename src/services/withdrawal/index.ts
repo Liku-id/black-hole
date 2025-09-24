@@ -4,6 +4,7 @@ export interface WithdrawalSummary {
   eventId: string;
   eventName: string;
   eventOrganizerId: string;
+  eventStatus: string;
   withdrawalAmount: string;
   settlementAmount: string;
   availableAmount: string;
@@ -22,6 +23,29 @@ export interface WithdrawalSummaryResponse {
   statusCode: number;
   message: string;
   body: WithdrawalSummary;
+}
+
+export interface EventOrganizerSummaryResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    eventOrganizerId: string;
+    eventOrganizerName: string;
+    email: string;
+    createdAt: string;
+    totalEarnings: string;
+    totalWithdrawn: string;
+    totalAvailable: string;
+    totalPlatformFees: string;
+    totalEvents: number;
+    activeEvents: number;
+    completedEvents: number;
+    pendingEvents: number;
+    pendingWithdrawals: string;
+    approvedWithdrawals: string;
+    rejectedWithdrawals: string;
+    lastUpdated: string;
+  };
 }
 
 export interface WithdrawalRequest {
@@ -81,6 +105,14 @@ class WithdrawalService {
       `/api/withdrawal/summary/${eventId}`,
       undefined,
       'Failed to fetch withdrawal summary'
+    );
+  }
+
+  async getEventOrganizerSummary(): Promise<EventOrganizerSummaryResponse> {
+    return apiUtils.get<EventOrganizerSummaryResponse>(
+      '/api/withdrawal/event-organizer/summary',
+      undefined,
+      'Failed to fetch event organizer summary'
     );
   }
 

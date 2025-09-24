@@ -108,7 +108,7 @@ export const FinanceTransactionTable: FC<FinanceTransactionTableProps> = ({
                   <Body2>{summary.eventName}</Body2>
                 </TableCell>
                 <TableCell>
-                  <StatusBadge status="EVENT_STATUS_ON_GOING" />
+                  <StatusBadge status={summary.eventStatus} />
                 </TableCell>
                 <TableCell>
                   <Body2>

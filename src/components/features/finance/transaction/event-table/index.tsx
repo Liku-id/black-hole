@@ -121,7 +121,7 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                     <Body2>{index + 1}.</Body2>
                   </TableCell>
                   <TableCell>
-                    <Body2>-</Body2>
+                    <Body2>{transaction.name}</Body2>
                   </TableCell>
                   <TableCell>
                     <Body2>{transaction.ticketType?.name || '-'}</Body2>

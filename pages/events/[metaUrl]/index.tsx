@@ -29,8 +29,8 @@ function EventDetail() {
 
   // Status validation - redirect non-draft events
   useEffect(() => {
-    if (eventDetail && eventDetail.eventStatus !== 'draft') {
-      //   router.replace(`/events`);
+    if (eventDetail && eventDetail.eventStatus === 'draft') {
+      router.replace(`/events`);
     }
   }, [eventDetail, metaUrl, router]);
 
