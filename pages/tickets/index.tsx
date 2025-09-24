@@ -74,10 +74,11 @@ function Tickets() {
 
   const handleScanTicket = () => {
     // Open scan ticket page in new tab - use different URLs based on environment
-    const scanTicketUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://wukong.co.id/ticket/auth' 
-      : 'https://staging-aws.wukong.co.id/ticket/auth';
-    
+    const scanTicketUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://wukong.co.id/ticket/auth'
+        : 'https://staging-aws.wukong.co.id/ticket/auth';
+
     window.open(scanTicketUrl, '_blank');
   };
 

@@ -1,5 +1,5 @@
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 import type { NextApiRequest, NextApiResponse } from 'next/types';
-import axios from 'axios';
 
 export default async function handler(
   req: NextApiRequest,
@@ -35,37 +35,29 @@ export default async function handler(
       });
     }
 
-    const response = await axios.post(
-      `${process.env.BACKEND_URL}/event-organizers`,
-      {
-        name,
-        email,
-        phone_number,
-        password,
-        social_media_url: _social_media_url,
-        address,
-        description
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    // Prepare payload for backend
+    const payload = {
+      name,
+      email,
+      phone_number,
+      password,
+      social_media_url: _social_media_url,
+      address,
+      description
+    };
 
-    const data = response.data;
-    console.log('Event Organizer Creation Response:', data);
+    // Update the request body with the prepared payload
+    req.body = payload;
 
-    return res.status(200).json(data);
+    // Use apiRouteUtils
+    const postHandler = apiRouteUtils.createPostHandler({
+      endpoint: '/event-organizers',
+      timeout: 30000
+    });
+
+    return await postHandler(req, res);
   } catch (error) {
     console.error('Create event organizer API error:', error);
-
-    if (axios.isAxiosError(error) && error.response) {
-      // Handle axios error with response (4xx, 5xx status codes)
-      return res.status(error.response.status).json(error.response.data);
-    }
-
-    // Handle other errors (network issues, etc.)
     return res.status(500).json({
       code: 500,
       message: 'Internal server error',

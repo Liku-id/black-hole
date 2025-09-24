@@ -1,10 +1,4 @@
-import {
-  alpha,
-  Box,
-  Card,
-  CardContent,
-  styled
-} from '@mui/material';
+import { alpha, Box, Card, CardContent, styled } from '@mui/material';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Image from 'next/image';

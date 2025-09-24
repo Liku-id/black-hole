@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 
-import { getSession, isAuthenticated } from '@/lib/sessionHelpers';
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 
 interface UpdateGeneralRequest {
   name: string;
@@ -20,12 +20,6 @@ export default async function handler(
   }
 
   try {
-    const session = await getSession(req, res);
-
-    if (!isAuthenticated(session) || !session.accessToken) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
     const { eo_id } = req.query;
 
     if (!eo_id || typeof eo_id !== 'string') {
@@ -60,31 +54,16 @@ export default async function handler(
       ...(organizer_type && { organizer_type })
     };
 
-    // Call the backend endpoint
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/event-organizers/${eo_id}/general`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.accessToken}`
-        },
-        body: JSON.stringify(payload)
-      }
-    );
+    // Update the request body with the prepared payload
+    req.body = payload;
 
-    const data = await response.json();
+    // Use apiRouteUtils with dynamic endpoint
+    const postHandler = apiRouteUtils.createPostHandler({
+      endpoint: `/event-organizers/${eo_id}/general`,
+      timeout: 30000
+    });
 
-    if (!response.ok) {
-      // If it's an auth error, clear the session
-      if (response.status === 401) {
-        session.destroy();
-        await session.save();
-      }
-      return res.status(response.status).json(data);
-    }
-
-    return res.status(200).json(data);
+    return await postHandler(req, res);
   } catch (error) {
     console.error('Event organizer general update API error:', error);
     return res.status(500).json({ message: 'Internal server error' });

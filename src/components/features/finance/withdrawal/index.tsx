@@ -52,7 +52,7 @@ const FinanceWithdrawal = () => {
   }));
 
   const handleProjectChange = (value: string) => {
-    const selectedEvent = events.find(event => event.id === value);
+    const selectedEvent = events.find((event) => event.id === value);
     setSelectedProject(selectedEvent || null);
   };
 

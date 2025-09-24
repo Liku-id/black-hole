@@ -1,5 +1,5 @@
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 import type { NextApiRequest, NextApiResponse } from 'next/types';
-import axios from 'axios';
 
 export default async function handler(
   req: NextApiRequest,
@@ -20,29 +20,15 @@ export default async function handler(
       });
     }
 
-    const response = await axios.post(
-      `${process.env.BACKEND_URL}/upload-asset`,
-      { type, file, filename, privacy, fileGroup },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    // Use apiRouteUtils
+    const postHandler = apiRouteUtils.createPostHandler({
+      endpoint: '/upload-asset',
+      timeout: 60000 // Longer timeout for file uploads
+    });
 
-    const data = response.data;
-    console.log('Upload Asset Response:', data);
-
-    return res.status(200).json(data);
+    return await postHandler(req, res);
   } catch (error) {
     console.error('Upload asset API error:', error);
-
-    if (axios.isAxiosError(error) && error.response) {
-      // Handle axios error with response (4xx, 5xx status codes)
-      return res.status(error.response.status).json(error.response.data);
-    }
-
-    // Handle other errors (network issues, etc.)
     return res.status(500).json({
       code: 500,
       message: 'Internal server error',
