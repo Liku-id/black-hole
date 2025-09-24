@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 
 import { getSession, setSessionData } from '@/lib/sessionHelpers';
+import { ALLOWED_ROLES } from '@/types/auth';
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,6 +26,15 @@ export default async function handler(
 
     if (!response.ok) {
       return res.status(response.status).json(data);
+    }
+
+    // Check if user role is allowed
+    const userRole = data.body.user?.role;
+    if (!userRole || !ALLOWED_ROLES.includes(userRole)) {
+      return res.status(403).json({
+        message: 'Access denied. Your role is not authorized to access this platform.',
+        code: 'ROLE_NOT_ALLOWED'
+      });
     }
 
     // Get the session and store tokens securely

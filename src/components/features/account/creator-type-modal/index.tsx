@@ -9,12 +9,14 @@ interface CreatorTypeModalProps {
   open: boolean;
   onClose: () => void;
   onContinue: (creatorType: string) => void;
+  loading?: boolean;
 }
 
 export const CreatorTypeModal = ({
   open,
   onClose,
-  onContinue
+  onContinue,
+  loading = false
 }: CreatorTypeModalProps) => {
   const [selectedType, setSelectedType] = useState<string>('');
 
@@ -142,12 +144,12 @@ export const CreatorTypeModal = ({
           <Button
             variant="primary"
             onClick={handleContinue}
-            disabled={!selectedType}
+            disabled={!selectedType || loading}
             sx={{
               minWidth: 120
             }}
           >
-            Continue
+            {loading ? 'Updating...' : 'Continue'}
           </Button>
         </Box>
       </Box>
