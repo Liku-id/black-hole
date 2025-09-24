@@ -134,7 +134,7 @@ export const BankEditForm = ({
               Note: This bank account number will be used for you to make
               withdrawals.
             </Body2>
-            
+
             {/* Buttons */}
             <Button type="submit" variant="primary" disabled={loading}>
               {loading ? 'Updating...' : 'Save Bank Account'}

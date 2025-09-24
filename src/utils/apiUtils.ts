@@ -10,12 +10,18 @@ export const apiUtils = {
   clearExpiredSession: async (): Promise<void> => {
     try {
       await axios.post('/api/auth/clear-session');
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname !== '/login'
+      ) {
         window.location.href = '/login';
       }
     } catch (error) {
       console.error('Failed to clear expired session:', error);
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname !== '/login'
+      ) {
         window.location.href = '/login';
       }
     }
