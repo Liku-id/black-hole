@@ -104,16 +104,31 @@ const OrganizerField = ({
       border="1px solid"
       borderColor="primary.main"
       borderRadius={1}
-      overflow="scroll"
+      overflow="auto"
       sx={{
         display: 'flex',
         alignItems: 'center',
         backgroundColor: 'primary.light',
-        padding: '0px 16px',
-        height: '46px'
+        height: '46px',
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+          display: 'none'
+        }
       }}
     >
-      <Body2 color="text.primary">{value || '-'}</Body2>
+      <Box sx={{ padding: '0px 16px' }}>
+        <Body2
+          color="text.primary"
+          sx={{
+            whiteSpace: 'nowrap',
+            minWidth: 0
+          }}
+        >
+          {value || '-'}
+        </Body2>
+      </Box>
     </Box>
   </Box>
 );

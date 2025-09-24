@@ -47,14 +47,20 @@ const OrganizerField = ({
       border="1px solid"
       borderColor="primary.main"
       borderRadius={1}
-      overflow="scroll"
+      overflow="auto"
       sx={{
         display: 'flex',
         alignItems: isTextArea ? 'flex-start' : 'center',
         backgroundColor: 'primary.light',
         padding: icon ? '0' : isTextArea ? '14px 16px' : '0px 16px',
         height: '46px',
-        ...(isTextArea && { height: '156px' })
+        ...(isTextArea && { height: '156px' }),
+        overflowX: isTextArea ? 'hidden' : 'auto',
+        overflowY: isTextArea ? 'auto' : 'hidden',
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+          display: 'none'
+        }
       }}
     >
       {icon && (
@@ -70,7 +76,20 @@ const OrganizerField = ({
           {icon}
         </Box>
       )}
-      <Body2 color="text.primary">{value}</Body2>
+      <Box sx={{ paddingRight: '2px' }}>
+        <Body2
+          color="text.primary"
+          sx={{
+            ...(!isTextArea &&
+              !icon && {
+                whiteSpace: 'nowrap',
+                minWidth: 0
+              })
+          }}
+        >
+          {value}
+        </Body2>
+      </Box>
     </Box>
   </Box>
 );
