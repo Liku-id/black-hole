@@ -3,22 +3,27 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { Body2, Button, Caption, Select } from '@/components/common';
+import { Body2, Button, Caption, AutoComplete } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks';
 import { withdrawalService } from '@/services';
 import { WithdrawalSummary } from '@/services/withdrawal';
 import { Event } from '@/types/event';
 import { formatUtils } from '@/utils/formatUtils';
+import { useDebouncedCallback } from '@/utils/debounceUtils';
 
 const FinanceWithdrawal = () => {
   const router = useRouter();
-  const { user } = useAuth();
-  console.log(user);
+  const {} = useAuth();
   const [selectedProject, setSelectedProject] = useState<Event | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [inputValue, setInputValue] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
   const { events, loading } = useEvents({
-    status: ['EVENT_STATUS_ON_GOING', 'EVENT_STATUS_DONE']
+    status: ['EVENT_STATUS_ON_GOING', 'EVENT_STATUS_DONE'],
+    ...(searchQuery.trim() && { name: searchQuery })
   });
 
   // State untuk withdrawal summary
@@ -47,18 +52,70 @@ const FinanceWithdrawal = () => {
   };
 
   const projectOptions = events.map((event) => ({
+    id: event.id,
     value: event.id,
     label: event.name
   }));
 
-  const handleProjectChange = (value: string) => {
-    const selectedEvent = events.find(event => event.id === value);
-    setSelectedProject(selectedEvent || null);
+  // Debounced search handler
+  const debouncedSearch = useDebouncedCallback((query: string) => {
+    setSearchQuery(query.trim());
+    setIsSearching(true);
+  }, 1000);
+
+  const handleInputChange = (_: any, newInputValue: string, reason: string) => {
+    setInputValue(newInputValue);
+
+    if (reason === 'input') {
+      if (newInputValue.trim()) {
+        debouncedSearch(newInputValue);
+        setIsDropdownOpen(true);
+      } else {
+        setSearchQuery('');
+        setIsSearching(false);
+        setIsDropdownOpen(false);
+      }
+    }
+  };
+
+  const handleChange = (_: any, newValue: any, reason: string) => {
+    if (reason === 'selectOption') {
+      if (newValue) {
+        const selectedEvent = events.find((event) => event.id === newValue.id);
+        setSelectedProject(selectedEvent || null);
+        setSearchQuery('');
+        setInputValue(newValue.label);
+        setIsSearching(false);
+        setIsDropdownOpen(false); // Close dropdown after selection
+      } else {
+        setSelectedProject(null);
+      }
+    } else if (reason === 'clear') {
+      setSearchQuery('');
+      setSelectedProject(null);
+      setInputValue('');
+      setIsSearching(false);
+      setIsDropdownOpen(false);
+    }
   };
 
   useEffect(() => {
     fetchSummary();
   }, [selectedProject]);
+
+  // Initialize inputValue when selectedProject changes
+  useEffect(() => {
+    if (selectedProject) {
+      setInputValue(selectedProject.name);
+    }
+  }, [selectedProject]);
+
+  // Reset isSearching when loading completes
+  useEffect(() => {
+    if (!loading && isSearching) {
+      setIsSearching(false);
+    }
+  }, [loading, isSearching]);
 
   const handleWithdrawalClick = () => {
     if (selectedProject) {
@@ -91,14 +148,31 @@ const FinanceWithdrawal = () => {
 
       {/* Select Project */}
       <Box marginBottom="16px">
-        <Select
-          fullWidth
+        <AutoComplete
           disabled={loading}
           label=""
           options={projectOptions}
-          placeholder={loading ? 'Loading events...' : 'Choose Project'}
-          value={selectedProject?.id || ''}
-          onChange={handleProjectChange}
+          placeholder={
+            loading ? 'Loading events...' : 'Search and choose project...'
+          }
+          value={
+            selectedProject
+              ? projectOptions.find(
+                  (option) => option.id === selectedProject.id
+                ) || null
+              : null
+          }
+          inputValue={inputValue}
+          onChange={handleChange}
+          onInputChange={handleInputChange}
+          loading={isSearching || loading}
+          loadingText="Searching events..."
+          noOptionsText={
+            searchQuery
+              ? `No events found for "${searchQuery}"`
+              : 'No events available'
+          }
+          open={isDropdownOpen}
         />
       </Box>
 

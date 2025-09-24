@@ -1,5 +1,5 @@
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 import type { NextApiRequest, NextApiResponse } from 'next/types';
-import { getSession, isAuthenticated } from '@/lib/sessionHelpers';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,16 +10,12 @@ export default async function handler(
   }
 
   try {
-    const session = await getSession(req, res);
-
-    if (!isAuthenticated(session) || !session.accessToken) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
     const { eo_id } = req.query;
 
     if (!eo_id || typeof eo_id !== 'string') {
-      return res.status(400).json({ message: 'Event organizer ID is required' });
+      return res
+        .status(400)
+        .json({ message: 'Event organizer ID is required' });
     }
 
     const { bank_id, account_number, account_holder_name } = req.body;
@@ -30,31 +26,13 @@ export default async function handler(
       });
     }
 
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/event-organizers/${eo_id}/bank`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.accessToken}`
-        },
-        body: JSON.stringify({
-          bank_id,
-          account_number,
-          account_holder_name
-        })
-      }
-    );
+    // Use apiRouteUtils with dynamic endpoint
+    const postHandler = apiRouteUtils.createPostHandler({
+      endpoint: `/event-organizers/${eo_id}/bank`,
+      timeout: 30000
+    });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return res.status(response.status).json({
-        message: errorData.message || 'Failed to update bank information'
-      });
-    }
-
-    const data = await response.json();
-    return res.status(200).json(data);
+    return await postHandler(req, res);
   } catch (error) {
     console.error('Bank update API error:', error);
     return res.status(500).json({ message: 'Internal server error' });

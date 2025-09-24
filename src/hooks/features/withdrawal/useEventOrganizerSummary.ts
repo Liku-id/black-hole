@@ -2,14 +2,14 @@ import useSWR from 'swr';
 
 import {
   withdrawalService,
-  WithdrawalSummariesResponse
+  EventOrganizerSummaryResponse
 } from '@/services/withdrawal';
 
-export const useWithdrawalSummaries = () => {
+export const useEventOrganizerSummary = () => {
   const { data, error, isLoading, mutate } =
-    useSWR<WithdrawalSummariesResponse>(
-      '/api/withdrawal/summary',
-      () => withdrawalService.getSummaries(),
+    useSWR<EventOrganizerSummaryResponse>(
+      '/api/withdrawal/event-organizer/summary',
+      () => withdrawalService.getEventOrganizerSummary(),
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: true
@@ -17,7 +17,7 @@ export const useWithdrawalSummaries = () => {
     );
 
   return {
-    summaries: data?.body || [],
+    summary: data?.body || null,
     loading: isLoading,
     error: error?.message || null,
     mutate

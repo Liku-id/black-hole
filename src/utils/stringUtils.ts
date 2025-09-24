@@ -94,13 +94,13 @@ export const stringUtils = {
    */
   formatNpwpNumber: (value: string): string => {
     if (!value) return '';
-    
+
     // Remove all non-digit characters
     const cleaned = value.replace(/\D/g, '');
-    
+
     // Apply masking pattern: 99.999.999.9-999.999
     let formatted = cleaned;
-    
+
     if (cleaned.length > 0) {
       formatted = cleaned.slice(0, 2);
     }
@@ -119,7 +119,7 @@ export const stringUtils = {
     if (cleaned.length > 12) {
       formatted += '.' + cleaned.slice(12, 15);
     }
-    
+
     return formatted;
   },
 

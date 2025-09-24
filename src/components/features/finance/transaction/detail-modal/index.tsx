@@ -87,7 +87,10 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
           {transaction.paymentBreakdown?.tax
-            ? formatUtils.formatPrice(transaction.paymentBreakdown.tax)
+            ? formatUtils.formatPrice(
+                (transaction.paymentBreakdown.tax / 100) *
+                  transaction.paymentBreakdown.basedPrice
+              )
             : '-'}
         </Body2>
       </Box>
@@ -98,8 +101,13 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Admin Fee
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.paymentBreakdown?.fee
-            ? formatUtils.formatPrice(transaction.paymentBreakdown.fee)
+          {transaction.event.adminFee
+            ? transaction.event.adminFee < 100
+              ? formatUtils.formatPrice(
+                  (transaction.event.adminFee / 100) *
+                    transaction.paymentBreakdown.basedPrice
+                )
+              : formatUtils.formatPrice(transaction.event.adminFee)
             : '-'}
         </Body2>
       </Box>
@@ -111,9 +119,14 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
           {transaction.paymentMethod?.paymentMethodFee
-            ? formatUtils.formatPrice(
-                transaction.paymentMethod.paymentMethodFee
-              )
+            ? transaction.paymentMethod.paymentMethodFee < 1
+              ? formatUtils.formatPrice(
+                  (transaction.paymentMethod.paymentMethodFee / 100) *
+                    transaction.paymentBreakdown.basedPrice
+                )
+              : formatUtils.formatPrice(
+                  transaction.paymentMethod.paymentMethodFee
+                )
             : '-'}
         </Body2>
       </Box>
@@ -125,10 +138,7 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
           {transaction.paymentBreakdown?.totalPrice
-            ? formatUtils.formatPrice(
-                transaction.paymentBreakdown.totalPrice +
-                  transaction.paymentMethod.paymentMethodFee
-              )
+            ? formatUtils.formatPrice(transaction.paymentBreakdown.totalPrice)
             : '-'}
         </Body2>
       </Box>

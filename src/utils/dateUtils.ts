@@ -1,4 +1,4 @@
-import { format, isValid, parseISO } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 
 /**
  * Date formatting utilities using date-fns
@@ -44,23 +44,23 @@ export const dateUtils = {
           .replace(/\.\d+/, '')
           .replace(' UTC', '');
         date = new Date(cleanedString);
-      } else if (dateString.includes('Z') || dateString.includes('UTC')) {
-        // Handle UTC/Z format - convert to WIB (UTC+7)
-        const cleanedString = dateString
-          .replace(/ UTC$/, '')
-          .replace(/Z$/, '+00:00');
-        date = new Date(cleanedString);
+      } else if (dateString.includes('Z')) {
+        // Handle UTC/Z format - parse as UTC and convert to WIB (UTC+7)
+        date = new Date(dateString);
         // Add 7 hours to convert UTC to WIB
         date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+      } else if (
+        dateString.includes('+07:00') ||
+        dateString.includes('+0700')
+      ) {
+        // Handle WIB timezone format - parse directly as it's already in WIB
+        date = new Date(dateString);
       } else {
         // Handle standard ISO format or other formats
         date = parseISO(dateString);
 
-        // If the date is in UTC (no timezone specified or Z), convert to WIB
-        if (
-          dateString.includes('Z') ||
-          (!dateString.includes('+') && !dateString.includes('-'))
-        ) {
+        // If the date is in UTC (no timezone specified), convert to WIB
+        if (!dateString.includes('+') && !dateString.includes('-')) {
           // Add 7 hours to convert UTC to WIB
           date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
         }
@@ -135,7 +135,13 @@ export const dateUtils = {
    */
   formatDateDDMMYYYY: (dateString: string): string => {
     const date = dateUtils.parseToWIB(dateString);
-    return date ? format(date, 'dd/MM/yyyy') : dateString;
+    if (!date) return dateString;
+
+    const day = date.getUTCDate().toString().padStart(2, '0');
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
   },
 
   /**
@@ -146,7 +152,27 @@ export const dateUtils = {
    */
   formatDateMMMDYYYY: (dateString: string): string => {
     const date = dateUtils.parseToWIB(dateString);
-    return date ? format(date, 'MMM d, yyyy') : dateString;
+    if (!date) return dateString;
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    const month = monthNames[date.getUTCMonth()];
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+
+    return `${month} ${day}, ${year}`;
   },
 
   /**
@@ -157,18 +183,45 @@ export const dateUtils = {
    */
   formatTime: (dateString: string): string => {
     const date = dateUtils.parseToWIB(dateString);
-    return date ? format(date, 'HH:mm') : dateString;
+    if (!date) return dateString;
+
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+    return `${hours}:${minutes}`;
   },
 
   /**
-   * Format date to "MMM d, yyyy HH:mm WIB" format (e.g., May 3, 2026 15:30 WIB)
+   * Format date to "MMM d, yyyy HH:mm WIB" format (e.g., Sep 26, 2025 06:00 WIB)
    * Converts any timezone to WIB (UTC+7) for consistent display
    * @param dateString - Date string to format
    * @returns Formatted date string with time and WIB timezone
    */
   formatDateTimeWIB: (dateString: string): string => {
     const date = dateUtils.parseToWIB(dateString);
-    return date ? format(date, 'MMM d, yyyy HH:mm') + ' WIB' : dateString;
+    if (!date) return dateString;
+
+    const year = date.getUTCFullYear();
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    const month = monthNames[date.getUTCMonth()];
+    const day = date.getUTCDate();
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+    return `${month} ${day}, ${year} ${hours}:${minutes} WIB`;
   },
 
   /**
@@ -193,24 +246,45 @@ export const dateUtils = {
   },
 
   formatDateRange: (startISO: string, endISO: string): string => {
-    const s = parseISO(startISO);
-    const e = parseISO(endISO);
-    if (!isValid(s) || !isValid(e)) return `${startISO} - ${endISO}`;
+    const s = dateUtils.parseToWIB(startISO);
+    const e = dateUtils.parseToWIB(endISO);
+    if (!s || !e) return `${startISO} - ${endISO}`;
 
-    const sY = format(s, 'yyyy');
-    const eY = format(e, 'yyyy');
-    const sM = format(s, 'MMM');
-    const eM = format(e, 'MMM');
-    const sD = format(s, 'd');
-    const eD = format(e, 'd');
-    const sHM = format(s, 'HH:mm');
-    const eHM = format(e, 'HH:mm');
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+
+    const sY = s.getUTCFullYear();
+    const eY = e.getUTCFullYear();
+    const sM = monthNames[s.getUTCMonth()];
+    const eM = monthNames[e.getUTCMonth()];
+    const sD = s.getUTCDate();
+    const eD = e.getUTCDate();
+    const sHM =
+      s.getUTCHours().toString().padStart(2, '0') +
+      ':' +
+      s.getUTCMinutes().toString().padStart(2, '0');
+    const eHM =
+      e.getUTCHours().toString().padStart(2, '0') +
+      ':' +
+      e.getUTCMinutes().toString().padStart(2, '0');
 
     let datePart = '';
 
     if (sY !== eY) {
       // beda tahun → tampilkan lengkap keduanya
-      datePart = `${format(s, 'MMM d, yyyy')} – ${format(e, 'MMM d, yyyy')}`;
+      datePart = `${sM} ${sD}, ${sY} – ${eM} ${eD}, ${eY}`;
     } else if (sM !== eM) {
       // sama tahun, beda bulan → tampilkan bulan & hari masing2, tahun sekali
       datePart = `${sM} ${sD} – ${eM} ${eD}, ${sY}`;

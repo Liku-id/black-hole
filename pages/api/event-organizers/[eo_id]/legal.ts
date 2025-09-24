@@ -1,6 +1,5 @@
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 import type { NextApiRequest, NextApiResponse } from 'next/types';
-
-import { getSession, isAuthenticated } from '@/lib/sessionHelpers';
 
 interface UpdateLegalRequest {
   npwp_photo_id: string;
@@ -23,13 +22,14 @@ export default async function handler(
   }
 
   try {
-    const session = await getSession(req, res);
+    const { eo_id } = req.query;
 
-    if (!isAuthenticated(session) || !session.accessToken) {
-      return res.status(401).json({ message: 'Authentication required' });
+    if (!eo_id || typeof eo_id !== 'string') {
+      return res
+        .status(400)
+        .json({ message: 'Event organizer ID is required' });
     }
 
-    const { eo_id } = req.query;
     const {
       npwp_photo_id,
       npwp_number,
@@ -39,11 +39,11 @@ export default async function handler(
       ktp_number,
       ktp_address,
       pic_name,
-      pic_title,
+      pic_title
     }: UpdateLegalRequest = req.body;
 
     // Validate required fields
-    if (!npwp_photo_id || !npwp_number) {
+    if (!npwp_photo_id || !npwp_number || !npwp_address || !full_name) {
       return res.status(400).json({
         message:
           'Missing required fields: npwp_photo_id, npwp_number, npwp_address, full_name'
@@ -64,29 +64,16 @@ export default async function handler(
     if (pic_name) payload.pic_name = pic_name;
     if (pic_title) payload.pic_title = pic_title;
 
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/event-organizers/${eo_id}/legal`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.accessToken}`
-        },
-        body: JSON.stringify(payload)
-      }
-    );
+    // Update the request body with the prepared payload
+    req.body = payload;
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Backend error:', errorData);
-      return res.status(response.status).json({
-        message: 'Failed to update legal information',
-        error: errorData
-      });
-    }
+    // Use apiRouteUtils with dynamic endpoint
+    const postHandler = apiRouteUtils.createPostHandler({
+      endpoint: `/event-organizers/${eo_id}/legal`,
+      timeout: 30000
+    });
 
-    const data = await response.json();
-    return res.status(200).json(data);
+    return await postHandler(req, res);
   } catch (error) {
     console.error('API error:', error);
     return res.status(500).json({

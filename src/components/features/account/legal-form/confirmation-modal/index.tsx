@@ -79,9 +79,7 @@ export const ConfirmationModal = ({
                 }
               }}
             />
-            <Body2 color="text.primary">
-              {declaration}
-            </Body2>
+            <Body2 color="text.primary">{declaration}</Body2>
           </Box>
         </Box>
 

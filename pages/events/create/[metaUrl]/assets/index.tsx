@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Button, Card, H4, Breadcrumb } from '@/components/common';
+import { Button, Card, H4, Breadcrumb, Overline } from '@/components/common';
 import { EventAssetsForm } from '@/components/features/events/create/assets';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
@@ -22,6 +22,7 @@ const AssetsPage = () => {
     supportingImages: [null, null, null, null]
   });
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const { eventDetail } = useEventDetail(metaUrl as string);
 
@@ -46,6 +47,11 @@ const AssetsPage = () => {
     setAssetFiles(files);
   };
 
+  const validateFileSize = (file: File): boolean => {
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    return file.size <= maxSize;
+  };
+
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -62,11 +68,28 @@ const AssetsPage = () => {
   const handleSubmitEvent = async () => {
     if (!assetFiles.thumbnail) {
       setShowError(true);
+      setErrorMessage('Thumbnail is required');
       return;
+    }
+
+    // Validate file sizes
+    if (!validateFileSize(assetFiles.thumbnail)) {
+      setShowError(true);
+      setErrorMessage('Thumbnail file size must be less than 1MB');
+      return;
+    }
+
+    for (const file of assetFiles.supportingImages) {
+      if (file && !validateFileSize(file)) {
+        setShowError(true);
+        setErrorMessage('Supporting image file size must be less than 1MB');
+        return;
+      }
     }
 
     setLoading(true);
     setShowError(false);
+    setErrorMessage('');
 
     try {
       const newAssetIds: { assetId: string; order: number }[] = [];
@@ -117,11 +140,12 @@ const AssetsPage = () => {
 
       router.push(`/events/${metaUrl}`);
     } catch (error: any) {
-      const errorMessage =
+      const errorMsg =
         error?.response?.data?.message ||
         error?.message ||
         'Failed to submit event assets. Please try again.';
-      console.log(errorMessage);
+      setErrorMessage(errorMsg);
+      setShowError(true);
       setLoading(false);
     }
   };
@@ -143,7 +167,18 @@ const AssetsPage = () => {
             onFilesChange={handleFilesChange}
           />
 
-          <Box display="flex" gap="24px" justifyContent="flex-end">
+          <Box
+            display="flex"
+            gap="8px"
+            justifyContent="flex-end"
+            flexDirection="column"
+            alignItems="flex-end"
+          >
+            {showError && errorMessage && (
+              <Overline color="error.main" fontWeight={500}>
+                {errorMessage}
+              </Overline>
+            )}
             <Button
               disabled={loading}
               variant="primary"

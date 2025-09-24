@@ -1,70 +1,41 @@
-import { Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
-import { useWithdrawalSummaries } from '@/hooks';
+import { useEventOrganizerSummary } from '@/hooks';
 import { formatUtils } from '@/utils/formatUtils';
 
 import AnalyticCard from './card';
 
 const FinanceAnalytic = () => {
-  const { summaries } = useWithdrawalSummaries();
+  const { summary, loading } = useEventOrganizerSummary();
 
-  const calculateTotals = () => {
-    if (!summaries || summaries.length === 0) {
-      return {
-        totalBalance: 0,
-        totalAvailableBalance: 0,
-        totalPlatformFee: 0,
-        totalAmountPending: 0
-      };
-    }
+  if (loading) {
+    return <Box>Loading...</Box>;
+  }
 
-    return summaries.reduce(
-      (totals, summary) => {
-        return {
-          totalBalance:
-            totals.totalBalance + parseFloat(summary.totalAmount || '0'),
-          totalAvailableBalance:
-            totals.totalAvailableBalance +
-            parseFloat(summary.availableAmount || '0'),
-          totalPlatformFee:
-            totals.totalPlatformFee +
-            parseFloat(summary.withdrawalAmount || '0') * 0.05, // 5% platform fee
-          totalAmountPending:
-            totals.totalAmountPending +
-            parseFloat(summary.pendingSettlementAmount || '0')
-        };
-      },
-      {
-        totalBalance: 0,
-        totalAvailableBalance: 0,
-        totalPlatformFee: 0,
-        totalAmountPending: 0
-      }
-    );
-  };
-
-  const totals = calculateTotals();
+  if (!summary) {
+    return <Box>No data available</Box>;
+  }
 
   const analyticsData = [
     {
       icon: '/icon/finance-revert.svg',
       title: 'Total Balance',
-      value: formatUtils.formatPrice(totals.totalBalance)
+      value: formatUtils.formatPrice(parseFloat(summary.totalEarnings))
     },
     {
       icon: '/icon/finance-revert.svg',
       title: 'Total Available Balance',
-      value: formatUtils.formatPrice(totals.totalAvailableBalance)
+      value: formatUtils.formatPrice(parseFloat(summary.totalAvailable))
     },
     {
       icon: '/icon/fee.svg',
       title: 'Total Platform Fee',
-      value: formatUtils.formatPrice(totals.totalPlatformFee)
+      value: formatUtils.formatPrice(parseFloat(summary.totalPlatformFees))
     },
     {
       icon: '/icon/time-revert.svg',
       title: 'Total Amount Pending',
-      value: formatUtils.formatPrice(totals.totalAmountPending)
+      value: formatUtils.formatPrice(0)
     }
   ];
 

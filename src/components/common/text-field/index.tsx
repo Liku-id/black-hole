@@ -128,7 +128,9 @@ const FormTextField = ({
             {...field}
             value={formatValue ? formatValue(field.value || '') : field.value}
             onChange={(e) => {
-              const formattedValue = formatValue ? formatValue(e.target.value) : e.target.value;
+              const formattedValue = formatValue
+                ? formatValue(e.target.value)
+                : e.target.value;
               field.onChange(formattedValue);
             }}
             error={!!fieldError}
