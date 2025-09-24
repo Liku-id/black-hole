@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Link } from '@mui/material';
+import { Box, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
