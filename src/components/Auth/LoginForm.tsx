@@ -36,6 +36,7 @@ interface LoginFormData {
 
 const LoginForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, clearError } = useAuth();
 
   const methods = useForm<LoginFormData>({
@@ -107,16 +108,34 @@ const LoginForm: React.FC = () => {
                   name="password"
                   placeholder="Password"
                   rules={{
-                    required: 'Password is required',
-                    validate: (value: string) => {
-                      if (!value) return undefined;
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return undefined;
-                    }
+                    required: 'Password is required'
                   }}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  InputProps={{
+                    endAdornment: (
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        mr={1}
+                        component="span"
+                        onClick={() => setShowPassword(!showPassword)}
+                        sx={{
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Image
+                          alt="Toggle password visibility"
+                          height={20}
+                          src={
+                            showPassword
+                              ? '/icon/eye.svg'
+                              : '/icon/eye-close.svg'
+                          }
+                          width={20}
+                        />
+                      </Box>
+                    )
+                  }}
                 />
               </Box>
 

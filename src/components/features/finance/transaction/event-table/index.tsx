@@ -135,7 +135,9 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                   <TableCell>
                     <Body2>
                       {transaction.paymentBreakdown?.totalPrice
-                        ? formatUtils.formatPrice(transaction.paymentBreakdown.totalPrice)
+                        ? formatUtils.formatPrice(
+                            transaction.paymentBreakdown.totalPrice
+                          )
                         : '-'}
                     </Body2>
                   </TableCell>
