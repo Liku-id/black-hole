@@ -7,7 +7,7 @@ function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/dashboard');
+    router.replace('/events');
   }, [router]);
 
   return null;

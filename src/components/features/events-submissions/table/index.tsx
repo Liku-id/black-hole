@@ -50,32 +50,32 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
                 No.
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '30%' }}>
+            <TableCell sx={{ width: '35%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Event Name
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '12.5%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Event Date
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '12.5%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Event Status
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '12.5%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Submitted At
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '12.5%' }}>
               <Body2 color="text.secondary" fontSize="14px">
-                Request Status
+                Approval Status
               </Body2>
             </TableCell>
-            <TableCell align="right" sx={{ width: '5%' }}>
+            <TableCell align="right" sx={{ width: '10%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Action
               </Body2>

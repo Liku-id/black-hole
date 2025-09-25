@@ -29,7 +29,7 @@ interface DashboardLayoutProps {
 const drawerWidth = 290;
 
 const menuItems = [
-  { text: 'Dashboard', icon: '/icon/dashboard.svg', path: '/dashboard' },
+  // { text: 'Dashboard', icon: '/icon/dashboard.svg', path: '/dashboard' },
   { text: 'Event', icon: '/icon/event.svg', path: '/events' },
   { text: 'Approval', icon: '/icon/approval.svg', path: '/approval' },
   { text: 'Finance', icon: '/icon/finance.svg', path: '/finance' },

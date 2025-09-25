@@ -13,6 +13,7 @@ export { useUpdateEventOrganizerLegal } from './features/organizers/useUpdateEve
 export { useWithdrawalSummaries } from './features/withdrawal/useWithdrawalSummaries';
 export { useWithdrawalSummary } from './features/withdrawal/useWithdrawalSummary';
 export { useEventOrganizerSummary } from './features/withdrawal/useEventOrganizerSummary';
+export { useWithdrawals } from './features/withdrawal/useWithdrawals';
 export { useTransactions } from './features/transactions/useTransactions';
 export { useCities } from './list/useCities';
 export { usePaymentMethods } from './list/usePaymentMethods';
