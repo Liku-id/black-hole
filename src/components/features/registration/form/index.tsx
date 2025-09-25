@@ -74,21 +74,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Check availability of email and phone number
       const availabilityResponse = await registerService.checkAvailability({
         email: data.email,
         phoneNumber: data.phoneNumber
       });
 
       if (availabilityResponse.body.isValid) {
-        // If available, proceed to next step
         onFormSubmit(data);
       } else {
-        // If not available, show specific error messages
         const message = availabilityResponse.message.toLowerCase();
 
         if (message.includes('email') && message.includes('phone')) {
-          // Both email and phone are taken
           methods.setError('email', {
             type: 'manual',
             message: 'This email is not available to use'
@@ -99,26 +95,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           });
           showError('Email and phone number are already registered');
         } else if (message.includes('email')) {
-          // Only email is taken
           methods.setError('email', {
             type: 'manual',
             message: 'This email is not available to use'
           });
           showError('This email is already registered');
         } else if (message.includes('phone')) {
-          // Only phone is taken
           methods.setError('phoneNumber', {
             type: 'manual',
             message: 'This phone number is not available to use'
           });
           showError('This phone number is already registered');
         } else {
-          // Generic error
           showError('Email or phone number is not available to use');
         }
       }
     } catch (err) {
-      console.error('Availability check error:', err);
       const errorMessage =
         err instanceof Error ? err.message : 'Availability check failed';
       showError(errorMessage);
@@ -211,24 +203,25 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                       validate: validationUtils.passwordValidator
                     }}
                     type={showPassword ? 'text' : 'password'}
-                    helperText="8-20 characters, letter, number, special character"
                     InputProps={{
                       endAdornment: (
                         <Box
+                          display="flex"
+                          alignItems="center"
+                          mr={1}
                           component="span"
                           onClick={() => setShowPassword(!showPassword)}
                           sx={{
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            mr: 1
+                            cursor: 'pointer'
                           }}
                         >
                           <Image
                             alt="Toggle password visibility"
                             height={20}
                             src={
-                              showPassword ? '/icon/eye.svg' : '/icon/eye.svg'
+                              showPassword
+                                ? '/icon/eye.svg'
+                                : '/icon/eye-close.svg'
                             }
                             width={20}
                           />
@@ -276,7 +269,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                             src={
                               showConfirmPassword
                                 ? '/icon/eye.svg'
-                                : '/icon/eye.svg'
+                                : '/icon/eye-close.svg'
                             }
                             width={20}
                           />

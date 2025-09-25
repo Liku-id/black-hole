@@ -90,7 +90,10 @@ const EditAssetsPage = () => {
     }
 
     // Validate file sizes for new files
-    if (assetChangeInfo.files.thumbnail && !validateFileSize(assetChangeInfo.files.thumbnail)) {
+    if (
+      assetChangeInfo.files.thumbnail &&
+      !validateFileSize(assetChangeInfo.files.thumbnail)
+    ) {
       setShowError(true);
       setErrorMessage('Thumbnail file size must be less than 2MB');
       return;

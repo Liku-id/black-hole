@@ -71,7 +71,7 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
   onSubmit,
   onResendOTP,
   isLoading = false,
-  countdown = 300 // 5 minutes in seconds
+  countdown = 180 // 5 minutes in seconds
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(countdown);

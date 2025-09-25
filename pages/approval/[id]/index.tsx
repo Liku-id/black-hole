@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H3, Button } from '@/components/common';
+import { EventDetailAssets } from '@/components/features/events/detail/assets';
+import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { ApprovalModal } from '@/components/features/events-submissions/detail/approval-modal';
 import { EventsSubmissionsInfo } from '@/components/features/events-submissions/detail/info';
@@ -198,6 +200,9 @@ function ApprovalDetail() {
           }}
         />
         <StyledDivider />
+        <EventDetailAssets eventDetail={submission.event} />
+        <StyledDivider />
+        <EventDetailTicket eventDetail={submission.event} />
       </Card>
 
       {rejectMode ? (
