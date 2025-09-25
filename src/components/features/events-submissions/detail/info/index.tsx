@@ -258,9 +258,7 @@ export const EventsSubmissionsInfo = ({
               value={eventDetail.websiteUrl || '-'}
             />
           </Grid>
-          <Grid item xs={12}>
-            <Field label="Tax*" value={eventDetail.tax ? 'Yes' : 'No'} />
-          </Grid>
+
           <Grid item xs={12}>
             <Field
               eventDetail={eventDetail}

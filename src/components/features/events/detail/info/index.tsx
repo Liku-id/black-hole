@@ -97,13 +97,32 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
         </H3>
         {eventDetail.eventStatus !== 'done' &&
           eventDetail.eventStatus !== 'on_review' &&
-          eventDetail.is_requested === false && (
+          eventDetail.is_requested === false ? (
             <Button
               variant="primary"
               onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
             >
               Edit Detail Event
             </Button>
+          ) : (
+            eventDetail.is_requested === true && (
+              <Box
+                border="1px solid"
+                borderColor="warning.main"
+                borderRadius={1}
+                p="12px 16px"
+                sx={{
+                  backgroundColor: 'warning.light',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
+                <Body2 color="warning.dark" fontWeight={500}>
+                  Event update request is on review
+                </Body2>
+              </Box>
+            )
           )}
       </Box>
       {/* Rejected Reason */}
@@ -188,7 +207,7 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
                     ? `${eventDetail.adminFee}%`
                     : `Rp ${eventDetail.adminFee}`
                 }
-                isRejected={isFieldRejected('tax')}
+                isRejected={isFieldRejected('admin_fee')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -207,13 +226,6 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
                 label="Website Url*"
                 value={eventDetail.websiteUrl}
                 isRejected={isFieldRejected('website_url')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <EventField
-                label="Tax*"
-                value={eventDetail.tax ? 'Yes' : 'No'}
-                isRejected={isFieldRejected('tax')}
               />
             </Grid>
             <Grid item xs={12}>
