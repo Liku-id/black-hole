@@ -133,7 +133,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
               </TableCell>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  {event.lowestPriceTicketType?.purchased_amount || 0} Ticket
+                  {'-'}
                 </Body2>
               </TableCell>
               <TableCell>

@@ -48,7 +48,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (router.pathname === itemPath) {
       return true;
     }
-    
+
     if (router.pathname.startsWith(itemPath) && router.pathname !== itemPath) {
       // Special handling for /events path to avoid matching /events-submissions
       if (itemPath === '/events' && router.pathname.startsWith('/events/')) {
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       const menuSegments = itemPath.split('/');
       return pathSegments.length === menuSegments.length + 1;
     }
-    
+
     return false;
   };
 
@@ -107,7 +107,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         />
       </Box>
 
-      <Body1 color="text.secondary" padding="0px 16px 8px">
+      <Body1 color="text.secondary" padding="16px">
         Menu
       </Body1>
       <List sx={{ padding: 0 }}>
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           }
 
           const isActive = isMenuItemActive(item.path);
-          
+
           return (
             <ListItem
               key={item.text}
@@ -160,10 +160,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Body2 
-                    color={isActive ? "primary.main" : "text.secondary"} 
+                  <Body2
+                    color="text.secondary"
                     fontSize="14px"
-                    fontWeight={isActive ? "600" : "400"}
+                    fontWeight={isActive ? '600' : '400'}
                   >
                     {item.text}
                   </Body2>

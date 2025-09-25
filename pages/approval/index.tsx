@@ -31,7 +31,12 @@ function Approval() {
   });
 
   const { submissions, loading, error, mutate } = useEventsSubmissions(filters);
-  const { withdrawals, loading: withdrawalLoading, error: withdrawalError, mutate: withdrawalMutate } = useWithdrawals({
+  const {
+    withdrawals,
+    loading: withdrawalLoading,
+    error: withdrawalError,
+    mutate: withdrawalMutate
+  } = useWithdrawals({
     status: withdrawalStatus || undefined
   });
 
@@ -146,16 +151,22 @@ function Approval() {
                 )}
 
                 {/* Empty State for Withdrawals */}
-                {!withdrawalLoading && withdrawals.length === 0 && !withdrawalError && (
-                  <Box py={4} textAlign="center">
-                    <Typography gutterBottom color="text.secondary" variant="h6">
-                      No withdrawals found
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                      There are no withdrawal requests to review.
-                    </Typography>
-                  </Box>
-                )}
+                {!withdrawalLoading &&
+                  withdrawals.length === 0 &&
+                  !withdrawalError && (
+                    <Box py={4} textAlign="center">
+                      <Typography
+                        gutterBottom
+                        color="text.secondary"
+                        variant="h6"
+                      >
+                        No withdrawals found
+                      </Typography>
+                      <Typography color="text.secondary" variant="body2">
+                        There are no withdrawal requests to review.
+                      </Typography>
+                    </Box>
+                  )}
 
                 {/* Error Alert for Withdrawals */}
                 {withdrawalError && (
@@ -179,6 +190,7 @@ function Approval() {
                 {/* Submissions Table */}
                 {(loading || submissions.length > 0) && (
                   <SubmissionsTable
+                    activeTab={activeTab}
                     loading={loading}
                     submissions={submissions as any}
                     onRefresh={mutate}
@@ -188,7 +200,11 @@ function Approval() {
                 {/* Empty State */}
                 {!loading && submissions.length === 0 && !error && (
                   <Box py={4} textAlign="center">
-                    <Typography gutterBottom color="text.secondary" variant="h6">
+                    <Typography
+                      gutterBottom
+                      color="text.secondary"
+                      variant="h6"
+                    >
                       No submissions found
                     </Typography>
                     <Typography color="text.secondary" variant="body2">
