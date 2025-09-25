@@ -16,12 +16,14 @@ import { dateUtils } from '@/utils';
 // Use shared StatusBadge
 
 interface SubmissionsTableProps {
+  activeTab: string;
   submissions: EventSubmission[];
   loading?: boolean;
   onRefresh?: () => void;
 }
 
 const SubmissionsTable: FC<SubmissionsTableProps> = ({
+  activeTab,
   submissions,
   loading = false
 }) => {
@@ -70,11 +72,13 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
                 Submitted At
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '12.5%' }}>
-              <Body2 color="text.secondary" fontSize="14px">
-                Approval Status
-              </Body2>
-            </TableCell>
+            {activeTab === 'current_event' && (
+              <TableCell sx={{ width: '12.5%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Approval Status
+                </Body2>
+              </TableCell>
+            )}
             <TableCell align="right" sx={{ width: '10%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Action
@@ -118,15 +122,19 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
                     : '-'}
                 </Body2>
               </TableCell>
-              <TableCell>
-                {submission.eventUpdateRequest?.status ? (
-                  <StatusBadge status={submission.eventUpdateRequest.status} />
-                ) : (
-                  <Body2 color="text.primary" fontSize="14px">
-                    -
-                  </Body2>
-                )}
-              </TableCell>
+              {activeTab === 'current_event' && (
+                <TableCell>
+                  {submission.eventUpdateRequest?.status ? (
+                    <StatusBadge
+                      status={submission.eventUpdateRequest.status}
+                    />
+                  ) : (
+                    <Body2 color="text.primary" fontSize="14px">
+                      -
+                    </Body2>
+                  )}
+                </TableCell>
+              )}
               <TableCell align="right">
                 <IconButton
                   size="small"

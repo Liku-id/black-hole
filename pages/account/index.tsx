@@ -32,7 +32,11 @@ function Account() {
   } = useEventOrganizerMe();
 
   // Update organizer type hook
-  const { mutate: updateOrganizerType, isPending: updateLoading, error: updateError } = useUpdateEventOrganizerType();
+  const {
+    mutate: updateOrganizerType,
+    isPending: updateLoading,
+    error: updateError
+  } = useUpdateEventOrganizerType();
 
   const tabs = [
     {

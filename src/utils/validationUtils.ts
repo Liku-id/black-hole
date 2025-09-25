@@ -249,8 +249,19 @@ export const validationUtils = {
       return 'Password must be 8-20 characters';
     }
 
-    if (!/(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(value)) {
-      return 'Password must contain letter, number, and special character';
+    // Check for at least 1 uppercase letter
+    if (!/[A-Z]/.test(value)) {
+      return 'Password must contain at least 1 uppercase letter';
+    }
+
+    // Check for at least 1 lowercase letter
+    if (!/[a-z]/.test(value)) {
+      return 'Password must contain at least 1 lowercase letter';
+    }
+
+    // Check for at least 1 symbol
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) {
+      return 'Password must contain at least 1 symbol';
     }
 
     return undefined;

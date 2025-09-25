@@ -28,7 +28,10 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid organizer ID' });
     }
 
-    if (!organizer_type || !['individual', 'institutional'].includes(organizer_type)) {
+    if (
+      !organizer_type ||
+      !['individual', 'institutional'].includes(organizer_type)
+    ) {
       return res.status(400).json({ message: 'Invalid organizer type' });
     }
 
@@ -48,7 +51,7 @@ export default async function handler(
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Backend error:', errorData);
-      
+
       // Try to parse error data as JSON
       let parsedError;
       try {
@@ -56,7 +59,7 @@ export default async function handler(
       } catch {
         parsedError = { message: errorData };
       }
-      
+
       return res.status(response.status).json({
         message: parsedError.message || 'Failed to update organizer type',
         code: parsedError.code,

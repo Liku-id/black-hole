@@ -4,7 +4,11 @@ import { useState } from 'react';
 
 import { Body2 } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
-import { StyledTableContainer, StyledTableHead, StyledTableBody } from '@/components/common/table';
+import {
+  StyledTableContainer,
+  StyledTableHead,
+  StyledTableBody
+} from '@/components/common/table';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import WithdrawalActionModal from '@/components/features/events-submissions/modal/withdrawal';
 import { WithdrawalListItem, withdrawalService } from '@/services/withdrawal';
@@ -16,9 +20,14 @@ interface WithdrawalTableProps {
   onRefresh?: () => void;
 }
 
-const WithdrawalTable = ({ withdrawals, loading, onRefresh }: WithdrawalTableProps) => {
+const WithdrawalTable = ({
+  withdrawals,
+  loading,
+  onRefresh
+}: WithdrawalTableProps) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedWithdrawal, setSelectedWithdrawal] = useState<WithdrawalListItem | null>(null);
+  const [selectedWithdrawal, setSelectedWithdrawal] =
+    useState<WithdrawalListItem | null>(null);
   const [modalError, setModalError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const { showInfo } = useToast();
@@ -40,23 +49,27 @@ const WithdrawalTable = ({ withdrawals, loading, onRefresh }: WithdrawalTablePro
   }) => {
     setModalError('');
     setActionLoading(true);
-    
+
     try {
-      const response = await withdrawalService.actionWithdrawal(selectedWithdrawal.id, {
-        action: data.action,
-        rejectionReason: data.rejectionReason
-      });
+      const response = await withdrawalService.actionWithdrawal(
+        selectedWithdrawal.id,
+        {
+          action: data.action,
+          rejectionReason: data.rejectionReason
+        }
+      );
 
       // Check if response indicates error
       if (response.statusCode && response.statusCode !== 200) {
-        throw new Error(response.message || 'Failed to process withdrawal action');
+        throw new Error(
+          response.message || 'Failed to process withdrawal action'
+        );
       } else {
         const actionText = data.action === 'approve' ? 'approved' : 'rejected';
         showInfo(`Withdrawal successfully ${actionText}`);
         handleModalClose();
         onRefresh();
       }
-
     } catch (error: any) {
       let errorMsg = 'Failed to process withdrawal action. Please try again.';
       if (error?.response?.data?.message) {
@@ -91,7 +104,7 @@ const WithdrawalTable = ({ withdrawals, loading, onRefresh }: WithdrawalTablePro
               </TableCell>
               <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Name
+                  Event Name
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '12.5%' }}>
@@ -146,7 +159,9 @@ const WithdrawalTable = ({ withdrawals, loading, onRefresh }: WithdrawalTablePro
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {formatUtils.formatPrice(parseFloat(withdrawal.requestedAmount))}
+                    {formatUtils.formatPrice(
+                      parseFloat(withdrawal.requestedAmount)
+                    )}
                   </Body2>
                 </TableCell>
                 <TableCell>

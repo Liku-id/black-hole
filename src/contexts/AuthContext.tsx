@@ -9,7 +9,13 @@ import React, {
 } from 'react';
 
 import { authService } from '@/services';
-import { AuthState, AuthUser, LoginRequest, UserRole, ALLOWED_ROLES } from '@/types/auth';
+import {
+  AuthState,
+  AuthUser,
+  LoginRequest,
+  UserRole,
+  ALLOWED_ROLES
+} from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 
 interface AuthContextType extends AuthState {
@@ -243,7 +249,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (err) {
       let errorMessage = 'Login failed';
-      
+
       if (err instanceof Error) {
         errorMessage = err.message;
       } else if (err && typeof err === 'object' && 'response' in err) {
@@ -252,10 +258,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (apiError.response?.data?.message) {
           errorMessage = apiError.response.data.message;
         } else if (apiError.response?.data?.code === 'ROLE_NOT_ALLOWED') {
-          errorMessage = 'Access denied. Your role is not authorized to access this platform.';
+          errorMessage =
+            'Access denied. Your role is not authorized to access this platform.';
         }
       }
-      
+
       setError(errorMessage);
       dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
     }

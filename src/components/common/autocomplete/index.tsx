@@ -82,9 +82,9 @@ export const AutoComplete = forwardRef<HTMLDivElement, AutoCompleteProps>(
             helperText={helperText}
             required={required}
             InputProps={params.InputProps}
-            sx={{ 
+            sx={{
               '& .MuiOutlinedInput-root': {
-                padding: "4px 8px"
+                padding: '4px 8px'
               }
             }}
           />

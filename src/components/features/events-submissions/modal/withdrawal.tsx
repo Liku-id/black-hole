@@ -46,9 +46,7 @@ const WithdrawalActionModal = ({
     <Box>
       {errorMessage && (
         <Box marginBottom={2} display="flex" justifyContent="center">
-          <Overline color="error.main">
-            {errorMessage}
-          </Overline>
+          <Overline color="error.main">{errorMessage}</Overline>
         </Box>
       )}
       <Box display="flex" gap={2} justifyContent="flex-end">
@@ -91,4 +89,3 @@ const WithdrawalActionModal = ({
 };
 
 export default WithdrawalActionModal;
-

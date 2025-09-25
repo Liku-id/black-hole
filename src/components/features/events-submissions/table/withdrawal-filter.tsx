@@ -7,7 +7,10 @@ interface WithdrawalFilterProps {
   onStatusChange: (status: string) => void;
 }
 
-const WithdrawalFilter = ({ status, onStatusChange }: WithdrawalFilterProps) => {
+const WithdrawalFilter = ({
+  status,
+  onStatusChange
+}: WithdrawalFilterProps) => {
   const statusOptions = [
     { value: '', label: 'All Status' },
     { value: 'PENDING', label: 'Pending' },
