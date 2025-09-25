@@ -296,6 +296,11 @@ export const validationUtils = {
       return 'Phone number must be 10-14 digits';
     }
 
+    // Check if phone number starts with 0
+    if (digitsOnly.startsWith('0')) {
+      return 'Phone number cannot start with 0';
+    }
+
     return undefined;
   },
 

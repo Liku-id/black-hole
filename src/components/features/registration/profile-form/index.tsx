@@ -313,7 +313,11 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                     >
                       <Caption color="text.primary">I agree to the </Caption>
                       <Link
-                        href="/terms-and-conditions"
+                        href={
+                          process.env.NODE_ENV === 'production'
+                            ? 'https://wukong.co.id/term-and-condition'
+                            : 'https://staging-aws.wukong.co.id/term-and-condition'
+                        }
                         target="_blank"
                         passHref
                       >
@@ -329,7 +333,15 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                         </Caption>
                       </Link>
                       <Caption color="text.primary"> and </Caption>
-                      <Link href="/privacy-policy" target="_blank" passHref>
+                      <Link
+                        href={
+                          process.env.NODE_ENV === 'production'
+                            ? 'https://wukong.co.id/privacy-policy'
+                            : 'https://staging-aws.wukong.co.id/privacy-policy'
+                        }
+                        target="_blank"
+                        passHref
+                      >
                         <Caption
                           color="primary.main"
                           fontWeight={500}

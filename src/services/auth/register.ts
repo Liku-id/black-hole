@@ -88,18 +88,14 @@ class RegisterService {
   async checkAvailability(
     data: CheckAvailabilityRequest
   ): Promise<CheckAvailabilityResponse> {
-    console.log('Checking availability for:', data.email, data.phoneNumber);
-
     try {
       const responseData = await apiUtils.post<CheckAvailabilityResponse>(
         '/api/users/check-availability',
         data,
         'Availability check failed'
       );
-      console.log('Availability check successful:', responseData);
       return responseData;
     } catch (error) {
-      console.error('Availability check error:', error);
       throw error;
     }
   }
