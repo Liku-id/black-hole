@@ -75,14 +75,14 @@ const AssetsPage = () => {
     // Validate file sizes
     if (!validateFileSize(assetFiles.thumbnail)) {
       setShowError(true);
-      setErrorMessage('Thumbnail file size must be less than 1MB');
+      setErrorMessage('Thumbnail file size must be less than 2MB');
       return;
     }
 
     for (const file of assetFiles.supportingImages) {
       if (file && !validateFileSize(file)) {
         setShowError(true);
-        setErrorMessage('Supporting image file size must be less than 1MB');
+        setErrorMessage('Supporting image file size must be less than 2MB');
         return;
       }
     }
