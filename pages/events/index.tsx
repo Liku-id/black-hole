@@ -15,10 +15,12 @@ import {
   Caption
 } from '@/components/common';
 import EventsTable from '@/components/features/events/list/table';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks/features/events/useEvents';
 import { useEventOrganizerMe } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { EventsFilters } from '@/types/event';
+import { isEventOrganizer } from '@/types/auth';
 import { useDebouncedCallback } from '@/utils';
 
 function Events() {
@@ -35,10 +37,18 @@ function Events() {
   const { events, eventCountByStatus, loading, error, mutate } =
     useEvents(filters);
 
-  const { data: eventOrganizer } = useEventOrganizerMe();
+  const { user } = useAuth();
+  const isEventOrganizerPIC =
+    user &&
+    !isEventOrganizer(user) &&
+    user.role?.name === 'event_organizer_pic';
+  const { data: eventOrganizer } = useEventOrganizerMe(isEventOrganizerPIC);
 
   // Function to check if organizer data is complete
   const isOrganizerDataComplete = () => {
+    // If user is not event organizer PIC, they can't create events
+    if (!isEventOrganizerPIC) return false;
+
     if (!eventOrganizer) return false;
 
     // Check if organizer_type is empty or null
@@ -215,7 +225,7 @@ function Events() {
                   }
                   sx={{ display: 'flex', justifyContent: 'center' }}
                 >
-                  {!isOrganizerDataComplete() ? (
+                  {!isOrganizerDataComplete() && isEventOrganizerPIC ? (
                     <>
                       Please complete your registration data in the
                       <Box
