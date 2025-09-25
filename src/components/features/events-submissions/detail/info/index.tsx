@@ -120,7 +120,12 @@ export const EventsSubmissionsInfo = ({
   onToggleField
 }: EventsSubmissionsInfoProps) => {
   const renderLabel = (text: string, key: string | string[]) => {
-    if (!rejectMode) return text;
+    if (
+      !rejectMode ||
+      (eventDetail.eventStatus === 'on_going' &&
+        (key === 'admin_fee' || key === 'tax'))
+    )
+      return text;
 
     const keys = Array.isArray(key) ? key : [key];
     const checked = keys.every((k) => selectedFields.includes(k));
