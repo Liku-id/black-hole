@@ -96,34 +96,34 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
           Event Detail
         </H3>
         {eventDetail.eventStatus !== 'done' &&
-          eventDetail.eventStatus !== 'on_review' &&
-          eventDetail.is_requested === false ? (
-            <Button
-              variant="primary"
-              onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+        eventDetail.eventStatus !== 'on_review' &&
+        eventDetail.is_requested === false ? (
+          <Button
+            variant="primary"
+            onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+          >
+            Edit Detail Event
+          </Button>
+        ) : (
+          eventDetail.is_requested === true && (
+            <Box
+              border="1px solid"
+              borderColor="warning.main"
+              borderRadius={1}
+              p="12px 16px"
+              sx={{
+                backgroundColor: 'warning.light',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}
             >
-              Edit Detail Event
-            </Button>
-          ) : (
-            eventDetail.is_requested === true && (
-              <Box
-                border="1px solid"
-                borderColor="warning.main"
-                borderRadius={1}
-                p="12px 16px"
-                sx={{
-                  backgroundColor: 'warning.light',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-              >
-                <Body2 color="warning.dark" fontWeight={500}>
-                  Event update request is on review
-                </Body2>
-              </Box>
-            )
-          )}
+              <Body2 color="warning.dark" fontWeight={500}>
+                Event update request is on review
+              </Body2>
+            </Box>
+          )
+        )}
       </Box>
       {/* Rejected Reason */}
       <RejectedReason reason={eventDetail.rejectedReason} />
@@ -169,6 +169,13 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
                 label="Address*"
                 value={eventDetail.address}
                 isRejected={isFieldRejected('address')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <EventField
+                label="City*"
+                value={eventDetail.city?.name}
+                isRejected={isFieldRejected('city')}
               />
             </Grid>
             <Grid item xs={12}>
