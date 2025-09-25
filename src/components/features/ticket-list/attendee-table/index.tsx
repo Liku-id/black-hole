@@ -25,7 +25,6 @@ import {
 } from '@/components/common/table';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
 import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ticketsService } from '@/services';
 import { TicketStatus } from '@/types/ticket';
@@ -44,6 +43,7 @@ interface AttendeeData {
   email?: string;
   eventDate?: string;
   transactionId?: string;
+  transactionNumber?: string;
 }
 
 interface AttendeeTableProps {
@@ -88,7 +88,6 @@ export const AttendeeTable = ({
   const [redeemLoading, setRedeemLoading] = useState(false);
 
   const { showInfo, showError } = useToast();
-  const { user } = useAuth();
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -218,7 +217,7 @@ export const AttendeeTable = ({
                   </InputAdornment>
                 )
               }}
-              placeholder="Name/Ticket ID"
+              placeholder="Name"
               sx={{
                 width: '300px',
                 '& .MuiOutlinedInput-root': {
@@ -341,7 +340,7 @@ export const AttendeeTable = ({
               <StyledTableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
+                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
                       <Box
                         alignItems="center"
                         display="flex"
@@ -368,7 +367,7 @@ export const AttendeeTable = ({
                   </TableRow>
                 ) : attendeeData.length === 0 ? (
                   <TableRow>
-                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
+                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
                       <Body2 color="text.secondary">No tickets found</Body2>
                     </TableCell>
                   </TableRow>
@@ -765,7 +764,7 @@ export const AttendeeTable = ({
               </Box>
               <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Email:</Body2>
-                <Body2 fontWeight={500}>{user?.email || 'Not available'}</Body2>
+                <Body2 fontWeight={500}>{selectedAttendee?.email || '-'}</Body2>
               </Box>
               <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Event Date:</Body2>
@@ -784,7 +783,7 @@ export const AttendeeTable = ({
               <Box display="flex" justifyContent="space-between">
                 <Body2 color="text.secondary">Transaction ID:</Body2>
                 <Body2 fontWeight={500}>
-                  {selectedAttendee.transactionId || 'Not available'}
+                  {selectedAttendee.transactionNumber || '-'}
                 </Body2>
               </Box>
               <Box display="flex" justifyContent="flex-end" sx={{ mt: 1.5 }}>

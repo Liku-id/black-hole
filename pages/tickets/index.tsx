@@ -14,16 +14,17 @@ const transformTicketData = (tickets: Ticket[]) => {
   return tickets.map((ticket, index) => ({
     no: index + 1,
     id: ticket.id, // Database ID needed for API calls
-    ticketId: ticket.ticket_id || `TKT-${index + 1}`,
-    name: ticket.visitor_name || 'Unknown Visitor',
-    ticketType: ticket.ticket_name || 'Standard',
-    phoneNumber: '-', // Not available in current API response
+    ticketId: ticket.ticket_id || `-`,
+    name: ticket.visitor_name || '-',
+    ticketType: ticket.ticket_name || '-',
+    phoneNumber: ticket.phone_number || '-',
     date: ticket.created_at || new Date().toISOString(),
-    paymentMethod: 'N/A', // Not available in current API response
+    paymentMethod: ticket.payment_method_name || 'N/A',
     redeemStatus: ticket.ticket_status || 'pending',
-    email: undefined, // Not available in current API response
+    email: ticket.email,
     eventDate: ticket.issued_at || undefined,
-    transactionId: ticket.transaction_id
+    transactionId: ticket.transaction_id,
+    transactionNumber: ticket.transaction_number
   }));
 };
 
