@@ -14,6 +14,10 @@ export interface Ticket {
   created_at: string;
   updated_at: string;
   deleted_at?: string;
+  email?: string;
+  phone_number?: string;
+  payment_method_name?: string;
+  transaction_number?: string;
 }
 
 export interface TicketsResponse {
