@@ -135,7 +135,6 @@ export const EventEditInfo = ({
   const { watch, setValue } = methods;
   const watchedDateRange = watch('dateRange');
   const watchedTimeRange = watch('timeRange');
-  const watchedTax = watch('tax');
   const watchedAdminFeeType = watch('adminFeeType');
 
   const eventTypeOptions = eventTypes.map((type) => ({
@@ -147,11 +146,6 @@ export const EventEditInfo = ({
     value: city.id,
     label: city.name
   }));
-
-  const taxOptions = [
-    { value: 'true', label: 'Yes' },
-    { value: 'false', label: 'No' }
-  ];
 
   const handleDateSave = (dateRange: string) => {
     setValue('dateRange', dateRange);
@@ -320,6 +314,7 @@ export const EventEditInfo = ({
                         options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
                         onValueChange={(type) => setValue('adminFeeType', type)}
+                        disabled={eventDetail.eventStatus === 'on_going'}
                       />
                     </InputAdornment>
                   )
@@ -344,6 +339,7 @@ export const EventEditInfo = ({
                     return true;
                   }
                 }}
+                disabled={eventDetail.eventStatus === 'on_going'}
                 isRejected={isFieldRejected('admin_fee')}
               />
             </Grid>
@@ -360,38 +356,25 @@ export const EventEditInfo = ({
                 isRejected={isFieldRejected('payment_methods')}
               />
             </Grid>
+
             <Grid item md={6} xs={12}>
-              <Select
+              <TextField
                 fullWidth
-                label="Tax*"
-                name="tax"
-                options={taxOptions}
-                placeholder="Select Tax Type"
+                endComponent={<Caption color="text.primary">%</Caption>}
+                label="Tax Nominal*"
+                name="taxNominal"
+                placeholder="Tax percentage"
                 rules={{
-                  required: 'Tax selection is required'
+                  required: 'Tax nominal is required when tax is enabled',
+                  pattern: {
+                    value: /^\d+$/,
+                    message: 'Tax nominal must be a number'
+                  }
                 }}
                 isRejected={isFieldRejected('tax')}
+                disabled={eventDetail.eventStatus === 'on_going'}
               />
             </Grid>
-            {watchedTax === 'true' && (
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  endComponent={<Caption color="text.primary">%</Caption>}
-                  label="Tax Nominal*"
-                  name="taxNominal"
-                  placeholder="Tax percentage"
-                  rules={{
-                    required: 'Tax nominal is required when tax is enabled',
-                    pattern: {
-                      value: /^\d+$/,
-                      message: 'Tax nominal must be a number'
-                    }
-                  }}
-                  isRejected={isFieldRejected('tax')}
-                />
-              </Grid>
-            )}
           </Grid>
 
           {/* TextArea fields - always on same row */}
@@ -433,7 +416,10 @@ export const EventEditInfo = ({
 
             <Box display="flex" gap={2} justifyContent="flex-end">
               <Button type="submit" variant="primary">
-                Update Event
+                {eventDetail.eventStatus === 'approved' ||
+                eventDetail.eventStatus === 'on_going'
+                  ? 'Request Update Event'
+                  : 'Update Event'}
               </Button>
             </Box>
           </Box>

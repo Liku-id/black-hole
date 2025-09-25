@@ -70,7 +70,7 @@ function CreateEvent() {
           .replace(/\s+/g, '-')
           .replace(/[^a-z0-9-]/g, ''),
         adminFee: parseInt(data.adminFee) || 0,
-        tax: data.tax === 'true' ? parseInt(data.taxNominal) || 0 : 0
+        tax: parseInt(data.taxNominal) || 0
       };
       const response = await eventsService.createEvent(payload);
 

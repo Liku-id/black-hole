@@ -105,8 +105,7 @@ function EditEvent() {
         formData.adminFeeType === '%'
           ? parseInt(formData.adminFee)
           : parseInt(formData.adminFee);
-      const calculatedTax =
-        formData.tax === 'true' ? parseInt(formData.taxNominal || '0') : 0;
+      const calculatedTax = parseInt(formData.taxNominal || '0');
 
       // Build payload with only changed fields
       const payload: any = {};
@@ -210,7 +209,7 @@ function EditEvent() {
       });
 
       if (result && result.body && result.body.id) {
-        router.push(`/events/${metaUrl}`);
+        router.push(`/events/${metaUrl}?updateSuccess=true`);
       }
     } catch (error) {
       setUpdateError(

@@ -14,18 +14,21 @@ interface DropdownSelectorProps {
   onValueChange: (value: string) => void;
   options: DropdownOption[];
   defaultLabel?: string;
+  disabled?: boolean;
 }
 
 export const DropdownSelector = ({
   selectedValue,
   onValueChange,
   options,
-  defaultLabel
+  defaultLabel,
+  disabled
 }: DropdownSelectorProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (disabled) return;
     setAnchorEl(event.currentTarget);
   };
 
@@ -53,7 +56,7 @@ export const DropdownSelector = ({
         display="flex"
         gap={1}
         paddingY={1}
-        sx={{ cursor: 'pointer' }}
+        sx={{ cursor: disabled ? 'default' : 'pointer' }}
         onClick={handleClick}
       >
         <Image

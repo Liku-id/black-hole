@@ -66,7 +66,7 @@ const Field = ({
         }
         return '';
       case 'cityId':
-        return `City ID: ${eventUpdateRequest[fieldKey]}`;
+        return `City ID: ${eventUpdateRequest?.city?.name}`;
       case 'paymentMethodIds':
         return `Payment Method IDs: ${eventUpdateRequest[fieldKey]?.join(', ') || ''}`;
       default:
@@ -120,7 +120,12 @@ export const EventsSubmissionsInfo = ({
   onToggleField
 }: EventsSubmissionsInfoProps) => {
   const renderLabel = (text: string, key: string | string[]) => {
-    if (!rejectMode) return text;
+    if (
+      !rejectMode ||
+      (eventDetail.eventStatus === 'on_going' &&
+        (key === 'admin_fee' || key === 'tax'))
+    )
+      return text;
 
     const keys = Array.isArray(key) ? key : [key];
     const checked = keys.every((k) => selectedFields.includes(k));
@@ -258,9 +263,7 @@ export const EventsSubmissionsInfo = ({
               value={eventDetail.websiteUrl || '-'}
             />
           </Grid>
-          <Grid item xs={12}>
-            <Field label="Tax*" value={eventDetail.tax ? 'Yes' : 'No'} />
-          </Grid>
+
           <Grid item xs={12}>
             <Field
               eventDetail={eventDetail}
