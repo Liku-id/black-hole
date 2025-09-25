@@ -105,8 +105,7 @@ function EditEvent() {
         formData.adminFeeType === '%'
           ? parseInt(formData.adminFee)
           : parseInt(formData.adminFee);
-      const calculatedTax =
-        formData.tax === 'true' ? parseInt(formData.taxNominal || '0') : 0;
+      const calculatedTax = parseInt(formData.taxNominal || '0');
 
       // Build payload with only changed fields
       const payload: any = {};

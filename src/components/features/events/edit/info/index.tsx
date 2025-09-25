@@ -314,6 +314,7 @@ export const EventEditInfo = ({
                         options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
                         onValueChange={(type) => setValue('adminFeeType', type)}
+                        disabled={eventDetail.eventStatus === 'on_going'}
                       />
                     </InputAdornment>
                   )

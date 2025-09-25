@@ -107,7 +107,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         />
       </Box>
 
-      <Body1 color="text.secondary" padding="0px 16px">
+      <Body1 color="text.secondary" padding="0px 16px 8px">
         Menu
       </Body1>
       <List sx={{ padding: 0 }}>

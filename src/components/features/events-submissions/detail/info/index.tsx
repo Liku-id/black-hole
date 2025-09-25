@@ -66,7 +66,7 @@ const Field = ({
         }
         return '';
       case 'cityId':
-        return `City ID: ${eventUpdateRequest[fieldKey]}`;
+        return `City ID: ${eventUpdateRequest?.city?.name}`;
       case 'paymentMethodIds':
         return `Payment Method IDs: ${eventUpdateRequest[fieldKey]?.join(', ') || ''}`;
       default:
