@@ -11,13 +11,7 @@ interface CountryCode {
   dialCode: string;
 }
 
-const countryCodes: CountryCode[] = [
-  { code: 'ID', dialCode: '+62' },
-  { code: 'GB', dialCode: '+44' },
-  { code: 'SG', dialCode: '+65' },
-  { code: 'MY', dialCode: '+60' },
-  { code: 'AU', dialCode: '+61' }
-];
+const countryCodes: CountryCode[] = [{ code: 'ID', dialCode: '+62' }];
 
 // Convert to DropdownSelector format
 const countryCodeOptions = countryCodes.map((code) => ({
@@ -48,7 +42,10 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
   const {
     control,
     formState: { errors },
-    setValue
+    setValue,
+    setError,
+    clearErrors,
+    trigger
   } = useFormContext();
 
   const fieldError = errors[name];
@@ -60,13 +57,32 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
   const [displayValue, setDisplayValue] = useState<string>('');
 
   // Handle phone number input change
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneNumberChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const inputValue = e.target.value;
+
+    // Prevent phone number from starting with 0
+    if (inputValue.startsWith('0')) {
+      // Set error manually to show user feedback
+      setError(name, {
+        type: 'manual',
+        message: 'Phone number cannot start with 0'
+      });
+      return; // Don't update the value if it starts with 0
+    }
+
+    // Clear any existing errors when user types valid input
+    clearErrors(name);
+
     setDisplayValue(inputValue);
 
     // Update the form value with country code only if there's input
     const combinedValue = inputValue ? selectedCountryCode + inputValue : '';
     setValue(name, combinedValue);
+
+    // Trigger validation to clear error when user types
+    await trigger(name);
   };
 
   // Initialize the field with empty value
@@ -75,6 +91,18 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
       setValue(name, '');
     }
   }, [setValue, name, displayValue]);
+
+  // Handle country code change
+  const handleCountryCodeChange = async (newCountryCode: string) => {
+    setSelectedCountryCode(newCountryCode);
+
+    // Update the form value with new country code if there's input
+    if (displayValue) {
+      const combinedValue = newCountryCode + displayValue;
+      setValue(name, combinedValue);
+      await trigger(name);
+    }
+  };
 
   return (
     <Controller
@@ -101,7 +129,7 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
                     defaultLabel="+62"
                     options={countryCodeOptions}
                     selectedValue={selectedCountryCode}
-                    onValueChange={setSelectedCountryCode}
+                    onValueChange={handleCountryCodeChange}
                   />
                 </InputAdornment>
               )
