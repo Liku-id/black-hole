@@ -57,8 +57,7 @@ function Account() {
 
   const handleCreatorModalClose = () => {
     setShowCreatorModal(false);
-    // Redirect to dashboard if user closes modal
-    router.push('/dashboard');
+    router.push('/events');
   };
 
   const handleCreatorModalContinue = async (creatorType: string) => {

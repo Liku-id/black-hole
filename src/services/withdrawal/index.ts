@@ -89,6 +89,46 @@ export interface WithdrawalResponse {
   };
 }
 
+export interface WithdrawalListItem {
+  id: string;
+  withdrawalId: string;
+  eventId: string;
+  eventOrganizerId: string;
+  createdBy: string;
+  requestedAmount: string;
+  totalFee: number;
+  amountReceived: string;
+  status: string;
+  approvedBy: string;
+  approvedAt: string;
+  rejectedBy: string;
+  rejectedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  feeSnapshot: FeeSnapshot[];
+  bankId: string;
+  accountNumber: string;
+  accountHolderName: string;
+}
+
+export interface WithdrawalListResponse {
+  statusCode: number;
+  message: string;
+  body: WithdrawalListItem[];
+}
+
+export interface WithdrawalActionRequest {
+  action: 'approve' | 'reject';
+  rejectionReason?: string;
+}
+
+export interface WithdrawalActionResponse {
+  statusCode: number;
+  message: string;
+  body: WithdrawalListItem;
+}
+
 class WithdrawalService {
   async getSummaries(): Promise<WithdrawalSummariesResponse> {
     return apiUtils.get<WithdrawalSummariesResponse>(
@@ -116,12 +156,30 @@ class WithdrawalService {
     );
   }
 
+  async getWithdrawals(status?: string): Promise<WithdrawalListResponse> {
+    return apiUtils.get<WithdrawalListResponse>(
+      '/api/withdrawal/list',
+      status ? { status } : undefined,
+      'Failed to fetch withdrawals'
+    );
+  }
+
   async createWithdrawal(data: WithdrawalRequest): Promise<WithdrawalResponse> {
-    console.log(data);
     return apiUtils.post<WithdrawalResponse>(
       '/api/withdrawal',
       data,
       'Failed to create withdrawal request'
+    );
+  }
+
+  async actionWithdrawal(
+    withdrawalId: string,
+    data: WithdrawalActionRequest
+  ): Promise<WithdrawalActionResponse> {
+    return apiUtils.put<WithdrawalActionResponse>(
+      `/api/withdrawal/${withdrawalId}/action`,
+      data,
+      'Failed to process withdrawal action'
     );
   }
 }

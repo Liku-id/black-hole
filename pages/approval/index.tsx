@@ -7,8 +7,11 @@ import { useEffect, useState } from 'react';
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, TextField } from '@/components/common';
 import SubmissionsTable from '@/components/features/events-submissions/table';
+import WithdrawalTable from '@/components/features/events-submissions/table/withdrawal';
+import WithdrawalFilter from '@/components/features/events-submissions/table/withdrawal-filter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEventsSubmissions } from '@/hooks/features/events-submissions/useEventsSubmissions';
+import { useWithdrawals } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { User } from '@/types/auth';
 import { EventSubmissionsFilters } from '@/types/events-submission';
@@ -19,6 +22,7 @@ function Approval() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('upcoming_draft');
   const [searchValue, setSearchValue] = useState('');
+  const [withdrawalStatus, setWithdrawalStatus] = useState('');
   const [filters, setFilters] = useState<EventSubmissionsFilters>({
     show: 10,
     page: 1,
@@ -27,6 +31,9 @@ function Approval() {
   });
 
   const { submissions, loading, error, mutate } = useEventsSubmissions(filters);
+  const { withdrawals, loading: withdrawalLoading, error: withdrawalError, mutate: withdrawalMutate } = useWithdrawals({
+    status: withdrawalStatus || undefined
+  });
 
   useEffect(() => {
     if (user) {
@@ -103,58 +110,110 @@ function Approval() {
                 />
               </Box>
 
-              <TextField
-                placeholder="Cari Event"
-                startComponent={
-                  <Image
-                    alt="Search"
-                    height={20}
-                    src="/icon/search.svg"
-                    width={20}
-                  />
-                }
-                sx={{ width: 300, flexShrink: 0 }}
-                value={searchValue}
-                onChange={handleSearchChange}
-              />
+              {activeTab === 'withdrawal' ? (
+                <WithdrawalFilter
+                  status={withdrawalStatus}
+                  onStatusChange={setWithdrawalStatus}
+                />
+              ) : (
+                <TextField
+                  placeholder="Cari Event"
+                  startComponent={
+                    <Image
+                      alt="Search"
+                      height={20}
+                      src="/icon/search.svg"
+                      width={20}
+                    />
+                  }
+                  sx={{ width: 300, flexShrink: 0 }}
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                />
+              )}
             </Box>
 
-            {/* Submissions Table */}
-            {(loading || submissions.length > 0) && (
-              <SubmissionsTable
-                loading={loading}
-                submissions={submissions as any}
-                onRefresh={mutate}
-              />
-            )}
+            {/* Content based on active tab */}
+            {activeTab === 'withdrawal' ? (
+              <>
+                {/* Withdrawal Table */}
+                {(withdrawalLoading || withdrawals.length > 0) && (
+                  <WithdrawalTable
+                    withdrawals={withdrawals}
+                    loading={withdrawalLoading}
+                    onRefresh={withdrawalMutate}
+                  />
+                )}
 
-            {/* Empty State */}
-            {!loading && submissions.length === 0 && !error && (
-              <Box py={4} textAlign="center">
-                <Typography gutterBottom color="text.secondary" variant="h6">
-                  No submissions found
-                </Typography>
-                <Typography color="text.secondary" variant="body2">
-                  There are no event submissions pending review.
-                </Typography>
-              </Box>
-            )}
+                {/* Empty State for Withdrawals */}
+                {!withdrawalLoading && withdrawals.length === 0 && !withdrawalError && (
+                  <Box py={4} textAlign="center">
+                    <Typography gutterBottom color="text.secondary" variant="h6">
+                      No withdrawals found
+                    </Typography>
+                    <Typography color="text.secondary" variant="body2">
+                      There are no withdrawal requests to review.
+                    </Typography>
+                  </Box>
+                )}
 
-            {/* Error Alert */}
-            {error && (
-              <Box py={4} textAlign="center">
-                <Typography gutterBottom variant="subtitle2">
-                  Failed to load submissions
-                </Typography>
-                <Typography variant="body2">{error}</Typography>
-                <Typography
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                  variant="caption"
-                >
-                  Please check your connection and try again.
-                </Typography>
-              </Box>
+                {/* Error Alert for Withdrawals */}
+                {withdrawalError && (
+                  <Box py={4} textAlign="center">
+                    <Typography gutterBottom variant="subtitle2">
+                      Failed to load withdrawals
+                    </Typography>
+                    <Typography variant="body2">{withdrawalError}</Typography>
+                    <Typography
+                      color="text.secondary"
+                      sx={{ mt: 1 }}
+                      variant="caption"
+                    >
+                      Please check your connection and try again.
+                    </Typography>
+                  </Box>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Submissions Table */}
+                {(loading || submissions.length > 0) && (
+                  <SubmissionsTable
+                    loading={loading}
+                    submissions={submissions as any}
+                    onRefresh={mutate}
+                  />
+                )}
+
+                {/* Empty State */}
+                {!loading && submissions.length === 0 && !error && (
+                  <Box py={4} textAlign="center">
+                    <Typography gutterBottom color="text.secondary" variant="h6">
+                      No submissions found
+                    </Typography>
+                    <Typography color="text.secondary" variant="body2">
+                      There are no event submissions pending review.
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Error Alert */}
+                {error && (
+                  <Box py={4} textAlign="center">
+                    <Typography gutterBottom variant="subtitle2">
+                      Failed to load submissions
+                    </Typography>
+                    <Typography variant="body2">{error}</Typography>
+                    <Typography
+                      color="text.secondary"
+                      sx={{ mt: 1 }}
+                      variant="caption"
+                    >
+                      Please check your connection and try again.
+                    </Typography>
+                  </Box>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

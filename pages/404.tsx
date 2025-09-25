@@ -28,7 +28,7 @@ export default function Custom404() {
           <Button
             sx={{ mr: 2 }}
             variant="contained"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/events')}
           >
             Go to Dashboard
           </Button>

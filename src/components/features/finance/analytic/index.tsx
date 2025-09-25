@@ -35,7 +35,7 @@ const FinanceAnalytic = () => {
     {
       icon: '/icon/time-revert.svg',
       title: 'Total Amount Pending',
-      value: formatUtils.formatPrice(0)
+      value: formatUtils.formatPrice(parseFloat(summary.pendingWithdrawals))
     }
   ];
 
