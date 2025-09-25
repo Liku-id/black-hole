@@ -218,7 +218,7 @@ export const AttendeeTable = ({
                   </InputAdornment>
                 )
               }}
-              placeholder="Name/Ticket ID"
+              placeholder="Name"
               sx={{
                 width: '300px',
                 '& .MuiOutlinedInput-root': {
