@@ -266,7 +266,11 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                       name="aboutOrganizer"
                       placeholder="Max 1000 Characters"
                       rules={{
-                        required: 'About organizer is required'
+                        required: 'About organizer is required',
+                        maxLength: {
+                          value: 1000,
+                          message: 'About organizer must not exceed 1000 characters'
+                        }
                       }}
                       maxLength={1000}
                       height="260px"
