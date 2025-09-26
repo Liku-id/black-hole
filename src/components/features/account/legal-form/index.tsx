@@ -97,21 +97,13 @@ const LegalForm = ({
     return <LegalFormDetailInfo organizerDetail={eventOrganizer} />;
   }
 
-  if (mode === 'edit') {
-    return (
-      <LegalEditForm
-        eventOrganizer={eventOrganizer}
-        error={updateError || updateErrorState}
-        loading={updateLoading}
-        onSubmit={handleSubmit}
-      />
-    );
-  }
-
   return (
-    <Box>
-      <Body2 mt={2}>Legal Form Edit Component (Coming Soon)</Body2>
-    </Box>
+    <LegalEditForm
+      eventOrganizer={eventOrganizer}
+      error={updateError || updateErrorState}
+      loading={updateLoading}
+      onSubmit={handleSubmit}
+    />
   );
 };
 
