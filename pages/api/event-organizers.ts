@@ -52,7 +52,8 @@ export default async function handler(
     // Use apiRouteUtils
     const postHandler = apiRouteUtils.createPostHandler({
       endpoint: '/event-organizers',
-      timeout: 30000
+      timeout: 30000,
+      requireAuth: false
     });
 
     return await postHandler(req, res);
