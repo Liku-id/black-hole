@@ -211,7 +211,8 @@ export const LegalEditForm = ({
           ktp_photo_id: finalKtpPhotoId,
           ktp_number: formData.ktp_number,
           ktp_address: formData.ktp_address,
-          pic_name: formData.pic_name
+          pic_name: formData.pic_name,
+          full_name: formData.pic_name
         };
 
         // Only include pic_title if it has a value
