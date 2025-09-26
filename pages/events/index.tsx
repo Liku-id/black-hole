@@ -38,23 +38,15 @@ function Events() {
     useEvents(filters);
 
   const { user } = useAuth();
-  const isEventOrganizerPIC =
-    user &&
-    !isEventOrganizer(user) &&
-    user.role?.name === 'event_organizer_pic';
-  const { data: eventOrganizer } = useEventOrganizerMe(isEventOrganizerPIC);
 
   // Function to check if organizer data is complete
   const isOrganizerDataComplete = () => {
-    // If user is not event organizer PIC, they can't create events
-    if (!isEventOrganizerPIC) return false;
-
-    if (!eventOrganizer) return false;
+    if (!isEventOrganizer(user)) return;
 
     // Check if organizer_type is empty or null
-    if (!eventOrganizer.organizer_type) return false;
+    if (!user.organizer_type) return false;
 
-    if (eventOrganizer.organizer_type === 'individual') {
+    if (user.organizer_type === 'individual') {
       // Check required fields for individual organizer
       const requiredFields = [
         'ktp_photo_id',
@@ -66,10 +58,10 @@ function Events() {
       ];
 
       return requiredFields.every((field) => {
-        const value = eventOrganizer[field as keyof typeof eventOrganizer];
+        const value = user[field as keyof typeof user];
         return value && value.toString().trim() !== '';
       });
-    } else if (eventOrganizer.organizer_type === 'institutional') {
+    } else if (user.organizer_type === 'institutional') {
       // Check required fields for institutional organizer
       const requiredFields = [
         'npwp_photo_id',
@@ -79,7 +71,7 @@ function Events() {
       ];
 
       return requiredFields.every((field) => {
-        const value = eventOrganizer[field as keyof typeof eventOrganizer];
+        const value = user[field as keyof typeof user];
         return value && value.toString().trim() !== '';
       });
     }
@@ -225,7 +217,7 @@ function Events() {
                   }
                   sx={{ display: 'flex', justifyContent: 'center' }}
                 >
-                  {!isOrganizerDataComplete() && isEventOrganizerPIC ? (
+                  {!isOrganizerDataComplete() ? (
                     <>
                       Please complete your registration data in the
                       <Box
