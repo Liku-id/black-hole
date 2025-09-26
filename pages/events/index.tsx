@@ -17,7 +17,6 @@ import {
 import EventsTable from '@/components/features/events/list/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks/features/events/useEvents';
-import { useEventOrganizerMe } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { EventsFilters } from '@/types/event';
 import { isEventOrganizer } from '@/types/auth';
