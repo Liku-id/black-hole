@@ -2,7 +2,7 @@ import { Box, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {
@@ -38,9 +38,9 @@ function Events() {
 
   const { user } = useAuth();
 
-  // Function to check if organizer data is complete
-  const isOrganizerDataComplete = () => {
-    if (!isEventOrganizer(user)) return;
+  // Computed value to check if organizer data is complete - reactive to user changes
+  const isOrganizerDataComplete = useMemo(() => {
+    if (!isEventOrganizer(user)) return false;
 
     // Check if organizer_type is empty or null
     if (!user.organizer_type) return false;
@@ -76,7 +76,7 @@ function Events() {
     }
 
     return false;
-  };
+  }, [user]);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
@@ -135,6 +135,8 @@ function Events() {
     }
   ];
 
+  console.log(user, 'user');
+
   return (
     <DashboardLayout>
       <Head>
@@ -154,7 +156,7 @@ function Events() {
           </H2>
           <Button
             onClick={() => router.push('/events/create')}
-            disabled={!isOrganizerDataComplete()}
+            disabled={!isOrganizerDataComplete}
           >
             Create New Event
           </Button>
@@ -210,13 +212,11 @@ function Events() {
                 </Body1>
                 <Body2
                   color={
-                    isOrganizerDataComplete()
-                      ? 'text.secondary'
-                      : 'text.primary'
+                    isOrganizerDataComplete ? 'text.secondary' : 'text.primary'
                   }
                   sx={{ display: 'flex', justifyContent: 'center' }}
                 >
-                  {!isOrganizerDataComplete() ? (
+                  {!isOrganizerDataComplete ? (
                     <>
                       Please complete your registration data in the
                       <Box

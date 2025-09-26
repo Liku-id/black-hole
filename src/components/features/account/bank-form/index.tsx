@@ -88,21 +88,13 @@ const BankForm = ({
     return <BankFormDetailInfo organizerDetail={eventOrganizer} />;
   }
 
-  if (mode === 'edit') {
-    return (
-      <BankEditForm
-        eventOrganizer={eventOrganizer}
-        error={updateError || null}
-        loading={updateLoading}
-        onSubmit={handleSubmit}
-      />
-    );
-  }
-
   return (
-    <Box>
-      <Body2>Bank Form Edit Component (Coming Soon)</Body2>
-    </Box>
+    <BankEditForm
+      eventOrganizer={eventOrganizer}
+      error={updateError || null}
+      loading={updateLoading}
+      onSubmit={handleSubmit}
+    />
   );
 };
 
