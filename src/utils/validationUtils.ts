@@ -317,7 +317,7 @@ export const validationUtils = {
     if (!value) return undefined;
 
     if (value !== password) {
-      return 'Passwords do not match';
+      return 'Password do not match';
     }
 
     return undefined;
