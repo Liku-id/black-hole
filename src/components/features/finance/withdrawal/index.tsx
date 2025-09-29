@@ -1,4 +1,4 @@
-import { Box, Divider } from '@mui/material';
+import { Box, Divider, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -12,7 +12,11 @@ import { Event } from '@/types/event';
 import { formatUtils } from '@/utils/formatUtils';
 import { useDebouncedCallback } from '@/utils/debounceUtils';
 
-const FinanceWithdrawal = () => {
+interface FinanceWithdrawalProps {
+  onEventOrganizerSelect?: (eventOrganizerId: string) => void;
+}
+
+const FinanceWithdrawal = ({ onEventOrganizerSelect }: FinanceWithdrawalProps) => {
   const router = useRouter();
   const {} = useAuth();
   const [selectedProject, setSelectedProject] = useState<Event | null>(null);
@@ -87,6 +91,11 @@ const FinanceWithdrawal = () => {
         setInputValue(newValue.label);
         setIsSearching(false);
         setIsDropdownOpen(false); // Close dropdown after selection
+        
+        // Send event organizer ID to parent component
+        if (onEventOrganizerSelect && selectedEvent?.eventOrganizerId) {
+          onEventOrganizerSelect(selectedEvent.eventOrganizerId);
+        }
       } else {
         setSelectedProject(null);
       }
@@ -123,6 +132,14 @@ const FinanceWithdrawal = () => {
     }
   };
 
+  const handleWithdrawalHistoryClick = () => {
+    console.log(
+      'Withdrawal history clicked - navigating to all events history'
+    );
+    // Navigate to general withdrawal history without specific event
+    router.push('/finance/withdrawal/history');
+  };
+
   return (
     <Box
       bgcolor="background.paper"
@@ -138,12 +155,22 @@ const FinanceWithdrawal = () => {
         marginBottom="8px"
       >
         <Body2>Withdrawal</Body2>
-        <Image
-          alt="withdrawal"
-          height={20}
-          src="/icon/withdrawal.svg"
-          width={20}
-        />
+        <Tooltip title="View All Withdrawal History" arrow>
+          <Box
+            sx={{
+              cursor: 'pointer',
+              opacity: 1
+            }}
+            onClick={handleWithdrawalHistoryClick}
+          >
+            <Image
+              alt="withdrawal"
+              height={20}
+              src="/icon/withdrawal.svg"
+              width={20}
+            />
+          </Box>
+        </Tooltip>
       </Box>
 
       {/* Select Project */}

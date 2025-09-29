@@ -11,6 +11,12 @@ export interface WithdrawalSummary {
   totalAmount: string;
   pendingSettlementAmount: string;
   lastUpdated: string;
+  platformFee: string;
+  withdrawalFee: string;
+  bankName: string;
+  bankId: string;
+  accountNumber: string;
+  accountHolderName: string;  
 }
 
 export interface WithdrawalSummariesResponse {
@@ -93,6 +99,7 @@ export interface WithdrawalListItem {
   id: string;
   withdrawalId: string;
   eventId: string;
+  eventName: string;
   eventOrganizerId: string;
   createdBy: string;
   requestedAmount: string;
@@ -110,6 +117,7 @@ export interface WithdrawalListItem {
   bankId: string;
   accountNumber: string;
   accountHolderName: string;
+  bankName: string;
 }
 
 export interface WithdrawalListResponse {
@@ -119,6 +127,7 @@ export interface WithdrawalListResponse {
 }
 
 export interface WithdrawalActionRequest {
+  id: string;
   action: 'approve' | 'reject';
   rejectionReason?: string;
 }
@@ -127,6 +136,38 @@ export interface WithdrawalActionResponse {
   statusCode: number;
   message: string;
   body: WithdrawalListItem;
+}
+
+export interface WithdrawalHistoryItem {
+  id: string;
+  withdrawalId: string;
+  eventId: string;
+  eventName: string;
+  eventOrganizerId: string;
+  createdBy: string;
+  requestedAmount: string;
+  totalFee: number;
+  withdrawalFee: string;
+  amountReceived: string;
+  status: string;
+  approvedBy: string;
+  approvedAt: string;
+  rejectedBy: string;
+  rejectedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  feeSnapshot: FeeSnapshot[];
+  bankId: string;
+  bankName: string;
+  accountNumber: string;
+  accountHolderName: string;
+}
+
+export interface WithdrawalHistoryResponse {
+  statusCode: number;
+  message: string;
+  body: WithdrawalHistoryItem[];
 }
 
 class WithdrawalService {
@@ -148,10 +189,12 @@ class WithdrawalService {
     );
   }
 
-  async getEventOrganizerSummary(): Promise<EventOrganizerSummaryResponse> {
+  async getEventOrganizerSummary(eventOrganizerId?: string): Promise<EventOrganizerSummaryResponse> {
+    const params = eventOrganizerId ? { eventOrganizerId } : undefined;
+    
     return apiUtils.get<EventOrganizerSummaryResponse>(
       '/api/withdrawal/event-organizer/summary',
-      undefined,
+      params,
       'Failed to fetch event organizer summary'
     );
   }
@@ -165,11 +208,33 @@ class WithdrawalService {
   }
 
   async createWithdrawal(data: WithdrawalRequest): Promise<WithdrawalResponse> {
-    return apiUtils.post<WithdrawalResponse>(
-      '/api/withdrawal',
-      data,
-      'Failed to create withdrawal request'
-    );
+    try {
+      // Validate required fields
+      if (!data.eventId) {
+        throw new Error('Event ID is required');
+      }
+      if (!data.requestedAmount || parseFloat(data.requestedAmount) <= 0) {
+        throw new Error('Valid withdrawal amount is required');
+      }
+      if (!data.bankId) {
+        throw new Error('Bank ID is required');
+      }
+      if (!data.accountNumber) {
+        throw new Error('Account number is required');
+      }
+      if (!data.accountHolderName) {
+        throw new Error('Account holder name is required');
+      }
+
+      return await apiUtils.post<WithdrawalResponse>(
+        '/api/withdrawal',
+        data,
+        'Failed to create withdrawal request'
+      );
+    } catch (error) {
+      console.error('Withdrawal creation error:', error);
+      throw error;
+    }
   }
 
   async actionWithdrawal(
@@ -180,6 +245,33 @@ class WithdrawalService {
       `/api/withdrawal/${withdrawalId}/action`,
       data,
       'Failed to process withdrawal action'
+    );
+  }
+
+  async getWithdrawalHistory(
+    eventId: string | undefined,
+    eventOrganizerId: string | undefined
+  ): Promise<WithdrawalHistoryResponse> {
+    const params: any = {};
+
+    if (eventId) {
+      params.eventId = eventId;
+    }
+
+    if (eventOrganizerId) {
+      params.eventOrganizerId = eventOrganizerId;
+    }
+
+    console.log(
+      'WithdrawalService.getWithdrawalHistory called with params:',
+      params
+    );
+    console.log('API endpoint: /api/withdrawal/history');
+
+    return apiUtils.get<WithdrawalHistoryResponse>(
+      '/api/withdrawal/history',
+      params,
+      'Failed to fetch withdrawal history'
     );
   }
 }

@@ -1,13 +1,11 @@
 import { Box, Grid, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Body2, Button, Caption, Select, TextField } from '@/components/common';
-import { useAuth } from '@/contexts/AuthContext';
+import { Body2, Button, Caption, Overline, Select, TextField } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
 import { withdrawalService, WithdrawalSummary } from '@/services/withdrawal';
-import { isEventOrganizer } from '@/types/auth';
 import { EventDetail } from '@/types/event';
 import { formatUtils } from '@/utils';
 
@@ -36,27 +34,36 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { user } = useAuth();
   const { showInfo } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
   const [withdrawalLoading, setWithdrawalLoading] = useState(false);
   const [withdrawalError, setWithdrawalError] = useState<string | null>(null);
 
   // Get bank information from user data
-  const bankInfo =
-    user && isEventOrganizer(user) ? user.bank_information : null;
+  // const bankInfo =
+    // user && isEventOrganizer(user) ? user.bank_information : null;
 
   const methods = useForm<WithdrawalFormData>({
     defaultValues: {
-      withdrawalName: bankInfo?.accountHolderName || '',
+      withdrawalName: summary?.accountHolderName || '',
       withdrawalAmount: '',
-      bankAccount: bankInfo
-        ? `${bankInfo.bank.name} - ${bankInfo.accountNumber}`
+      bankAccount: summary
+        ? `${summary.bankName} - ${summary.accountNumber}`
         : '',
-      accountHolderName: bankInfo?.accountHolderName || '',
-      accountNumber: bankInfo?.accountNumber || ''
+      accountHolderName: summary?.accountHolderName || '',
+      accountNumber: summary?.accountNumber || ''
     }
   });
+
+  // Update form values when summary data changes
+  useEffect(() => {
+    if (summary) {
+      methods.setValue('withdrawalName', summary.accountHolderName || '');
+      methods.setValue('bankAccount', `${summary.bankName} - ${summary.accountNumber}`);
+      methods.setValue('accountHolderName', summary.accountHolderName || '');
+      methods.setValue('accountNumber', summary.accountNumber || '');
+    }
+  }, [summary, methods]);
 
   const { watch, formState } = methods;
   const withdrawalAmount = watch('withdrawalAmount');
@@ -64,23 +71,47 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   const calculateFees = () => {
     const amount = parseFloat(withdrawalAmount) || 0;
-    const platformFee = eventDetail?.tax ? (amount * eventDetail.tax) / 100 : 0;
-    const adminFee = eventDetail?.adminFee
-      ? eventDetail.adminFee < 100
-        ? (amount * eventDetail.adminFee) / 100
-        : eventDetail.adminFee
-      : 0;
-    const withdrawalFee = 0;
-    const grandTotal = amount + platformFee + adminFee + withdrawalFee;
+
+    // Calculate platform fee (percentage based)
+    const platformFee = parseFloat(eventDetail?.feeThresholds?.[0]?.platformFee || '0');
+
+    // Calculate admin fee (can be percentage or fixed amount)
+    let adminFee = 0;
+    if (eventDetail?.adminFee) {
+      if (eventDetail.adminFee < 100) {
+        // Percentage
+        adminFee = (amount * eventDetail.adminFee) / 100;
+      } else {
+        // Fixed amount
+        adminFee = eventDetail.adminFee;
+      }
+    }
+
+    // Withdrawal fee (usually fixed or percentage)
+    const withdrawalFee = parseFloat(eventDetail?.withdrawalFee || '0'); // This should be calculated based on business rules
+
+    // Total fees
+    const totalFees = platformFee + adminFee + withdrawalFee;
+
+    // Amount received by user (withdrawal amount minus fees)
+    const amountReceived = amount - totalFees;
+
     return {
       platformFee,
       adminFee,
       withdrawalFee,
-      grandTotal
+      totalFees,
+      amountReceived,
+      grandTotal: amount
     };
   };
 
   const fees = calculateFees();
+
+  // Check if grand total exceeds available amount
+  const isGrandTotalExceeded = summary && withdrawalAmount
+    ? fees.grandTotal > parseFloat(summary.availableAmount)
+    : false;
 
   const handleWithdrawalClick = async () => {
     setWithdrawalError(null);
@@ -97,24 +128,39 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     setWithdrawalError(null);
 
     try {
+      // Validate withdrawal amount
+      const requestedAmount = parseFloat(formData.withdrawalAmount);
+      const availableAmount = summary ? parseFloat(summary.availableAmount) : 0;
+
+      if (requestedAmount > availableAmount) {
+        throw new Error('Withdrawal amount cannot exceed available amount');
+      }
+
+      if (requestedAmount <= 0) {
+        throw new Error('Withdrawal amount must be greater than 0');
+      }
+
       const response = await withdrawalService.createWithdrawal({
         eventId,
-        requestedAmount: formData.withdrawalAmount,
-        bankId: bankInfo?.bankId || '',
+        requestedAmount: fees.grandTotal.toString(),
+        bankId: summary?.bankId || '',
         accountNumber: formData.accountNumber,
         accountHolderName: formData.accountHolderName
       });
 
-      if (response.statusCode !== 200) {
+      if (response.statusCode !== 0 && response.statusCode !== 200) {
         throw new Error(response.message || 'Failed to process withdrawal');
       }
 
-      showInfo('Withdrawal Success!');
+      showInfo('Withdrawal request submitted successfully!');
+      setModalOpen(false);
       router.push('/finance');
     } catch (error) {
+      console.error('Withdrawal error:', error);
       setWithdrawalError(
         error instanceof Error ? error.message : 'Failed to process withdrawal'
       );
+    } finally {
       setWithdrawalLoading(false);
     }
   };
@@ -168,8 +214,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 <Box component="span" sx={{ float: 'right' }}>
                   {summary
                     ? formatUtils.formatPrice(
-                        parseFloat(summary.pendingSettlementAmount)
-                      )
+                      parseFloat(summary.pendingSettlementAmount)
+                    )
                     : '-'}
                 </Box>
               </Caption>
@@ -184,8 +230,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 <Box component="span" sx={{ float: 'right' }}>
                   {summary
                     ? formatUtils.formatPrice(
-                        parseFloat(summary.availableAmount)
-                      )
+                      parseFloat(summary.availableAmount)
+                    )
                     : '-'}
                 </Box>
               </Caption>
@@ -206,10 +252,25 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   placeholder="Add Withdrawal Amount here"
                   rules={{
                     required: 'Withdrawal amount is required',
-                    min: { value: 1, message: 'Amount must be greater than 0' },
-                    max: {
-                      value: summary ? parseFloat(summary.availableAmount) : 0,
-                      message: `Amount cannot exceed available balance of ${summary ? formatUtils.formatPrice(parseFloat(summary.availableAmount)) : 'Rp 0'}`
+                    validate: {
+                      positive: (value: string) => {
+                        const amount = parseFloat(value);
+                        return amount > 0 || 'Amount must be greater than 0';
+                      },
+                      notExceedAvailable: (value: string) => {
+                        const amount = parseFloat(value);
+                        const available = summary
+                          ? parseFloat(summary.availableAmount)
+                          : 0;
+                        return (
+                          amount <= available ||
+                          `Amount cannot exceed available balance of ${formatUtils.formatPrice(available)}`
+                        );
+                      },
+                      isNumber: (value: string) => {
+                        const amount = parseFloat(value);
+                        return !isNaN(amount) || 'Please enter a valid number';
+                      }
                     }
                   }}
                   startComponent={<Box marginRight={1}>Rp</Box>}
@@ -286,13 +347,34 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
                       <Caption color="text.primary" fontWeight={700}>
-                        Grand Total
+                        Total Fees
+                      </Caption>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Caption color="error.main" fontWeight={600}>
+                        {withdrawalAmount
+                          ? formatUtils.formatPrice(fees.totalFees)
+                          : '-'}
+                      </Caption>
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                <Box
+                  borderBottom={`1px solid ${theme.palette.grey[200]}`}
+                  mt={2}
+                  paddingBottom={2}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={6}>
+                      <Caption color="text.primary" fontWeight={700}>
+                        Amount You'll Receive
                       </Caption>
                     </Grid>
                     <Grid item xs={6}>
                       <Caption color="success.main" fontWeight={600}>
                         {withdrawalAmount
-                          ? formatUtils.formatPrice(fees.grandTotal)
+                          ? formatUtils.formatPrice(fees.amountReceived)
                           : '-'}
                       </Caption>
                     </Grid>
@@ -309,8 +391,15 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 </Box>
 
                 <Box textAlign="right">
+                  {isGrandTotalExceeded && (
+                    <Box mb={1}>
+                      <Overline color="error.main" fontWeight={600}>
+                        Grand total exceeds available withdrawal amount
+                      </Overline>
+                    </Box>
+                  )}
                   <Button
-                    disabled={!withdrawalAmount || summaryLoading || !isValid}
+                    disabled={!withdrawalAmount || summaryLoading || !isValid || isGrandTotalExceeded}
                     onClick={handleWithdrawalClick}
                   >
                     Withdraw
@@ -334,18 +423,18 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               label="Bank Account"
               name="bankAccount"
               options={
-                bankInfo
+                summary
                   ? [
-                      {
-                        value: `${bankInfo.bank.name} - ${bankInfo.accountNumber}`,
-                        label: `${bankInfo.bank.name} - ${bankInfo.accountNumber}`
-                      }
-                    ]
+                    {
+                      value: `${summary.bankName} - ${summary.accountNumber}`,
+                      label: `${summary.bankName} - ${summary.accountNumber}`
+                    }
+                  ]
                   : []
               }
               placeholder={
-                bankInfo
-                  ? `${bankInfo.bank.name} - ${bankInfo.accountNumber}`
+                summary
+                  ? `${summary.bankName} - ${summary.accountNumber}`
                   : 'No bank information available'
               }
               rules={{ required: 'Bank account is required' }}

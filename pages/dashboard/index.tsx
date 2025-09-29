@@ -37,9 +37,7 @@ function Dashboard() {
     }
   });
 
-  const onSubmit = (data: any) => {
-    console.log('Form data:', data);
-  };
+  const onSubmit = () => {};
 
   const categoryOptions = [
     { value: 'music', label: 'Music' },

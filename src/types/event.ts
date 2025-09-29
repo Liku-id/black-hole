@@ -76,6 +76,7 @@ export interface Event {
   id: string;
   name: string;
   eventType: string;
+  eventOrganizerId: string;
   eventOrganizerName: string;
   description: string;
   address: string;
@@ -91,6 +92,8 @@ export interface Event {
   lowestPriceTicketType: TicketType;
   eventAssets: EventAsset[];
   eventCountByStatus: EventCountByStatus;
+  soldTickets: string;
+  totalRevenue: string;
 }
 
 // Event Detail specific interfaces
@@ -172,6 +175,7 @@ export interface EventDetail {
   is_requested: boolean;
   rejectedReason: string | null;
   rejectedFields: string[] | null;
+  withdrawalFee: string;
 }
 
 export interface EventDetailResponse {
