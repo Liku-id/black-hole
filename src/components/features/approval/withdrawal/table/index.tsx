@@ -10,7 +10,8 @@ import {
   StyledTableBody
 } from '@/components/common/table';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import WithdrawalActionModal from '@/components/features/events-submissions/modal/withdrawal';
+import WithdrawalApprovalModal from '@/components/features/approval/withdrawal/modal';
+import WithdrawalDetailModal from '@/components/features/approval/withdrawal/modal/detail';
 import { WithdrawalListItem, withdrawalService } from '@/services/withdrawal';
 import { formatUtils } from '@/utils/formatUtils';
 
@@ -25,7 +26,8 @@ const WithdrawalTable = ({
   loading,
   onRefresh
 }: WithdrawalTableProps) => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] =
     useState<WithdrawalListItem | null>(null);
   const [modalError, setModalError] = useState('');
@@ -34,11 +36,15 @@ const WithdrawalTable = ({
 
   const handleViewClick = (withdrawal: WithdrawalListItem) => {
     setSelectedWithdrawal(withdrawal);
-    setModalOpen(true);
+    if (withdrawal.status === 'PENDING') {
+      setApprovalModalOpen(true);
+    } else {
+      setDetailModalOpen(true);
+    }
   };
 
   const handleModalClose = () => {
-    setModalOpen(false);
+    setApprovalModalOpen(false);
     setSelectedWithdrawal(null);
     setModalError('');
   };
@@ -54,6 +60,7 @@ const WithdrawalTable = ({
       const response = await withdrawalService.actionWithdrawal(
         selectedWithdrawal.id,
         {
+          id: selectedWithdrawal.id,
           action: data.action,
           rejectionReason: data.rejectionReason
         }
@@ -154,7 +161,7 @@ const WithdrawalTable = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    -
+                    {withdrawal.eventName}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -170,11 +177,11 @@ const WithdrawalTable = ({
                   </Body2>
                 </TableCell>
                 <TableCell>
-                  <StatusBadge status={withdrawal.status} />
+                  <StatusBadge status={withdrawal.status} displayName={withdrawal.status === "APPROVED" ? "Approved" : ""} />
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    -
+                    {withdrawal.bankName}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -207,12 +214,18 @@ const WithdrawalTable = ({
         </Table>
       </StyledTableContainer>
 
-      <WithdrawalActionModal
-        open={modalOpen}
+      <WithdrawalApprovalModal
+        open={approvalModalOpen}
         onClose={handleModalClose}
         onAction={handleAction}
         errorMessage={modalError}
         loading={actionLoading}
+      />
+
+      <WithdrawalDetailModal
+        open={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        withdrawal={selectedWithdrawal}
       />
     </>
   );

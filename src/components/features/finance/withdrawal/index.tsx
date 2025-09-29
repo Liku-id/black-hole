@@ -12,7 +12,11 @@ import { Event } from '@/types/event';
 import { formatUtils } from '@/utils/formatUtils';
 import { useDebouncedCallback } from '@/utils/debounceUtils';
 
-const FinanceWithdrawal = () => {
+interface FinanceWithdrawalProps {
+  onEventOrganizerSelect?: (eventOrganizerId: string) => void;
+}
+
+const FinanceWithdrawal = ({ onEventOrganizerSelect }: FinanceWithdrawalProps) => {
   const router = useRouter();
   const {} = useAuth();
   const [selectedProject, setSelectedProject] = useState<Event | null>(null);
@@ -87,6 +91,11 @@ const FinanceWithdrawal = () => {
         setInputValue(newValue.label);
         setIsSearching(false);
         setIsDropdownOpen(false); // Close dropdown after selection
+        
+        // Send event organizer ID to parent component
+        if (onEventOrganizerSelect && selectedEvent?.eventOrganizerId) {
+          onEventOrganizerSelect(selectedEvent.eventOrganizerId);
+        }
       } else {
         setSelectedProject(null);
       }

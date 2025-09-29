@@ -5,11 +5,13 @@ import {
   EventOrganizerSummaryResponse
 } from '@/services/withdrawal';
 
-export const useEventOrganizerSummary = () => {
+export const useEventOrganizerSummary = (eventOrganizerId?: string | null) => {
   const { data, error, isLoading, mutate } =
     useSWR<EventOrganizerSummaryResponse>(
-      '/api/withdrawal/event-organizer/summary',
-      () => withdrawalService.getEventOrganizerSummary(),
+      eventOrganizerId 
+        ? `/api/withdrawal/event-organizer/summary?eventOrganizerId=${eventOrganizerId}` 
+        : '/api/withdrawal/event-organizer/summary',
+      () => withdrawalService.getEventOrganizerSummary(eventOrganizerId),
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: true
