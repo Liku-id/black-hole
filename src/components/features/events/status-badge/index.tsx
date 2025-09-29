@@ -4,6 +4,7 @@ import { Overline } from '@/components/common';
 
 interface StatusBadgeProps {
   status: string;
+  displayName?: string;
 }
 
 const getStatusStyle = (value: string) => {
@@ -67,7 +68,7 @@ const getStatusStyle = (value: string) => {
   }
 };
 
-export const StatusBadge = ({ status }: StatusBadgeProps) => {
+export const StatusBadge = ({ status, displayName }: StatusBadgeProps) => {
   const statusConfig = getStatusStyle(status);
 
   return (
@@ -79,7 +80,7 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
       display="inline-flex"
       padding="3px 7px"
     >
-      <Overline>{statusConfig.displayName}</Overline>
+      <Overline>{displayName || statusConfig.displayName}</Overline>
     </Box>
   );
 };

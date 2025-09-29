@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, TextField } from '@/components/common';
-import SubmissionsTable from '@/components/features/events-submissions/table';
-import WithdrawalTable from '@/components/features/events-submissions/table/withdrawal';
-import WithdrawalFilter from '@/components/features/events-submissions/table/withdrawal-filter';
+import SubmissionsTable from '@/components/features/approval/events/table';
+import WithdrawalTable from '@/components/features/approval/withdrawal/table';
+import WithdrawalFilter from '@/components/features/approval/withdrawal/table/filter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEventsSubmissions } from '@/hooks/features/events-submissions/useEventsSubmissions';
 import { useWithdrawals } from '@/hooks';

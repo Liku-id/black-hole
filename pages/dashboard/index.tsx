@@ -38,7 +38,6 @@ function Dashboard() {
   });
 
   const onSubmit = (data: any) => {
-    console.log('Form data:', data);
   };
 
   const categoryOptions = [

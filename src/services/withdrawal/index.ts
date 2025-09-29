@@ -11,6 +11,12 @@ export interface WithdrawalSummary {
   totalAmount: string;
   pendingSettlementAmount: string;
   lastUpdated: string;
+  platformFee: string;
+  withdrawalFee: string;
+  bankName: string;
+  bankId: string;
+  accountNumber: string;
+  accountHolderName: string;  
 }
 
 export interface WithdrawalSummariesResponse {
@@ -93,6 +99,7 @@ export interface WithdrawalListItem {
   id: string;
   withdrawalId: string;
   eventId: string;
+  eventName: string;
   eventOrganizerId: string;
   createdBy: string;
   requestedAmount: string;
@@ -110,6 +117,7 @@ export interface WithdrawalListItem {
   bankId: string;
   accountNumber: string;
   accountHolderName: string;
+  bankName: string;
 }
 
 export interface WithdrawalListResponse {
@@ -119,6 +127,7 @@ export interface WithdrawalListResponse {
 }
 
 export interface WithdrawalActionRequest {
+  id: string;
   action: 'approve' | 'reject';
   rejectionReason?: string;
 }
@@ -148,10 +157,12 @@ class WithdrawalService {
     );
   }
 
-  async getEventOrganizerSummary(): Promise<EventOrganizerSummaryResponse> {
+  async getEventOrganizerSummary(eventOrganizerId?: string): Promise<EventOrganizerSummaryResponse> {
+    const params = eventOrganizerId ? { eventOrganizerId } : undefined;
+    
     return apiUtils.get<EventOrganizerSummaryResponse>(
       '/api/withdrawal/event-organizer/summary',
-      undefined,
+      params,
       'Failed to fetch event organizer summary'
     );
   }

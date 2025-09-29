@@ -10,7 +10,8 @@ import {
   StyledTableHead
 } from '@/components/common';
 import { Event } from '@/types/event';
-import { dateUtils } from '@/utils';
+import { dateUtils, formatUtils } from '@/utils';
+import { parse } from 'path';
 
 interface EventsTableProps {
   events: Event[];
@@ -133,12 +134,12 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
               </TableCell>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  {'-'}
+                  {event.soldTickets} Ticket
                 </Body2>
               </TableCell>
               <TableCell>
                 <Body2 color="primary.main" fontSize="14px" fontWeight={700}>
-                  {'-'}
+                  {formatUtils.formatPrice(parseFloat(event.totalRevenue))}
                 </Body2>
               </TableCell>
               <TableCell align="right">

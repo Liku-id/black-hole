@@ -5,37 +5,37 @@ import { formatUtils } from '@/utils/formatUtils';
 
 import AnalyticCard from './card';
 
-const FinanceAnalytic = () => {
-  const { summary, loading } = useEventOrganizerSummary();
+interface FinanceAnalyticProps {
+  eventOrganizerId?: string | null;
+}
+
+const FinanceAnalytic = ({ eventOrganizerId }: FinanceAnalyticProps) => {
+  const { summary, loading } = useEventOrganizerSummary(eventOrganizerId);
 
   if (loading) {
     return <Box>Loading...</Box>;
-  }
-
-  if (!summary) {
-    return <Box>No data available</Box>;
   }
 
   const analyticsData = [
     {
       icon: '/icon/finance-revert.svg',
       title: 'Total Balance',
-      value: formatUtils.formatPrice(parseFloat(summary.totalEarnings))
+      value: formatUtils.formatPrice(parseFloat(summary?.totalEarnings || '0'))
     },
     {
       icon: '/icon/finance-revert.svg',
       title: 'Total Available Balance',
-      value: formatUtils.formatPrice(parseFloat(summary.totalAvailable))
+      value: formatUtils.formatPrice(parseFloat(summary?.totalAvailable || '0'))
     },
     {
       icon: '/icon/fee.svg',
       title: 'Total Platform Fee',
-      value: formatUtils.formatPrice(parseFloat(summary.totalPlatformFees))
+      value: formatUtils.formatPrice(parseFloat(summary?.totalPlatformFees || '0'))
     },
     {
       icon: '/icon/time-revert.svg',
       title: 'Total Amount Pending',
-      value: formatUtils.formatPrice(parseFloat(summary.pendingWithdrawals))
+      value: formatUtils.formatPrice(parseFloat(summary?.pendingWithdrawals || '0'))
     }
   ];
 
