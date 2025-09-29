@@ -1,6 +1,6 @@
 import { Box, Grid, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import { Body2, Button, Caption, Overline, Select, TextField } from '@/components/common';
@@ -56,7 +56,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   });
 
   // Update form values when summary data changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (summary) {
       methods.setValue('withdrawalName', summary.accountHolderName || '');
       methods.setValue('bankAccount', `${summary.bankName} - ${summary.accountNumber}`);
