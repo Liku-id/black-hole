@@ -13,8 +13,8 @@ const getStatusStyle = (value: string) => {
   switch (statusLower) {
     case 'done':
       return {
-        backgroundColor: 'error.light',
-        color: 'error.main',
+         backgroundColor: 'primary.light',
+        color: 'primary.main',
         displayName: 'Done'
       };
     case 'on_going':
@@ -37,8 +37,8 @@ const getStatusStyle = (value: string) => {
       };
     case 'on_review':
       return {
-        backgroundColor: 'primary.light',
-        color: 'primary.main',
+        backgroundColor: 'secondary.light',
+        color: 'secondary.contrastText',
         displayName: 'On Review'
       };
     case 'pending':
