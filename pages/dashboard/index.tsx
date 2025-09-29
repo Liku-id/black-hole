@@ -37,8 +37,7 @@ function Dashboard() {
     }
   });
 
-  const onSubmit = (data: any) => {
-  };
+  const onSubmit = () => {};
 
   const categoryOptions = [
     { value: 'music', label: 'Music' },

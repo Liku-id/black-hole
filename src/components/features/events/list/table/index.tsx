@@ -11,7 +11,6 @@ import {
 } from '@/components/common';
 import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
-import { parse } from 'path';
 
 interface EventsTableProps {
   events: Event[];
