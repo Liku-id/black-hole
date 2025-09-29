@@ -41,10 +41,26 @@ function WithdrawalDetail() {
       </Box>
 
       {/* Title */}
-      <Box mb={3}>
+      <Box
+        mb={3}
+        alignItems="center"
+        display="flex"
+        justifyContent="space-between"
+      >
         <H2 color="text.primary" fontSize="28px" fontWeight={700}>
           Withdrawal Event: {eventDetail?.name || 'Loading...'}
         </H2>
+        <Box
+          sx={{ cursor: 'pointer' }}
+          onClick={() => router.push(`/finance/withdrawal/${metaUrl}/history`)}
+        >
+          <Image
+            alt="withdrawal"
+            height={20}
+            src="/icon/withdrawal.svg"
+            width={20}
+          />
+        </Box>
       </Box>
 
       {/* Main Content */}

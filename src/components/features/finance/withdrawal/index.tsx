@@ -1,4 +1,4 @@
-import { Box, Divider } from '@mui/material';
+import { Box, Divider, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -132,6 +132,14 @@ const FinanceWithdrawal = ({ onEventOrganizerSelect }: FinanceWithdrawalProps) =
     }
   };
 
+  const handleWithdrawalHistoryClick = () => {
+    console.log(
+      'Withdrawal history clicked - navigating to all events history'
+    );
+    // Navigate to general withdrawal history without specific event
+    router.push('/finance/withdrawal/history');
+  };
+
   return (
     <Box
       bgcolor="background.paper"
@@ -147,12 +155,22 @@ const FinanceWithdrawal = ({ onEventOrganizerSelect }: FinanceWithdrawalProps) =
         marginBottom="8px"
       >
         <Body2>Withdrawal</Body2>
-        <Image
-          alt="withdrawal"
-          height={20}
-          src="/icon/withdrawal.svg"
-          width={20}
-        />
+        <Tooltip title="View All Withdrawal History" arrow>
+          <Box
+            sx={{
+              cursor: 'pointer',
+              opacity: 1
+            }}
+            onClick={handleWithdrawalHistoryClick}
+          >
+            <Image
+              alt="withdrawal"
+              height={20}
+              src="/icon/withdrawal.svg"
+              width={20}
+            />
+          </Box>
+        </Tooltip>
       </Box>
 
       {/* Select Project */}

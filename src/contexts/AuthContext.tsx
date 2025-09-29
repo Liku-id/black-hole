@@ -22,6 +22,7 @@ interface AuthContextType extends AuthState {
   login: (data: LoginRequest) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
+  refreshUserData: () => Promise<void>;
   error: string | null;
 }
 
@@ -191,6 +192,85 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     restoreSession();
   }, []);
 
+  // Function to refresh user data
+  const refreshUserData = async () => {
+    try {
+      // First check if session exists
+      const sessionResponse = await apiUtils.get('/api/auth/session');
+
+      if (sessionResponse.isAuthenticated && sessionResponse.user) {
+        // Check if user role is allowed
+        const userRole = sessionResponse.user.role;
+        if (!userRole || !ALLOWED_ROLES.includes(userRole)) {
+          // Clear session for unauthorized role
+          await apiUtils.post('/api/auth/clear-session');
+          dispatch({ type: 'SESSION_RESTORED' });
+          return;
+        }
+
+        // Session exists and we have user data with role information
+        try {
+          let userData;
+
+          // Check if user is event organizer PIC from session data
+          if (sessionResponse.user.role === UserRole.EVENT_ORGANIZER_PIC) {
+            // Get event organizer specific data
+            try {
+              const organizerResponse =
+                await authService.getEventOrganizerMe();
+              if (
+                organizerResponse.statusCode === 0 &&
+                organizerResponse.body
+              ) {
+                userData = organizerResponse.body;
+              } else {
+                throw new Error('Failed to get event organizer data');
+              }
+            } catch (error) {
+              console.error(
+                'Failed to fetch event organizer data during refresh, falling back to regular user data:',
+                error
+              );
+              // Fallback to regular user data
+              const meResponse = await authService.getMe();
+              if (meResponse.statusCode === 0 && meResponse.body) {
+                userData = meResponse.body;
+              } else {
+                throw new Error('Failed to get user data');
+              }
+            }
+          } else {
+            // Get regular user data
+            const meResponse = await authService.getMe();
+            if (meResponse.statusCode === 0 && meResponse.body) {
+              userData = meResponse.body;
+            } else {
+              throw new Error('Failed to get user data');
+            }
+          }
+
+          dispatch({
+            type: 'RESTORE_SESSION',
+            payload: {
+              user: userData
+            }
+          });
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+          dispatch({ type: 'SESSION_RESTORED' });
+        }
+      } else {
+        // No valid session found, mark as not authenticated
+        dispatch({ type: 'SESSION_RESTORED' });
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+      // Mark session restoration as complete with no authentication
+      dispatch({ type: 'SESSION_RESTORED' });
+    }
+  };
+
+
   const login = async (data: LoginRequest) => {
     dispatch({ type: 'LOGIN_START' });
     setError(null);
@@ -292,6 +372,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     clearError,
+    refreshUserData,
     error
   };
 

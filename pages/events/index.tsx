@@ -2,7 +2,7 @@ import { Box, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {
@@ -17,7 +17,6 @@ import {
 import EventsTable from '@/components/features/events/list/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks/features/events/useEvents';
-import { useEventOrganizerMe } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { EventsFilters } from '@/types/event';
 import { isEventOrganizer } from '@/types/auth';
@@ -38,23 +37,15 @@ function Events() {
     useEvents(filters);
 
   const { user } = useAuth();
-  const isEventOrganizerPIC =
-    user &&
-    !isEventOrganizer(user) &&
-    user.role?.name === 'event_organizer_pic';
-  const { data: eventOrganizer } = useEventOrganizerMe(isEventOrganizerPIC);
 
-  // Function to check if organizer data is complete
-  const isOrganizerDataComplete = () => {
-    // If user is not event organizer PIC, they can't create events
-    if (!isEventOrganizerPIC) return false;
-
-    if (!eventOrganizer) return false;
+  // Computed value to check if organizer data is complete - reactive to user changes
+  const isOrganizerDataComplete = useMemo(() => {
+    if (!isEventOrganizer(user)) return false;
 
     // Check if organizer_type is empty or null
-    if (!eventOrganizer.organizer_type) return false;
+    if (!user.organizer_type) return false;
 
-    if (eventOrganizer.organizer_type === 'individual') {
+    if (user.organizer_type === 'individual') {
       // Check required fields for individual organizer
       const requiredFields = [
         'ktp_photo_id',
@@ -66,10 +57,10 @@ function Events() {
       ];
 
       return requiredFields.every((field) => {
-        const value = eventOrganizer[field as keyof typeof eventOrganizer];
+        const value = user[field as keyof typeof user];
         return value && value.toString().trim() !== '';
       });
-    } else if (eventOrganizer.organizer_type === 'institutional') {
+    } else if (user.organizer_type === 'institutional') {
       // Check required fields for institutional organizer
       const requiredFields = [
         'npwp_photo_id',
@@ -79,13 +70,13 @@ function Events() {
       ];
 
       return requiredFields.every((field) => {
-        const value = eventOrganizer[field as keyof typeof eventOrganizer];
+        const value = user[field as keyof typeof user];
         return value && value.toString().trim() !== '';
       });
     }
 
     return false;
-  };
+  }, [user]);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
@@ -144,6 +135,8 @@ function Events() {
     }
   ];
 
+  console.log(user, 'user');
+
   return (
     <DashboardLayout>
       <Head>
@@ -163,7 +156,7 @@ function Events() {
           </H2>
           <Button
             onClick={() => router.push('/events/create')}
-            disabled={!isOrganizerDataComplete()}
+            disabled={!isOrganizerDataComplete}
           >
             Create New Event
           </Button>
@@ -219,13 +212,11 @@ function Events() {
                 </Body1>
                 <Body2
                   color={
-                    isOrganizerDataComplete()
-                      ? 'text.secondary'
-                      : 'text.primary'
+                    isOrganizerDataComplete ? 'text.secondary' : 'text.primary'
                   }
                   sx={{ display: 'flex', justifyContent: 'center' }}
                 >
-                  {!isOrganizerDataComplete() && isEventOrganizerPIC ? (
+                  {!isOrganizerDataComplete ? (
                     <>
                       Please complete your registration data in the
                       <Box

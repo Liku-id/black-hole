@@ -10,6 +10,7 @@ import {
   H4,
   Overline
 } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
 import { EventOrganizer } from '@/types/organizer';
 import { assetsService } from '@/services';
 import { stringUtils } from '@/utils';
@@ -38,6 +39,7 @@ export const LegalEditForm = ({
   error,
   loading
 }: LegalEditFormProps) => {
+  const { refreshUserData } = useAuth();
   const [ktpPhotoId, setKtpPhotoId] = useState<string>('');
   const [npwpPhotoId, setNpwpPhotoId] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -230,6 +232,8 @@ export const LegalEditForm = ({
 
       if (onSubmit) {
         await onSubmit(payload);
+        // Refresh user data after successful update
+        await refreshUserData();
       }
 
       setShowConfirmationModal(false);
