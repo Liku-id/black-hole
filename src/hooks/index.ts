@@ -14,6 +14,7 @@ export { useWithdrawalSummaries } from './features/withdrawal/useWithdrawalSumma
 export { useWithdrawalSummary } from './features/withdrawal/useWithdrawalSummary';
 export { useEventOrganizerSummary } from './features/withdrawal/useEventOrganizerSummary';
 export { useWithdrawals } from './features/withdrawal/useWithdrawals';
+export { useWithdrawalHistory } from './features/withdrawal/useWithdrawalHistory';
 export { useTransactions } from './features/transactions/useTransactions';
 export { useCities } from './list/useCities';
 export { usePaymentMethods } from './list/usePaymentMethods';

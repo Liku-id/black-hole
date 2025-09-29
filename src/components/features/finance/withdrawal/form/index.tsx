@@ -64,19 +64,38 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   const calculateFees = () => {
     const amount = parseFloat(withdrawalAmount) || 0;
+
+    // Calculate platform fee (percentage based)
     const platformFee = eventDetail?.tax ? (amount * eventDetail.tax) / 100 : 0;
-    const adminFee = eventDetail?.adminFee
-      ? eventDetail.adminFee < 100
-        ? (amount * eventDetail.adminFee) / 100
-        : eventDetail.adminFee
-      : 0;
-    const withdrawalFee = 0;
-    const grandTotal = amount + platformFee + adminFee + withdrawalFee;
+
+    // Calculate admin fee (can be percentage or fixed amount)
+    let adminFee = 0;
+    if (eventDetail?.adminFee) {
+      if (eventDetail.adminFee < 100) {
+        // Percentage
+        adminFee = (amount * eventDetail.adminFee) / 100;
+      } else {
+        // Fixed amount
+        adminFee = eventDetail.adminFee;
+      }
+    }
+
+    // Withdrawal fee (usually fixed or percentage)
+    const withdrawalFee = 0; // This should be calculated based on business rules
+
+    // Total fees
+    const totalFees = platformFee + adminFee + withdrawalFee;
+
+    // Amount received by user (withdrawal amount minus fees)
+    const amountReceived = amount - totalFees;
+
     return {
       platformFee,
       adminFee,
       withdrawalFee,
-      grandTotal
+      totalFees,
+      amountReceived,
+      grandTotal: amount
     };
   };
 
@@ -97,6 +116,18 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     setWithdrawalError(null);
 
     try {
+      // Validate withdrawal amount
+      const requestedAmount = parseFloat(formData.withdrawalAmount);
+      const availableAmount = summary ? parseFloat(summary.availableAmount) : 0;
+
+      if (requestedAmount > availableAmount) {
+        throw new Error('Withdrawal amount cannot exceed available amount');
+      }
+
+      if (requestedAmount <= 0) {
+        throw new Error('Withdrawal amount must be greater than 0');
+      }
+
       const response = await withdrawalService.createWithdrawal({
         eventId,
         requestedAmount: formData.withdrawalAmount,
@@ -105,16 +136,19 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         accountHolderName: formData.accountHolderName
       });
 
-      if (response.statusCode !== 200) {
+      if (response.statusCode !== 0 && response.statusCode !== 200) {
         throw new Error(response.message || 'Failed to process withdrawal');
       }
 
-      showInfo('Withdrawal Success!');
+      showInfo('Withdrawal request submitted successfully!');
+      setModalOpen(false);
       router.push('/finance');
     } catch (error) {
+      console.error('Withdrawal error:', error);
       setWithdrawalError(
         error instanceof Error ? error.message : 'Failed to process withdrawal'
       );
+    } finally {
       setWithdrawalLoading(false);
     }
   };
@@ -206,10 +240,25 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   placeholder="Add Withdrawal Amount here"
                   rules={{
                     required: 'Withdrawal amount is required',
-                    min: { value: 1, message: 'Amount must be greater than 0' },
-                    max: {
-                      value: summary ? parseFloat(summary.availableAmount) : 0,
-                      message: `Amount cannot exceed available balance of ${summary ? formatUtils.formatPrice(parseFloat(summary.availableAmount)) : 'Rp 0'}`
+                    validate: {
+                      positive: (value: string) => {
+                        const amount = parseFloat(value);
+                        return amount > 0 || 'Amount must be greater than 0';
+                      },
+                      notExceedAvailable: (value: string) => {
+                        const amount = parseFloat(value);
+                        const available = summary
+                          ? parseFloat(summary.availableAmount)
+                          : 0;
+                        return (
+                          amount <= available ||
+                          `Amount cannot exceed available balance of ${formatUtils.formatPrice(available)}`
+                        );
+                      },
+                      isNumber: (value: string) => {
+                        const amount = parseFloat(value);
+                        return !isNaN(amount) || 'Please enter a valid number';
+                      }
                     }
                   }}
                   startComponent={<Box marginRight={1}>Rp</Box>}
@@ -286,13 +335,34 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
                       <Caption color="text.primary" fontWeight={700}>
-                        Grand Total
+                        Total Fees
+                      </Caption>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Caption color="error.main" fontWeight={600}>
+                        {withdrawalAmount
+                          ? formatUtils.formatPrice(fees.totalFees)
+                          : '-'}
+                      </Caption>
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                <Box
+                  borderBottom={`1px solid ${theme.palette.grey[200]}`}
+                  mt={2}
+                  paddingBottom={2}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={6}>
+                      <Caption color="text.primary" fontWeight={700}>
+                        Amount You'll Receive
                       </Caption>
                     </Grid>
                     <Grid item xs={6}>
                       <Caption color="success.main" fontWeight={600}>
                         {withdrawalAmount
-                          ? formatUtils.formatPrice(fees.grandTotal)
+                          ? formatUtils.formatPrice(fees.amountReceived)
                           : '-'}
                       </Caption>
                     </Grid>
