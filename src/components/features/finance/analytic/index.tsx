@@ -35,7 +35,7 @@ const FinanceAnalytic = ({ eventOrganizerId }: FinanceAnalyticProps) => {
     {
       icon: '/icon/time-revert.svg',
       title: 'Total Amount Pending',
-      value: formatUtils.formatPrice(parseFloat(summary?.pendingWithdrawals || '0'))
+      value: formatUtils.formatPrice(parseFloat(summary?.pendingSettlementAmount || '0'))
     }
   ];
 
