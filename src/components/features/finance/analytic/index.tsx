@@ -30,12 +30,16 @@ const FinanceAnalytic = ({ eventOrganizerId }: FinanceAnalyticProps) => {
     {
       icon: '/icon/fee.svg',
       title: 'Total Platform Fee',
-      value: formatUtils.formatPrice(parseFloat(summary?.totalPlatformFees || '0'))
+      value: formatUtils.formatPrice(
+        parseFloat(summary?.totalPlatformFees || '0')
+      )
     },
     {
       icon: '/icon/time-revert.svg',
       title: 'Total Amount Pending',
-      value: formatUtils.formatPrice(parseFloat(summary?.pendingSettlementAmount || '0'))
+      value: formatUtils.formatPrice(
+        parseFloat(summary?.pendingSettlementAmount || '0')
+      )
     }
   ];
 

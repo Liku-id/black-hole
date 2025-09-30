@@ -8,8 +8,8 @@ import {
 export const useEventOrganizerSummary = (eventOrganizerId?: string | null) => {
   const { data, error, isLoading, mutate } =
     useSWR<EventOrganizerSummaryResponse>(
-      eventOrganizerId 
-        ? `/api/withdrawal/event-organizer/summary?eventOrganizerId=${eventOrganizerId}` 
+      eventOrganizerId
+        ? `/api/withdrawal/event-organizer/summary?eventOrganizerId=${eventOrganizerId}`
         : '/api/withdrawal/event-organizer/summary',
       () => withdrawalService.getEventOrganizerSummary(eventOrganizerId),
       {

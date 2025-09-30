@@ -177,7 +177,12 @@ const WithdrawalTable = ({
                   </Body2>
                 </TableCell>
                 <TableCell>
-                  <StatusBadge status={withdrawal.status} displayName={withdrawal.status === "APPROVED" ? "Approved" : ""} />
+                  <StatusBadge
+                    status={withdrawal.status}
+                    displayName={
+                      withdrawal.status === 'APPROVED' ? 'Approved' : ''
+                    }
+                  />
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">

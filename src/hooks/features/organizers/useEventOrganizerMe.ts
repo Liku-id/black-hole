@@ -10,7 +10,9 @@ interface UseEventOrganizerMeReturn {
   mutate: () => void;
 }
 
-const useEventOrganizerMe = (enabled: boolean = true): UseEventOrganizerMeReturn => {
+const useEventOrganizerMe = (
+  enabled: boolean = true
+): UseEventOrganizerMeReturn => {
   const { data, loading, error, mutate } = useApi(
     enabled ? ['/api/event-organizers/me'] : null,
     () => eventOrganizerService.getEventOrganizerMe()

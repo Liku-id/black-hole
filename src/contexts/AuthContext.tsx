@@ -216,8 +216,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (sessionResponse.user.role === UserRole.EVENT_ORGANIZER_PIC) {
             // Get event organizer specific data
             try {
-              const organizerResponse =
-                await authService.getEventOrganizerMe();
+              const organizerResponse = await authService.getEventOrganizerMe();
               if (
                 organizerResponse.statusCode === 0 &&
                 organizerResponse.body
@@ -269,7 +268,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: 'SESSION_RESTORED' });
     }
   };
-
 
   const login = async (data: LoginRequest) => {
     dispatch({ type: 'LOGIN_START' });

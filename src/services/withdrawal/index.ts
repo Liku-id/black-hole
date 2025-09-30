@@ -16,7 +16,7 @@ export interface WithdrawalSummary {
   bankName: string;
   bankId: string;
   accountNumber: string;
-  accountHolderName: string;  
+  accountHolderName: string;
 }
 
 export interface WithdrawalSummariesResponse {
@@ -61,6 +61,7 @@ export interface WithdrawalRequest {
   bankId: string;
   accountNumber: string;
   accountHolderName: string;
+  withdrawalName: string;
 }
 
 export interface FeeSnapshot {
@@ -190,9 +191,11 @@ class WithdrawalService {
     );
   }
 
-  async getEventOrganizerSummary(eventOrganizerId?: string): Promise<EventOrganizerSummaryResponse> {
+  async getEventOrganizerSummary(
+    eventOrganizerId?: string
+  ): Promise<EventOrganizerSummaryResponse> {
     const params = eventOrganizerId ? { eventOrganizerId } : undefined;
-    
+
     return apiUtils.get<EventOrganizerSummaryResponse>(
       '/api/withdrawal/event-organizer/summary',
       params,
@@ -225,6 +228,9 @@ class WithdrawalService {
       }
       if (!data.accountHolderName) {
         throw new Error('Account holder name is required');
+      }
+      if (!data.withdrawalName) {
+        throw new Error('Withdrawal name is required');
       }
 
       return await apiUtils.post<WithdrawalResponse>(
