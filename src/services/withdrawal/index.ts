@@ -43,6 +43,7 @@ export interface EventOrganizerSummaryResponse {
     totalWithdrawn: string;
     totalAvailable: string;
     totalPlatformFees: string;
+    pendingSettlementAmount: string;
     totalEvents: number;
     activeEvents: number;
     completedEvents: number;
