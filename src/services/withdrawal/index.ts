@@ -144,6 +144,7 @@ export interface WithdrawalActionResponse {
 export interface WithdrawalHistoryItem {
   id: string;
   withdrawalId: string;
+  withdrawalName: string;
   eventId: string;
   eventName: string;
   eventOrganizerId: string;
