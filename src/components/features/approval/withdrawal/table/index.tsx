@@ -122,7 +122,7 @@ const WithdrawalTable = ({
               </TableCell>
               <TableCell sx={{ width: '10%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Amount
+                  Received
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '7.5%' }}>
@@ -173,7 +173,7 @@ const WithdrawalTable = ({
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
                     {formatUtils.formatPrice(
-                      parseFloat(withdrawal.requestedAmount)
+                      parseFloat(withdrawal.amountReceived)
                     )}
                   </Body2>
                 </TableCell>
