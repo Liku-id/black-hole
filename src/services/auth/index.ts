@@ -9,7 +9,6 @@ import { apiUtils } from '@/utils/apiUtils';
 
 class AuthService {
   async login(data: LoginRequest): Promise<LoginResponse> {
-
     try {
       const responseData = await apiUtils.post<LoginResponse>(
         '/api/auth/login',

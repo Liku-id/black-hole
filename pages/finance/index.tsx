@@ -9,7 +9,9 @@ import FinanceWithdrawal from '@/components/features/finance/withdrawal';
 import DashboardLayout from '@/layouts/dashboard';
 
 function Finance() {
-  const [selectedEventOrganizerId, setSelectedEventOrganizerId] = useState<string | null>(null);
+  const [selectedEventOrganizerId, setSelectedEventOrganizerId] = useState<
+    string | null
+  >(null);
 
   const handleEventOrganizerSelect = (eventOrganizerId: string) => {
     setSelectedEventOrganizerId(eventOrganizerId);
@@ -28,7 +30,9 @@ function Finance() {
           </Grid>
 
           <Grid item md={6} xs={12}>
-            <FinanceWithdrawal onEventOrganizerSelect={handleEventOrganizerSelect} />
+            <FinanceWithdrawal
+              onEventOrganizerSelect={handleEventOrganizerSelect}
+            />
           </Grid>
 
           <Grid item xs={12}>

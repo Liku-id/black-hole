@@ -13,7 +13,7 @@ const getStatusStyle = (value: string) => {
   switch (statusLower) {
     case 'done':
       return {
-         backgroundColor: 'primary.light',
+        backgroundColor: 'primary.light',
         color: 'primary.main',
         displayName: 'Done'
       };

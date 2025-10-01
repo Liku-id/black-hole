@@ -16,9 +16,7 @@ export const SuccessUpdateModal = ({
   const isOnReview = eventStatus === 'on_review';
 
   const getTitle = () => {
-    return isOnReview
-      ? 'Event is Being Reviewed'
-      : 'Update Request Submitted';
+    return isOnReview ? 'Event is Being Reviewed' : 'Update Request Submitted';
   };
 
   const getMessage = () => {
