@@ -3,7 +3,14 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Body2, Button, Caption, Overline, Select, TextField } from '@/components/common';
+import {
+  Body2,
+  Button,
+  Caption,
+  Overline,
+  Select,
+  TextField
+} from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
 import { withdrawalService, WithdrawalSummary } from '@/services/withdrawal';
 import { EventDetail } from '@/types/event';
@@ -41,11 +48,11 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   // Get bank information from user data
   // const bankInfo =
-    // user && isEventOrganizer(user) ? user.bank_information : null;
+  // user && isEventOrganizer(user) ? user.bank_information : null;
 
   const methods = useForm<WithdrawalFormData>({
     defaultValues: {
-      withdrawalName: summary?.accountHolderName || '',
+      withdrawalName: '',
       withdrawalAmount: '',
       bankAccount: summary
         ? `${summary.bankName} - ${summary.accountNumber}`
@@ -58,8 +65,10 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   // Update form values when summary data changes
   useEffect(() => {
     if (summary) {
-      methods.setValue('withdrawalName', summary.accountHolderName || '');
-      methods.setValue('bankAccount', `${summary.bankName} - ${summary.accountNumber}`);
+      methods.setValue(
+        'bankAccount',
+        `${summary.bankName} - ${summary.accountNumber}`
+      );
       methods.setValue('accountHolderName', summary.accountHolderName || '');
       methods.setValue('accountNumber', summary.accountNumber || '');
     }
@@ -71,7 +80,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   const calculateFees = () => {
     const amount = parseFloat(withdrawalAmount) || 0;
-    const platformFee = parseFloat(eventDetail?.feeThresholds?.[0]?.platformFee || '0');
+    const platformFee = parseFloat(
+      eventDetail?.feeThresholds?.[0]?.platformFee || '0'
+    );
     const adminFee = eventDetail?.adminFee
       ? eventDetail.adminFee < 100
         ? (amount * eventDetail.adminFee) / 100
@@ -90,9 +101,10 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const fees = calculateFees();
 
   // Check if grand total exceeds available amount
-  const isGrandTotalExceeded = summary && withdrawalAmount
-    ? fees.grandTotal > parseFloat(summary.availableAmount)
-    : false;
+  const isGrandTotalExceeded =
+    summary && withdrawalAmount
+      ? fees.grandTotal > parseFloat(summary.availableAmount)
+      : false;
 
   const handleWithdrawalClick = async () => {
     setWithdrawalError(null);
@@ -114,7 +126,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         requestedAmount: fees.grandTotal.toString(),
         bankId: summary?.bankId || '',
         accountNumber: formData.accountNumber,
-        accountHolderName: formData.accountHolderName
+        accountHolderName: formData.accountHolderName,
+        withdrawalName: formData.withdrawalName
       });
 
       if (response.statusCode !== 200) {
@@ -143,7 +156,6 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         <Grid item md={8} xs={12}>
           <Box bgcolor="background.paper" borderRadius={1} padding="24px">
             <TextField
-              disabled
               fullWidth
               label="Withdrawal Name*"
               name="withdrawalName"
@@ -180,8 +192,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 <Box component="span" sx={{ float: 'right' }}>
                   {summary
                     ? formatUtils.formatPrice(
-                      parseFloat(summary.pendingSettlementAmount)
-                    )
+                        parseFloat(summary.pendingSettlementAmount)
+                      )
                     : '-'}
                 </Box>
               </Caption>
@@ -196,8 +208,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 <Box component="span" sx={{ float: 'right' }}>
                   {summary
                     ? formatUtils.formatPrice(
-                      parseFloat(summary.availableAmount)
-                    )
+                        parseFloat(summary.availableAmount)
+                      )
                     : '-'}
                 </Box>
               </Caption>
@@ -329,7 +341,12 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                     </Box>
                   )}
                   <Button
-                    disabled={!withdrawalAmount || summaryLoading || !isValid || isGrandTotalExceeded}
+                    disabled={
+                      !withdrawalAmount ||
+                      summaryLoading ||
+                      !isValid ||
+                      isGrandTotalExceeded
+                    }
                     onClick={handleWithdrawalClick}
                   >
                     Withdraw
@@ -343,9 +360,21 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         {/* Right Grid - Summary (4/12) */}
         <Grid item md={4} xs={12}>
           <Box bgcolor="background.paper" borderRadius={1} padding="24px">
-            <Body2 color="text.primary" fontSize="16px" fontWeight={600} mb={5}>
+            <Body2 color="text.primary" fontSize="16px" fontWeight={600} mb={2}>
               Bank Account
             </Body2>
+
+            <Box mb={2}>
+              <TextField
+                fullWidth
+                name="accountHolderName"
+                label="Account Holder"
+                placeholder="Account Holder"
+                type="text"
+                disabled
+                rules={{ required: 'Bank account holder is required' }}
+              />
+            </Box>
 
             <Select
               disabled
@@ -355,11 +384,11 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               options={
                 summary
                   ? [
-                    {
-                      value: `${summary.bankName} - ${summary.accountNumber}`,
-                      label: `${summary.bankName} - ${summary.accountNumber}`
-                    }
-                  ]
+                      {
+                        value: `${summary.bankName} - ${summary.accountNumber}`,
+                        label: `${summary.bankName} - ${summary.accountNumber}`
+                      }
+                    ]
                   : []
               }
               placeholder={

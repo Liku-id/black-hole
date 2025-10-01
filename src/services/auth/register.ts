@@ -14,7 +14,6 @@ import { apiUtils } from '@/utils/apiUtils';
 
 class RegisterService {
   async requestOTP(data: OTPRequestRequest): Promise<OTPRequestResponse> {
-
     try {
       const responseData = await apiUtils.post<OTPRequestResponse>(
         '/api/auth/otp/request',
@@ -31,7 +30,6 @@ class RegisterService {
   async verifyOTP(
     data: OTPVerificationRequest
   ): Promise<OTPVerificationResponse> {
-
     try {
       const responseData = await apiUtils.post<OTPVerificationResponse>(
         '/api/auth/otp/verification',
@@ -46,7 +44,6 @@ class RegisterService {
   }
 
   async uploadAsset(data: UploadAssetRequest): Promise<UploadAssetResponse> {
-
     try {
       const responseData = await apiUtils.post<UploadAssetResponse>(
         '/api/upload-asset',
@@ -63,7 +60,6 @@ class RegisterService {
   async createEventOrganizer(
     data: CreateEventOrganizerRequest
   ): Promise<CreateEventOrganizerResponse> {
-
     try {
       const responseData = await apiUtils.post<CreateEventOrganizerResponse>(
         '/api/event-organizers',

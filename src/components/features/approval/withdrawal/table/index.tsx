@@ -14,6 +14,7 @@ import WithdrawalApprovalModal from '@/components/features/approval/withdrawal/m
 import WithdrawalDetailModal from '@/components/features/approval/withdrawal/modal/detail';
 import { WithdrawalListItem, withdrawalService } from '@/services/withdrawal';
 import { formatUtils } from '@/utils/formatUtils';
+import { truncate } from '@/utils';
 
 interface WithdrawalTableProps {
   withdrawals: WithdrawalListItem[];
@@ -116,12 +117,12 @@ const WithdrawalTable = ({
               </TableCell>
               <TableCell sx={{ width: '12.5%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Amount
+                  Withdrawal
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '10%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Total Fee
+                  Amount
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '7.5%' }}>
@@ -161,7 +162,12 @@ const WithdrawalTable = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {withdrawal.eventName}
+                    {truncate(withdrawal.eventName, 20) || '-'}
+                  </Body2>
+                </TableCell>
+                <TableCell>
+                  <Body2 color="text.primary" fontSize="14px">
+                    {withdrawal.withdrawalName || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -172,16 +178,16 @@ const WithdrawalTable = ({
                   </Body2>
                 </TableCell>
                 <TableCell>
-                  <Body2 color="text.primary" fontSize="14px">
-                    {formatUtils.formatPrice(withdrawal.totalFee)}
-                  </Body2>
+                  <StatusBadge
+                    status={withdrawal.status}
+                    displayName={
+                      withdrawal.status === 'APPROVED' ? 'Approved' : ''
+                    }
+                  />
                 </TableCell>
                 <TableCell>
-                  <StatusBadge status={withdrawal.status} displayName={withdrawal.status === "APPROVED" ? "Approved" : ""} />
-                </TableCell>
-                <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {withdrawal.bankName}
+                    {truncate(withdrawal.bankName, 10) || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -191,7 +197,7 @@ const WithdrawalTable = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {withdrawal.accountHolderName}
+                    {truncate(withdrawal.accountHolderName, 15) || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
