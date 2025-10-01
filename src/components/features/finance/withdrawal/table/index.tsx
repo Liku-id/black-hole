@@ -1,7 +1,6 @@
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Box,
-  Chip,
   IconButton,
   Table,
   TableCell,
@@ -15,10 +14,11 @@ import {
   StyledTableContainer,
   StyledTableHead
 } from '@/components/common/table';
+import { StatusBadge } from '@/components/features/events/status-badge';
 import { dateUtils } from '@/utils/dateUtils';
 import { formatUtils } from '@/utils/formatUtils';
 import { WithdrawalHistoryItem } from '@/services/withdrawal';
-import WithdrawalDetailModal from './WithdrawalDetailModal';
+import WithdrawalDetailModal from '../modal/detail';
 
 interface WithdrawalHistoryTableProps {
   withdrawals: WithdrawalHistoryItem[];
@@ -27,55 +27,11 @@ interface WithdrawalHistoryTableProps {
   hideEventName?: boolean;
 }
 
-const getStatusColor = (status: string) => {
-  const statusLower = status.toLowerCase();
-  if (statusLower.includes('submitted')) {
-    return '#8B5CF6'; // Purple
-  } else if (statusLower.includes('approved')) {
-    return '#3B82F6'; // Blue
-  } else if (statusLower.includes('completed')) {
-    return '#10B981'; // Green
-  } else if (statusLower.includes('rejected')) {
-    return '#EF4444'; // Red
-  } else {
-    return '#6B7280'; // Gray
-  }
-};
 
-const getStatusBackgroundColor = (status: string) => {
-  const statusLower = status.toLowerCase();
-  if (statusLower.includes('submitted')) {
-    return '#F3E8FF'; // Light purple
-  } else if (statusLower.includes('approved')) {
-    return '#DBEAFE'; // Light blue
-  } else if (statusLower.includes('completed')) {
-    return '#D1FAE5'; // Light green
-  } else if (statusLower.includes('rejected')) {
-    return '#FEE2E2'; // Light red
-  } else {
-    return '#F3F4F6'; // Light gray
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  const statusLower = status.toLowerCase();
-  if (statusLower.includes('submitted')) {
-    return 'Submitted';
-  } else if (statusLower.includes('approved')) {
-    return 'Approved';
-  } else if (statusLower.includes('completed')) {
-    return 'Completed';
-  } else if (statusLower.includes('rejected')) {
-    return 'Rejected';
-  } else {
-    return status.toUpperCase();
-  }
-};
 
 const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
   withdrawals,
   loading = false,
-  onView,
   hideEventName = false
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -85,7 +41,6 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
   const handleViewWithdrawal = (withdrawal: WithdrawalHistoryItem) => {
     setSelectedWithdrawal(withdrawal);
     setModalOpen(true);
-    onView?.(withdrawal);
   };
 
   const handleCloseModal = () => {
@@ -140,7 +95,7 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
               </TableCell>
               <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Amount Request
+                  Amount Received
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '15%' }}>
@@ -177,14 +132,12 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                   <TableCell>
                     <Body2 fontSize="14px">{withdrawal.withdrawalId}</Body2>
                   </TableCell>
-                  {!hideEventName && (
-                    <TableCell>
-                      <Body2 fontSize="14px">{withdrawal.eventName}</Body2>
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <Body2 fontSize="14px">{withdrawal.eventName}</Body2>
+                  </TableCell>
                   <TableCell>
                     <Body2 fontSize="14px">
-                      {withdrawal.accountHolderName}
+                      {withdrawal.withdrawalName || "-"}
                     </Body2>
                   </TableCell>
                   <TableCell>
@@ -195,24 +148,12 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                   <TableCell>
                     <Body2 fontSize="14px" color="primary.main">
                       {formatUtils.formatPrice(
-                        parseFloat(withdrawal.requestedAmount)
+                        parseFloat(withdrawal.amountReceived)
                       )}
                     </Body2>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      label={getStatusLabel(withdrawal.status)}
-                      size="small"
-                      sx={{
-                        backgroundColor: getStatusBackgroundColor(
-                          withdrawal.status
-                        ),
-                        color: getStatusColor(withdrawal.status),
-                        fontWeight: 500,
-                        fontSize: '12px',
-                        height: '24px'
-                      }}
-                    />
+                    <StatusBadge status={withdrawal.status} displayName={withdrawal.status === "APPROVED" ? "Approved" : ""}/>
                   </TableCell>
                   <TableCell align="right">
                     <IconButton
