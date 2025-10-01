@@ -162,12 +162,12 @@ const WithdrawalTable = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {truncate(withdrawal.eventName, 20) || "-"}
+                    {truncate(withdrawal.eventName, 20) || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {withdrawal.withdrawalName || "-"}
+                    {withdrawal.withdrawalName || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -187,7 +187,7 @@ const WithdrawalTable = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {truncate(withdrawal.bankName, 10) || "-"}
+                    {truncate(withdrawal.bankName, 10) || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -197,7 +197,7 @@ const WithdrawalTable = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {truncate(withdrawal.accountHolderName, 15) || "-"}
+                    {truncate(withdrawal.accountHolderName, 15) || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
