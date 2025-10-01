@@ -14,8 +14,8 @@ const WithdrawalFilter = ({
   const statusOptions = [
     { value: '', label: 'All Status' },
     { value: 'PENDING', label: 'Pending' },
-    { value: 'PAID', label: 'Paid' },
-    { value: 'FAILED', label: 'Failed' }
+    { value: 'APPROVED', label: 'Approved' },
+    { value: 'REJECTED', label: 'Rejected' }
   ];
 
   return (
