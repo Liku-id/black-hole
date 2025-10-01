@@ -83,28 +83,27 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     const platformFee = parseFloat(
       eventDetail?.feeThresholds?.[0]?.platformFee || '0'
     );
-    const adminFee = eventDetail?.adminFee
-      ? eventDetail.adminFee < 100
-        ? (amount * eventDetail.adminFee) / 100
-        : eventDetail.adminFee
-      : 0;
     const withdrawalFee = parseFloat(eventDetail?.withdrawalFee || '0');
-    const grandTotal = amount + platformFee + adminFee + withdrawalFee;
+    const totalFees = platformFee + withdrawalFee;
+    const totalForBackend = amount + totalFees;
+    const grandTotal = amount - totalFees;
+
     return {
       platformFee,
-      adminFee,
       withdrawalFee,
+      totalFees,
+      totalForBackend,
       grandTotal
     };
   };
 
   const fees = calculateFees();
 
-  // Check if grand total exceeds available amount
-  const isGrandTotalExceeded =
+  const isTotalForBackendExceeded =
     summary && withdrawalAmount
-      ? fees.grandTotal > parseFloat(summary.availableAmount)
+      ? fees.totalForBackend > parseFloat(summary.availableAmount)
       : false;
+  const isGrandTotalMinus = withdrawalAmount && fees.grandTotal <= 0;
 
   const handleWithdrawalClick = async () => {
     setWithdrawalError(null);
@@ -123,7 +122,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     try {
       const response = await withdrawalService.createWithdrawal({
         eventId,
-        requestedAmount: fees.grandTotal.toString(),
+        requestedAmount: fees.totalForBackend.toString(), // Total withdrawal amount + semua fee
         bankId: summary?.bankId || '',
         accountNumber: formData.accountNumber,
         accountHolderName: formData.accountHolderName,
@@ -230,11 +229,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   placeholder="Add Withdrawal Amount here"
                   rules={{
                     required: 'Withdrawal amount is required',
-                    min: { value: 1, message: 'Amount must be greater than 0' },
-                    max: {
-                      value: summary ? parseFloat(summary.availableAmount) : 0,
-                      message: `Amount cannot exceed available balance of ${summary ? formatUtils.formatPrice(parseFloat(summary.availableAmount)) : 'Rp 0'}`
-                    }
+                    min: { value: 1, message: 'Amount must be greater than 0' }
                   }}
                   startComponent={<Box marginRight={1}>Rp</Box>}
                 />
@@ -254,27 +249,6 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                       <Caption color="error.main">
                         {withdrawalAmount
                           ? formatUtils.formatPrice(fees.platformFee)
-                          : '-'}
-                      </Caption>
-                    </Grid>
-                  </Grid>
-                </Box>
-
-                <Box
-                  borderBottom={`1px solid ${theme.palette.grey[200]}`}
-                  mt={2}
-                  paddingBottom={2}
-                >
-                  <Grid container spacing={3}>
-                    <Grid item xs={6}>
-                      <Caption color="text.primary" fontWeight={700}>
-                        Buyer Admin Fee
-                      </Caption>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Caption color="error.main">
-                        {withdrawalAmount
-                          ? formatUtils.formatPrice(fees.adminFee)
                           : '-'}
                       </Caption>
                     </Grid>
@@ -333,10 +307,17 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 </Box>
 
                 <Box textAlign="right">
-                  {isGrandTotalExceeded && (
+                  {isTotalForBackendExceeded && (
                     <Box mb={1}>
                       <Overline color="error.main" fontWeight={600}>
-                        Grand total exceeds available withdrawal amount
+                        Total amount (including fees) exceeds available balance
+                      </Overline>
+                    </Box>
+                  )}
+                  {isGrandTotalMinus && (
+                    <Box mb={1}>
+                      <Overline color="error.main" fontWeight={600}>
+                        Grand total cannot be zero or negative
                       </Overline>
                     </Box>
                   )}
@@ -345,7 +326,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                       !withdrawalAmount ||
                       summaryLoading ||
                       !isValid ||
-                      isGrandTotalExceeded
+                      isTotalForBackendExceeded ||
+                      isGrandTotalMinus
                     }
                     onClick={handleWithdrawalClick}
                   >
