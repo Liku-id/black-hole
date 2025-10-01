@@ -100,6 +100,7 @@ export interface WithdrawalResponse {
 export interface WithdrawalListItem {
   id: string;
   withdrawalId: string;
+  withdrawalName: string;
   eventId: string;
   eventName: string;
   eventOrganizerId: string;

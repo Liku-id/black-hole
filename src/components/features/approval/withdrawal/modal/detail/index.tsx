@@ -27,6 +27,12 @@ const WithdrawalDetailModal: FC<WithdrawalDetailModalProps> = ({
         <Body2 color="text.primary">{withdrawal.withdrawalId || '-'}</Body2>
       </Box>
 
+      {/* Withdrawal Name */}
+      <Box alignItems="center" display="flex" justifyContent="space-between">
+        <Body2 color="text.secondary">Withdrawal Name</Body2>
+        <Body2 color="text.primary">{withdrawal.withdrawalName || '-'}</Body2>
+      </Box>
+
       {/* Event Name */}
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Body2 color="text.secondary">Event Name</Body2>
