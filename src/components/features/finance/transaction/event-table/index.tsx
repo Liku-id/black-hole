@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 
 import {
   Body2,
+  Pagination,
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody
@@ -17,12 +18,20 @@ interface EventTransactionTableProps {
   transactions: any[];
   loading?: boolean;
   error?: string | null;
+  total?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export const EventTransactionTable: FC<EventTransactionTableProps> = ({
   transactions,
   loading = false,
-  error = null
+  error = null,
+  total = 0,
+  currentPage = 0,
+  pageSize = 10,
+  onPageChange
 }) => {
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -167,6 +176,15 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
           </StyledTableBody>
         </Table>
       </StyledTableContainer>
+
+      {/* Pagination */}
+      <Pagination
+        total={total}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={(page) => onPageChange && onPageChange(page)}
+        loading={loading}
+      />
 
       {/* Transaction Detail Modal */}
       <TransactionDetailModal

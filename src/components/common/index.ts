@@ -16,6 +16,7 @@ export { default as Checkbox } from './checkbox';
 export { default as Breadcrumb } from './breadcrumb';
 export { Dropzone } from './dropzone';
 export { AutoComplete } from './autocomplete';
+export { Pagination } from './pagination';
 
 export {
   StyledTableContainer,
