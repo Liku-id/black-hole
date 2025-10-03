@@ -2,19 +2,41 @@ import { Box, useTheme } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2, Card, Body2 } from '@/components/common';
 import { EventTransactionTable } from '@/components/features/finance/transaction/event-table';
 import { useTransactions } from '@/hooks';
+import { TransactionsFilters } from '@/types/transaction';
 import DashboardLayout from '@/layouts/dashboard';
 
 function EventTransactions() {
   const router = useRouter();
   const theme = useTheme();
   const { eventId } = router.query as { eventId: string };
+  
+  // Pagination state
+  const [pagination, setPagination] = useState<TransactionsFilters>({
+    page: 0,
+    limit: 10
+  });
 
-  const { transactions, loading, error } = useTransactions(eventId);
+  const { 
+    transactions, 
+    loading, 
+    error, 
+    total, 
+    currentPage, 
+    pageSize 
+  } = useTransactions(eventId, pagination);
+
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({
+      ...prev,
+      page
+    }));
+  };
 
   return (
     <DashboardLayout>
@@ -56,6 +78,10 @@ function EventTransactions() {
           error={error}
           loading={loading}
           transactions={transactions}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
         />
       </Card>
     </DashboardLayout>

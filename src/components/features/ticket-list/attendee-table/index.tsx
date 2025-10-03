@@ -19,6 +19,9 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import {
+  Pagination
+} from '@/components/common';
+import {
   StyledTableBody,
   StyledTableContainer,
   StyledTableHead
@@ -460,84 +463,13 @@ export const AttendeeTable = ({
           </StyledTableContainer>
 
           {/* Pagination */}
-          <Box
-            alignItems="center"
-            display="flex"
-            justifyContent="space-between"
-            sx={{
-              mt: 2,
-              pt: 2,
-              borderTop: '1px solid #E2E8F0'
-            }}
-          >
-            <Body2 color="text.secondary">
-              Showing {total === 0 ? 0 : currentPage * pageSize + 1} to{' '}
-              {Math.min((currentPage + 1) * pageSize, total)} of {total} entries
-            </Body2>
-            <Box alignItems="center" display="flex" gap={0.5}>
-              <IconButton
-                disabled={currentPage === 0}
-                sx={{
-                  width: 24,
-                  height: 24,
-                  fontSize: '12px',
-                  color: 'text.secondary',
-                  '&:hover': {
-                    backgroundColor: '#F8FAFC'
-                  },
-                  '&:disabled': {
-                    color: '#CBD5E1'
-                  }
-                }}
-                onClick={() => onPageChange && onPageChange(currentPage - 1)}
-              >
-                ‹
-              </IconButton>
-
-              {/* Simple pagination - show current page and total pages */}
-              <Box
-                alignItems="center"
-                display="flex"
-                justifyContent="center"
-                sx={{
-                  width: 24,
-                  height: 24,
-                  fontSize: '12px',
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  borderRadius: '4px',
-                  fontWeight: 500
-                }}
-              >
-                {currentPage + 1}
-              </Box>
-
-              {Math.ceil(total / pageSize) > 1 && (
-                <Caption color="text.secondary" sx={{ mx: 0.5 }}>
-                  of {Math.ceil(total / pageSize)}
-                </Caption>
-              )}
-
-              <IconButton
-                disabled={currentPage >= Math.ceil(total / pageSize) - 1}
-                sx={{
-                  width: 24,
-                  height: 24,
-                  fontSize: '12px',
-                  color: 'text.secondary',
-                  '&:hover': {
-                    backgroundColor: '#F8FAFC'
-                  },
-                  '&:disabled': {
-                    color: '#CBD5E1'
-                  }
-                }}
-                onClick={() => onPageChange && onPageChange(currentPage + 1)}
-              >
-                ›
-              </IconButton>
-            </Box>
-          </Box>
+          <Pagination
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={(page) => onPageChange && onPageChange(page)}
+            loading={loading}
+          />
         </Box>
       </Card>
 
