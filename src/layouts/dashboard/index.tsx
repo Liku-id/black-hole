@@ -54,6 +54,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       if (itemPath === '/events' && router.pathname.startsWith('/events/')) {
         return true;
       }
+      // Special handling for /finance path to include all finance sub-pages
+      if (itemPath === '/finance' && router.pathname.startsWith('/finance/')) {
+        return true;
+      }
       // For other paths, only match direct children
       const pathSegments = router.pathname.split('/');
       const menuSegments = itemPath.split('/');
