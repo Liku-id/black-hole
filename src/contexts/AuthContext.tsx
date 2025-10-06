@@ -17,6 +17,7 @@ import {
   ALLOWED_ROLES
 } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
+import { trackLogin, resetUser } from '@/lib/posthog';
 
 interface AuthContextType extends AuthState {
   login: (data: LoginRequest) => Promise<void>;
@@ -319,6 +320,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           payload: { user: userData }
         });
 
+        // Track successful login
+        trackLogin(
+          userData.id,
+          userData.name,
+          userData.email,
+          'email'
+        );
+
         // Redirect to intended route or dashboard
         const redirectTo = (router.query.redirect as string) || '/events';
         router.replace(redirectTo);
@@ -356,6 +365,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout error:', err);
       // Continue with logout even if API call fails
     } finally {
+      // Track logout
+      resetUser();
+      
       dispatch({ type: 'LOGOUT_SUCCESS' });
       router.replace('/login');
     }
