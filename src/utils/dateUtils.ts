@@ -1,4 +1,4 @@
-import { isValid, parseISO } from 'date-fns';
+import { isValid } from 'date-fns';
 
 /**
  * Date formatting utilities using date-fns
@@ -45,25 +45,17 @@ export const dateUtils = {
           .replace(' UTC', '');
         date = new Date(cleanedString);
       } else if (dateString.includes('Z')) {
-        // Handle UTC/Z format - parse as UTC and convert to WIB (UTC+7)
+        // Handle UTC/Z format - parse as UTC, display as-is (no timezone conversion)
         date = new Date(dateString);
-        // Add 7 hours to convert UTC to WIB
-        date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
       } else if (
         dateString.includes('+07:00') ||
         dateString.includes('+0700')
       ) {
-        // Handle WIB timezone format - parse directly as it's already in WIB
+        // Handle WIB timezone format - parse as-is, display as-is
         date = new Date(dateString);
       } else {
-        // Handle standard ISO format or other formats
-        date = parseISO(dateString);
-
-        // If the date is in UTC (no timezone specified), convert to WIB
-        if (!dateString.includes('+') && !dateString.includes('-')) {
-          // Add 7 hours to convert UTC to WIB
-          date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
-        }
+        // Handle standard ISO format or other formats - parse as-is
+        date = new Date(dateString);
       }
 
       return isValid(date) ? date : null;
@@ -175,21 +167,6 @@ export const dateUtils = {
     return `${month} ${day}, ${year}`;
   },
 
-  /**
-   * Format time to HH:mm format (e.g., 15:30)
-   * Converts any timezone to WIB (UTC+7) for consistent display
-   * @param dateString - Date string to format
-   * @returns Formatted time string in HH:mm format
-   */
-  formatTime: (dateString: string): string => {
-    const date = dateUtils.parseToWIB(dateString);
-    if (!date) return dateString;
-
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-
-    return `${hours}:${minutes}`;
-  },
 
   /**
    * Format date to "MMM d, yyyy HH:mm WIB" format (e.g., Sep 26, 2025 06:00 WIB)
@@ -298,5 +275,22 @@ export const dateUtils = {
 
     // waktu selalu ditampilkan sebagai rentang
     return `${datePart} ${sHM}–${eHM} WIB`;
-  }
+  },
+
+  /**
+   * Format time to HH:mm format (e.g., 15:30)
+   * Converts any timezone to WIB (UTC+7) for consistent display
+   * @param dateString - Date string to format
+   * @returns Formatted time string in HH:mm format
+   */
+  formatTime: (dateString: string): string => {
+    const date = dateUtils.parseToWIB(dateString);
+    if (!date) return dateString;
+
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+    return `${hours}:${minutes}`;
+  },
+
 };
