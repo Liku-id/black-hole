@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {
@@ -24,16 +25,20 @@ import { useDebouncedCallback } from '@/utils';
 
 function Events() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('EVENT_STATUS_ON_GOING');
+  const searchParams = useSearchParams();
+  const status = searchParams.get('status');
+
+  // Initialize state
+  const [activeTab, setActiveTab] = useState(status || 'EVENT_STATUS_ON_GOING');
   const [searchValue, setSearchValue] = useState('');
   const [filters, setFilters] = useState<EventsFilters>({
     show: 10,
-    page: 1,
-    status: 'EVENT_STATUS_ON_GOING',
+    page: 0,
+    status: status || 'EVENT_STATUS_ON_GOING',
     name: ''
   });
 
-  const { events, eventCountByStatus, loading, error, mutate } =
+  const { events, eventCountByStatus, loading, error, mutate, total } =
     useEvents(filters);
 
   const { user } = useAuth();
@@ -83,7 +88,7 @@ function Events() {
       ...prev,
       status: activeTab,
       name: value,
-      page: 1
+      page: 0
     }));
   }, 1000);
 
@@ -98,7 +103,14 @@ function Events() {
     setFilters((prev) => ({
       ...prev,
       status: newTab,
-      page: 1
+      page: 0
+    }));
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      page: newPage
     }));
   };
 
@@ -134,8 +146,6 @@ function Events() {
       quantity: eventCountByStatus && eventCountByStatus.done
     }
   ];
-
-  console.log(user, 'user');
 
   return (
     <DashboardLayout>
@@ -201,6 +211,9 @@ function Events() {
                 events={events}
                 loading={loading}
                 onRefresh={mutate}
+                total={total}
+                currentPage={filters.page}
+                onPageChange={handlePageChange}
               />
             )}
 

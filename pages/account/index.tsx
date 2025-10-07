@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 
 import { Box, Card, CardContent } from '@mui/material';
 
@@ -17,7 +18,11 @@ import DashboardLayout from '@/layouts/dashboard';
 
 function Account() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('general');
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('doc');
+
+  // Initialize state
+  const [activeTab, setActiveTab] = useState(tab || 'general');
   const [activeLable, setActiveLable] = useState('General Information');
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);

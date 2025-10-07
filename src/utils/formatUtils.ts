@@ -145,5 +145,45 @@ export const formatUtils = {
   formatRoleName: (role: string): string => {
     if (!role) return '';
     return role.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  },
+
+  /**
+   * Format large numbers with K, M, B suffixes
+   * @param num - Number to format
+   * @returns Formatted number string
+   */
+  formatLargeNumber: (num: number): string => {
+    if (typeof num !== 'number') return '0';
+    
+    if (num >= 1000000000) {
+      return (num / 1000000000).toFixed(1) + 'B';
+    }
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  },
+
+  /**
+   * Format currency with abbreviated suffixes
+   * @param amount - Amount to format
+   * @returns Formatted currency string
+   */
+  formatAbbreviatedCurrency: (amount: number): string => {
+    if (typeof amount !== 'number') return 'Rp 0';
+    
+    if (amount >= 1000000000) {
+      return `Rp ${(amount / 1000000000).toFixed(1)}B`;
+    }
+    if (amount >= 1000000) {
+      return `Rp ${(amount / 1000000).toFixed(1)}M`;
+    }
+    if (amount >= 1000) {
+      return `Rp ${(amount / 1000).toFixed(1)}K`;
+    }
+    return `Rp ${formatUtils.formatNumber(amount)}`;
   }
 };

@@ -228,3 +228,36 @@ export interface TransactionError {
     [key: string]: any;
   }>;
 }
+
+export interface ExportTransactionData {
+  full_name: string;
+  event_name: string;
+  ticket_type_name: string;
+  quantity: number;
+  order_id: string;
+  amount: number;
+  payment_method_name: string;
+  payment_status: string;
+  fee: number;
+  tax: number;
+  date: string; // Format: YYYY-MM-DD HH:MM:SS
+}
+
+export interface ExportTransactionsResponseBody {
+  transactions: ExportTransactionData[];
+  csv_content: string;          // CSV file content as string
+  csv_filename: string;         // Suggested filename for download
+}
+
+export interface ExportTransactionsResponse {
+  status_code: number;
+  message: string;
+  body: ExportTransactionsResponseBody;
+}
+
+export interface ExportTransactionsRequest {
+  from_date?: string;        // Format: YYYY-MM-DD (optional)
+  to_date?: string;          // Format: YYYY-MM-DD (optional)
+  payment_status?: string;   // Filter by payment status (optional)
+  event_id?: string;         // Filter by event_id (optional)
+}

@@ -79,3 +79,17 @@ export interface EventOrganizersResponse {
     eventOrganizers: EventOrganizer[];
   };
 }
+
+export interface EventOrganizerStatistics {
+  event_organizer_name: string;
+  total_tickets_sold: number;
+  total_revenue: number;
+  total_successful_transactions: number;
+  average_tickets_per_transaction: number;
+}
+
+export interface EventOrganizerStatisticsResponse {
+  status_code: number;
+  message: string;
+  body: EventOrganizerStatistics;
+}
