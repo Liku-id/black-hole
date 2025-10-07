@@ -1,7 +1,5 @@
-import { isValid, parseISO } from 'date-fns';
-
 /**
- * Date formatting utilities using date-fns
+ * Date formatting utilities using Intl API for consistent WIB timezone handling
  */
 export const dateUtils = {
   /**
@@ -15,61 +13,100 @@ export const dateUtils = {
   },
 
   /**
-   * Parse date string and convert to WIB timezone
-   * @param dateString - Date string to parse
+   * Convert date string or Date object to WIB timezone
+   * @param date - Date string or Date object to convert
    * @returns Date object in WIB timezone
    */
-  parseToWIB: (dateString: string): Date | null => {
-    try {
-      if (!dateString) return null;
+  convertToWIB: (date: string | Date): Date => {
+    let d: Date;
 
-      let date: Date;
-
-      // Handle the specific timestamp format with timezone
-      if (
-        dateString.includes('.') &&
-        dateString.includes('+') &&
-        dateString.includes('WIB')
-      ) {
-        // Parse format like "2025-06-23 23:12:22.552203 +0700 WIB"
-        // Remove the "WIB" text and milliseconds, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' WIB', '');
-        date = new Date(cleanedString);
-      } else if (dateString.includes('+') && dateString.includes('UTC')) {
-        // Handle format like "2025-08-05 07:39:33.892619 +0000 UTC" or "2025-08-11 20:45:14 +0000 UTC"
-        // Remove the milliseconds (if any) and UTC text, then parse
-        const cleanedString = dateString
-          .replace(/\.\d+/, '')
-          .replace(' UTC', '');
-        date = new Date(cleanedString);
-      } else if (dateString.includes('Z')) {
-        // Handle UTC/Z format - parse as UTC and convert to WIB (UTC+7)
-        date = new Date(dateString);
+    if (typeof date === 'string') {
+      // Handle various date formats
+      if (date.includes('Z') || date.includes('UTC')) {
+        // ISO string with Z or UTC - parse as UTC and convert to WIB
+        d = new Date(date);
         // Add 7 hours to convert UTC to WIB
-        date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
-      } else if (
-        dateString.includes('+07:00') ||
-        dateString.includes('+0700')
-      ) {
-        // Handle WIB timezone format - parse directly as it's already in WIB
-        date = new Date(dateString);
+        d = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+      } else if (date.includes('+07:00') || date.includes('+0700')) {
+        // Already in WIB timezone - parse directly
+        d = new Date(date);
+      } else if (date.includes('+') || date.includes('-')) {
+        // Date with timezone offset - parse as is
+        d = new Date(date);
       } else {
-        // Handle standard ISO format or other formats
-        date = parseISO(dateString);
-
-        // If the date is in UTC (no timezone specified), convert to WIB
-        if (!dateString.includes('+') && !dateString.includes('-')) {
-          // Add 7 hours to convert UTC to WIB
-          date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
-        }
+        // Plain date string, assume it's already in local time
+        d = new Date(date);
       }
-
-      return isValid(date) ? date : null;
-    } catch {
-      return null;
+    } else {
+      d = new Date(date);
     }
+
+    return d;
+  },
+
+  /**
+   * Get today's date in WIB timezone
+   * @returns Date object representing today in WIB
+   */
+  getTodayWIB: (): Date => {
+    const now = new Date();
+    return dateUtils.convertToWIB(now);
+  },
+
+  /**
+   * Get today's date as string in YYYY-MM-DD format in WIB
+   * @returns String in YYYY-MM-DD format
+   */
+  getTodayWIBString: (): string => {
+    const today = dateUtils.getTodayWIB();
+    return today.toISOString().split('T')[0];
+  },
+
+  /**
+   * Format date with various options using Intl API
+   * @param date - Date string or Date object to format
+   * @param variant - Format variant: 'day', 'date', 'full', 'datetime'
+   * @returns Formatted date string
+   */
+  formatDate: (
+    date: string | Date,
+    variant: 'day' | 'date' | 'full' | 'datetime' = 'full'
+  ): string => {
+    const d = new Date(date);
+    
+    if (isNaN(d.getTime())) return '-';
+    
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'Asia/Jakarta'
+    };
+
+    switch (variant) {
+      case 'day':
+        options.weekday = 'long';
+        break;
+      case 'date':
+        options.day = 'numeric';
+        options.month = 'short';
+        options.year = 'numeric';
+        break;
+      case 'datetime':
+        options.day = 'numeric';
+        options.month = 'short';
+        options.year = 'numeric';
+        options.hour = 'numeric';
+        options.minute = '2-digit';
+        options.hour12 = true;
+        break;
+      case 'full':
+      default:
+        options.weekday = 'long';
+        options.day = 'numeric';
+        options.month = 'long';
+        options.year = 'numeric';
+        break;
+    }
+
+    return new Intl.DateTimeFormat('en-US', options).format(d);
   },
 
   /**
@@ -134,14 +171,15 @@ export const dateUtils = {
    * @returns Formatted date string in dd/mm/yyyy format
    */
   formatDateDDMMYYYY: (dateString: string): string => {
-    const date = dateUtils.parseToWIB(dateString);
-    if (!date) return dateString;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
 
-    const day = date.getUTCDate().toString().padStart(2, '0');
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-    const year = date.getUTCFullYear();
-
-    return `${day}/${month}/${year}`;
+    return new Intl.DateTimeFormat('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(date);
   },
 
   /**
@@ -151,28 +189,15 @@ export const dateUtils = {
    * @returns Formatted date string in MMM d, yyyy format
    */
   formatDateMMMDYYYY: (dateString: string): string => {
-    const date = dateUtils.parseToWIB(dateString);
-    if (!date) return dateString;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
 
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    const month = monthNames[date.getUTCMonth()];
-    const day = date.getUTCDate();
-    const year = date.getUTCFullYear();
-
-    return `${month} ${day}, ${year}`;
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(date);
   },
 
   /**
@@ -182,13 +207,15 @@ export const dateUtils = {
    * @returns Formatted time string in HH:mm format
    */
   formatTime: (dateString: string): string => {
-    const date = dateUtils.parseToWIB(dateString);
-    if (!date) return dateString;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
 
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-
-    return `${hours}:${minutes}`;
+    return new Intl.DateTimeFormat('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta'
+    }).format(date);
   },
 
   /**
@@ -198,30 +225,20 @@ export const dateUtils = {
    * @returns Formatted date string with time and WIB timezone
    */
   formatDateTimeWIB: (dateString: string): string => {
-    const date = dateUtils.parseToWIB(dateString);
-    if (!date) return dateString;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
 
-    const year = date.getUTCFullYear();
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    const month = monthNames[date.getUTCMonth()];
-    const day = date.getUTCDate();
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    const formatted = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta'
+    }).format(date);
 
-    return `${month} ${day}, ${year} ${hours}:${minutes} WIB`;
+    return `${formatted} WIB`;
   },
 
   /**
@@ -246,57 +263,99 @@ export const dateUtils = {
   },
 
   formatDateRange: (startISO: string, endISO: string): string => {
-    const s = dateUtils.parseToWIB(startISO);
-    const e = dateUtils.parseToWIB(endISO);
-    if (!s || !e) return `${startISO} - ${endISO}`;
+    const s = new Date(startISO);
+    const e = new Date(endISO);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) return `${startISO} - ${endISO}`;
 
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
+    const sYear = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(s);
 
-    const sY = s.getUTCFullYear();
-    const eY = e.getUTCFullYear();
-    const sM = monthNames[s.getUTCMonth()];
-    const eM = monthNames[e.getUTCMonth()];
-    const sD = s.getUTCDate();
-    const eD = e.getUTCDate();
-    const sHM =
-      s.getUTCHours().toString().padStart(2, '0') +
-      ':' +
-      s.getUTCMinutes().toString().padStart(2, '0');
-    const eHM =
-      e.getUTCHours().toString().padStart(2, '0') +
-      ':' +
-      e.getUTCMinutes().toString().padStart(2, '0');
+    const eYear = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(e);
+
+    const sMonth = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      timeZone: 'Asia/Jakarta'
+    }).format(s);
+
+    const eMonth = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      timeZone: 'Asia/Jakarta'
+    }).format(e);
+
+    const sDay = new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(s);
+
+    const eDay = new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(e);
+
+    const sTime = new Intl.DateTimeFormat('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta'
+    }).format(s);
+
+    const eTime = new Intl.DateTimeFormat('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta'
+    }).format(e);
 
     let datePart = '';
 
-    if (sY !== eY) {
+    if (sYear !== eYear) {
       // beda tahun → tampilkan lengkap keduanya
-      datePart = `${sM} ${sD}, ${sY} – ${eM} ${eD}, ${eY}`;
-    } else if (sM !== eM) {
+      datePart = `${sMonth} ${sDay}, ${sYear} – ${eMonth} ${eDay}, ${eYear}`;
+    } else if (sMonth !== eMonth) {
       // sama tahun, beda bulan → tampilkan bulan & hari masing2, tahun sekali
-      datePart = `${sM} ${sD} – ${eM} ${eD}, ${sY}`;
-    } else if (sD !== eD) {
+      datePart = `${sMonth} ${sDay} – ${eMonth} ${eDay}, ${sYear}`;
+    } else if (sDay !== eDay) {
       // sama bulan & tahun, beda hari → tampilkan rentang hari, bulan & tahun sekali
-      datePart = `${sM} ${sD}–${eD}, ${sY}`;
+      datePart = `${sMonth} ${sDay}–${eDay}, ${sYear}`;
     } else {
       // sama hari, bulan, tahun
-      datePart = `${sM} ${sD}, ${sY}`;
+      datePart = `${sMonth} ${sDay}, ${sYear}`;
     }
 
     // waktu selalu ditampilkan sebagai rentang
-    return `${datePart} ${sHM}–${eHM} WIB`;
+    return `${datePart} ${sTime}–${eTime} WIB`;
+  },
+
+  /**
+   * Format number to Indonesian Rupiah currency
+   * @param value - Number or string to format
+   * @returns Formatted currency string
+   */
+  formatRupiah: (value: number | string): string => {
+    const number = typeof value === 'string' ? Number(value) : value;
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(number);
+  },
+
+  /**
+   * Format countdown time from seconds to MM:SS format
+   * @param seconds - Number of seconds
+   * @returns Formatted time string in MM:SS format
+   */
+  formatCountdownTime: (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${secs}`;
   }
 };
