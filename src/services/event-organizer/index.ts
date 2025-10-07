@@ -1,5 +1,5 @@
 import { apiUtils } from '@/utils/apiUtils';
-import { EventOrganizer, EventOrganizerMeResponse } from '@/types/organizer';
+import { EventOrganizer, EventOrganizerMeResponse, EventOrganizerStatisticsResponse } from '@/types/organizer';
 
 export interface Bank {
   id: string;
@@ -108,6 +108,15 @@ export const eventOrganizerService = {
       `/api/event-organizers/${eoId}/type`,
       payload,
       'Failed to update organizer type'
+    );
+    return response;
+  },
+
+  getEventOrganizerStatistics: async (): Promise<EventOrganizerStatisticsResponse> => {
+    const response = await apiUtils.get<EventOrganizerStatisticsResponse>(
+      '/api/event-organizers/statistics',
+      {},
+      'Failed to fetch event organizer statistics'
     );
     return response;
   }

@@ -329,7 +329,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
 
         // Redirect to intended route or dashboard
-        const redirectTo = (router.query.redirect as string) || '/events';
+        const redirectTo = (router.query.redirect as string) || '/dashboard';
         router.replace(redirectTo);
       } else {
         throw new Error('Failed to authenticate user');

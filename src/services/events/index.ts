@@ -38,7 +38,7 @@ class EventsService {
       const params: Record<string, any> = {};
 
       if (filters?.show) params.show = filters.show.toString();
-      if (filters?.page) params.page = filters.page.toString();
+      if (filters?.page) params.page = (filters.page + 1).toString();
       if (filters?.name) params.name = filters.name;
       if (filters?.startDate) params.startDate = filters.startDate;
       if (filters?.endDate) params.endDate = filters.endDate;

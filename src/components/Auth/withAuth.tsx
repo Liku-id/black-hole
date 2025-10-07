@@ -40,7 +40,7 @@ export function withAuth<P extends object>(
         router.pathname === '/login'
       ) {
         setHasRedirected(true);
-        router.replace('/events');
+        router.replace('/dashboard');
       }
 
       // Reset redirect flag when error occurs
