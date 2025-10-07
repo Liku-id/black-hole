@@ -5,7 +5,6 @@ import type { AppProps } from 'next/app';
 import { SWRConfig } from 'swr';
 
 import { AuthProvider } from '@/contexts/AuthContext';
-import { PostHogProvider } from '@/lib/posthog';
 import { ToastProvider } from '@/contexts/ToastContext';
 import createEmotionCache from '@/createEmotionCache';
 import ThemeProvider from '@/theme/ThemeProvider';
@@ -30,13 +29,11 @@ export default function App(props: MyAppProps) {
             revalidateOnFocus: false
           }}
         >
-          <PostHogProvider>
-            <ToastProvider>
-              <AuthProvider>
-                <Component {...pageProps} />
-              </AuthProvider>
-            </ToastProvider>
-          </PostHogProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <Component {...pageProps} />
+            </AuthProvider>
+          </ToastProvider>
         </SWRConfig>
       </ThemeProvider>
     </CacheProvider>
