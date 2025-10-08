@@ -15,7 +15,7 @@ import {
 import { Body1, Caption, H4 } from '@/components/common';
 import OrganizerRegStatus from '../organizer-status';
 import { useFilteredEvents } from '@/hooks';
-import { dateUtils } from '@/utils';
+import { dateUtils, formatUtils } from '@/utils';
 
 const EventLatestView = () => {
   const router = useRouter();
@@ -99,11 +99,13 @@ const EventLatestView = () => {
   const DetailItem = ({
     value,
     icon,
-    primary
+    primary,
+    fullValue
   }: {
     value: string | number;
     icon: string;
     primary?: boolean;
+    fullValue?: string;
   }) => {
     return (
       <Box
@@ -112,8 +114,9 @@ const EventLatestView = () => {
           alignItems: 'center',
           gap: 1,
           marginTop: '6px',
-          minWidth: 0, // Allow flex item to shrink
-          flex: 1
+          minWidth: 0,
+          flex: 1,
+          overflow: 'hidden' // Prevent container overflow
         }}
       >
         <Image
@@ -124,16 +127,27 @@ const EventLatestView = () => {
           onError={(e) => {
             e.currentTarget.style.display = 'none';
           }}
+          style={{
+            flexShrink: 0,
+            width: '20px',
+            height: '20px'
+          }}
         />
         <Caption
+          component="div"
           color={primary ? 'primary.main' : 'text.secondary'}
           fontWeight={primary ? 700 : 400}
           sx={{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            maxWidth: '100%'
+            flex: '1 1 auto',
+            minWidth: 0,
+            width: '100%'
           }}
+          title={
+            fullValue || (typeof value === 'string' ? value : value.toString())
+          }
         >
           {value}
         </Caption>
@@ -315,7 +329,9 @@ const EventLatestView = () => {
             },
             '&:last-child': {
               marginBottom: 0
-            }
+            },
+            minWidth: 0,
+            overflow: 'hidden'
           }}
         >
           <Image
@@ -323,7 +339,11 @@ const EventLatestView = () => {
             src={event.thumbnail || '/placeholder-event.jpg'}
             width={207}
             height={118}
-            style={{ borderRadius: '4px', objectFit: 'cover' }}
+            style={{
+              borderRadius: '4px',
+              objectFit: 'cover',
+              flexShrink: 0
+            }}
             onError={(e) => {
               e.currentTarget.src = '/placeholder-event.jpg';
             }}
@@ -333,7 +353,9 @@ const EventLatestView = () => {
             sx={{
               flex: 1,
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minWidth: 0,
+              overflow: 'hidden'
             }}
           >
             <Box
@@ -342,19 +364,23 @@ const EventLatestView = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 marginBottom: '12px',
-                minWidth: 0 // Allow flex item to shrink
+                minWidth: 0,
+                gap: 1,
+                width: '100%'
               }}
             >
               <Body1
+                component="div"
                 fontWeight={600}
                 sx={{
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  maxWidth: '100%',
-                  flex: 1,
-                  minWidth: 0 // Allow flex item to shrink
+                  flex: '1 1 auto',
+                  minWidth: 0,
+                  maxWidth: 'calc(100% - 44px)'
                 }}
+                title={event.name}
               >
                 {event.name}
               </Body1>
@@ -364,6 +390,7 @@ const EventLatestView = () => {
                 aria-controls={open ? 'event-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
+                sx={{ flexShrink: 0 }}
               >
                 <Image
                   alt="options"
@@ -478,7 +505,15 @@ const EventLatestView = () => {
               </Menu>
             </Box>
 
-            <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Box
+              sx={{
+                minWidth: 0,
+                flex: 1,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
               <DetailItem icon="/icon/location.svg" value={event.address} />
               <DetailItem
                 icon="/icon/calendar-v2.svg"
@@ -488,21 +523,40 @@ const EventLatestView = () => {
               <Box
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   justifyContent: 'space-between',
-                  minWidth: 0
+                  minWidth: 0,
+                  gap: 1,
+                  width: '100%'
                 }}
               >
-                <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Box
+                  sx={{
+                    flex: '1 1 50%',
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    maxWidth: '50%'
+                  }}
+                >
                   <DetailItem
                     icon="/icon/clock.svg"
                     value={`${dateUtils.formatTime(event.date)} WIB`}
                   />
                 </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Box
+                  sx={{
+                    flex: '1 1 50%',
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    maxWidth: '50%'
+                  }}
+                >
                   <DetailItem
                     icon="/icon/pie.svg"
-                    value={`Rp ${event.totalRevenue.toLocaleString('id-ID')}`}
+                    value={formatUtils.formatEventRevenue(event.totalRevenue)}
+                    fullValue={formatUtils.getFullRevenueAmount(
+                      event.totalRevenue
+                    )}
                     primary
                   />
                 </Box>
@@ -526,7 +580,6 @@ const EventLatestView = () => {
     );
   };
 
-  // Show organizer registration status if no events at all and not loading
   if (
     !ongoingLoading &&
     !pastLoading &&
