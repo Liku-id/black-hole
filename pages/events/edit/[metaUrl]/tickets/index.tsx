@@ -46,10 +46,11 @@ const EditTicketsPage = () => {
     TicketCategory | undefined
   >();
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize tickets from eventDetail
   useEffect(() => {
-    if (eventDetail?.ticketTypes) {
+    if (eventDetail?.ticketTypes && !isInitialized) {
       const initialTickets: TicketCategory[] = eventDetail.ticketTypes.map(
         (ticket) => ({
           id: ticket.id,
@@ -68,8 +69,9 @@ const EditTicketsPage = () => {
         })
       );
       setTickets(initialTickets);
+      setIsInitialized(true);
     }
-  }, [eventDetail]);
+  }, [eventDetail, isInitialized]);
 
   // Ensure hooks are not called conditionally; redirect when ready
   useEffect(() => {
