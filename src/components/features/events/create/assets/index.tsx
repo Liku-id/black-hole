@@ -76,7 +76,6 @@ export const EventAssetsForm = ({
             accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
             error={showError && !thumbnail}
             height="354px"
-            maxSize={2 * 1024 * 1024} // 2MB
             order={1}
             width="100%"
             onFileRemove={handleThumbnailRemove}
@@ -92,7 +91,6 @@ export const EventAssetsForm = ({
                 <Dropzone
                   accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
                   height="169px"
-                  maxSize={2 * 1024 * 1024} // 2MB
                   order={index + 2}
                   width="100%"
                   onFileRemove={() => handleSupportingImageRemove(index)}

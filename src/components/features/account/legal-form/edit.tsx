@@ -264,7 +264,6 @@ export const LegalEditForm = ({
               <Dropzone
                 accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
                 height="200px"
-                maxSize={2 * 1024 * 1024} // 2MB
                 width="100%"
                 existingFileUrl={
                   ktpPhotoId ? eventOrganizer.ktpPhoto?.url : undefined
@@ -282,7 +281,6 @@ export const LegalEditForm = ({
             <Dropzone
               accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
               height="200px"
-              maxSize={2 * 1024 * 1024} // 2MB
               width="100%"
               existingFileUrl={
                 npwpPhotoId ? eventOrganizer.npwpPhoto?.url : undefined
