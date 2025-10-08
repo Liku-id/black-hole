@@ -25,7 +25,7 @@ const Dropzone = ({
   onFileSelect,
   onFileRemove,
   accept = { 'image/*': ['.png', '.jpg', '.jpeg'] },
-  maxSize = 2 * 1024 * 1024, // 2MB
+  maxSize,
   order,
   error = false,
   sx = {},

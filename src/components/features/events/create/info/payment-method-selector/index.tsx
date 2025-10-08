@@ -172,7 +172,7 @@ export const PaymentMethodSelector = ({
                         checked={(field.value || []).includes(method.id)}
                         label={
                           <Box alignItems="center" display="flex">
-                            {method.logo && (
+                            {method.logo && method.type !== 'free' && (
                               <Image
                                 alt={method.name}
                                 height={24}
