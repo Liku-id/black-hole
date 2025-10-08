@@ -17,10 +17,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Body1, Body2 } from '@/components/common';
+import { Body1, Body2, Select } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
 import { EventOrganizer } from '@/types/organizer';
+import { FormProvider, useForm } from 'react-hook-form';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -534,6 +535,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </Box>
   );
 
+  const methods = useForm();
+
   return (
     <Box display="flex">
       <AppBar
@@ -541,7 +544,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: 'primary.dark'
+          backgroundColor: 'primary.dark',
+          boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)'
         }}
       >
         <Toolbar
@@ -559,6 +563,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             <MenuIcon />
           </IconButton>
+          <FormProvider {...methods}>
+            <Box sx={{ width: '220px', marginLeft: '12px' }}>
+              <Select
+                fullWidth
+                label=""
+                name="event_organizer_id"
+                options={[{ value: 0, label: 'All EO' }]}
+                placeholder="All Event Organizer"
+              />
+            </Box>
+          </FormProvider>
         </Toolbar>
       </AppBar>
 
