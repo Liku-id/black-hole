@@ -93,3 +93,23 @@ export interface EventOrganizerStatisticsResponse {
   message: string;
   body: EventOrganizerStatistics;
 }
+
+export interface ListEventOrganizersRequest {
+  name?: string;
+  page?: number;
+  show?: number;
+}
+
+export interface ListEventOrganizersResponseBody {
+  eventOrganizers: EventOrganizer[];
+  show: number;
+  page: number;
+  total: number;
+  totalPage: number;
+}
+
+export interface ListEventOrganizersResponse {
+  statusCode: number;
+  message: string;
+  body: ListEventOrganizersResponseBody;
+}

@@ -1,7 +1,9 @@
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
+import { useAtom } from 'jotai';
 import { withAuth } from '@/components/Auth/withAuth';
 import DashboardLayout from '@/layouts/dashboard';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 
 const EventStatistic = dynamic(
   () => import('@/components/features/dashboard/event-stat')
@@ -14,14 +16,16 @@ const EventCreation = dynamic(
 );
 
 function Dashboard() {
+  const [selectedEventOrganizerId] = useAtom(selectedEOIdAtom);
+
   return (
     <DashboardLayout>
       <Head>
         <title>Wukong Creator - Dashboard</title>
       </Head>
-      <EventStatistic />
-      <EventLatest />
-      <EventCreation />
+      <EventStatistic eventOrganizerId={selectedEventOrganizerId} />
+      <EventLatest eventOrganizerId={selectedEventOrganizerId} />
+      <EventCreation eventOrganizerId={selectedEventOrganizerId} />
     </DashboardLayout>
   );
 }

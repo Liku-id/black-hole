@@ -1,7 +1,8 @@
 import { Box } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useAtom } from 'jotai';
 
 import {
   Tabs,
@@ -19,16 +20,31 @@ import { EventsFilters } from '@/types/event';
 import { isEventOrganizer } from '@/types/auth';
 import { useDebouncedCallback } from '@/utils';
 
-const EventCreation = () => {
+interface EventCreationProps {
+  eventOrganizerId?: string;
+}
+
+const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('EVENT_STATUS_ON_GOING');
   const [searchValue, setSearchValue] = useState('');
+
   const [filters, setFilters] = useState<EventsFilters>({
     show: 10,
     page: 0,
     status: 'EVENT_STATUS_ON_GOING',
-    name: ''
+    name: '',
+    // Only add event_organizer_id if it's not empty
+    ...(eventOrganizerId && { event_organizer_id: eventOrganizerId })
   });
+
+  // Update filters when eventOrganizerId changes
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      event_organizer_id: eventOrganizerId || undefined
+    }));
+  }, [eventOrganizerId]);
 
   const { events, eventCountByStatus, loading, error, mutate, total } =
     useEvents(filters);
@@ -36,6 +52,8 @@ const EventCreation = () => {
 
   // Computed value to check if organizer data is complete - reactive to user changes
   const isOrganizerDataComplete = useMemo(() => {
+    if (eventOrganizerId) return true;
+
     if (!isEventOrganizer(user)) return false;
 
     // Check if organizer_type is empty or null
@@ -72,7 +90,7 @@ const EventCreation = () => {
     }
 
     return false;
-  }, [user]);
+  }, [user, eventOrganizerId]);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
