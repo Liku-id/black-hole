@@ -18,12 +18,12 @@ function PrivacyPolicy() {
 
       {/* Back Button */}
       <Box
-        alignItems="center"
         display="flex"
+        alignItems="center"
         gap={1}
         mb={2}
         sx={{ cursor: 'pointer' }}
-        onClick={() => router.push(`/dashboard`)}
+        onClick={() => router.push('/dashboard')}
       >
         <Image alt="Back" height={24} src="/icon/back.svg" width={24} />
         <Caption color="text.secondary" component="span">
@@ -32,16 +32,15 @@ function PrivacyPolicy() {
       </Box>
 
       {/* Title */}
-      <H2 color="text.primary" fontWeight={700} mb="21px">
+      <H2 color="text.primary" fontWeight={700} mb={2.625 /* 21px */}>
         Privacy Policy
       </H2>
 
+      {/* Card */}
       <Box
-        sx={{
-          backgroundColor: 'common.white',
-          boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-          padding: 3
-        }}
+        bgcolor="background.paper"
+        boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+        p={3}
       >
         <Body2 color="text.secondary" mb={3}>
           This Privacy Policy was last updated on [Date up on Platform].
@@ -67,7 +66,7 @@ function PrivacyPolicy() {
           this policy, and if you do not agree, you should not use the services.
         </Body2>
 
-        <Body1 fontWeight={600} color="text.secondary" sx={{ mb: 2 }}>
+        <Body1 fontWeight={600} color="text.secondary" mb={2}>
           A. COLLECTION OF INFORMATION
         </Body1>
 
@@ -76,57 +75,57 @@ function PrivacyPolicy() {
           using Our Services, including but not limited to:
         </Body2>
 
-        <Box component="ol" sx={{ pl: 3, mb: 3 }}>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+        <Box component="ol" pl={3} mb={3}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Personal identity:</strong> name, gender, date of birth,
               profile photo
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Contact:</strong> email address, home address, phone
               number
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Payment account:</strong> debit/credit card information,
               bank name, account number, verification code, and expiration date
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Transaction data:</strong> ticket purchase history,
               payment information, invoice number
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Technical data:</strong> IP address, browser type and
               version, device used, operating system
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Profile data:</strong> such as customer name and password,
               purchases, orders or preference intentions
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Usage data:</strong> such as information about how
               Customers use our platform, products and Services
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Marketing and communication preferences:</strong> your
               choices regarding promotional communications from us or our
               partners
             </Body2>
           </Box>
-          <Box component="li" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Box component="li" mb={1} color="text.secondary">
             <Body2 color="text.secondary">
               <strong>Direct interactions:</strong> messages, reports, questions
               or suggestions that you send to our team

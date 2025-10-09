@@ -1,5 +1,6 @@
 import { TicketsFilters, TicketsResponse, TicketStatus } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
+import axios from 'axios';
 
 interface TicketTypePayload {
   name: string;
@@ -132,6 +133,62 @@ class TicketsService {
       return response;
     } catch (error) {
       console.error('Error redeeming ticket:', error);
+      throw error;
+    }
+  }
+
+  async exportTickets(eventId: string): Promise<void> {
+    try {
+      if (!eventId) {
+        throw new Error('Event ID is required for ticket export');
+      }
+
+      const url = '/api/tickets-export';
+      const params = { event_id: eventId };
+
+      // Make request using axios with blob responseType
+      const response = await axios({
+        method: 'GET',
+        url,
+        params,
+        responseType: 'blob',
+        withCredentials: true,
+        timeout: 30000
+      });
+
+      // Get filename from Content-Disposition header
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'tickets_export.csv';
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, ''); // Remove quotes
+        }
+      }
+
+      // Convert response to blob and download
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] || 'text/csv'
+      });
+
+      // Download file
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+      }, 100);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        throw apiUtils.handleAxiosError(error, 'Failed to export tickets');
+      }
       throw error;
     }
   }
