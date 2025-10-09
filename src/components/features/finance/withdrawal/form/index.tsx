@@ -85,7 +85,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     );
     const withdrawalFee = parseFloat(eventDetail?.withdrawalFee || '0');
     const totalFees = platformFee + withdrawalFee;
-    const totalForBackend = amount + totalFees;
+    const totalForBackend = amount;
     const grandTotal = amount - totalFees;
 
     return {
