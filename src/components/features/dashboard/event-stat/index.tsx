@@ -67,28 +67,17 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
       {[1, 2, 3, 4].map((item) => (
         <Grid item xs={12} sm={6} md={3} key={item}>
           <Box
-            sx={{
-              backgroundColor: 'common.white',
-              boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-              padding: '18px 16px'
-            }}
+            bgcolor="common.white"
+            boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+            padding="18px 16px"
           >
             <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 3.5
-              }}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              marginBottom={3.5}
             >
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  width: '70%'
-                }}
-              >
+              <Box display="flex" alignItems="center" gap={1} width="70%">
                 <Skeleton variant="circular" width={22} height={22} />
                 <Skeleton variant="text" width="80%" height={20} />
               </Box>
@@ -109,7 +98,7 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
         <Alert severity="error" sx={{ marginBottom: 2 }}>
           An error occurred while loading statistics data. Please try again.
         </Alert>
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        <Box display="flex" justifyContent="center" marginTop={2}>
           <Button onClick={() => window.location.reload()} size="small">
             Reload
           </Button>
@@ -123,10 +112,10 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
     return (
       <Box
         onClick={() => handleCardClick(stat.redirectPath)}
+        bgcolor="common.white"
+        boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+        padding="18px 16px"
         sx={{
-          backgroundColor: 'common.white',
-          boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-          padding: '18px 16px',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
           '&:hover': {
@@ -140,20 +129,12 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
         }}
       >
         <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 3.5
-          }}
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          marginBottom={3.5}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-          >
+          <Box display="flex" alignItems="center" gap={1}>
             <Image alt={stat.title} height={22} src={stat.iconUrl} width={22} />
             <Body2 color="text.primary" fontWeight={400}>
               {stat.title}
@@ -176,7 +157,7 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'end', gap: 0.5 }}>
+        <Box display="flex" alignItems="end" gap={0.5}>
           <H2 color="text.primary" fontWeight={600}>
             {stat.value}
           </H2>

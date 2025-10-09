@@ -2,7 +2,6 @@ import { Box } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState, useMemo, useEffect } from 'react';
-import { useAtom } from 'jotai';
 
 import {
   Tabs,
@@ -34,11 +33,9 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
     page: 0,
     status: 'EVENT_STATUS_ON_GOING',
     name: '',
-    // Only add event_organizer_id if it's not empty
     ...(eventOrganizerId && { event_organizer_id: eventOrganizerId })
   });
 
-  // Update filters when eventOrganizerId changes
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
@@ -50,17 +47,13 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
     useEvents(filters);
   const { user } = useAuth();
 
-  // Computed value to check if organizer data is complete - reactive to user changes
   const isOrganizerDataComplete = useMemo(() => {
     if (eventOrganizerId) return true;
-
     if (!isEventOrganizer(user)) return false;
 
-    // Check if organizer_type is empty or null
     if (!user.organizer_type) return false;
 
     if (user.organizer_type === 'individual') {
-      // Check required fields for individual organizer
       const requiredFields = [
         'ktp_photo_id',
         'npwp_photo_id',
@@ -69,20 +62,17 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
         'ktp_address',
         'pic_name'
       ];
-
       return requiredFields.every((field) => {
         const value = user[field as keyof typeof user];
         return value && value.toString().trim() !== '';
       });
     } else if (user.organizer_type === 'institutional') {
-      // Check required fields for institutional organizer
       const requiredFields = [
         'npwp_photo_id',
         'npwp',
         'npwp_address',
         'full_name'
       ];
-
       return requiredFields.every((field) => {
         const value = user[field as keyof typeof user];
         return value && value.toString().trim() !== '';
@@ -143,21 +133,17 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
 
   return (
     <Box
-      sx={{
-        backgroundColor: 'common.white',
-        boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)'
-      }}
+      bgcolor="background.paper"
+      boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
     >
       {/* Header */}
       <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '20px 16px',
-          borderBottom: '1px solid',
-          borderColor: 'grey.100'
-        }}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        px={2}
+        py={2.5}
+        sx={{ borderBottom: '1px solid', borderColor: 'grey.100' }}
       >
         <H3 color="text.primary" fontWeight={700}>
           Events
@@ -170,16 +156,16 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
         </Button>
       </Box>
 
-      {/* Tabs Card */}
-      <Box sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
-        <Box sx={{ padding: '16px 24px' }}>
+      {/* Tabs + Controls */}
+      <Box bgcolor="background.paper">
+        <Box px={3} py={2}>
           <Box
-            alignItems="center"
             display="flex"
+            alignItems="center"
             justifyContent="space-between"
             mb={2}
           >
-            <Box flex="1" marginRight={4}>
+            <Box flex={1} mr={4}>
               <Tabs
                 activeTab={activeTab}
                 tabs={tabs}
@@ -187,20 +173,22 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
               />
             </Box>
 
-            <TextField
-              placeholder="Cari Event"
-              startComponent={
-                <Image
-                  alt="Search"
-                  height={20}
-                  src="/icon/search.svg"
-                  width={20}
-                />
-              }
-              sx={{ width: 300, flexShrink: 0 }}
-              value={searchValue}
-              onChange={handleSearchChange}
-            />
+            <Box width={300} flexShrink={0}>
+              <TextField
+                fullWidth
+                placeholder="Cari Event"
+                startComponent={
+                  <Image
+                    alt="Search"
+                    height={20}
+                    src="/icon/search.svg"
+                    width={20}
+                  />
+                }
+                value={searchValue}
+                onChange={handleSearchChange}
+              />
+            </Box>
           </Box>
 
           {/* Events Table */}
@@ -228,20 +216,22 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
               <Body1 gutterBottom color="primary.dark" fontWeight={700}>
                 No Events Reviewed Yet
               </Body1>
-              <Body2
-                color="text.secondary"
-                sx={{ display: 'flex', justifyContent: 'center' }}
-              >
-                What are you waiting for? You can create <br /> exciting events
-                whenever and wherever you like.
-              </Body2>
-              <Button
-                sx={{ mt: 2 }}
-                onClick={() => router.push('/events/create')}
-                disabled={!isOrganizerDataComplete}
-              >
-                Create New Event
-              </Button>
+
+              <Box display="flex" justifyContent="center">
+                <Body2 color="text.secondary">
+                  What are you waiting for? You can create <br /> exciting
+                  events whenever and wherever you like.
+                </Body2>
+              </Box>
+
+              <Box mt={2}>
+                <Button
+                  onClick={() => router.push('/events/create')}
+                  disabled={!isOrganizerDataComplete}
+                >
+                  Create New Event
+                </Button>
+              </Box>
             </Box>
           )}
 

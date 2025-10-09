@@ -128,7 +128,7 @@ const EventsTable: FC<EventsTableProps> = ({
             <TableRow key={event.id}>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  {index + 1}.
+                  {index + 1 + currentPage * 10}.
                 </Body2>
               </TableCell>
               <TableCell>

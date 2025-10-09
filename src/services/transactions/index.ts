@@ -4,6 +4,7 @@ import {
   ExportTransactionsRequest
 } from '@/types/transaction';
 import { apiUtils } from '@/utils/apiUtils';
+import axios from 'axios';
 
 class TransactionsService {
   async getEventTransactions(
@@ -31,48 +32,40 @@ class TransactionsService {
 
   async exportTransactions(request: ExportTransactionsRequest): Promise<void> {
     try {
-      const params = new URLSearchParams();
+      const params: Record<string, string> = {};
 
-      if (request.from_date) params.append('from_date', request.from_date);
-      if (request.to_date) params.append('to_date', request.to_date);
-      if (request.payment_status)
-        params.append('payment_status', request.payment_status);
-      if (request.event_id) params.append('event_id', request.event_id);
+      if (request.from_date) params.from_date = request.from_date;
+      if (request.to_date) params.to_date = request.to_date;
+      if (request.payment_status) params.payment_status = request.payment_status;
+      if (request.event_id) params.event_id = request.event_id;
 
-      const url = `/api/transactions-export${params.toString() ? '?' + params.toString() : ''}`;
+      const url = '/api/transactions-export';
 
-      // Make request
-      const response = await fetch(url, {
+      // Make request using axios with blob responseType
+      const response = await axios({
         method: 'GET',
-        credentials: 'include'
+        url,
+        params,
+        responseType: 'blob',
+        withCredentials: true,
+        timeout: 30000
       });
 
-      if (!response.ok) {
-        // Try to parse error message
-        let errorMessage = `Export failed with status ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          const errorText = await response.text();
-          errorMessage = errorText || errorMessage;
-        }
-        throw new Error(errorMessage);
-      }
-
       // Get filename from Content-Disposition header
-      const contentDisposition = response.headers.get('Content-Disposition');
+      const contentDisposition = response.headers['content-disposition'];
       let filename = 'transactions_export.csv';
 
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename=(.+)/);
         if (filenameMatch && filenameMatch[1]) {
-          filename = filenameMatch[1];
+          filename = filenameMatch[1].replace(/['"]/g, ''); // Remove quotes
         }
       }
 
       // Convert response to blob and download
-      const blob = await response.blob();
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] || 'text/csv'
+      });
 
       // Download file
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -88,6 +81,9 @@ class TransactionsService {
         window.URL.revokeObjectURL(downloadUrl);
       }, 100);
     } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        throw apiUtils.handleAxiosError(error, 'Failed to export transactions');
+      }
       throw error;
     }
   }
