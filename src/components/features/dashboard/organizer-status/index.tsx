@@ -37,24 +37,15 @@ const OrganizerRegStatus = () => {
       {[1, 2, 3].map((item) => (
         <Grid key={item} item xs={12} md={4}>
           <Box
-            sx={{
-              backgroundColor: 'common.white',
-              boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-              padding: '20px 16px'
-            }}
+            bgcolor="common.white"
+            boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+            padding="20px 16px"
           >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-                marginBottom: 5
-              }}
-            >
+            <Box display="flex" alignItems="center" gap={2} marginBottom={5}>
               <Skeleton variant="circular" width={22} height={22} />
               <Skeleton variant="text" width="60%" height={20} />
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+            <Box display="flex" justifyContent="end">
               <Skeleton variant="rectangular" width={80} height={32} />
             </Box>
           </Box>
@@ -74,7 +65,7 @@ const OrganizerRegStatus = () => {
           An error occurred while loading the registration data. Please try
           again.
         </Alert>
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        <Box display="flex" justifyContent="center" marginTop={2}>
           <Button onClick={() => window.location.reload()} size="small">
             Reload
           </Button>
@@ -96,19 +87,15 @@ const OrganizerRegStatus = () => {
           {registerData.map((item) => (
             <Grid key={item.id} item xs={12} md={4}>
               <Box
-                sx={{
-                  backgroundColor: 'common.white',
-                  boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-                  padding: '20px 16px'
-                }}
+                bgcolor="common.white"
+                boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+                padding="20px 16px"
               >
                 <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    marginBottom: 5
-                  }}
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  marginBottom={5}
                 >
                   <Image
                     alt={`${item.id}-status`}
@@ -123,7 +110,7 @@ const OrganizerRegStatus = () => {
                   </Body1>
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+                <Box display="flex" justifyContent="end">
                   <Button
                     onClick={() => router.push(item.redirectUrl)}
                     sx={{ padding: '9px 12px', fontSize: '12px' }}

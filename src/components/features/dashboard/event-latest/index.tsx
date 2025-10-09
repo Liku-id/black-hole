@@ -76,12 +76,10 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
 
     return (
       <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '18px'
-        }}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        marginBottom="18px"
       >
         <H4>{title}</H4>
         <Box
@@ -99,11 +97,11 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
         >
           <Box
             className="arrow-icon"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
             sx={{
-              transition: 'transform 0.3s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              transition: 'transform 0.3s ease'
             }}
           >
             <Image
@@ -135,15 +133,13 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   }) => {
     return (
       <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          marginTop: '6px',
-          minWidth: 0,
-          flex: 1,
-          overflow: 'hidden'
-        }}
+        display="flex"
+        alignItems="center"
+        gap={1}
+        marginTop="6px"
+        minWidth={0}
+        flex={1}
+        overflow="hidden"
       >
         <Image
           alt={`${value}`}
@@ -184,35 +180,23 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   // Loading State Placeholder
   const LoadingStatePlaceholder = () => {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box display="flex" flexDirection="column" gap={2}>
         {[1, 2].map((index) => (
-          <Box
-            key={index}
-            sx={{ display: 'flex', gap: '18px', padding: '8px' }}
-          >
+          <Box key={index} display="flex" gap="18px" padding="8px">
             <Skeleton
               variant="rectangular"
               width={207}
               height={118}
               sx={{ borderRadius: '4px' }}
             />
-            <Box
-              sx={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1.5
-              }}
-            >
+            <Box flex={1} display="flex" flexDirection="column" gap={1.5}>
               <Skeleton variant="text" width="70%" height={24} />
               <Skeleton variant="text" width="50%" height={16} />
               <Skeleton variant="text" width="60%" height={16} />
               <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
                 <Skeleton variant="text" width="40%" height={16} />
                 <Skeleton variant="text" width="30%" height={16} />
@@ -228,15 +212,13 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   const ErrorStatePlaceholder = ({ onRetry }: { onRetry: () => void }) => {
     return (
       <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '20px',
-          gap: 2
-        }}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        padding="20px"
+        gap={2}
       >
         <Alert
           severity="error"
@@ -274,20 +256,20 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   const EmptyStatePlaceholder = ({ message }: { message: string }) => {
     return (
       <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        width="100%"
+        height="100%"
+        padding="20px"
+        boxSizing="border-box"
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          width: '100%',
-          height: '100%',
-          padding: '20px',
-          boxSizing: 'border-box'
+          transform: 'translate(-50%, -50%)'
         }}
       >
         <Image
@@ -342,9 +324,11 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
     return (
       <>
         <Box
+          display="flex"
+          gap="18px"
+          minWidth={0}
+          overflow="hidden"
           sx={{
-            display: 'flex',
-            gap: '18px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             padding: '8px',
@@ -355,9 +339,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
             },
             '&:last-child': {
               marginBottom: 0
-            },
-            minWidth: 0,
-            overflow: 'hidden'
+            }
           }}
         >
           <Image
@@ -376,24 +358,20 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           />
 
           <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              minWidth: 0,
-              overflow: 'hidden'
-            }}
+            flex={1}
+            display="flex"
+            flexDirection="column"
+            minWidth={0}
+            overflow="hidden"
           >
             <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '12px',
-                minWidth: 0,
-                gap: 1,
-                width: '100%'
-              }}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              marginBottom="12px"
+              minWidth={0}
+              gap={1}
+              width="100%"
             >
               <Body1
                 component="div"
@@ -532,13 +510,11 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
             </Box>
 
             <Box
-              sx={{
-                minWidth: 0,
-                flex: 1,
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
+              minWidth={0}
+              flex={1}
+              overflow="hidden"
+              display="flex"
+              flexDirection="column"
             >
               <DetailItem icon="/icon/location.svg" value={event.address} />
               <DetailItem
@@ -547,22 +523,18 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
               />
 
               <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  justifyContent: 'space-between',
-                  minWidth: 0,
-                  gap: 1,
-                  width: '100%'
-                }}
+                display="flex"
+                alignItems="flex-start"
+                justifyContent="space-between"
+                minWidth={0}
+                gap={1}
+                width="100%"
               >
                 <Box
-                  sx={{
-                    flex: '1 1 50%',
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    maxWidth: '50%'
-                  }}
+                  flex="1 1 50%"
+                  minWidth={0}
+                  overflow="hidden"
+                  maxWidth="50%"
                 >
                   <DetailItem
                     icon="/icon/clock.svg"
@@ -570,12 +542,10 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                   />
                 </Box>
                 <Box
-                  sx={{
-                    flex: '1 1 50%',
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    maxWidth: '50%'
-                  }}
+                  flex="1 1 50%"
+                  minWidth={0}
+                  overflow="hidden"
+                  maxWidth="50%"
                 >
                   <DetailItem
                     icon="/icon/pie.svg"
@@ -593,14 +563,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
 
         {/* Break */}
         {showBreak && (
-          <Box
-            sx={{
-              height: '1px',
-              width: '100%',
-              bgcolor: 'grey.100',
-              marginY: 1.5
-            }}
-          />
+          <Box height="1px" width="100%" bgcolor="grey.100" marginY={1.5} />
         )}
       </>
     );
@@ -624,14 +587,12 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
       {/* Ongoing Events Section */}
       <Grid item xs={12} md={6}>
         <Box
-          sx={{
-            backgroundColor: 'common.white',
-            boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-            padding: '20px 16px',
-            height: '100%',
-            position: 'relative',
-            minHeight: '300px'
-          }}
+          bgcolor="common.white"
+          boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+          padding="20px 16px"
+          height="100%"
+          position="relative"
+          minHeight="300px"
         >
           <HeadSection
             title="Event On Going"
@@ -655,14 +616,12 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
       {/* Past Events Section */}
       <Grid item xs={12} md={6}>
         <Box
-          sx={{
-            backgroundColor: 'common.white',
-            boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-            padding: '20px 16px',
-            height: '100%',
-            position: 'relative',
-            minHeight: '300px'
-          }}
+          bgcolor="common.white"
+          boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
+          padding="20px 16px"
+          height="100%"
+          position="relative"
+          minHeight="300px"
         >
           <HeadSection
             title="Event Past"
