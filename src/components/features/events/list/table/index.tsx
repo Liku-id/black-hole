@@ -1,10 +1,18 @@
-import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Table,
+  TableCell,
+  TableRow,
+  Tooltip
+} from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
 
 import {
   Body2,
+  Pagination,
   StyledTableBody,
   StyledTableContainer,
   StyledTableHead
@@ -16,9 +24,22 @@ interface EventsTableProps {
   events: Event[];
   loading?: boolean;
   onRefresh?: () => void;
+  isCompact?: boolean;
+  total?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 }
 
-const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
+const EventsTable: FC<EventsTableProps> = ({
+  events,
+  loading = false,
+  isCompact = false,
+  total = 0,
+  currentPage = 0,
+  pageSize = 10,
+  onPageChange
+}) => {
   const router = useRouter();
 
   const handleViewClick = (event: Event) => {
@@ -56,7 +77,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
       <Table>
         <StyledTableHead>
           <TableRow>
-            <TableCell sx={{ width: '5%' }}>
+            <TableCell sx={{ width: '3%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 No.
               </Body2>
@@ -66,32 +87,36 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
                 Event Name
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '15%' }}>
-              <Body2 color="text.secondary" fontSize="14px">
-                Submitted Date
-              </Body2>
-            </TableCell>
-            <TableCell sx={{ width: '12%' }}>
+            {!isCompact && (
+              <TableCell sx={{ width: '11%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Submitted Date
+                </Body2>
+              </TableCell>
+            )}
+            <TableCell sx={{ width: isCompact ? '16%' : '10%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Event Date
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '16%' }}>
-              <Body2 color="text.secondary" fontSize="14px">
-                Start Selling Date
-              </Body2>
-            </TableCell>
-            <TableCell sx={{ width: '12%' }}>
+            {!isCompact && (
+              <TableCell sx={{ width: '12%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Start Selling Date
+                </Body2>
+              </TableCell>
+            )}
+            <TableCell sx={{ width: '9%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Ticket Sold
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '15%' }}>
+            <TableCell sx={{ width: '12%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Total Revenue
               </Body2>
             </TableCell>
-            <TableCell align="right" sx={{ width: '5%' }}>
+            <TableCell align={'left'} sx={{ width: '9%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Action
               </Body2>
@@ -103,7 +128,7 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
             <TableRow key={event.id}>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  {index + 1}.
+                  {index + 1 + currentPage * 10}.
                 </Body2>
               </TableCell>
               <TableCell>
@@ -111,26 +136,30 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
                   {event.name}
                 </Body2>
               </TableCell>
-              <TableCell>
-                <Body2 color="text.primary" fontSize="14px">
-                  {dateUtils.formatDateDDMMYYYY(event.createdAt)}
-                </Body2>
-              </TableCell>
+              {!isCompact && (
+                <TableCell>
+                  <Body2 color="text.primary" fontSize="14px">
+                    {dateUtils.formatDateDDMMYYYY(event.createdAt)}
+                  </Body2>
+                </TableCell>
+              )}
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
                   {dateUtils.formatDateDDMMYYYY(event.startDate)} -{' '}
                   {dateUtils.formatDateDDMMYYYY(event.endDate)}
                 </Body2>
               </TableCell>
-              <TableCell>
-                <Body2 color="text.primary" fontSize="14px">
-                  {event.lowestPriceTicketType?.sales_start_date
-                    ? dateUtils.formatDateDDMMYYYY(
-                        event.lowestPriceTicketType.sales_start_date
-                      )
-                    : '-'}
-                </Body2>
-              </TableCell>
+              {!isCompact && (
+                <TableCell>
+                  <Body2 color="text.primary" fontSize="14px">
+                    {event.lowestPriceTicketType?.sales_start_date
+                      ? dateUtils.formatDateDDMMYYYY(
+                          event.lowestPriceTicketType.sales_start_date
+                        )
+                      : '-'}
+                  </Body2>
+                </TableCell>
+              )}
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
                   {event.soldTickets} Ticket
@@ -141,24 +170,69 @@ const EventsTable: FC<EventsTableProps> = ({ events, loading = false }) => {
                   {formatUtils.formatPrice(parseFloat(event.totalRevenue))}
                 </Body2>
               </TableCell>
-              <TableCell align="right">
-                <IconButton
-                  size="small"
-                  sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                  onClick={() => handleViewClick(event)}
-                >
-                  <Image
-                    alt="View"
-                    height={24}
-                    src="/icon/eye.svg"
-                    width={24}
-                  />
-                </IconButton>
+              <TableCell>
+                <Box display="flex">
+                  <Tooltip title="Detail" arrow>
+                    <IconButton
+                      size="small"
+                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                      onClick={() => handleViewClick(event)}
+                    >
+                      <Image
+                        alt="View"
+                        height={24}
+                        src="/icon/eye.svg"
+                        width={24}
+                      />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Attandee" arrow>
+                    <IconButton
+                      size="small"
+                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                      onClick={() => router.push(`/tickets?event=${event.id}`)}
+                    >
+                      <Image
+                        alt="tickets"
+                        height={22}
+                        src="/icon/voucher.svg"
+                        width={22}
+                      />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Transaction" arrow>
+                    <IconButton
+                      size="small"
+                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                      onClick={() =>
+                        router.push(`/finance/event-transactions/${event.id}`)
+                      }
+                    >
+                      <Image
+                        alt="transactions"
+                        height={22}
+                        src="/icon/money.svg"
+                        width={22}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </TableCell>
             </TableRow>
           ))}
         </StyledTableBody>
       </Table>
+
+      {/* Pagination */}
+      <Pagination
+        total={total}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={(page) => onPageChange && onPageChange(page)}
+        loading={loading}
+      />
     </StyledTableContainer>
   );
 };

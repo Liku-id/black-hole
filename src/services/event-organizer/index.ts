@@ -1,5 +1,11 @@
 import { apiUtils } from '@/utils/apiUtils';
-import { EventOrganizer, EventOrganizerMeResponse } from '@/types/organizer';
+import { 
+  EventOrganizer, 
+  EventOrganizerMeResponse, 
+  EventOrganizerStatisticsResponse,
+  ListEventOrganizersRequest,
+  ListEventOrganizersResponse 
+} from '@/types/organizer';
 
 export interface Bank {
   id: string;
@@ -108,6 +114,29 @@ export const eventOrganizerService = {
       `/api/event-organizers/${eoId}/type`,
       payload,
       'Failed to update organizer type'
+    );
+    return response;
+  },
+
+  getEventOrganizerStatistics: async (eventOrganizerId?: string): Promise<EventOrganizerStatisticsResponse> => {
+    const params = eventOrganizerId ? { event_organizer_id: eventOrganizerId } : {};
+    const response = await apiUtils.get<EventOrganizerStatisticsResponse>(
+      '/api/event-organizers/statistics',
+      params,
+      'Failed to fetch event organizer statistics'
+    );
+    return response;
+  },
+
+  getAllEventOrganizers: async (
+    params?: ListEventOrganizersRequest
+  ): Promise<ListEventOrganizersResponse> => {
+    // If no params provided, fetch all event organizers without pagination
+    // If params.show is not provided, backend will return all event organizers
+    const response = await apiUtils.get<ListEventOrganizersResponse>(
+      '/api/organizers',
+      params || {},
+      'Failed to fetch event organizers'
     );
     return response;
   }

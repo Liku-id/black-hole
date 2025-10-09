@@ -376,5 +376,94 @@ export const apiRouteUtils = {
         return res.status(500).json({ message: 'Internal server error' });
       }
     };
+  },
+
+  createExportHandler: (options: ApiRouteOptions) => {
+    return async (req: NextApiRequest, res: NextApiResponse) => {
+      if (req.method !== 'GET') {
+        return res.status(405).json({ message: 'Method not allowed' });
+      }
+
+      try {
+        const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+        const params = options.transformQuery
+          ? options.transformQuery(req.query)
+          : req.query;
+
+        // Forward headers from request to backend
+        const headers: Record<string, string> = {
+          Accept: 'text/csv, application/octet-stream'
+        };
+
+        // Get tokens from session for authentication
+        if (options.requireAuth !== false) {
+          // Default to true
+          const session = await getSession(req, res);
+          if (isAuthenticated(session) && session.accessToken) {
+            headers.Authorization = `Bearer ${session.accessToken}`;
+          } else {
+            return res.status(401).json({ message: 'Authentication required' });
+          }
+        }
+
+        // Request with responseType 'arraybuffer' to handle binary data
+        const response = await axios.get(url, {
+          params,
+          headers,
+          responseType: 'arraybuffer',
+          timeout: options.timeout || 30000
+        });
+
+        // Get filename from Content-Disposition header
+        const contentDisposition = response.headers['content-disposition'];
+        let filename = 'export.csv';
+
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename=(.+)/);
+          if (filenameMatch && filenameMatch[1]) {
+            filename = filenameMatch[1].replace(/['"]/g, '');
+          }
+        }
+
+        // Set proper headers for file download
+        res.setHeader(
+          'Content-Type',
+          response.headers['content-type'] || 'text/csv; charset=utf-8'
+        );
+        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+        // Send the file content
+        return res.status(200).send(Buffer.from(response.data));
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          // Check if it's an auth error and handle accordingly
+          if (error.response.status === 401) {
+            // Clear session on auth error
+            try {
+              const session = await getSession(req, res);
+              session.destroy();
+            } catch (sessionError) {
+              console.error('Session clear error:', sessionError);
+            }
+          }
+
+          // Try to parse error message from response
+          let errorMessage = 'Export failed';
+          try {
+            const errorText = Buffer.from(error.response.data).toString('utf-8');
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorMessage;
+          } catch {
+            // If parsing fails, use default message
+          }
+
+          return res
+            .status(error.response.status)
+            .json({ message: errorMessage });
+        }
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+    };
   }
 };

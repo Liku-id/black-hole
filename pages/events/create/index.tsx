@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { useAtom } from 'jotai';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { H4, Breadcrumb } from '@/components/common';
@@ -9,6 +10,10 @@ import { CreateEventForm } from '@/components/features/events/create/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
 import { CreateEventRequest } from '@/types/event';
+import {
+  selectedEOIdAtom,
+  selectedEONameAtom
+} from '@/atoms/eventOrganizerAtom';
 
 interface FormData {
   eventName: string;
@@ -38,6 +43,8 @@ function CreateEvent() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   // const { user } = useAuth();
+  const [selectedEOId] = useAtom(selectedEOIdAtom);
+  const [selectedEOName] = useAtom(selectedEONameAtom);
 
   const breadcrumbSteps = [
     { label: 'Event Detail', active: true },
@@ -52,7 +59,7 @@ function CreateEvent() {
     try {
       const payload: CreateEventRequest = {
         cityId: data.city,
-        eventOrganizerId: '1a1d10df-81c2-4412-8093-5588dc2c6ba0',
+        eventOrganizerId: selectedEOId,
         paymentMethodIds: data.paymentMethod,
         name: data.eventName,
         eventType: data.eventType,
@@ -97,7 +104,7 @@ function CreateEvent() {
 
       <Box>
         <H4 color="text.primary" fontWeight={700} marginBottom="16px">
-          Create New Event
+          Create New Event {selectedEOName ? `for ${selectedEOName}` : ''}
         </H4>
 
         {/* Breadcrumb */}

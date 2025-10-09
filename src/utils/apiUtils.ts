@@ -12,17 +12,17 @@ export const apiUtils = {
       await axios.post('/api/auth/clear-session');
       if (
         typeof window !== 'undefined' &&
-        window.location.pathname !== '/login'
+        window.location.pathname !== '/register'
       ) {
-        window.location.href = '/login';
+        window.location.href = '/register';
       }
     } catch (error) {
       console.error('Failed to clear expired session:', error);
       if (
         typeof window !== 'undefined' &&
-        window.location.pathname !== '/login'
+        window.location.pathname !== '/register'
       ) {
-        window.location.href = '/login';
+        window.location.href = '/register';
       }
     }
   },
