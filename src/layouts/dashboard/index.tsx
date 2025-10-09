@@ -15,13 +15,18 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAtom } from 'jotai';
 
 import { Body1, Body2, Select } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
 import { EventOrganizer } from '@/types/organizer';
-import { FormProvider, useForm } from 'react-hook-form';
+import {
+  selectedEOIdAtom,
+  selectedEONameAtom
+} from '@/atoms/eventOrganizerAtom';
+import { eventOrganizerService } from '@/services/event-organizer';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -41,6 +46,10 @@ const menuItems = [
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [eventOrganizers, setEventOrganizers] = useState<EventOrganizer[]>([]);
+  const [loadingOrganizers, setLoadingOrganizers] = useState(false);
+  const [selectedEOId, setSelectedEOId] = useAtom(selectedEOIdAtom);
+  const [_, setSelectedEOName] = useAtom(selectedEONameAtom);
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -76,6 +85,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const sessionRole =
     user && isEventOrganizer(user) ? 'event_organizer_pic' : userRole;
 
+  // Check if user is admin
+  const isAdmin = sessionRole === 'admin';
+
+  // Fetch event organizers if user is admin
+  useEffect(() => {
+    const fetchEventOrganizers = async () => {
+      if (!isAdmin) return;
+
+      try {
+        setLoadingOrganizers(true);
+        const response = await eventOrganizerService.getAllEventOrganizers();
+        setEventOrganizers(response.body.eventOrganizers);
+      } catch (error) {
+        console.error('Failed to fetch event organizers:', error);
+      } finally {
+        setLoadingOrganizers(false);
+      }
+    };
+
+    fetchEventOrganizers();
+  }, [isAdmin]);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -91,6 +122,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleLogout = async () => {
     handleProfileMenuClose();
     try {
+      setSelectedEOId('');
+      setSelectedEOName('');
+
       await logout();
     } catch (error) {
       console.error('Logout error:', error);
@@ -535,8 +569,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </Box>
   );
 
-  const methods = useForm();
-
   return (
     <Box display="flex">
       <AppBar
@@ -563,17 +595,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             <MenuIcon />
           </IconButton>
-          <FormProvider {...methods}>
-            <Box sx={{ width: '220px', marginLeft: '12px' }}>
-              <Select
-                fullWidth
-                label=""
-                name="event_organizer_id"
-                options={[{ value: 0, label: 'All EO' }]}
-                placeholder="All Event Organizer"
-              />
-            </Box>
-          </FormProvider>
+
+          {isAdmin &&
+            (router.pathname.includes('/events') ||
+              router.pathname.includes('/dashboard')) && (
+              <Box sx={{ width: '220px', marginLeft: '12px' }}>
+                <Select
+                  fullWidth
+                  label=""
+                  value={selectedEOId}
+                  options={[
+                    { value: 0, label: 'All Event Organizer' },
+                    ...eventOrganizers.map((eo) => ({
+                      value: eo.id,
+                      label: eo.name
+                    }))
+                  ]}
+                  placeholder={
+                    loadingOrganizers ? 'Loading...' : 'All Event Organizer'
+                  }
+                  onChange={(e: string) => {
+                    setSelectedEOId(e);
+
+                    const eo = eventOrganizers.find((item) => item.id === e);
+                    setSelectedEOName(eo?.name);
+                  }}
+                />
+              </Box>
+            )}
         </Toolbar>
       </AppBar>
 

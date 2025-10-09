@@ -10,11 +10,12 @@ interface UseEventOrganizerStatisticsReturn {
 }
 
 const useEventOrganizerStatistics = (
+  eventOrganizerId?: string,
   enabled: boolean = true
 ): UseEventOrganizerStatisticsReturn => {
   const { data, loading, error, mutate } = useApi(
-    enabled ? ['/api/event-organizers/statistics'] : null,
-    () => eventOrganizerService.getEventOrganizerStatistics()
+    enabled ? ['/api/event-organizers/statistics', eventOrganizerId] : null,
+    () => eventOrganizerService.getEventOrganizerStatistics(eventOrganizerId)
   );
 
   return {

@@ -2,8 +2,9 @@ import { Box, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useAtom } from 'jotai';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {
@@ -22,6 +23,7 @@ import DashboardLayout from '@/layouts/dashboard';
 import { EventsFilters } from '@/types/event';
 import { isEventOrganizer } from '@/types/auth';
 import { useDebouncedCallback } from '@/utils';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 
 function Events() {
   const router = useRouter();
@@ -29,13 +31,18 @@ function Events() {
   const status = searchParams.get('status');
 
   // Initialize state
+  const [selectedEventOrganizerId] = useAtom(selectedEOIdAtom);
   const [activeTab, setActiveTab] = useState(status || 'EVENT_STATUS_ON_GOING');
   const [searchValue, setSearchValue] = useState('');
   const [filters, setFilters] = useState<EventsFilters>({
     show: 10,
     page: 0,
     status: status || 'EVENT_STATUS_ON_GOING',
-    name: ''
+    name: '',
+    // Only add event_organizer_id if it's not empty
+    ...(selectedEventOrganizerId && {
+      event_organizer_id: selectedEventOrganizerId
+    })
   });
 
   const { events, eventCountByStatus, loading, error, mutate, total } =
@@ -45,6 +52,8 @@ function Events() {
 
   // Computed value to check if organizer data is complete - reactive to user changes
   const isOrganizerDataComplete = useMemo(() => {
+    if (selectedEventOrganizerId) return true;
+
     if (!isEventOrganizer(user)) return false;
 
     // Check if organizer_type is empty or null
@@ -81,7 +90,7 @@ function Events() {
     }
 
     return false;
-  }, [user]);
+  }, [user, selectedEventOrganizerId]);
 
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
@@ -113,6 +122,23 @@ function Events() {
       page: newPage
     }));
   };
+
+  useEffect(() => {
+    setFilters((prev) => {
+      const newFilters = {
+        ...prev,
+        page: 0
+      };
+
+      if (selectedEventOrganizerId) {
+        newFilters.event_organizer_id = selectedEventOrganizerId;
+      } else {
+        delete newFilters.event_organizer_id;
+      }
+
+      return newFilters;
+    });
+  }, [selectedEventOrganizerId]);
 
   const tabs = [
     {

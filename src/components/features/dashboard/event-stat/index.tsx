@@ -5,11 +5,17 @@ import { Body1, Body2, H2, Button } from '@/components/common';
 import { useEventOrganizerStatistics } from '@/hooks';
 import { formatUtils } from '@/utils/formatUtils';
 
-const EventStatistic = () => {
+interface EventStatisticProps {
+  eventOrganizerId?: string;
+}
+
+const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
   const router = useRouter();
 
-  // Fetch
-  const { data, loading, error } = useEventOrganizerStatistics();
+  // Fetch - pass eventOrganizerId only if it's not empty
+  const { data, loading, error } = useEventOrganizerStatistics(
+    eventOrganizerId || undefined
+  );
 
   const stats = [
     {

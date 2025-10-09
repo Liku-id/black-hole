@@ -204,6 +204,7 @@ export interface EventsFilters {
   startDate?: string;
   endDate?: string;
   status?: string | string[];
+  event_organizer_id?: string;
 }
 
 export interface EventTypesResponse {

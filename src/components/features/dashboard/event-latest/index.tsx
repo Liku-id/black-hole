@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box,
   Grid,
@@ -16,16 +16,42 @@ import { Body1, Caption, H4 } from '@/components/common';
 import OrganizerRegStatus from '../organizer-status';
 import { useFilteredEvents } from '@/hooks';
 import { dateUtils, formatUtils } from '@/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { isEventOrganizer, User } from '@/types/auth';
 
-const EventLatestView = () => {
+interface EventLatestViewProps {
+  eventOrganizerId?: string;
+}
+
+const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   const router = useRouter();
+  const { user } = useAuth();
 
-  const filter = {
-    page: 0,
-    show: 100,
-    status: 'EVENT_STATUS_ON_GOING',
-    name: ''
-  };
+  // Get user role
+  const userRole =
+    user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
+  const sessionRole =
+    user && isEventOrganizer(user) ? 'event_organizer_pic' : userRole;
+  const isAdmin = sessionRole === 'admin';
+
+  // Create filter with useMemo to make it reactive to eventOrganizerId changes
+  const ongoingFilter = useMemo(
+    () => ({
+      status: 'EVENT_STATUS_ON_GOING',
+      name: '',
+      ...(eventOrganizerId && { event_organizer_id: eventOrganizerId })
+    }),
+    [eventOrganizerId]
+  );
+
+  const pastFilter = useMemo(
+    () => ({
+      status: 'EVENT_STATUS_DONE',
+      name: '',
+      ...(eventOrganizerId && { event_organizer_id: eventOrganizerId })
+    }),
+    [eventOrganizerId]
+  );
 
   // Fetch
   const {
@@ -33,14 +59,14 @@ const EventLatestView = () => {
     loading: ongoingLoading,
     error: ongoingError,
     mutate: refetchOngoing
-  } = useFilteredEvents(filter);
+  } = useFilteredEvents(ongoingFilter);
 
   const {
     events: pastEvents,
     loading: pastLoading,
     error: pastError,
     mutate: refetchPast
-  } = useFilteredEvents({ ...filter, status: 'EVENT_STATUS_DONE' });
+  } = useFilteredEvents(pastFilter);
 
   // Head Section
   const HeadSection = ({ title, path }: { title: string; path: string }) => {
@@ -116,7 +142,7 @@ const EventLatestView = () => {
           marginTop: '6px',
           minWidth: 0,
           flex: 1,
-          overflow: 'hidden' // Prevent container overflow
+          overflow: 'hidden'
         }}
       >
         <Image
@@ -580,7 +606,9 @@ const EventLatestView = () => {
     );
   };
 
+  // Show OrganizerRegStatus only if user is not admin and there are no events
   if (
+    !isAdmin &&
     !ongoingLoading &&
     !pastLoading &&
     !ongoingError &&

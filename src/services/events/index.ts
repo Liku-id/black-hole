@@ -43,6 +43,8 @@ class EventsService {
       if (filters?.startDate) params.startDate = filters.startDate;
       if (filters?.endDate) params.endDate = filters.endDate;
       if (filters?.cityId) params.cityId = filters.cityId;
+      if (filters?.event_organizer_id)
+        params.event_organizer_id = filters.event_organizer_id;
       if (filters?.status) {
         if (Array.isArray(filters.status)) {
           filters.status.forEach((status, index) => {
