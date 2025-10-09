@@ -10,8 +10,8 @@ export default function Unauthorized() {
     localStorage.removeItem('auth_refresh_token');
     localStorage.removeItem('auth_user');
 
-    // Redirect to login
-    router.push('/login');
+    // Redirect to register
+    router.push('/register');
   };
 
   return (

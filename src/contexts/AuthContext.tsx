@@ -357,7 +357,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Continue with logout even if API call fails
     } finally {
       dispatch({ type: 'LOGOUT_SUCCESS' });
-      router.replace('/login');
+      router.replace('/register');
     }
   };
 
