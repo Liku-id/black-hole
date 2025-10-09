@@ -280,6 +280,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 </Box>
 
                 <Button
+                  id="btn_rgs_continue"
                   disabled={isFormDisabled}
                   sx={{
                     width: '322px',
