@@ -154,7 +154,7 @@ const LoginForm: React.FC = () => {
                 </Box>
               )}
 
-              <Button fullWidth disabled={isFormDisabled} type="submit">
+              <Button id="btn_rgs_signin" fullWidth disabled={isFormDisabled} type="submit">
                 Sign In
               </Button>
             </form>
@@ -171,6 +171,7 @@ const LoginForm: React.FC = () => {
           >
             <Caption color="text.primary">Need an account?</Caption>
             <Caption
+              id="btn_rgs_signup"
               color="info.contrastText"
               sx={{ cursor: 'pointer' }}
               onClick={() => (window.location.href = '/register')}

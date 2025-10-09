@@ -180,6 +180,7 @@ const AssetsPage = () => {
               </Overline>
             )}
             <Button
+              id="btn_e_submit_event"
               disabled={loading}
               variant="primary"
               onClick={handleSubmitEvent}

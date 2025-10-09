@@ -189,6 +189,7 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
           {/* Submit Button */}
           <Box mb={3}>
             <Button
+              id="btn_rgs_verify"
               disabled={
                 isLoading || (!canResend && otp.some((digit) => digit === ''))
               }
