@@ -56,7 +56,11 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
       if (data.toDate) request.to_date = data.toDate;
       if (data.paymentStatus) request.payment_status = data.paymentStatus;
 
-      await exportData(request);
+      // Get event name for filename
+      const selectedEvent = events.find(event => event.id === data.eventId);
+      const eventName = selectedEvent?.name;
+
+      await exportData(request, eventName);
       showInfo('Export successful! File is being downloaded');
     } catch (error: any) {
       showError(error?.message || 'Failed to export transactions');
