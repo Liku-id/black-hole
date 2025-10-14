@@ -13,7 +13,7 @@ export function withAuth<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   options: WithAuthOptions = {}
 ) {
-  const { requireAuth = true, redirectTo = '/login' } = options;
+  const { requireAuth = true, redirectTo = '/register' } = options;
 
   const WithAuthComponent = (props: P) => {
     const { isAuthenticated, isLoading, error } = useAuth();
@@ -29,7 +29,7 @@ export function withAuth<P extends object>(
         );
       }
 
-      // If user is authenticated and trying to access login page, redirect to dashboard
+      // If user is authenticated and trying to access login/register page, redirect to dashboard
       // But only if there's no error and we haven't redirected yet (to prevent redirect when login fails)
       if (
         !requireAuth &&
@@ -37,10 +37,10 @@ export function withAuth<P extends object>(
         isAuthenticated &&
         !error &&
         !hasRedirected &&
-        router.pathname === '/login'
+        (router.pathname === '/login' || router.pathname === '/register')
       ) {
         setHasRedirected(true);
-        router.replace('/events');
+        router.replace('/dashboard');
       }
 
       // Reset redirect flag when error occurs
@@ -68,8 +68,12 @@ export function withAuth<P extends object>(
       return null;
     }
 
-    // If login page and user is authenticated, don't render (will redirect)
-    if (!requireAuth && isAuthenticated && router.pathname === '/login') {
+    // If login/register page and user is authenticated, don't render (will redirect)
+    if (
+      !requireAuth &&
+      isAuthenticated &&
+      (router.pathname === '/login' || router.pathname === '/register')
+    ) {
       return null;
     }
 

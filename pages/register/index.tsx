@@ -9,6 +9,7 @@ import OTPVerificationForm from '@/components/features/registration/otp-verifica
 import { RegisterRequest, RegisterProfileRequest } from '@/types/register';
 import { registerService } from '@/services/auth/register';
 import { useToast } from '@/contexts/ToastContext';
+import { withAuth } from '@/components/Auth/withAuth';
 
 const Register: NextPage = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -151,4 +152,5 @@ const Register: NextPage = () => {
   );
 };
 
-export default Register;
+// Export with authentication wrapper that excludes register from auth requirements
+export default withAuth(Register, { requireAuth: false });

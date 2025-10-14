@@ -1,4 +1,4 @@
-import { Logout as LogoutIcon, Menu as MenuIcon } from '@mui/icons-material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import {
   AppBar,
   Box,
@@ -15,12 +15,18 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAtom } from 'jotai';
 
-import { Body1, Body2 } from '@/components/common';
+import { Body1, Body2, Select } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
 import { EventOrganizer } from '@/types/organizer';
+import {
+  selectedEOIdAtom,
+  selectedEONameAtom
+} from '@/atoms/eventOrganizerAtom';
+import { eventOrganizerService } from '@/services/event-organizer';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -29,7 +35,7 @@ interface DashboardLayoutProps {
 const drawerWidth = 290;
 
 const menuItems = [
-  // { text: 'Dashboard', icon: '/icon/dashboard.svg', path: '/dashboard' },
+  { text: 'Dashboard', icon: '/icon/dashboard.svg', path: '/dashboard' },
   { text: 'Event', icon: '/icon/event.svg', path: '/events' },
   { text: 'Approval', icon: '/icon/approval.svg', path: '/approval' },
   { text: 'Finance', icon: '/icon/finance.svg', path: '/finance' },
@@ -40,6 +46,10 @@ const menuItems = [
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [eventOrganizers, setEventOrganizers] = useState<EventOrganizer[]>([]);
+  const [loadingOrganizers, setLoadingOrganizers] = useState(false);
+  const [selectedEOId, setSelectedEOId] = useAtom(selectedEOIdAtom);
+  const [_, setSelectedEOName] = useAtom(selectedEONameAtom);
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -75,6 +85,30 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const sessionRole =
     user && isEventOrganizer(user) ? 'event_organizer_pic' : userRole;
 
+  // Check if user is admin
+  const isAdmin =
+    sessionRole === 'admin' ||
+    process.env.NEXT_PUBLIC_PREVILAGE_ROLE.includes(sessionRole || '');
+
+  // Fetch event organizers if user is admin
+  useEffect(() => {
+    const fetchEventOrganizers = async () => {
+      if (!isAdmin) return;
+
+      try {
+        setLoadingOrganizers(true);
+        const response = await eventOrganizerService.getAllEventOrganizers();
+        setEventOrganizers(response.body.eventOrganizers);
+      } catch (error) {
+        console.error('Failed to fetch event organizers:', error);
+      } finally {
+        setLoadingOrganizers(false);
+      }
+    };
+
+    fetchEventOrganizers();
+  }, [isAdmin]);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -90,6 +124,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleLogout = async () => {
     handleProfileMenuClose();
     try {
+      setSelectedEOId('');
+      setSelectedEOName('');
+
       await logout();
     } catch (error) {
       console.error('Logout error:', error);
@@ -180,10 +217,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* User Menu */}
       <Box
-        borderColor="text.secondary"
-        borderTop="1px solid"
-        marginTop="auto"
-        padding="16px"
+        sx={{
+          borderTop: '1px solid',
+          borderColor: 'text.secondary',
+          marginTop: 'auto',
+          padding: '16px'
+        }}
       >
         <Box alignItems="center" display="flex" justifyContent="space-between">
           <Box
@@ -195,60 +234,134 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               '&:hover': {
                 opacity: 0.8
               },
-              transition: 'opacity 0.2s ease'
+              transition: 'opacity 0.2s ease',
+              justifyContent: 'space-between'
             }}
             onClick={handleProfileMenuOpen}
           >
-            {(() => {
-              if (!user) {
-                return (
-                  <>
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: '8px',
-                        marginRight: '8px',
-                        backgroundColor: 'secondary.dark',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <Body2
-                        color="text.secondary"
-                        fontSize="16px"
-                        fontWeight="600"
+            <Box alignItems="center" display="flex">
+              {(() => {
+                if (!user) {
+                  return (
+                    <>
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '8px',
+                          marginRight: '8px',
+                          backgroundColor: 'secondary.dark',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
                       >
-                        U
-                      </Body2>
-                    </Box>
-                    <Box>
-                      <Body2
-                        color="common.white"
-                        fontSize="14px"
-                        fontWeight="500"
-                      >
-                        EKUID Creative Organizer
-                      </Body2>
-                      <Body2
-                        color="text.secondary"
-                        fontSize="12px"
-                        sx={{ marginTop: '4px', opacity: 0.7 }}
-                      >
-                        Admin
-                      </Body2>
-                    </Box>
-                  </>
-                );
-              }
+                        <Body2
+                          color="text.secondary"
+                          fontSize="16px"
+                          fontWeight="600"
+                        >
+                          U
+                        </Body2>
+                      </Box>
+                      <Box>
+                        <Body2
+                          color="common.white"
+                          fontSize="14px"
+                          fontWeight="500"
+                        >
+                          EKUID Creative Organizer
+                        </Body2>
+                        <Body2
+                          color="text.secondary"
+                          fontSize="12px"
+                          sx={{ marginTop: '4px', opacity: 0.7 }}
+                        >
+                          Admin
+                        </Body2>
+                      </Box>
+                    </>
+                  );
+                }
 
-              // Handle event organizer user type
-              if (isEventOrganizer(user)) {
-                const organizer = user as EventOrganizer;
-                const profilePictureUrl = organizer.asset?.url;
-                const displayName = organizer.name;
-                const userRole = 'Event Organizer PIC';
+                // Handle event organizer user type
+                if (isEventOrganizer(user)) {
+                  const organizer = user as EventOrganizer;
+                  const profilePictureUrl = organizer.asset?.url;
+                  const displayName = organizer.name;
+                  const userRole = 'Event Organizer PIC';
+
+                  return (
+                    <>
+                      {profilePictureUrl ? (
+                        <Box
+                          alignItems="center"
+                          bgcolor="common.white"
+                          borderRadius={2}
+                          display="flex"
+                          height={40}
+                          justifyContent="center"
+                          mr={1}
+                          width={40}
+                        >
+                          <Box
+                            alt="Profile Picture"
+                            component="img"
+                            height="100%"
+                            src={profilePictureUrl}
+                            style={{ borderRadius: 8 }}
+                            width="100%"
+                          />
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: '8px',
+                            marginRight: '8px',
+                            backgroundColor: 'secondary.dark',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <Body2
+                            color="text.secondary"
+                            fontSize="16px"
+                            fontWeight="600"
+                          >
+                            {displayName?.charAt(0)?.toUpperCase() || 'U'}
+                          </Body2>
+                        </Box>
+                      )}
+                      <Box>
+                        <Body2
+                          color="common.white"
+                          fontSize="14px"
+                          fontWeight="500"
+                        >
+                          {displayName || 'EKUID Creative Organizer'}
+                        </Body2>
+                        <Body2
+                          color="text.secondary"
+                          fontSize="12px"
+                          sx={{ marginTop: '4px', opacity: 0.7 }}
+                        >
+                          {userRole}
+                        </Body2>
+                      </Box>
+                    </>
+                  );
+                }
+
+                // Handle regular user type
+                const regularUser = user as User;
+                const profilePictureUrl = regularUser.profilePicture?.url;
+                const displayName = regularUser.fullName;
+                const userRole = regularUser.role?.name
+                  ? formatRoleName(regularUser.role.name)
+                  : 'Admin';
 
                 return (
                   <>
@@ -312,87 +425,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </Box>
                   </>
                 );
-              }
-
-              // Handle regular user type
-              const regularUser = user as User;
-              const profilePictureUrl = regularUser.profilePicture?.url;
-              const displayName = regularUser.fullName;
-              const userRole = regularUser.role?.name
-                ? formatRoleName(regularUser.role.name)
-                : 'Admin';
-
-              return (
-                <>
-                  {profilePictureUrl ? (
-                    <Box
-                      alignItems="center"
-                      bgcolor="common.white"
-                      borderRadius={2}
-                      display="flex"
-                      height={40}
-                      justifyContent="center"
-                      mr={1}
-                      width={40}
-                    >
-                      <Box
-                        alt="Profile Picture"
-                        component="img"
-                        height="100%"
-                        src={profilePictureUrl}
-                        style={{ borderRadius: 8 }}
-                        width="100%"
-                      />
-                    </Box>
-                  ) : (
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: '8px',
-                        marginRight: '8px',
-                        backgroundColor: 'secondary.dark',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <Body2
-                        color="text.secondary"
-                        fontSize="16px"
-                        fontWeight="600"
-                      >
-                        {displayName?.charAt(0)?.toUpperCase() || 'U'}
-                      </Body2>
-                    </Box>
-                  )}
-                  <Box>
-                    <Body2
-                      color="common.white"
-                      fontSize="14px"
-                      fontWeight="500"
-                    >
-                      {displayName || 'EKUID Creative Organizer'}
-                    </Body2>
-                    <Body2
-                      color="text.secondary"
-                      fontSize="12px"
-                      sx={{ marginTop: '4px', opacity: 0.7 }}
-                    >
-                      {userRole}
-                    </Body2>
-                  </Box>
-                </>
-              );
-            })()}
+              })()}
+            </Box>
+            <Image
+              alt="Arrow"
+              height={16}
+              src="/icon/accordion-arrow.svg"
+              style={{
+                opacity: 0.7,
+                transform: Boolean(anchorEl)
+                  ? 'rotate(180deg)'
+                  : 'rotate(0deg)',
+                transition: 'transform 0.3s ease'
+              }}
+              width={16}
+            />
           </Box>
-          <Image
-            alt="Arrow"
-            height={16}
-            src="/icon/accordion-arrow.svg"
-            style={{ opacity: 0.7 }}
-            width={16}
-          />
         </Box>
 
         <Menu
@@ -407,12 +455,116 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             horizontal: 'right'
           }}
           onClose={handleProfileMenuClose}
+          slotProps={{
+            paper: {
+              sx: {
+                backgroundColor: 'common.white',
+                boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
+                borderRadius: 0,
+                minWidth: 259
+              }
+            }
+          }}
         >
-          <MenuItem onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon fontSize="small" />
+          <MenuItem
+            onClick={() => {
+              handleProfileMenuClose();
+              router.push('/dashboard/privacy-policy');
+            }}
+            sx={{
+              padding: '12px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 'auto' }}>
+              <Image
+                alt="Privacy Policy"
+                src="/icon/file.svg"
+                height={18}
+                width={18}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </ListItemIcon>
-            <ListItemText>Logout</ListItemText>
+            <ListItemText
+              primary={
+                <Body2 color="text.primary" fontSize="14px" fontWeight="400">
+                  Privacy Policy
+                </Body2>
+              }
+            />
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              handleProfileMenuClose();
+              router.push('/dashboard/term-and-condition');
+            }}
+            sx={{
+              padding: '12px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 'auto' }}>
+              <Image
+                alt="Terms & Condition"
+                src="/icon/file.svg"
+                height={18}
+                width={18}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <Body2 color="text.primary" fontSize="14px" fontWeight="400">
+                  Terms & Condition
+                </Body2>
+              }
+            />
+          </MenuItem>
+
+          <Box
+            sx={{
+              height: '1px',
+              backgroundColor: 'grey.200',
+              margin: '4px 0'
+            }}
+          />
+
+          <MenuItem
+            onClick={handleLogout}
+            sx={{
+              padding: '12px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 'auto' }}>
+              <Image
+                alt="Logout"
+                src="/icon/logout.svg"
+                height={18}
+                width={18}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <Body2 color="text.primary" fontSize="14px" fontWeight="400">
+                  Logout
+                </Body2>
+              }
+            />
           </MenuItem>
         </Menu>
       </Box>
@@ -426,7 +578,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: 'primary.dark'
+          backgroundColor: 'primary.dark',
+          boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)'
         }}
       >
         <Toolbar
@@ -444,6 +597,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             <MenuIcon />
           </IconButton>
+
+          {isAdmin &&
+            (router.pathname.includes('/events') ||
+              router.pathname === '/dashboard') && (
+              <Box sx={{ width: '220px', marginLeft: '12px' }}>
+                <Select
+                  fullWidth
+                  label=""
+                  value={selectedEOId}
+                  options={[
+                    { value: 0, label: 'All Event Organizer' },
+                    ...eventOrganizers.map((eo) => ({
+                      value: eo.id,
+                      label: eo.name
+                    }))
+                  ]}
+                  placeholder={
+                    loadingOrganizers ? 'Loading...' : 'All Event Organizer'
+                  }
+                  onChange={(e: string) => {
+                    setSelectedEOId(e);
+
+                    const eo = eventOrganizers.find((item) => item.id === e);
+                    setSelectedEOName(eo?.name);
+                  }}
+                />
+              </Box>
+            )}
         </Toolbar>
       </AppBar>
 

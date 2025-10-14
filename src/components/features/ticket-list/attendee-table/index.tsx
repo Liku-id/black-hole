@@ -18,9 +18,7 @@ import {
 import Image from 'next/image';
 import { useState } from 'react';
 
-import {
-  Pagination
-} from '@/components/common';
+import { Pagination, Button as ButtonExport } from '@/components/common';
 import {
   StyledTableBody,
   StyledTableContainer,
@@ -29,6 +27,7 @@ import {
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
 import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { useExportTickets } from '@/hooks';
 import { ticketsService } from '@/services';
 import { TicketStatus } from '@/types/ticket';
 import { dateUtils } from '@/utils';
@@ -91,6 +90,7 @@ export const AttendeeTable = ({
   const [redeemLoading, setRedeemLoading] = useState(false);
 
   const { showInfo, showError } = useToast();
+  const { exportTickets, loading: exportLoading } = useExportTickets();
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -189,6 +189,21 @@ export const AttendeeTable = ({
     setSelectedAttendee(null);
   };
 
+  const handleExportTickets = async () => {
+    // Validate event is selected
+    if (!selectedEventData?.id) {
+      showError('Please select an event first');
+      return;
+    }
+
+    try {
+      await exportTickets(selectedEventData.id, selectedEventData.name);
+      showInfo('Tickets exported successfully!');
+    } catch (error: any) {
+      showError(error?.message || 'Failed to export tickets');
+    }
+  };
+
   return (
     <>
       <Card sx={{ mt: 3, p: 3 }}>
@@ -207,29 +222,44 @@ export const AttendeeTable = ({
               Attendee Details
             </H4>
 
-            <StyledTextField
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Image
-                      alt="search"
-                      height={16}
-                      src="/icon/search.svg"
-                      width={16}
-                    />
-                  </InputAdornment>
-                )
-              }}
-              placeholder="Name"
-              sx={{
-                width: '300px',
-                '& .MuiOutlinedInput-root': {
-                  height: '40px'
+            <Box display="flex" alignItems="center" gap={2}>
+              <StyledTextField
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Image
+                        alt="search"
+                        height={16}
+                        src="/icon/search.svg"
+                        width={16}
+                      />
+                    </InputAdornment>
+                  )
+                }}
+                placeholder="Name"
+                sx={{
+                  width: '250px',
+                  '& .MuiOutlinedInput-root': {
+                    height: '40px'
+                  }
+                }}
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
+
+              <ButtonExport
+                type="button"
+                variant="primary"
+                disabled={exportLoading || !selectedEventData?.id}
+                startIcon={
+                  exportLoading ? <CircularProgress size={16} /> : undefined
                 }
-              }}
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-            />
+                sx={{ padding: '11px 24px' }}
+                onClick={handleExportTickets}
+              >
+                {exportLoading ? 'Exporting...' : 'Export'}
+              </ButtonExport>
+            </Box>
           </Box>
 
           {/* Attendee Table */}
@@ -378,7 +408,7 @@ export const AttendeeTable = ({
                   attendeeData.map((attendee) => (
                     <TableRow key={attendee.ticketId}>
                       <TableCell>
-                        <Body2>{attendee.no}</Body2>
+                        <Body2>{attendee.no + currentPage * pageSize}.</Body2>
                       </TableCell>
                       <TableCell>
                         <Body2>{attendee.ticketId}</Body2>

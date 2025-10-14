@@ -145,5 +145,91 @@ export const formatUtils = {
   formatRoleName: (role: string): string => {
     if (!role) return '';
     return role.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  },
+
+/**
+ * Format large numbers with K, M, B suffixes
+ * @param num - Number to format
+ * @param decimals - Number of decimal places (default: 2)
+ * @returns Formatted number string
+ */
+formatLargeNumber: (num: number, decimals = 2): string => {
+  if (typeof num !== 'number' || isNaN(num)) return '0';
+
+  const format = (value: number, suffix: string) =>
+    parseFloat(value.toFixed(decimals)).toString() + suffix;
+
+  if (Math.abs(num) >= 1_000_000_000) {
+    return format(num / 1_000_000_000, 'B');
+  }
+  if (Math.abs(num) >= 1_000_000) {
+    return format(num / 1_000_000, 'M');
+  }
+  if (Math.abs(num) >= 1_000) {
+    return format(num / 1_000, 'K');
+  }
+  return num.toString();
+},
+
+
+  /**
+   * Format currency with abbreviated suffixes
+   * @param amount - Amount to format
+   * @returns Formatted currency string
+   */
+  formatAbbreviatedCurrency: (amount: number): string => {
+    if (typeof amount !== 'number') return 'Rp 0';
+
+    if (amount >= 1000000000) {
+      return `Rp ${(amount / 1000000000).toFixed(1)}B`;
+    }
+    if (amount >= 1000000) {
+      return `Rp ${(amount / 1000000).toFixed(1)}M`;
+    }
+    if (amount >= 1000) {
+      return `Rp ${(amount / 1000).toFixed(1)}K`;
+    }
+    return `Rp ${formatUtils.formatNumber(amount)}`;
+  },
+
+  /**
+   * Format event revenue with smart formatting for large numbers
+   * @param amount - Revenue amount to format
+   * @param showFullOnHover - Whether to show full amount on hover (for tooltip)
+   * @returns Formatted revenue string
+   */
+  formatEventRevenue: (amount: number): string => {
+    if (typeof amount !== 'number') return 'Rp 0';
+
+    // For very large numbers (9+ digits), use abbreviated format
+    if (amount >= 1000000000) {
+      const billions = amount / 1000000000;
+      if (billions >= 10) {
+        return `Rp ${billions.toFixed(0)}B`; // No decimal for 10B+
+      }
+      return `Rp ${billions.toFixed(1)}B`;
+    }
+
+    // For millions (6-8 digits), use abbreviated format
+    if (amount >= 1000000) {
+      const millions = amount / 1000000;
+      if (millions >= 10) {
+        return `Rp ${millions.toFixed(0)}M`; // No decimal for 10M+
+      }
+      return `Rp ${millions.toFixed(1)}M`;
+    }
+
+    // For smaller amounts, use regular formatting
+    return `Rp ${formatUtils.formatNumber(amount)}`;
+  },
+
+  /**
+   * Get full revenue amount for tooltip display
+   * @param amount - Revenue amount
+   * @returns Full formatted revenue string
+   */
+  getFullRevenueAmount: (amount: number): string => {
+    if (typeof amount !== 'number') return 'Rp 0';
+    return `Rp ${formatUtils.formatNumber(amount)}`;
   }
 };

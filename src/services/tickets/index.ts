@@ -1,5 +1,6 @@
 import { TicketsFilters, TicketsResponse, TicketStatus } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
+import axios from 'axios';
 
 interface TicketTypePayload {
   name: string;
@@ -132,6 +133,64 @@ class TicketsService {
       return response;
     } catch (error) {
       console.error('Error redeeming ticket:', error);
+      throw error;
+    }
+  }
+
+  async exportTickets(eventId: string, eventName?: string): Promise<void> {
+    try {
+      if (!eventId) {
+        throw new Error('Event ID is required for ticket export');
+      }
+
+      const url = '/api/tickets-export';
+      const params = { event_id: eventId };
+
+      // Make request using axios with blob responseType
+      const response = await axios({
+        method: 'GET',
+        url,
+        params,
+        responseType: 'blob',
+        withCredentials: true,
+        timeout: 30000
+      });
+
+      // Generate filename with new format: attendees_ticket_[event name]_[exported date DDMMYYYY & time HH:MM:SS].csv
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, ''); // DDMMYYYY format
+      const timeStr = now.toLocaleTimeString('en-GB', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      }).replace(/:/g, ''); // HHMMSS format
+      
+      const eventNameFormatted = eventName ? eventName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') : 'unknown_event';
+      const filename = `attendees_ticket_${eventNameFormatted}_${dateStr}_${timeStr}.csv`;
+
+      // Convert response to blob and download
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] || 'text/csv'
+      });
+
+      // Download file
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+      }, 100);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        throw apiUtils.handleAxiosError(error, 'Failed to export tickets');
+      }
       throw error;
     }
   }

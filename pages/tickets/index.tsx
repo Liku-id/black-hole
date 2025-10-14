@@ -1,6 +1,7 @@
 import { Box, CircularProgress } from '@mui/material';
 import Head from 'next/head';
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Body1, Body2, H3 } from '@/components/common';
@@ -29,7 +30,10 @@ const transformTicketData = (tickets: Ticket[]) => {
 };
 
 function Tickets() {
-  const [selectedEvent, setSelectedEvent] = useState('');
+  const searchParams = useSearchParams();
+  const eventId = searchParams.get('event');
+
+  const [selectedEvent, setSelectedEvent] = useState(eventId);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
 
