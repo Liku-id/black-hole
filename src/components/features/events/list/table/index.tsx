@@ -190,8 +190,19 @@ const EventsTable: FC<EventsTableProps> = ({
                   <Tooltip title="Attandee" arrow>
                     <IconButton
                       size="small"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                      sx={{
+                        color: 'text.secondary',
+                        cursor: 'pointer',
+                        opacity: ['on_going', 'done'].includes(
+                          event.eventStatus
+                        )
+                          ? 1
+                          : 0.5
+                      }}
                       onClick={() => router.push(`/tickets?event=${event.id}`)}
+                      disabled={
+                        !['on_going', 'done'].includes(event.eventStatus)
+                      }
                     >
                       <Image
                         alt="tickets"
@@ -205,9 +216,20 @@ const EventsTable: FC<EventsTableProps> = ({
                   <Tooltip title="Transaction" arrow>
                     <IconButton
                       size="small"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                      sx={{
+                        color: 'text.secondary',
+                        cursor: 'pointer',
+                        opacity: ['on_going', 'done'].includes(
+                          event.eventStatus
+                        )
+                          ? 1
+                          : 0.5
+                      }}
                       onClick={() =>
                         router.push(`/finance/event-transactions/${event.id}`)
+                      }
+                      disabled={
+                        !['on_going', 'done'].includes(event.eventStatus)
                       }
                     >
                       <Image

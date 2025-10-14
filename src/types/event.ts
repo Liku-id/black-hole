@@ -75,6 +75,7 @@ export interface EventCountByStatus {
 export interface Event {
   id: string;
   name: string;
+  eventStatus:string;
   eventType: string;
   eventOrganizerId: string;
   eventOrganizerName: string;

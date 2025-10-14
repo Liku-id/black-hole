@@ -30,7 +30,7 @@ class TransactionsService {
     }
   }
 
-  async exportTransactions(request: ExportTransactionsRequest): Promise<void> {
+  async exportTransactions(request: ExportTransactionsRequest, eventName?: string): Promise<void> {
     try {
       const params: Record<string, string> = {};
 
@@ -51,16 +51,18 @@ class TransactionsService {
         timeout: 30000
       });
 
-      // Get filename from Content-Disposition header
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = 'transactions_export.csv';
-
-      if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename=(.+)/);
-        if (filenameMatch && filenameMatch[1]) {
-          filename = filenameMatch[1].replace(/['"]/g, ''); // Remove quotes
-        }
-      }
+      // Generate filename with new format: transactions_[event name]_[exported date DDMMYYYY & time HH:MM:SS].csv
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, ''); // DDMMYYYY format
+      const timeStr = now.toLocaleTimeString('en-GB', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      }).replace(/:/g, ''); // HHMMSS format
+      
+      const eventNameFormatted = eventName ? eventName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') : 'all_events';
+      const filename = `transactions_${eventNameFormatted}_${dateStr}_${timeStr}.csv`;
 
       // Convert response to blob and download
       const blob = new Blob([response.data], {
