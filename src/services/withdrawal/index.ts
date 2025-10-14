@@ -1,3 +1,4 @@
+import { Pagination } from '@/types/event';
 import { apiUtils } from '@/utils/apiUtils';
 
 export interface WithdrawalSummary {
@@ -22,7 +23,7 @@ export interface WithdrawalSummary {
 export interface WithdrawalSummariesResponse {
   statusCode: number;
   message: string;
-  body: WithdrawalSummary[];
+  body: { data: WithdrawalSummary[]; pagination: Pagination };
 }
 
 export interface WithdrawalSummaryResponse {
@@ -174,11 +175,23 @@ export interface WithdrawalHistoryResponse {
   body: WithdrawalHistoryItem[];
 }
 
+export interface PaginationFilters {
+  page: number;
+  show: number;
+}
+
 class WithdrawalService {
-  async getSummaries(): Promise<WithdrawalSummariesResponse> {
+  async getSummaries(
+    filters: PaginationFilters
+  ): Promise<WithdrawalSummariesResponse> {
+    const params: Record<string, any> = {};
+
+    if (filters?.show) params.show = filters.show.toString();
+    if (filters?.page) params.page = filters.page.toString();
+
     return apiUtils.get<WithdrawalSummariesResponse>(
       '/api/withdrawal/summary',
-      undefined,
+      params,
       'Failed to fetch withdrawal summaries'
     );
   }
