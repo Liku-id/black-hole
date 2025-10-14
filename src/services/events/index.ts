@@ -6,7 +6,6 @@ import {
   CreateEventResponse
 } from '@/types/event';
 import { apiUtils } from '@/utils/apiUtils';
-import { log } from 'console';
 
 export interface CreateEventAssetRequest {
   eventId: string;
