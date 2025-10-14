@@ -76,9 +76,10 @@ function EditEvent() {
         .split(' - ')
         .map((s: string) => s?.trim());
 
-      // Fallbacks
-      const startTime = rawStartTime || formData.startTime || '00:00';
-      const endTime = rawEndTime || formData.endTime || '00:00';
+      // Fallbacks dan normalisasi format waktu (ganti titik dengan titik dua)
+      const normalizeTime = (time: string) => time.replace(/\./g, ':');
+      const startTime = normalizeTime(rawStartTime || formData.startTime || '00:00');
+      const endTime = normalizeTime(rawEndTime || formData.endTime || '00:00');
 
       // Parse dates from "MMM d, yyyy" then format to yyyy-MM-dd
       const startDateObj = rawStartDate
