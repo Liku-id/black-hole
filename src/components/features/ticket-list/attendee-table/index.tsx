@@ -197,7 +197,7 @@ export const AttendeeTable = ({
     }
 
     try {
-      await exportTickets(selectedEventData.id);
+      await exportTickets(selectedEventData.id, selectedEventData.name);
       showInfo('Tickets exported successfully!');
     } catch (error: any) {
       showError(error?.message || 'Failed to export tickets');
