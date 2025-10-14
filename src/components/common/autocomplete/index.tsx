@@ -10,6 +10,7 @@ interface Option {
 }
 
 interface AutoCompleteProps {
+  id?: string;
   label?: string;
   placeholder?: string;
   error?: boolean;
@@ -31,6 +32,7 @@ interface AutoCompleteProps {
 export const AutoComplete = forwardRef<HTMLDivElement, AutoCompleteProps>(
   (
     {
+      id,
       label,
       placeholder,
       error,
@@ -53,6 +55,7 @@ export const AutoComplete = forwardRef<HTMLDivElement, AutoCompleteProps>(
   ) => {
     return (
       <Autocomplete
+        id={id}
         ref={ref}
         options={options}
         value={value}

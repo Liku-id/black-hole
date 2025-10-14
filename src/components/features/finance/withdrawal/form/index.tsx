@@ -155,6 +155,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         <Grid item md={8} xs={12}>
           <Box bgcolor="background.paper" borderRadius={1} padding="24px">
             <TextField
+              id="withdrawal_name_field"
               fullWidth
               label="Withdrawal Name*"
               name="withdrawalName"
@@ -224,6 +225,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               </Grid>
               <Grid item xs={7}>
                 <TextField
+                  id="withdrawal_amount_field"
                   fullWidth
                   name="withdrawalAmount"
                   placeholder="Add Withdrawal Amount here"
@@ -322,6 +324,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                     </Box>
                   )}
                   <Button
+                    id="withdrawal_button"
                     disabled={
                       !withdrawalAmount ||
                       summaryLoading ||
