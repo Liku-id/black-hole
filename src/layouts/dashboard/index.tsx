@@ -86,7 +86,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     user && isEventOrganizer(user) ? 'event_organizer_pic' : userRole;
 
   // Check if user is admin
-  const isAdmin = sessionRole === 'admin';
+  const isAdmin =
+    sessionRole === 'admin' ||
+    process.env.NEXT_PUBLIC_PREVILAGE_ROLE.includes(sessionRole || '');
 
   // Fetch event organizers if user is admin
   useEffect(() => {
@@ -598,7 +600,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {isAdmin &&
             (router.pathname.includes('/events') ||
-              router.pathname.includes('/dashboard')) && (
+              router.pathname === '/dashboard') && (
               <Box sx={{ width: '220px', marginLeft: '12px' }}>
                 <Select
                   fullWidth
