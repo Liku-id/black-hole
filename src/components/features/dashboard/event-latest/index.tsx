@@ -592,7 +592,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           padding="20px 16px"
           height="100%"
           position="relative"
-          minHeight="300px"
+          minHeight="209px"
         >
           <HeadSection
             title="Event On Going"
@@ -605,7 +605,11 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
             <ErrorStatePlaceholder onRetry={refetchOngoing} />
           ) : ongoingEvents.length > 0 ? (
             ongoingEvents.map((event, index) => (
-              <EventCard key={event.id} event={event} showBreak={index === 0} />
+              <EventCard
+                key={event.id}
+                event={event}
+                showBreak={ongoingEvents.length > 1 && index === 0}
+              />
             ))
           ) : (
             <EmptyStatePlaceholder message="no ongoing events" />
@@ -621,7 +625,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           padding="20px 16px"
           height="100%"
           position="relative"
-          minHeight="300px"
+          minHeight="209px"
         >
           <HeadSection
             title="Event Past"
@@ -634,7 +638,11 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
             <ErrorStatePlaceholder onRetry={refetchPast} />
           ) : pastEvents.length > 0 ? (
             pastEvents.map((event, index) => (
-              <EventCard key={event.id} event={event} showBreak={index === 0} />
+              <EventCard
+                key={event.id}
+                event={event}
+                showBreak={ongoingEvents.length > 1 && index === 0}
+              />
             ))
           ) : (
             <EmptyStatePlaceholder message="no past events" />
