@@ -1,5 +1,6 @@
-import { useApi } from '@/hooks/useApi';
+import useSWR from 'swr';
 import { transactionsService } from '@/services';
+
 import { TransactionsResponse, TransactionsFilters } from '@/types/transaction';
 
 interface UseEventTransactionsReturn {
@@ -7,39 +8,30 @@ interface UseEventTransactionsReturn {
   loading: boolean;
   error: string | null;
   mutate: () => void;
-  total: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 const useTransactions = (
-  eventId?: string,
-  filters?: TransactionsFilters
+  filters: TransactionsFilters
 ): UseEventTransactionsReturn => {
-  const { data, error, mutate } = useApi<TransactionsResponse>(
-    eventId
-      ? ['/api/transactions', eventId, filters?.page, filters?.limit]
-      : null,
-    () => transactionsService.getEventTransactions(eventId!, filters)
+  const { data, isLoading, error, mutate } = useSWR<TransactionsResponse>(
+    ['/api/transactions', filters],
+    () => transactionsService.getEventTransactions(filters)
   );
 
   return {
     transactions: data?.transactions || [],
-    loading: !data && !error,
+    loading: isLoading,
     error: error,
     mutate,
-    total: data?.pagination?.totalItems || 0,
-    totalPages: data?.pagination?.totalPages || 0,
-    currentPage:
-      data?.pagination?.currentPage !== undefined
-        ? data.pagination.currentPage - 1
-        : 0,
-    pageSize: data?.pagination?.limit || 10,
-    hasNext: data?.pagination?.hasNext || false,
-    hasPrev: data?.pagination?.hasPrev || false
+    pagination: data?.pagination
   };
 };
 

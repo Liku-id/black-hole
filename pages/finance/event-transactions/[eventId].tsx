@@ -15,24 +15,18 @@ function EventTransactions() {
   const router = useRouter();
   const theme = useTheme();
   const { eventId } = router.query as { eventId: string };
-  
+
   // Pagination state
-  const [pagination, setPagination] = useState<TransactionsFilters>({
+  const [filters, setFilters] = useState<TransactionsFilters>({
+    eventId,
     page: 0,
-    limit: 10
+    show: 10
   });
 
-  const { 
-    transactions, 
-    loading, 
-    error, 
-    total, 
-    currentPage, 
-    pageSize 
-  } = useTransactions(eventId, pagination);
+  const { transactions, loading, error, pagination } = useTransactions(filters);
 
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({
+    setFilters((prev) => ({
       ...prev,
       page
     }));
@@ -78,9 +72,9 @@ function EventTransactions() {
           error={error}
           loading={loading}
           transactions={transactions}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
+          total={pagination?.totalItems}
+          currentPage={filters.page}
+          pageSize={filters.show}
           onPageChange={handlePageChange}
         />
       </Card>

@@ -43,7 +43,7 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
     }));
   }, [eventOrganizerId]);
 
-  const { events, eventCountByStatus, loading, error, mutate, total } =
+  const { events, eventCountByStatus, loading, error, mutate, pagination } =
     useEvents(filters);
   const { user } = useAuth();
 
@@ -197,7 +197,7 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
               events={events}
               loading={loading}
               onRefresh={mutate}
-              total={total}
+              total={pagination?.totalRecords || 0}
               currentPage={filters.page}
               onPageChange={handlePageChange}
               isCompact

@@ -45,7 +45,7 @@ function Events() {
     })
   });
 
-  const { events, eventCountByStatus, loading, error, mutate, total } =
+  const { events, eventCountByStatus, loading, error, mutate, pagination } =
     useEvents(filters);
 
   const { user } = useAuth();
@@ -237,7 +237,7 @@ function Events() {
                 events={events}
                 loading={loading}
                 onRefresh={mutate}
-                total={total}
+                total={pagination?.totalRecords || 0}
                 currentPage={filters.page}
                 onPageChange={handlePageChange}
               />
