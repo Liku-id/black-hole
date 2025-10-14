@@ -1,5 +1,10 @@
 import { eventsService } from '@/services';
-import { Event, EventsFilters, EventCountByStatus } from '@/types/event';
+import {
+  Event,
+  EventsFilters,
+  EventCountByStatus,
+  Pagination
+} from '@/types/event';
 
 import { useApi } from '../../useApi';
 
@@ -9,10 +14,7 @@ interface UseEventsReturn {
   loading: boolean;
   error: string | null;
   mutate: () => void;
-  total: number;
-  totalPage: number;
-  currentPage: number;
-  currentShow: number;
+  pagination: Pagination;
 }
 
 const useEvents = (filters?: EventsFilters): UseEventsReturn => {
@@ -22,15 +24,12 @@ const useEvents = (filters?: EventsFilters): UseEventsReturn => {
   );
 
   return {
-    events: data?.body?.events || [],
+    events: data?.body?.data || [],
     eventCountByStatus: data?.body?.eventCountByStatus,
     loading,
     error,
     mutate,
-    total: parseInt(data?.body?.total || '0'),
-    totalPage: data?.body?.totalPage || 0,
-    currentPage: data?.body?.page || 1,
-    currentShow: data?.body?.show || 10
+    pagination: data?.body?.pagination
   };
 };
 

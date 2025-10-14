@@ -127,7 +127,7 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
               transactions.map((transaction, index) => (
                 <TableRow key={transaction.id}>
                   <TableCell>
-                    <Body2>{index + 1}.</Body2>
+                    <Body2>{index + 1 + currentPage * pageSize}.</Body2>
                   </TableCell>
                   <TableCell>
                     <Body2>{transaction.name}</Body2>

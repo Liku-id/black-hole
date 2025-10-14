@@ -30,7 +30,7 @@ const useFilteredEvents = (
 
   // Sort by createdAt descending
   const sortedEvents =
-    data?.body?.events?.sort(
+    data?.body?.data?.sort(
       (a: Event, b: Event) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     ) || [];

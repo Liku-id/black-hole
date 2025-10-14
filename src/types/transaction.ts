@@ -199,25 +199,24 @@ export interface Transaction {
   paymentBreakdown: PaymentBreakdown;
 }
 
-export interface Pagination {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  limit: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
 export interface TransactionsResponse {
   statusCode: number;
   message: string;
   transactions: Transaction[];
-  pagination: Pagination;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 export interface TransactionsFilters {
   page?: number;
-  limit?: number;
+  show?: number;
+  eventId?: string;
 }
 
 export interface TransactionError {
@@ -245,8 +244,8 @@ export interface ExportTransactionData {
 
 export interface ExportTransactionsResponseBody {
   transactions: ExportTransactionData[];
-  csv_content: string;          // CSV file content as string
-  csv_filename: string;         // Suggested filename for download
+  csv_content: string; // CSV file content as string
+  csv_filename: string; // Suggested filename for download
 }
 
 export interface ExportTransactionsResponse {
@@ -256,8 +255,8 @@ export interface ExportTransactionsResponse {
 }
 
 export interface ExportTransactionsRequest {
-  from_date?: string;        // Format: YYYY-MM-DD (optional)
-  to_date?: string;          // Format: YYYY-MM-DD (optional)
-  payment_status?: string;   // Filter by payment status (optional)
-  event_id?: string;         // Filter by event_id (optional)
+  from_date?: string; // Format: YYYY-MM-DD (optional)
+  to_date?: string; // Format: YYYY-MM-DD (optional)
+  payment_status?: string; // Filter by payment status (optional)
+  event_id?: string; // Filter by event_id (optional)
 }
