@@ -35,7 +35,9 @@ const nextConfig = {
     domains: [
       'wukong-staging-public.s3.ap-southeast-3.amazonaws.com',
       'wukong-dev-public.s3.ap-southeast-3.amazonaws.com',
-      'wukong-staging-private.s3.ap-southeast-3.amazonaws.com'
+      'wukong-staging-private.s3.ap-southeast-3.amazonaws.com',
+      'wukong-production-public.s3.ap-southeast-3.amazonaws.com',
+      'wukong-production-private.s3.ap-southeast-3.amazonaws.com',
     ],
     formats: ['image/webp', 'image/avif']
   }

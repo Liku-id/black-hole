@@ -408,7 +408,7 @@ export const AttendeeTable = ({
                   attendeeData.map((attendee) => (
                     <TableRow key={attendee.ticketId}>
                       <TableCell>
-                        <Body2>{attendee.no}</Body2>
+                        <Body2>{attendee.no + currentPage * pageSize}.</Body2>
                       </TableCell>
                       <TableCell>
                         <Body2>{attendee.ticketId}</Body2>

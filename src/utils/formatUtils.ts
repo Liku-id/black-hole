@@ -147,25 +147,30 @@ export const formatUtils = {
     return role.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   },
 
-  /**
-   * Format large numbers with K, M, B suffixes
-   * @param num - Number to format
-   * @returns Formatted number string
-   */
-  formatLargeNumber: (num: number): string => {
-    if (typeof num !== 'number') return '0';
+/**
+ * Format large numbers with K, M, B suffixes
+ * @param num - Number to format
+ * @param decimals - Number of decimal places (default: 2)
+ * @returns Formatted number string
+ */
+formatLargeNumber: (num: number, decimals = 2): string => {
+  if (typeof num !== 'number' || isNaN(num)) return '0';
 
-    if (num >= 1000000000) {
-      return (num / 1000000000).toFixed(1) + 'B';
-    }
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  },
+  const format = (value: number, suffix: string) =>
+    parseFloat(value.toFixed(decimals)).toString() + suffix;
+
+  if (Math.abs(num) >= 1_000_000_000) {
+    return format(num / 1_000_000_000, 'B');
+  }
+  if (Math.abs(num) >= 1_000_000) {
+    return format(num / 1_000_000, 'M');
+  }
+  if (Math.abs(num) >= 1_000) {
+    return format(num / 1_000, 'K');
+  }
+  return num.toString();
+},
+
 
   /**
    * Format currency with abbreviated suffixes
