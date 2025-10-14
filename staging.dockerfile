@@ -13,6 +13,9 @@ RUN npm install --legacy-peer-deps
 # Copy the rest of the project files
 COPY . .
 
+# Copy client env
+COPY .env.development .env.development
+
 # Build the Next.js application
 RUN npm run build
 
