@@ -1,5 +1,5 @@
 import { eventsService } from '@/services';
-import { Event, EventsFilters } from '@/types/event';
+import { EventsFilters } from '@/types/event';
 import { useApi } from '../../useApi';
 
 interface MappedEvent {
@@ -28,15 +28,10 @@ const useFilteredEvents = (
     () => eventsService.getEvents(filters)
   );
 
-  // Sort by createdAt descending
-  const sortedEvents =
-    data?.body?.events?.sort(
-      (a: Event, b: Event) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    ) || [];
+  const temp = data?.body?.events || [];
 
-  // Limit 2
-  const limitedEvents = sortedEvents.slice(0, 2);
+  // Guard limit 2
+  const limitedEvents = temp.slice(0, 2);
 
   // Mapping
   const mappedEvents = limitedEvents.map((item) => ({
@@ -44,8 +39,8 @@ const useFilteredEvents = (
     name: item.name,
     metaUrl: item.metaUrl,
     address: item.address,
-    date: item.createdAt,
-    time: item.createdAt,
+    date: item.startDate,
+    time: item.startDate,
     totalRevenue: Number(item.totalRevenue || '0'),
     thumbnail: item.eventAssets?.[0]?.asset?.url || ''
   }));
