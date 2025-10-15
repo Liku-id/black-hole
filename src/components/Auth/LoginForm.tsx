@@ -87,6 +87,7 @@ const LoginForm: React.FC = () => {
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <Box mb={3}>
                 <TextField
+                  id="email_field"
                   fullWidth
                   disabled={isFormDisabled}
                   label="Email Address"
@@ -102,6 +103,7 @@ const LoginForm: React.FC = () => {
 
               <Box mb={3}>
                 <TextField
+                  id="password_field"
                   fullWidth
                   disabled={isFormDisabled}
                   label="Password"
