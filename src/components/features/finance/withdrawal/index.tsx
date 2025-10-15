@@ -159,6 +159,7 @@ const FinanceWithdrawal = ({
         <Body2>Withdrawal</Body2>
         <Tooltip title="View All Withdrawal History" arrow>
           <Box
+            id="withdrawal_history_icon"
             sx={{
               cursor: 'pointer',
               opacity: 1
@@ -178,6 +179,7 @@ const FinanceWithdrawal = ({
       {/* Select Project */}
       <Box marginBottom="16px">
         <AutoComplete
+          id="search_project_field"
           disabled={loading}
           label=""
           options={projectOptions}
@@ -266,6 +268,7 @@ const FinanceWithdrawal = ({
       {/* Withdrawal Button */}
       <Box display="flex" justifyContent="flex-end">
         <Button
+          id="withdrawal_button"
           disabled={
             !selectedProject ||
             summaryLoading ||
