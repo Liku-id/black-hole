@@ -149,6 +149,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               <form onSubmit={methods.handleSubmit(onSubmit)}>
                 <Box mb={3}>
                   <TextField
+                    id="organizer_name_field"
                     fullWidth
                     disabled={isFormDisabled}
                     label="Organizer Name"
@@ -163,6 +164,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
                 <Box mb={3}>
                   <TextField
+                    id="email_field"
                     fullWidth
                     disabled={isFormDisabled}
                     label="Email address"
@@ -178,6 +180,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
                 <Box mb={3}>
                   <PhoneField
+                    id="phone_number_field"
                     fullWidth
                     disabled={isFormDisabled}
                     label="Phone Number"
@@ -193,6 +196,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
                 <Box mb={3}>
                   <TextField
+                    id="password_field"
                     fullWidth
                     disabled={isFormDisabled}
                     label="Password"
@@ -233,6 +237,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
                 <Box mb={3}>
                   <TextField
+                    id="confirm_password_field"
                     fullWidth
                     disabled={isSubmitting}
                     label="Confirm Password"
