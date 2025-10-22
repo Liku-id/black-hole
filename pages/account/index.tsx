@@ -186,6 +186,7 @@ function Account() {
                 {activeLable}
               </H4>
               <Button
+                id={isEditing ? 'cancel_button' : `edit_${activeTab}_button`}
                 variant={isEditing ? 'secondary' : 'primary'}
                 onClick={() => setIsEditing(!isEditing)}
               >

@@ -22,6 +22,7 @@ const FinanceTransaction = () => {
       >
         <Body1 fontWeight={600}>Event Transaction Detail</Body1>
         <Button
+          id="export_button"
           sx={{ fontSize: '12px', padding: '12px 18px' }}
           onClick={() => setOpenExportModal(true)}
         >

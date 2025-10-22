@@ -389,6 +389,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                 {event.name}
               </Body1>
               <IconButton
+                id="event_options_menu_button"
                 size="small"
                 onClick={handleMenuClick}
                 aria-controls={open ? 'event-menu' : undefined}
@@ -424,6 +425,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                 }}
               >
                 <MenuItem
+                  id="event_detail_menu_item"
                   onClick={() =>
                     handleMenuItemClick(`/events/${event.metaUrl}`)
                   }
@@ -451,6 +453,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                   </ListItemText>
                 </MenuItem>
                 <MenuItem
+                  id="attendee_tickets_menu_item"
                   onClick={() =>
                     handleMenuItemClick(`/tickets?event=${event.id}`)
                   }
@@ -478,6 +481,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                   </ListItemText>
                 </MenuItem>
                 <MenuItem
+                  id="event_transactions_menu_item"
                   onClick={() =>
                     handleMenuItemClick(
                       `/finance/event-transactions/${event.id}`

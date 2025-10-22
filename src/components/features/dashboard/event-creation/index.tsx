@@ -149,6 +149,7 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
           Events
         </H3>
         <Button
+          id="create_new_event_button"
           onClick={() => router.push('/events/create')}
           disabled={!isOrganizerDataComplete}
         >
@@ -226,6 +227,7 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
 
               <Box mt={2}>
                 <Button
+                  id="create_new_event_empty_button"
                   onClick={() => router.push('/events/create')}
                   disabled={!isOrganizerDataComplete}
                 >
