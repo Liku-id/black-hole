@@ -57,7 +57,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
       if (data.paymentStatus) request.payment_status = data.paymentStatus;
 
       // Get event name for filename
-      const selectedEvent = events.find(event => event.id === data.eventId);
+      const selectedEvent = events.find((event) => event.id === data.eventId);
       const eventName = selectedEvent?.name;
 
       await exportData(request, eventName);
@@ -87,6 +87,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Select
+                  id="select_event_field"
                   fullWidth
                   label="Select Event"
                   name="eventId"
@@ -102,6 +103,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
 
               <Grid item xs={12}>
                 <Select
+                  id="payment_status_field"
                   fullWidth
                   label="Payment Status"
                   name="paymentStatus"
@@ -112,6 +114,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
 
               <Grid item xs={12}>
                 <DateField
+                  id="from_date_field"
                   fullWidth
                   label="From Date"
                   name="fromDate"
@@ -121,6 +124,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
 
               <Grid item xs={12}>
                 <DateField
+                  id="to_date_field"
                   fullWidth
                   label="To Date"
                   name="toDate"
@@ -131,6 +135,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
 
             <Box display="flex" justifyContent="flex-end" gap={2} mt={7}>
               <Button
+                id="cancel_button"
                 variant="secondary"
                 onClick={handleClose}
                 disabled={exportLoading}
@@ -138,6 +143,7 @@ export const ExportModal: FC<ExportModalProps> = ({ open, onClose }) => {
                 Cancel
               </Button>
               <Button
+                id="export_csv_button"
                 type="submit"
                 variant="primary"
                 disabled={exportLoading || eventsLoading}

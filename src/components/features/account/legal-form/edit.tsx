@@ -262,6 +262,7 @@ export const LegalEditForm = ({
                 Upload KTP*
               </Body2>
               <Dropzone
+                id="upload_npwp_field"
                 accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
                 height="200px"
                 width="100%"
@@ -279,6 +280,7 @@ export const LegalEditForm = ({
               Upload NPWP*
             </Body2>
             <Dropzone
+              id="upload_ktp_field"
               accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
               height="200px"
               width="100%"
@@ -305,6 +307,7 @@ export const LegalEditForm = ({
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
+                  id="npwp_number_field"
                   fullWidth
                   label="NPWP Number*"
                   name="npwp_number"
@@ -319,6 +322,7 @@ export const LegalEditForm = ({
               {isIndividual ? (
                 <Grid item xs={12}>
                   <TextField
+                    id="ktp_number_field"
                     fullWidth
                     label="NIK Number*"
                     name="ktp_number"
@@ -350,6 +354,7 @@ export const LegalEditForm = ({
               ) : (
                 <Grid item xs={12}>
                   <TextField
+                    id="address_npwp_field"
                     fullWidth
                     label="Address as in NPWP*"
                     name="npwp_address"
@@ -371,6 +376,7 @@ export const LegalEditForm = ({
                   {/* Individual Creator Fields */}
                   <Grid item xs={12}>
                     <TextField
+                      id="pic_name_field"
                       fullWidth
                       label="PIC Full Name*"
                       name="pic_name"
@@ -382,6 +388,7 @@ export const LegalEditForm = ({
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
+                      id="pic_ktp_address_field"
                       fullWidth
                       label="PIC KTP Address*"
                       name="ktp_address"
@@ -393,6 +400,7 @@ export const LegalEditForm = ({
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
+                      id="pic_title_field"
                       fullWidth
                       label="PIC Title"
                       name="pic_title"
@@ -405,6 +413,7 @@ export const LegalEditForm = ({
                   {/* Institutional Creator Fields */}
                   <Grid item xs={12}>
                     <TextField
+                      id="fullname_npwp_field"
                       fullWidth
                       label="Full Name as in NPWP*"
                       name="full_name"
@@ -430,6 +439,7 @@ export const LegalEditForm = ({
 
           <Box display="flex" gap={2} justifyContent="flex-end">
             <Button
+              id="save_legal_button"
               type="submit"
               variant="primary"
               disabled={

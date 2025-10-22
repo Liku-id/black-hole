@@ -224,6 +224,7 @@ export const AttendeeTable = ({
 
             <Box display="flex" alignItems="center" gap={2}>
               <StyledTextField
+                id="search_name_field"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -248,6 +249,7 @@ export const AttendeeTable = ({
               />
 
               <ButtonExport
+                id="export_csv_button"
                 type="button"
                 variant="primary"
                 disabled={exportLoading || !selectedEventData?.id}

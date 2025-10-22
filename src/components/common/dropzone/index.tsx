@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone';
 import { Caption, Overline } from '@/components/common/typography';
 
 interface DropzoneProps {
+  id?: string;
   width?: string | number;
   height?: string | number;
   onFileSelect?: (file: File) => void;
@@ -20,6 +21,7 @@ interface DropzoneProps {
 }
 
 const Dropzone = ({
+  id,
   width = '100%',
   height = '200px',
   onFileSelect,
@@ -67,6 +69,7 @@ const Dropzone = ({
 
   return (
     <Box
+      id={id}
       {...getRootProps()}
       border="1px solid"
       borderColor={error ? 'error.main' : 'grey.100'}
@@ -118,6 +121,7 @@ const Dropzone = ({
             </Box>
           )}
           <Box
+            id="clear_icon"
             height="24px"
             position="absolute"
             right="16px"

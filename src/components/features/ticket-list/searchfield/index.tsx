@@ -34,6 +34,7 @@ export const SearchField = ({
           </H4>
 
           <Button
+            id="scan_ticket_button"
             sx={{
               width: '130px',
               height: '46px',
@@ -53,11 +54,13 @@ export const SearchField = ({
 
         {/* Full width searchable event field */}
         <Autocomplete
+          id="auto_select_event_field"
           fullWidth
           getOptionLabel={(option) => option.label}
           options={eventOptions}
           renderInput={(params) => (
             <TextField
+              id="select_event_field"
               {...params}
               placeholder="Select Event"
               sx={{
@@ -84,6 +87,7 @@ export const SearchField = ({
           renderOption={(props, option, { index }) => (
             <Box key={option.value}>
               <Box
+                id={`event_option_${option.value}`}
                 component="li"
                 {...props}
                 sx={{

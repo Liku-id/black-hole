@@ -111,6 +111,7 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
   const StatCard = ({ stat }: { stat: (typeof stats)[0] }) => {
     return (
       <Box
+        id={`${stat.id}_stat_card`}
         onClick={() => handleCardClick(stat.redirectPath)}
         bgcolor="common.white"
         boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
