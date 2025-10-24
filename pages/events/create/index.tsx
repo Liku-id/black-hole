@@ -46,11 +46,6 @@ function CreateEvent() {
   const [selectedEOId] = useAtom(selectedEOIdAtom);
   const [selectedEOName] = useAtom(selectedEONameAtom);
 
-  const breadcrumbSteps = [
-    { label: 'Event Detail', active: true },
-    { label: 'Ticket Detail' },
-    { label: 'Asset Event' }
-  ];
 
   const onSubmit = async (data: FormData, isDraft: boolean = false) => {
     setError('');
@@ -81,11 +76,7 @@ function CreateEvent() {
       };
       const response = await eventsService.createEvent(payload);
 
-      if (isDraft) {
-        router.push('/events');
-      } else {
-        router.push(`/events/create/${response.body.metaUrl}/ticket`);
-      }
+      router.push(`/events/${response.body.metaUrl}`);
     } catch (error: any) {
       setLoading(false);
       const errorMessage =
@@ -106,11 +97,6 @@ function CreateEvent() {
         <H4 color="text.primary" fontWeight={700} marginBottom="16px">
           Create New Event {selectedEOName ? `for ${selectedEOName}` : ''}
         </H4>
-
-        {/* Breadcrumb */}
-        <Box marginBottom="24px">
-          <Breadcrumb steps={breadcrumbSteps} />
-        </Box>
 
         {/* Form Component */}
         <CreateEventForm error={error} loading={loading} onSubmit={onSubmit} />

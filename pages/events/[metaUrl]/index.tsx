@@ -5,7 +5,9 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Card, Caption, H2, H3 } from '@/components/common';
+import { Button, Card, Caption, H2, H3, Overline } from '@/components/common';
+import { eventsService } from '@/services';
+import { useToast } from '@/contexts/ToastContext';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
@@ -26,8 +28,11 @@ function EventDetail() {
   const router = useRouter();
   const { metaUrl } = router.query;
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { showSuccess } = useToast();
 
-  const { eventDetail, loading, error } = useEventDetail(metaUrl as string);
+  const { eventDetail, loading, error, mutate } = useEventDetail(metaUrl as string);
 
   // Check for updateSuccess parameter and show modal
   useEffect(() => {
@@ -39,12 +44,44 @@ function EventDetail() {
     }
   }, [router.query.updateSuccess, router]);
 
-  // Status validation - redirect non-draft events
-  useEffect(() => {
-    if (eventDetail && eventDetail.eventStatus === 'draft') {
-      router.replace(`/events`);
+  const handleSubmitEvent = async () => {
+    if (!eventDetail) return;
+
+    // Clear previous error message
+    setErrorMessage(null);
+
+    // Validasi
+    if (eventDetail.eventStatus !== 'draft') {
+      setErrorMessage('Event must be in draft status');
+      return;
     }
-  }, [eventDetail, metaUrl, router]);
+
+    if (!eventDetail.eventAssets || eventDetail.eventAssets.length === 0) {
+      setErrorMessage('Event must have at least 1 asset');
+      return;
+    }
+
+    if (!eventDetail.ticketTypes || eventDetail.ticketTypes.length === 0) {
+      setErrorMessage('Event must have at least 1 ticket');
+      return;
+    }
+
+    try {
+      setSubmitLoading(true);
+      await eventsService.submitEvent(eventDetail.id);
+
+      // Mutate event detail untuk update data
+      await mutate();
+
+      // Show success toast
+      showSuccess('Event submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting event:', error);
+      setErrorMessage('Failed to submit event');
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -89,10 +126,28 @@ function EventDetail() {
         </Caption>
       </Box>
 
-      {/* Title */}
-      <H2 color="text.primary" fontWeight={700} mb="21px">
-        Event Detail
-      </H2>
+      {/* Title and Submit Button */}
+      <Box alignItems="center" display="flex" justifyContent="space-between" mb="21px">
+        <H2 color="text.primary" fontWeight={700}>
+          Event Detail
+        </H2>
+        {eventDetail.eventStatus === 'draft' && (
+          <Box display="flex" flexDirection="column" alignItems="flex-end">
+            <Button
+              variant="primary"
+              onClick={handleSubmitEvent}
+              disabled={submitLoading}
+            >
+              Submit Event
+            </Button>
+            {errorMessage && (
+              <Overline color="error" sx={{ mt: 1 }}>
+                {errorMessage}
+              </Overline>
+            )}
+          </Box>
+        )}
+      </Box>
 
       {/* Event Name */}
       <Box alignItems="center" display="flex" gap={2} mb="16px">
@@ -110,6 +165,23 @@ function EventDetail() {
         <StyledDivider />
         <EventDetailTicket eventDetail={eventDetail} />
       </Card>
+
+      {eventDetail.eventStatus === 'draft' && (
+        <Box display="flex" flexDirection="column" alignItems="flex-end">
+          <Button
+            variant="primary"
+            onClick={handleSubmitEvent}
+            disabled={submitLoading}
+          >
+            Submit Event
+          </Button>
+          {errorMessage && (
+            <Overline color="error" sx={{ mt: 1 }}>
+              {errorMessage}
+            </Overline>
+          )}
+        </Box>
+      )}
 
       {/* Success Update Modal */}
       <SuccessUpdateModal

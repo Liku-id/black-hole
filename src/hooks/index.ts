@@ -20,5 +20,6 @@ export { useWithdrawalHistory } from './features/withdrawal/useWithdrawalHistory
 export { useTransactions } from './features/transactions/useTransactions';
 export { useExportTransactions } from './features/transactions/useExportTransactions';
 export { useExportTickets } from './features/tickets/useExportTickets';
+export { useAdditionalFormsByTicketType } from './features/tickets/useAdditionalFormsByTicketType';
 export { useCities } from './list/useCities';
 export { usePaymentMethods } from './list/usePaymentMethods';

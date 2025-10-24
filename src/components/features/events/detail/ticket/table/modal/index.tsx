@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 
-import { Body2, Caption, Modal } from '@/components/common';
+import { Body2, Caption, Modal, Tabs } from '@/components/common';
 import { TicketType } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
@@ -17,10 +17,15 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
   ticket
 }) => {
   const theme = useTheme();
-  return (
-    <Modal height={500} open={open} title="Ticket Details" onClose={onClose}>
-      {ticket && (
-        <Box display="flex" flexDirection="column" gap="12px">
+  const [activeTab, setActiveTab] = useState('detail');
+
+  const tabs = [
+    { id: 'detail', title: 'Detail Ticket' },
+    { id: 'additional', title: 'Additional Question' }
+  ];
+
+  const renderDetailTicket = () => (
+    <Box display="flex" flexDirection="column" gap="12px">
           {/* Ticket Name */}
           <Box
             alignItems="center"
@@ -169,6 +174,44 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
             <Body2 color="text.primary" fontSize="14px">
               {ticket.description || 'No description available'}
             </Body2>
+          </Box>
+        </Box>
+  );
+
+  const renderAdditionalQuestion = () => (
+    <Box display="flex" flexDirection="column" gap="4px">
+      <Box display="flex" flexDirection="column" gap="1">
+        <Body2 color="text.secondary" fontSize="14px" fontWeight={600}>
+          Question 1:
+        </Body2>
+        <Body2 color="text.primary" fontSize="14px">
+          What is your dietary preference?
+        </Body2>
+        <Body2 color="text.secondary" fontSize="14px" fontWeight={600}>
+          Answer:
+        </Body2>
+        <Body2 color="text.primary" fontSize="14px">
+          Vegetarian
+        </Body2>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Modal height={500} open={open} title="Ticket Details" onClose={onClose}>
+      {ticket && (
+        <Box display="flex" flexDirection="column" marginTop="-12px">
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            borderless={false}
+            fullWidth={true}
+          />
+          
+          <Box mt={2}>
+            {activeTab === 'detail' && renderDetailTicket()}
+            {activeTab === 'additional' && renderAdditionalQuestion()}
           </Box>
         </Box>
       )}

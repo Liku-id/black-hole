@@ -2,6 +2,41 @@ import { TicketsFilters, TicketsResponse, TicketStatus } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
 import axios from 'axios';
 
+// Additional Forms interfaces
+export interface AdditionalForm {
+  id: string;
+  ticketTypeId: string;
+  field: string;
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  options: string;
+  isRequired: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+}
+
+export interface AdditionalFormsResponse {
+  statusCode: number;
+  message: string;
+  additionalForms: AdditionalForm[];
+}
+
+export interface CreateAdditionalFormRequest {
+  ticketTypeId: string;
+  field: string;
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  options?: string;
+  isRequired: boolean;
+  order: number;
+}
+
+export interface CreateAdditionalFormResponse {
+  statusCode: number;
+  message: string;
+  data: AdditionalForm;
+}
+
 interface TicketTypePayload {
   name: string;
   quantity: number;
@@ -191,6 +226,27 @@ class TicketsService {
       if (axios.isAxiosError(error)) {
         throw apiUtils.handleAxiosError(error, 'Failed to export tickets');
       }
+      throw error;
+    }
+  }
+
+  // Additional Forms methods
+  async getAdditionalFormsByTicketType(ticketTypeId: string): Promise<AdditionalFormsResponse> {
+    try {
+      const response = await apiUtils.get(`/api/tickets/ticket-types/${ticketTypeId}/additional-forms`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching additional forms by ticket type:', error);
+      throw error;
+    }
+  }
+
+  async createAdditionalForm(data: CreateAdditionalFormRequest): Promise<CreateAdditionalFormResponse> {
+    try {
+      const response = await apiUtils.post('/api/additional-forms', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating additional form:', error);
       throw error;
     }
   }

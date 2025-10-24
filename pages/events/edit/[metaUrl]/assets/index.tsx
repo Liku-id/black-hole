@@ -37,10 +37,7 @@ const EditAssetsPage = () => {
   // Ensure hooks are not called conditionally; redirect when ready
   useEffect(() => {
     if (!router.isReady) return;
-    if (eventDetail?.eventStatus === 'draft') {
-      router.replace('/events');
-    }
-  }, [router.isReady, eventDetail]);
+  }, [router.isReady]);
 
   // Prevent hydration error by checking if router is ready
   if (!router.isReady) {
