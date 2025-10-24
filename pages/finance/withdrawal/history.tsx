@@ -8,7 +8,6 @@ import { Caption, H2 } from '@/components/common';
 import WithdrawalHistoryTable from '@/components/features/finance/withdrawal/table';
 import { useEventOrganizerMe } from '@/hooks';
 import { useWithdrawalHistory } from '@/hooks/features/withdrawal/useWithdrawalHistory';
-import { WithdrawalHistoryItem } from '@/services/withdrawal';
 import DashboardLayout from '@/layouts/dashboard';
 
 function GeneralWithdrawalHistory() {
@@ -20,15 +19,6 @@ function GeneralWithdrawalHistory() {
     undefined,
     eventOrganizer?.id
   );
-
-  console.log('GeneralWithdrawalHistory page loaded');
-  console.log('Event organizer:', eventOrganizer);
-  console.log('Withdrawals:', withdrawals);
-
-  const handleViewWithdrawal = (withdrawal: WithdrawalHistoryItem) => {
-    // TODO: Implement view withdrawal details
-    console.log('View withdrawal:', withdrawal);
-  };
 
   return (
     <DashboardLayout>
@@ -64,7 +54,6 @@ function GeneralWithdrawalHistory() {
           <WithdrawalHistoryTable
             withdrawals={withdrawals}
             loading={loading}
-            onView={handleViewWithdrawal}
           />
         </CardContent>
       </Card>

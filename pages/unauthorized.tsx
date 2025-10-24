@@ -11,7 +11,7 @@ export default function Unauthorized() {
     localStorage.removeItem('auth_user');
 
     // Redirect to register
-    router.push('/register');
+    router.push('/login');
   };
 
   return (

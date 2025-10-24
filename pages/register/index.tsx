@@ -10,6 +10,8 @@ import { RegisterRequest, RegisterProfileRequest } from '@/types/register';
 import { registerService } from '@/services/auth/register';
 import { useToast } from '@/contexts/ToastContext';
 import { withAuth } from '@/components/Auth/withAuth';
+import { utmService } from '@/services/utm';
+import { dateUtils, deviceUtils } from '@/utils';
 
 const Register: NextPage = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -84,6 +86,28 @@ const Register: NextPage = () => {
           address: profileData!.address,
           description: profileData!.aboutOrganizer
         });
+
+        // Send UTM data if available from URL params
+        const query = router.query;
+        const utmSource = query.utm_source as string;
+        const utmMedium = query.utm_medium as string;
+        const utmCampaign = query.utm_campaign as string;
+
+        if (utmSource && utmMedium && utmCampaign) {
+          const utmPayload = {
+            action: 'register',
+            campaign: utmCampaign,
+            email: registrationData!.email,
+            fullName: registrationData!.organizerName,
+            medium: utmMedium,
+            phoneNumber: registrationData!.phoneNumber,
+            platform: deviceUtils.getDevicePlatform(),
+            source: utmSource,
+            timestamp: dateUtils.getTodayWIB().toISOString(),
+          };
+          await utmService.sendUtmData(utmPayload);
+        }
+
         showInfo('Registrasi berhasil diselesaikan!');
         router.push('/login');
       }

@@ -8,3 +8,4 @@ export { authService } from './auth';
 export { listService } from './list';
 export { assetsService } from './assets';
 export { withdrawalService } from './withdrawal';
+export { utmService } from './utm';

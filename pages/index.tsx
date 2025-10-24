@@ -1,17 +1,23 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { withAuth } from '@/components/Auth/withAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 function Home() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    router.replace('/events');
-  }, [router]);
+    if (!isLoading) {
+      if (isAuthenticated) {
+        router.replace('/events');
+      } else {
+        router.replace('/register');
+      }
+    }
+  }, [router, isAuthenticated, isLoading]);
 
   return null;
 }
 
-// Export with authentication wrapper that requires authentication
-export default withAuth(Home, { requireAuth: true });
+export default Home;

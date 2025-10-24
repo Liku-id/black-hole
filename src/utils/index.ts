@@ -1,6 +1,7 @@
 import { apiUtils } from './apiUtils';
 import { dateUtils } from './dateUtils';
 import { useDebouncedCallback } from './debounceUtils';
+import { deviceUtils } from './deviceUtils';
 import { fileUtils } from './fileUtils';
 import { formatUtils } from './formatUtils';
 import { stringUtils } from './stringUtils';
@@ -10,6 +11,7 @@ export type { ValidationErrors } from './validationUtils';
 export {
   apiUtils,
   dateUtils,
+  deviceUtils,
   fileUtils,
   formatUtils,
   stringUtils,
