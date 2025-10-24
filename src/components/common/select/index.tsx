@@ -17,6 +17,7 @@ import { ErrorOutline } from '@mui/icons-material';
 interface SelectOption {
   value: any;
   label: string;
+  icon?: string;
 }
 
 interface CustomSelectProps
@@ -163,10 +164,21 @@ const SimpleSelect = (props: CustomSelectProps) => {
                 backgroundColor: theme.palette.primary.light
               },
               borderBottom: '1px solid',
-              borderColor: theme.palette.divider
+              borderColor: theme.palette.divider,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2
             })}
             onClick={() => handleSelect(option.value)}
           >
+            {option.icon && (
+              <Image
+                alt={option.label}
+                height={24}
+                src={option.icon}
+                width={24}
+              />
+            )}
             {option.label}
           </MenuItem>
         ))}

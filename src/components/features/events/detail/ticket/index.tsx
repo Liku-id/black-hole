@@ -17,6 +17,10 @@ export const EventDetailTicket = ({ eventDetail }: EventDetailTicketProps) => {
     router.push(`/events/edit/${eventDetail.metaUrl}/tickets`);
   };
 
+  const handleAdditionalForm = () => {
+    router.push(`/events/edit/${eventDetail.metaUrl}/tickets/additional-form`);
+  };
+
   return (
     <Box>
       <Box
@@ -28,14 +32,26 @@ export const EventDetailTicket = ({ eventDetail }: EventDetailTicketProps) => {
         <H3 color="text.primary" fontWeight={700}>
           Event Detail Ticket
         </H3>
-        {eventDetail.eventStatus !== 'done' &&
-          eventDetail.eventStatus !== 'on_review' &&
-          eventDetail.eventStatus !== 'on_going' &&
-          eventDetail.eventStatus !== 'approved' && (
-            <Button variant="primary" onClick={handleEditTickets}>
-              Edit Ticket Detail
-            </Button>
-          )}
+
+        <Box display="flex" gap={2}>
+          {eventDetail.eventStatus !== 'done' &&
+            eventDetail.eventStatus !== 'on_review' &&
+            eventDetail.eventStatus !== 'on_going' &&
+            eventDetail.eventStatus !== 'approved' && (
+              <Button variant="secondary" onClick={handleAdditionalForm} disabled={eventDetail.ticketTypes.length === 0}>
+                Additional Form
+              </Button>
+            )}
+
+          {eventDetail.eventStatus !== 'done' &&
+            eventDetail.eventStatus !== 'on_review' &&
+            eventDetail.eventStatus !== 'on_going' &&
+            eventDetail.eventStatus !== 'approved' && (
+              <Button variant="primary" onClick={handleEditTickets}>
+                Edit Ticket Detail
+              </Button>
+            )}
+        </Box>
       </Box>
 
       {/* Ticket Category Label */}
