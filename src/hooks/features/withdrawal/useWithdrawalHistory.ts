@@ -23,18 +23,12 @@ export const useWithdrawalHistory = (
     setError(null);
 
     try {
-      console.log('Fetching withdrawal history with:', {
-        eventId,
-        eventOrganizerId
-      });
       const response = await withdrawalService.getWithdrawalHistory(
         eventId,
         eventOrganizerId
       );
-      console.log('Withdrawal history response:', response);
       setWithdrawals(response.body);
     } catch (err) {
-      console.error('Failed to fetch withdrawal history:', err);
       setError('Failed to fetch withdrawal history');
     } finally {
       setLoading(false);

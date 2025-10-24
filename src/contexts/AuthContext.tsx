@@ -369,7 +369,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       resetUser();
       
       dispatch({ type: 'LOGOUT_SUCCESS' });
-      router.replace('/register');
+      router.replace('/login');
     }
   };
 

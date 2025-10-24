@@ -11,29 +11,17 @@ import {
   useEventOrganizerMe,
   useWithdrawalHistory
 } from '@/hooks';
-import { WithdrawalHistoryItem } from '@/services/withdrawal';
 import DashboardLayout from '@/layouts/dashboard';
 
 function WithdrawalHistory() {
   const router = useRouter();
   const { metaUrl } = router.query as { metaUrl: string };
-
-  console.log('WithdrawalHistory page loaded with metaUrl:', metaUrl);
-
   const { eventDetail } = useEventDetail(metaUrl);
   const { data: eventOrganizer } = useEventOrganizerMe();
   const { withdrawals, loading } = useWithdrawalHistory(
     eventDetail?.id,
     eventOrganizer?.id
   );
-
-  console.log('Event detail:', eventDetail);
-  console.log('Withdrawals:', withdrawals);
-
-  const handleViewWithdrawal = (withdrawal: WithdrawalHistoryItem) => {
-    // TODO: Implement view withdrawal details
-    console.log('View withdrawal:', withdrawal);
-  };
 
   return (
     <DashboardLayout>
@@ -69,7 +57,6 @@ function WithdrawalHistory() {
           <WithdrawalHistoryTable
             withdrawals={withdrawals}
             loading={loading}
-            onView={handleViewWithdrawal}
             hideEventName={true}
           />
         </CardContent>
