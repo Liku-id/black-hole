@@ -8,6 +8,14 @@ export default async function handler(
 ) {
   const { id } = req.query;
 
+  // GET /v1/ticket-types/{id}
+  if (req.method === 'GET') {
+    return apiRouteUtils.createGetHandler({
+      endpoint: `/ticket-types/${id}`,
+      timeout: 30000
+    })(req, res);
+  }
+
   // PUT /v1/ticket-types/{id}
   if (req.method === 'PUT') {
     return apiRouteUtils.createPutHandler({
@@ -24,6 +32,6 @@ export default async function handler(
     })(req, res);
   }
 
-  res.setHeader('Allow', ['PUT', 'DELETE']);
+  res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }

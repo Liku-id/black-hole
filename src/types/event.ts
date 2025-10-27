@@ -43,6 +43,15 @@ export interface TicketType {
   deleted_at: string;
   ticketStartDate: string;
   ticketEndDate: string;
+  additional_forms?: Array<{
+    id: string;
+    field: string;
+    type: string;
+    isRequired: boolean;
+    order: number;
+    deletedAt?: string;
+    answer?: string;
+  }>;
 }
 
 export interface Asset {

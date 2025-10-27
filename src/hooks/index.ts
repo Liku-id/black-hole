@@ -2,6 +2,7 @@
 export { useApi } from './useApi';
 export { useEventDetail } from './features/events/useEventDetail';
 export { useTickets } from './features/tickets/useTickets';
+export { useTicketType } from './features/tickets/useTicketType';
 export { useEventTypes } from './features/events/useEventTypes';
 export { useEvents } from './features/events/useEvents';
 export { useFilteredEvents } from './features/events/useFilteredEvents';
@@ -20,6 +21,5 @@ export { useWithdrawalHistory } from './features/withdrawal/useWithdrawalHistory
 export { useTransactions } from './features/transactions/useTransactions';
 export { useExportTransactions } from './features/transactions/useExportTransactions';
 export { useExportTickets } from './features/tickets/useExportTickets';
-export { useAdditionalFormsByTicketType } from './features/tickets/useAdditionalFormsByTicketType';
 export { useCities } from './list/useCities';
 export { usePaymentMethods } from './list/usePaymentMethods';

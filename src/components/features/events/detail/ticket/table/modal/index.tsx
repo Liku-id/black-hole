@@ -178,24 +178,36 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
         </Box>
   );
 
-  const renderAdditionalQuestion = () => (
-    <Box display="flex" flexDirection="column" gap="4px">
-      <Box display="flex" flexDirection="column" gap="1">
-        <Body2 color="text.secondary" fontSize="14px" fontWeight={600}>
-          Question 1:
-        </Body2>
-        <Body2 color="text.primary" fontSize="14px">
-          What is your dietary preference?
-        </Body2>
-        <Body2 color="text.secondary" fontSize="14px" fontWeight={600}>
-          Answer:
-        </Body2>
-        <Body2 color="text.primary" fontSize="14px">
-          Vegetarian
-        </Body2>
+  const renderAdditionalQuestion = () => {
+    const additionalForms = ticket?.additional_forms || [];
+    
+    if (additionalForms.length === 0) {
+      return (
+        <Box display="flex" flexDirection="column" gap="4px">
+          <Body2 color="text.secondary" fontSize="14px">
+            Tidak ada pertanyaan tambahan untuk tiket ini.
+          </Body2>
+        </Box>
+      );
+    }
+
+    return (
+      <Box display="flex" flexDirection="column" gap="16px">
+        {additionalForms
+          .filter(form => !form.deletedAt)
+          .map((form, index) => (
+            <Box key={form.id} display="flex" flexDirection="column" gap="1">
+              <Body2 color="text.secondary" fontSize="14px" fontWeight={600}>
+                Question {index + 1}: {form.isRequired && '*'}
+              </Body2>
+              <Body2 color="text.primary" fontSize="14px">
+                {form.field}
+              </Body2>
+            </Box>
+          ))}
       </Box>
-    </Box>
-  );
+    );
+  };
 
   return (
     <Modal height={500} open={open} title="Ticket Details" onClose={onClose}>
