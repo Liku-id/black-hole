@@ -1,11 +1,13 @@
-import { Box, Grid, IconButton } from '@mui/material';
-import Image from 'next/image';
-import { useState } from 'react';
+import { Box } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 
-import { Button, Select, TextArea, TextField } from '@/components/common';
-import { Body2, H4 } from '@/components/common';
-import { useAdditionalFormsByTicketType } from '@/hooks';
+import { Body2, Select } from '@/components/common';
+import { useToast } from '@/contexts/ToastContext';
+import { useTicketType } from '@/hooks';
 import { ticketsService } from '@/services/tickets';
+import { CustomQuestionForm } from './custom-question-form';
+import { ExistingQuestionForm } from './existing-question-form';
+import { SubmitSection } from './submit-section';
 
 interface TicketType {
   id: string;
@@ -19,7 +21,6 @@ interface CustomQuestion {
   question: string;
   formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
   options?: string[];
-  placeholder?: string;
 }
 
 interface AdditionalFormProps {
@@ -36,14 +37,14 @@ export function AdditionalForm({
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [deletedForms, setDeletedForms] = useState<Set<string>>(new Set());
+  const [editableForms, setEditableForms] = useState<Map<string, any>>(new Map());
+  
+  const { additionalForms, loading: additionalFormsLoading, mutate } = useTicketType(selectedTicketType || null);
+  const { showInfo } = useToast();
 
-  // Fetch additional forms from backend when ticket type is selected
-  const { additionalForms, loading: additionalFormsLoading } = useAdditionalFormsByTicketType(
-    selectedTicketType || null
-  );
 
   const selectedTicket = ticketTypes.find(ticket => ticket.id === selectedTicketType);
-
   const selectOptions = ticketTypes.map(ticketType => ({
     value: ticketType.id,
     label: ticketType.name
@@ -58,6 +59,7 @@ export function AdditionalForm({
     { value: 'RADIO', label: 'Multiple Choice', icon: '/icon/radio.svg' }
   ];
 
+  // Custom question handlers
   const addNewQuestion = () => {
     if (customQuestions.length < 5) {
       const newQuestion: CustomQuestion = {
@@ -74,11 +76,9 @@ export function AdditionalForm({
       questions.map(q => {
         if (q.id === id) {
           const updatedQuestion = { ...q, ...updates };
-          // Reset question when form type changes
           if (updates.formType && updates.formType !== q.formType) {
             updatedQuestion.question = '';
           }
-          // Add options for radio/checkbox, remove for others
           if (updates.formType === 'RADIO' || updates.formType === 'CHECKBOX') {
             updatedQuestion.options = ['', ''];
           } else if (updates.formType) {
@@ -106,18 +106,6 @@ export function AdditionalForm({
     }
   };
 
-  const addOption = (questionId: string) => {
-    setCustomQuestions(questions =>
-      questions.map(q => {
-        if (q.id === questionId) {
-          const newOptions = [...(q.options || []), ''];
-          return { ...q, options: newOptions };
-        }
-        return q;
-      })
-    );
-  };
-
   const updateOption = (questionId: string, optionIndex: number, value: string) => {
     setCustomQuestions(questions =>
       questions.map(q => {
@@ -131,204 +119,222 @@ export function AdditionalForm({
     );
   };
 
-  const handleSubmit = async () => {
+  const addOption = (questionId: string) => {
+    setCustomQuestions(questions =>
+      questions.map(q => {
+        if (q.id === questionId) {
+          const newOptions = [...(q.options || []), ''];
+          return { ...q, options: newOptions };
+        }
+        return q;
+      })
+    );
+  };
+
+  // Existing form handlers
+  const handleInputChange = (formId: string, field: string, value: any) => {
+    setEditableForms(prev => {
+      const newMap = new Map(prev);
+      const currentForm = newMap.get(formId);
+      if (currentForm) {
+        const updatedForm = { ...currentForm, [field]: value };
+        newMap.set(formId, updatedForm);
+      }
+      return newMap;
+    });
+  };
+
+  const handleOptionChange = (formId: string, optionIndex: number, value: string, isExistingForm: boolean = false) => {
+    if (isExistingForm) {
+      setEditableForms(prev => {
+        const newMap = new Map(prev);
+        const currentForm = newMap.get(formId);
+        if (currentForm && currentForm.options) {
+          const newOptions = [...currentForm.options];
+          newOptions[optionIndex] = value;
+          const updatedForm = { ...currentForm, options: newOptions };
+          newMap.set(formId, updatedForm);
+        }
+        return newMap;
+      });
+    } else {
+      updateOption(formId, optionIndex, value);
+    }
+  };
+
+  const handleAddOption = (formId: string, isExistingForm: boolean = false) => {
+    if (isExistingForm) {
+      setEditableForms(prev => {
+        const newMap = new Map(prev);
+        const currentForm = newMap.get(formId);
+        if (currentForm) {
+          const newOptions = [...(currentForm.options || []), ''];
+          const updatedForm = { ...currentForm, options: newOptions };
+          newMap.set(formId, updatedForm);
+        }
+        return newMap;
+      });
+    } else {
+      addOption(formId);
+    }
+  };
+
+  const handleClickDeleteIcon = (formId: string) => {
+    setDeletedForms(prev => new Set([...prev, formId]));
+  };
+
+  const handleClickDuplicateIcon = (formId: string) => {
+    const formToDuplicate = additionalForms.find(form => form.id === formId);
+    if (formToDuplicate && customQuestions.length < 5) {
+      const newQuestion: CustomQuestion = {
+        id: `question-${Date.now()}`,
+        question: formToDuplicate.field,
+        formType: formToDuplicate.type as any,
+        options: Array.isArray(formToDuplicate.options) ? formToDuplicate.options : []
+      };
+      setCustomQuestions([...customQuestions, newQuestion]);
+    }
+  };
+
+  // Validation
+  const isFormValid = (form: any) => {
+    if (!form.field?.trim()) return false;
+    if ((form.type === 'RADIO' || form.type === 'CHECKBOX') && form.options) {
+      return form.options.every((option: string) => option.trim() !== '');
+    }
+    return true;
+  };
+
+  const isCustomQuestionValid = (question: CustomQuestion) => {
+    if (!question.question?.trim()) return false;
+    if ((question.formType === 'RADIO' || question.formType === 'CHECKBOX') && question.options) {
+      return question.options.every(option => option.trim() !== '');
+    }
+    return true;
+  };
+
+  const isSubmitDisabled = () => {
+    const existingFormsValid = Array.from(editableForms.values()).every(isFormValid);
+    const customQuestionsValid = customQuestions.every(isCustomQuestionValid);
+    return !existingFormsValid || !customQuestionsValid || isSubmitting;
+  };
+
+  // Submit handler - handles all form operations (delete, update, create)
+  const handleSubmitAll = async () => {
     if (!selectedTicketType) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      // Prepare payload for custom questions
-      const payload = customQuestions.map((question, index) => ({
-        ticketTypeId: selectedTicketType,
-        field: question.question,
-        type: question.formType,
-        options: question.options?.join(',') || '',
-        isRequired: true,
-        order: index
+      // STEP 1: Prepare data
+      const deleted = Array.from(deletedForms);
+      const validForms = additionalForms?.filter(f => f.id && f.field?.trim()) || [];
+      const remainingForms = validForms.filter(f => !deletedForms.has(f.id));
+      const hasDeletions = deleted.length > 0;
+      
+      // STEP 2: Prepare forms to update (skip first form order 0)
+      const formsToUpdate = remainingForms.filter(form => form.order !== 0);
+      
+      const updated = formsToUpdate
+        .sort((a, b) => a.order - b.order) // Sort by order
+        .map((form, index) => {
+          const editableForm = editableForms.get(form.id) || form;
+          
+          // Check content changes or order update needed
+          const hasContentChanged =
+            editableForm.field !== form.field ||
+            editableForm.type !== form.type ||
+            JSON.stringify(editableForm.options || []) !== JSON.stringify(form.options || []);
+          
+          const newOrder = index + 1; // New order (skip 0, start from 1)
+          const needsOrderUpdate = hasDeletions && form.order !== newOrder;
+
+          return (hasContentChanged || needsOrderUpdate) ? {
+            id: form.id,
+            question: editableForm.field,
+            type: editableForm.type,
+            order: newOrder,
+            ...(editableForm.options && editableForm.options.length > 0 ? { options: editableForm.options } : {})
+          } : null;
+        })
+        .filter(Boolean);
+
+      // STEP 3: Prepare new forms
+      const maxExistingOrder = remainingForms.length > 0 ? Math.max(...remainingForms.map(f => f.order)) : 0;
+      const startingOrderForNew = maxExistingOrder + 1;
+
+      const newForms = customQuestions.map((q, index) => ({
+        question: q.question,
+        type: q.formType,
+        order: startingOrderForNew + index,
+        ...(q.options && q.options.length > 0 ? { options: q.options } : {})
       }));
 
-      console.log('Additional Forms Payload:', payload);
-      // Call API to create additional forms
-      const promises = payload.map(form => ticketsService.createAdditionalForm(form));
-      await Promise.all(promises);
+      // STEP 4: Execute operations
+      // Delete forms first
+      if (deleted.length > 0) {
+        for (const formId of deletedForms) {
+          await ticketsService.deleteAdditionalForm(formId);
+        }
+      }
+
+      // Update existing forms
+      if (updated.length > 0) {
+        for (const form of updated) {
+          await ticketsService.updateAdditionalForm(form.id, {
+            ticketTypeId: selectedTicketType,
+            field: form.question,
+            type: form.type,
+            isRequired: true,
+            order: form.order,
+            ...(form.options ? { options: form.options } : {})
+          });
+        }
+      }
+
+      // Create new forms
+      if (newForms.length > 0) {
+        const createPayload = newForms.map(form => ({
+          ticketTypeId: selectedTicketType,
+          field: form.question,
+          type: form.type,
+          isRequired: true,
+          order: form.order,
+          ...(form.options ? { options: form.options } : {})
+        }));
+        const promises = createPayload.map(form => ticketsService.createAdditionalForm(form));
+        await Promise.all(promises); // Create all new forms in parallel
+      }
+
+      // STEP 5: Clean up
+      setDeletedForms(new Set());
       setCustomQuestions([]);
-      console.log('Additional forms created successfully!');
+      showInfo('Additional forms updated successfully!');
     } catch (error) {
-      console.error('Error creating additional forms:', error);
-      setSubmitError('Failed to create additional forms. Please try again.');
+      setSubmitError('Failed to submit changes. Please try again.');
     } finally {
       setIsSubmitting(false);
+      mutate(); // Refresh data
     }
   };
 
-  // Reusable function to render form fields based on type
-  const renderFormField = (formType: string, options?: string[], isDisabled: boolean = true, questionId?: string) => {
-    switch (formType) {
-      case 'TEXT':
-        return (
-          <Box mb={3}>
-            <TextField
-              label="Short Answer Text"
-              placeholder="Example: Full Name"
-              fullWidth
-              disabled
-              sx={(theme) => ({
-                '& .MuiInputBase-root': {
-                  backgroundColor: theme.palette.background.default
-                }
-              })}
-            />
-          </Box>
-        );
-      case 'PARAGRAPH':
-        return (
-          <Box mb={3}>
-            <TextArea
-              label="Paragraph Answer"
-              placeholder="Example: Please provide your dietary restrictions or special requirements for the event."
-              fullWidth
-              disabled
-              rows={1}
-              sx={{
-                '& .MuiOutlinedInput-root textarea': {
-                  padding: '0px'
-                }
-              }}
-            />
-          </Box>
-        );
-      case 'NUMBER':
-        return (
-          <Box mb={3}>
-            <TextField
-              label="Number Answer"
-              type="number"
-              placeholder="Example: 25"
-              fullWidth
-              disabled
-              sx={(theme) => ({
-                '& .MuiInputBase-root': {
-                  backgroundColor: theme.palette.background.default
-                }
-              })}
-            />
-          </Box>
-        );
-      case 'DATE':
-        return (
-          <Box mb={3}>
-            <TextField
-              label="Date Answer"
-              placeholder="Day/Month/Year"
-              fullWidth
-              disabled
-              startComponent={<Image alt="calendar" height={24} src="/icon/calendar-v3.svg" width={24} />}
-              sx={(theme) => ({
-                '& .MuiInputBase-root': {
-                  backgroundColor: theme.palette.background.default
-                }
-              })}
-            />
-          </Box>
-        );
-
-      case 'RADIO':
-      case 'CHECKBOX':
-        return (
-          <Box mb={3}>
-            {options?.map((option, optionIndex) => (
-              <Box key={optionIndex} mb={1}>
-                <TextField
-                  placeholder={`Option ${optionIndex + 1}`}
-                  value={option}
-                  onChange={!isDisabled && questionId ? (e) => updateOption(questionId, optionIndex, e.target.value) : undefined}
-                  fullWidth
-                  disabled={isDisabled}
-                  InputProps={{
-                    startAdornment: formType === 'CHECKBOX' ? <Image src={'/icon/checkbox-v2.svg'} alt="checkbox" height={24} width={24} /> : <Image src={'/icon/radio-v2.svg'} alt="radio" height={24} width={24} />
-                  }}
-                />
-              </Box>
-            ))}
-
-            {!isDisabled && questionId && (
-              <Button
-                variant="secondary"
-                onClick={() => addOption(questionId)}
-                sx={{ mt: 2 }}
-              >
-                Add new option
-              </Button>
-            )}
-          </Box>
-        );
-
-      default:
-        return null;
+  // Initialize editable forms when additionalForms change
+  useEffect(() => {
+    if (additionalForms && additionalForms.length > 0) {
+      const editableMap = new Map();
+      additionalForms.forEach(form => {
+        const optionsArray = Array.isArray(form.options) ? form.options : [];
+        editableMap.set(form.id, {
+          ...form,
+          field: form.field,
+          type: form.type,
+          options: optionsArray
+        });
+      });
+      setEditableForms(editableMap);
     }
-  };
-
-  const renderQuestionForm = (question: CustomQuestion, index: number) => {
-    const questionNumber = index + 1;
-
-    return (
-      <Box key={question.id} mb={2} borderBottom="1px solid" borderColor="divider">
-        <H4 color="text.primary" mb="16px">
-          Question {questionNumber}
-        </H4>
-
-        <Grid container spacing={2}>
-          {/* Left side - 80% */}
-          <Grid item xs={12} md={9}>
-            <Box mb={2}>
-              <TextField
-                label='Question*'
-                placeholder="Write your question here"
-                value={question.question}
-                onChange={(e) => updateQuestion(question.id, { question: e.target.value })}
-                fullWidth
-              />
-            </Box>
-
-            {/* Render form based on type */}
-            {renderFormField(question.formType, question.options, false, question.id)}
-          </Grid>
-
-          {/* Right side - 20% */}
-          <Grid item xs={12} md={3}>
-            <Box mb={2}>
-              <Select
-                label="Form Type"
-                options={formTypeOptions}
-                value={question.formType}
-                onChange={(value) => updateQuestion(question.id, { formType: value as any })}
-                fullWidth
-                sx={{
-                  '& .MuiPaper-root-MuiPopover-paper-MuiMenu-paper': {
-                    padding: '8px 0'
-                  }
-                }}
-              />
-            </Box>
-
-            <Body2 color="text.primary" fontWeight={400} fontSize="14px" mb="12px">
-              Option
-            </Body2>
-
-            <Box display="flex">
-              <IconButton onClick={() => deleteQuestion(question.id)} size="small">
-                <Image alt="Delete" height={20} src="/icon/trash-v2.svg" width={20} />
-              </IconButton>
-              <IconButton onClick={() => duplicateQuestion(question.id)} size="small">
-                <Image alt="Copy" height={20} src="/icon/copy.svg" width={20} />
-              </IconButton>
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
-    );
-  };
+  }, [additionalForms]);
 
   return (
     <>
@@ -347,71 +353,58 @@ export function AdditionalForm({
           ) : (
             <>
               {/* Render existing additional forms from backend */}
-              {additionalForms.map((form, index) => (
-                <Box key={form.id} mb={2} borderBottom="1px solid" borderColor="divider">
-                  <H4 color="text.primary" mb="16px">
-                    Question {index + 1}
-                  </H4>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={9}>
-                      <Box mb={2}>
-                        <TextField
-                          label="Question*"
-                          placeholder="Write your question here"
-                          value={form.field}
-                          fullWidth
-                          disabled
-                        />
-                      </Box>
-                      {/* Render form based on type */}
-                      {renderFormField(form.type, form.options?.split(','), true)}
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                      <Box mb={2}>
-                        <Select
-                          label="Form Type"
-                          options={formTypeOptions}
-                          value={form.type.toLowerCase()}
-                          fullWidth
-                          disabled
-                          sx={{
-                            '& .MuiPaper-root-MuiPopover-paper-MuiMenu-paper': {
-                              padding: '0 !important'
-                            }
-                          }}
-                        />
-                      </Box>
-                    </Grid>
-                  </Grid>
+              {additionalForms && additionalForms.length > 0 ? (
+                additionalForms
+                  .filter(form => !deletedForms.has(form.id))
+                  .map((form, index) => (
+                    <ExistingQuestionForm
+                      key={form.id}
+                      form={editableForms.get(form.id) || form}
+                      questionNumber={index + 1}
+                      isFirstForm={index === 0}
+                      formTypeOptions={formTypeOptions}
+                      onFieldChange={handleInputChange}
+                      onTypeChange={(formId, value) => handleInputChange(formId, 'type', value)}
+                      onDelete={handleClickDeleteIcon}
+                      onDuplicate={handleClickDuplicateIcon}
+                      onOptionChange={handleOptionChange}
+                      onAddOption={handleAddOption}
+                    />
+                  ))
+              ) : (
+                <Box mb={2} p={2} sx={{ backgroundColor: 'warning.light', borderRadius: 1 }}>
+                  <Body2 color="warning.main">
+                    No additional forms found for this ticket type.
+                  </Body2>
                 </Box>
-              ))}
+              )}
+
               {/* Custom Questions */}
-              {customQuestions.map((question, index) => renderQuestionForm(question, index + additionalForms.length))}
+              {customQuestions.map((question, index) => {
+                const remainingCount = additionalForms?.filter(form => !deletedForms.has(form.id)).length || 0;
+                return (
+                  <CustomQuestionForm
+                    key={question.id}
+                    question={question}
+                    questionNumber={remainingCount + index + 1}
+                    formTypeOptions={formTypeOptions}
+                    onQuestionChange={updateQuestion}
+                    onDelete={deleteQuestion}
+                    onDuplicate={duplicateQuestion}
+                    onOptionChange={updateOption}
+                    onAddOption={addOption}
+                  />
+                );
+              })}
 
-              {submitError && (
-                <Box mt={2} p={2} sx={{ backgroundColor: 'error.light', borderRadius: 1 }}>
-                  <Body2 color="error.main">{submitError}</Body2>
-                </Box>
-              )}
-
-              {customQuestions.length < 5 && (
-                <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
-                  <Button
-                    variant="secondary"
-                    onClick={addNewQuestion}
-                    disabled={isSubmitting}
-                  >
-                    Add New Question
-                  </Button>
-                  <Button
-                    variant="primary"
-                    disabled={customQuestions.length === 0 || customQuestions.some(q => !q.question.trim()) || isSubmitting}
-                    onClick={handleSubmit}
-                  >
-                    {isSubmitting ? 'Creating...' : 'Submit'}
-                  </Button>
-                </Box>
-              )}
+              <SubmitSection
+                customQuestionsCount={customQuestions.length}
+                isSubmitting={isSubmitting}
+                submitError={submitError}
+                isSubmitDisabled={isSubmitDisabled()}
+                onAddNewQuestion={addNewQuestion}
+                onSubmitAll={handleSubmitAll}
+              />
             </>
           )}
         </Box>

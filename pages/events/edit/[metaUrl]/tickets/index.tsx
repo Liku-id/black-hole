@@ -334,7 +334,17 @@ const EditTicketsPage = () => {
           ticketStartDate: ticketStartISO,
           ticketEndDate: ticketEndISO
         };
-        await ticketsService.createTicketType(payload);
+        const createdTicket = await ticketsService.createTicketType(payload);
+        // Create default additional form for new ticket
+        if (createdTicket?.body?.id) {
+          await ticketsService.createAdditionalForm({
+            ticketTypeId: createdTicket.body.id,
+            field: 'Visitor Name',
+            type: 'TEXT',
+            isRequired: true,
+            order: 0
+          });
+        }
       }
       await mutateEventDetail();
       setShowAdditionalFormModal(true);
@@ -415,7 +425,7 @@ const EditTicketsPage = () => {
               variant="primary"
               onClick={handleSubmitEvent}
             >
-              {isLoading ? 'Updating...' : 'Update Tickets'}
+              Update Tickets
             </Button>
           </Box>
         </Card>
