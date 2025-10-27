@@ -31,7 +31,7 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
             <Button disabled={loading} variant="secondary" onClick={onClose}>
               Back
             </Button>
-            <Button disabled={loading} variant="primary" onClick={onConfirm}>
+            <Button id="withdrawal-confirm-button" disabled={loading} variant="primary" onClick={onConfirm}>
               {loading ? 'Processing...' : 'Yes, Withdraw'}
             </Button>
           </Box>
