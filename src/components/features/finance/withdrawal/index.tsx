@@ -135,9 +135,6 @@ const FinanceWithdrawal = ({
   };
 
   const handleWithdrawalHistoryClick = () => {
-    console.log(
-      'Withdrawal history clicked - navigating to all events history'
-    );
     // Navigate to general withdrawal history without specific event
     router.push('/finance/withdrawal/history');
   };

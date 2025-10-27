@@ -23,7 +23,6 @@ import WithdrawalDetailModal from '../modal/detail';
 interface WithdrawalHistoryTableProps {
   withdrawals: WithdrawalHistoryItem[];
   loading?: boolean;
-  onView?: (withdrawal: WithdrawalHistoryItem) => void;
   hideEventName?: boolean;
 }
 
