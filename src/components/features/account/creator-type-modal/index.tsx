@@ -28,11 +28,13 @@ export const CreatorTypeModal = ({
 
   const creatorTypes = [
     {
+      id: 'individual_creator',
       value: 'individual',
       label: 'Individual Creator',
       icon: '/icon/individual.svg'
     },
     {
+      id: 'institution_creator',
       value: 'institutional',
       label: 'Company Creator',
       icon: '/icon/institutional.svg'
@@ -69,7 +71,7 @@ export const CreatorTypeModal = ({
           <H3 color="text.primary" fontWeight={700}>
             Choose Creator Type
           </H3>
-          <IconButton size="small" onClick={onClose}>
+          <IconButton id="close_button" size="small" onClick={onClose}>
             <Image alt="Close" height={20} src="/icon/close.svg" width={20} />
           </IconButton>
         </Box>
@@ -78,6 +80,7 @@ export const CreatorTypeModal = ({
         <Box display="flex" gap={3} mb={4}>
           {creatorTypes.map((type) => (
             <Box
+              id={type.id}
               key={type.value}
               sx={{
                 flex: 1,
@@ -142,6 +145,7 @@ export const CreatorTypeModal = ({
         {/* Continue Button */}
         <Box display="flex" justifyContent="flex-end">
           <Button
+            id="continue_button"
             variant="primary"
             onClick={handleContinue}
             disabled={!selectedType || loading}
