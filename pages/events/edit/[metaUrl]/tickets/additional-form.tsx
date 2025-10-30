@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H2 } from '@/components/common';
@@ -26,6 +26,18 @@ function AdditionalFormPage() {
   };
 
   const selectedTicket = eventDetail?.ticketTypes?.find(ticket => ticket.id === selectedTicketType);
+
+  // Redirect if event is not editable (align with edit tickets page behavior)
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (
+      eventDetail?.eventStatus === 'on_review' ||
+      eventDetail?.eventStatus === 'on_going' ||
+      eventDetail?.eventStatus === 'done'
+    ) {
+      router.replace('/events');
+    }
+  }, [router.isReady, eventDetail]);
 
   if (eventLoading) {
     return (
