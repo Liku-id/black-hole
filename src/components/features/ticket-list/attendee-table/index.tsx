@@ -47,6 +47,10 @@ interface AttendeeData {
   eventDate?: string;
   transactionId?: string;
   transactionNumber?: string;
+  attendeeData?: Array<{
+    field: string;
+    value: string[];
+  }>;
 }
 
 interface AttendeeTableProps {

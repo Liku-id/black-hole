@@ -1,5 +1,15 @@
 export type TicketStatus = 'pending' | 'issued' | 'cancelled' | 'redeemed';
 
+export interface AttendeeAdditionalData {
+  id: string;
+  ticket_id: string;
+  additional_form_id: string;
+  value: string[];
+  field: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Ticket {
   id: string;
   ticket_type_id: string;
@@ -18,17 +28,22 @@ export interface Ticket {
   phone_number?: string;
   payment_method_name?: string;
   transaction_number?: string;
+  attendee_data?: AttendeeAdditionalData[];
 }
 
 export interface TicketsResponse {
   statusCode: number;
   message: string;
   body: {
-    tickets: Ticket[];
-    show: number;
-    page: number;
-    total: number;
-    totalPage: number;
+    data: Ticket[];
+    pagination: {
+      page: number;
+      limit: number;
+      totalRecords: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
   };
 }
 
