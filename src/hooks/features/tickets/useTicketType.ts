@@ -27,7 +27,7 @@ interface AdditionalForm {
   id: string;
   ticketTypeId: string;
   field: string;
-  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options: string[];
   isRequired: boolean;
   order: number;
