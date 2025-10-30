@@ -88,7 +88,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Check if user is admin
   const isAdmin =
     sessionRole === 'admin' ||
-    process.env.NEXT_PUBLIC_PREVILAGE_ROLE.includes(sessionRole || '');
+    (process.env.NEXT_PUBLIC_PREVILAGE_ROLE || '').includes(sessionRole || '');
 
   // Fetch event organizers if user is admin
   useEffect(() => {
