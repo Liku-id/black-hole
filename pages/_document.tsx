@@ -1,6 +1,7 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
+  const facebookDomainVerification = process.env.NEXT_PUBLIC_FACEBOOK_DOMAIN_VERIFICATION;
   return (
     <Html lang="en">
       <Head>
@@ -19,6 +20,9 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        {facebookDomainVerification ? (
+          <meta name="facebook-domain-verification" content={facebookDomainVerification} />
+        ) : null}
       </Head>
       <body>
         <Main />
