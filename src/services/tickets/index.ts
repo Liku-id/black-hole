@@ -7,7 +7,7 @@ export interface AdditionalForm {
   id: string;
   ticketTypeId: string;
   field: string;
-  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options: string[];
   isRequired: boolean;
   order: number;
@@ -25,7 +25,7 @@ export interface AdditionalFormsResponse {
 export interface CreateAdditionalFormRequest {
   ticketTypeId: string;
   field: string;
-  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
   isRequired: boolean;
   order: number;
@@ -34,7 +34,7 @@ export interface CreateAdditionalFormRequest {
 export interface UpdateAdditionalFormRequest {
   ticketTypeId: string;
   field: string;
-  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
   isRequired: boolean;
   order: number;

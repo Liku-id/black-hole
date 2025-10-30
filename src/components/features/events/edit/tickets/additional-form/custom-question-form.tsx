@@ -9,7 +9,7 @@ import { FormFieldRenderer } from './form-field-renderer';
 interface CustomQuestion {
   id: string;
   question: string;
-  formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
 }
 

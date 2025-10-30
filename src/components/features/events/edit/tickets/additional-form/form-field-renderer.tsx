@@ -4,7 +4,7 @@ import React from 'react';
 import { Button, TextArea, TextField } from '@/components/common';
 
 interface FormFieldRendererProps {
-  formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
   isDisabled: boolean;
   questionId?: string;
@@ -22,7 +22,7 @@ export function FormFieldRenderer({
   onOptionChange,
   onAddOption
 }: FormFieldRendererProps) {
-  const isFieldDisabled = formType === 'RADIO' || formType === 'CHECKBOX' ? isDisabled : true;
+  const isFieldDisabled = formType === 'DROPDOWN' || formType === 'CHECKBOX' ? isDisabled : true;
 
   const commonTextFieldProps = {
     fullWidth: true,
@@ -88,7 +88,7 @@ export function FormFieldRenderer({
         </Box>
       );
 
-    case 'RADIO':
+    case 'DROPDOWN':
     case 'CHECKBOX':
       return (
         <Box mb={3}>

@@ -9,7 +9,7 @@ import { FormFieldRenderer } from './form-field-renderer';
 interface ExistingForm {
   id: string;
   field: string;
-  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
 }
 

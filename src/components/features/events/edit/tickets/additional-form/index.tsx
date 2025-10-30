@@ -19,7 +19,7 @@ interface TicketType {
 interface CustomQuestion {
   id: string;
   question: string;
-  formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'RADIO' | 'CHECKBOX';
+  formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
 }
 
@@ -56,7 +56,7 @@ export function AdditionalForm({
     { value: 'NUMBER', label: 'Number', icon: '/icon/number.svg' },
     { value: 'DATE', label: 'Date', icon: '/icon/calendar.svg' },
     { value: 'CHECKBOX', label: 'Checkbox', icon: '/icon/checkbox.svg' },
-    { value: 'RADIO', label: 'Multiple Choice', icon: '/icon/radio.svg' }
+    { value: 'DROPDOWN', label: 'Multiple Choice', icon: '/icon/radio.svg' }
   ];
 
   // Custom question handlers
@@ -79,7 +79,7 @@ export function AdditionalForm({
           if (updates.formType && updates.formType !== q.formType) {
             updatedQuestion.question = '';
           }
-          if (updates.formType === 'RADIO' || updates.formType === 'CHECKBOX') {
+          if (updates.formType === 'DROPDOWN' || updates.formType === 'CHECKBOX') {
             updatedQuestion.options = ['', ''];
           } else if (updates.formType) {
             delete updatedQuestion.options;
@@ -199,7 +199,7 @@ export function AdditionalForm({
   // Validation
   const isFormValid = (form: any) => {
     if (!form.field?.trim()) return false;
-    if ((form.type === 'RADIO' || form.type === 'CHECKBOX') && form.options) {
+    if ((form.type === 'DROPDOWN' || form.type === 'CHECKBOX') && form.options) {
       return form.options.every((option: string) => option.trim() !== '');
     }
     return true;
@@ -207,7 +207,7 @@ export function AdditionalForm({
 
   const isCustomQuestionValid = (question: CustomQuestion) => {
     if (!question.question?.trim()) return false;
-    if ((question.formType === 'RADIO' || question.formType === 'CHECKBOX') && question.options) {
+    if ((question.formType === 'DROPDOWN' || question.formType === 'CHECKBOX') && question.options) {
       return question.options.every(option => option.trim() !== '');
     }
     return true;
