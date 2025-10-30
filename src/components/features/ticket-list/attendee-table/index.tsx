@@ -31,6 +31,7 @@ import { useExportTickets } from '@/hooks';
 import { ticketsService } from '@/services';
 import { TicketStatus } from '@/types/ticket';
 import { dateUtils } from '@/utils';
+import { TicketDetailModal } from '../modal';
 
 interface AttendeeData {
   no: number;
@@ -46,6 +47,10 @@ interface AttendeeData {
   eventDate?: string;
   transactionId?: string;
   transactionNumber?: string;
+  attendeeData?: Array<{
+    field: string;
+    value: string[];
+  }>;
 }
 
 interface AttendeeTableProps {
@@ -676,103 +681,12 @@ export const AttendeeTable = ({
       </Dialog>
 
       {/* Detail Ticket Modal */}
-      <Dialog
+      <TicketDetailModal
         open={detailModalOpen}
-        PaperProps={{
-          sx: {
-            borderRadius: '4px',
-            padding: 2,
-            minWidth: '400px',
-            maxWidth: '500px'
-          }
-        }}
         onClose={handleCloseModals}
-      >
-        <Box
-          alignItems="center"
-          display="flex"
-          justifyContent="space-between"
-          sx={{
-            mb: 1.5
-          }}
-        >
-          <DialogTitle
-            sx={{
-              fontSize: '18px',
-              fontWeight: 600,
-              color: 'text.primary',
-              p: 0,
-              flex: 1
-            }}
-          >
-            Detail Ticket
-          </DialogTitle>
-          <IconButton sx={{ p: 0.5 }} onClick={handleCloseModals}>
-            <Image alt="close" height={16} src="/icon/close.svg" width={16} />
-          </IconButton>
-        </Box>
-        <DialogContent sx={{ pt: 0, px: 0, pb: 1 }}>
-          {selectedAttendee && (
-            <Box display="flex" flexDirection="column" gap={1.5}>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">User Name:</Body2>
-                <Body2 fontWeight={500}>{selectedAttendee.name}</Body2>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">Ticket Type:</Body2>
-                <Body2 fontWeight={500}>{selectedAttendee.ticketType}</Body2>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">Phone Number:</Body2>
-                <Body2 fontWeight={500}>{selectedAttendee.phoneNumber}</Body2>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">Email:</Body2>
-                <Body2 fontWeight={500}>{selectedAttendee?.email || '-'}</Body2>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">Event Date:</Body2>
-                <Body2 fontWeight={500}>
-                  {selectedEventData?.startDate
-                    ? dateUtils.formatDateDDMMYYYY(selectedEventData.startDate)
-                    : 'Not available'}
-                </Body2>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">Transaction Date:</Body2>
-                <Body2 fontWeight={500}>
-                  {dateUtils.formatDateDDMMYYYY(selectedAttendee.date)}
-                </Body2>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Body2 color="text.secondary">Transaction ID:</Body2>
-                <Body2 fontWeight={500}>
-                  {selectedAttendee.transactionNumber || '-'}
-                </Body2>
-              </Box>
-              <Box display="flex" justifyContent="flex-end" sx={{ mt: 1.5 }}>
-                <Button
-                  sx={{
-                    minWidth: '80px',
-                    height: '40px',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    borderRadius: '4px',
-                    backgroundColor: 'primary.main',
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: 'primary.dark'
-                    }
-                  }}
-                  onClick={handleCloseModals}
-                >
-                  Back
-                </Button>
-              </Box>
-            </Box>
-          )}
-        </DialogContent>
-      </Dialog>
+        attendee={selectedAttendee}
+        selectedEventData={selectedEventData}
+      />
     </>
   );
 };

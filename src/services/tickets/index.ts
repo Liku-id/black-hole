@@ -2,6 +2,56 @@ import { TicketsFilters, TicketsResponse, TicketStatus } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
 import axios from 'axios';
 
+// Additional Forms interfaces
+export interface AdditionalForm {
+  id: string;
+  ticketTypeId: string;
+  field: string;
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
+  options: string[];
+  isRequired: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+}
+
+export interface AdditionalFormsResponse {
+  statusCode: number;
+  message: string;
+  additionalForms: AdditionalForm[];
+}
+
+export interface CreateAdditionalFormRequest {
+  ticketTypeId: string;
+  field: string;
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
+  options?: string[];
+  isRequired: boolean;
+  order: number;
+}
+
+export interface UpdateAdditionalFormRequest {
+  ticketTypeId: string;
+  field: string;
+  type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
+  options?: string[];
+  isRequired: boolean;
+  order: number;
+}
+
+export interface CreateAdditionalFormResponse {
+  statusCode: number;
+  message: string;
+  data: AdditionalForm;
+}
+
+export interface UpdateAdditionalFormResponse {
+  statusCode: number;
+  message: string;
+  data: AdditionalForm;
+}
+
 interface TicketTypePayload {
   name: string;
   quantity: number;
@@ -21,25 +71,25 @@ interface CreateTicketTypesResponse {
   statusCode: number;
   message: string;
   body: {
-    ticketTypes: Array<{
-      id: string;
-      name: string;
-      quantity: number;
-      description: string;
-      price: number;
-      event_id: string;
-      max_order_quantity: number;
-      color_hex: string;
-      sales_start_date: string;
-      sales_end_date: string;
-      is_public: boolean;
-      purchased_amount: number;
-      created_at: string;
-      updated_at: string;
-      deleted_at: string;
-      ticketStartDate: string;
-      ticketEndDate: string;
-    }>;
+    id: string;
+    name: string;
+    quantity: number;
+    description: string;
+    price: number;
+    event_id: string;
+    max_order_quantity: number;
+    color_hex: string;
+    sales_start_date: string;
+    sales_end_date: string;
+    is_public: boolean;
+    is_logged_in: boolean;
+    purchased_amount: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    ticketStartDate: string;
+    ticketEndDate: string;
+    additional_forms: any[];
   };
 }
 
@@ -88,6 +138,16 @@ class TicketsService {
       );
       return response;
     } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTicketType(ticketTypeId: string): Promise<any> {
+    try {
+      const response = await apiUtils.get(`/api/tickets/ticket-types/${ticketTypeId}`);
+      return response.body;
+    } catch (error) {
+      console.error('Error fetching ticket type:', error);
       throw error;
     }
   }
@@ -191,6 +251,36 @@ class TicketsService {
       if (axios.isAxiosError(error)) {
         throw apiUtils.handleAxiosError(error, 'Failed to export tickets');
       }
+      throw error;
+    }
+  }
+
+  // Additional Forms methods
+  async createAdditionalForm(data: CreateAdditionalFormRequest): Promise<CreateAdditionalFormResponse> {
+    try {
+      const response = await apiUtils.post(`/api/tickets/ticket-types/${data.ticketTypeId}/additional-forms`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating additional form:', error);
+      throw error;
+    }
+  }
+
+  async updateAdditionalForm(formId: string, data: UpdateAdditionalFormRequest): Promise<UpdateAdditionalFormResponse> {
+    try {
+      const response = await apiUtils.put(`/api/tickets/ticket-types/additional-forms/${formId}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating additional form:', error);
+      throw error;
+    }
+  }
+
+  async deleteAdditionalForm(formId: string): Promise<void> {
+    try {
+      await apiUtils.delete(`/api/tickets/ticket-types/additional-forms/${formId}`);
+    } catch (error) {
+      console.error('Error deleting additional form:', error);
       throw error;
     }
   }

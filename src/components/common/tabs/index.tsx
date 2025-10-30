@@ -14,12 +14,13 @@ interface TabsProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   borderless?: boolean;
+  fullWidth?: boolean;
 }
 
-const TabsContainer = styled(Box)<{ borderless?: boolean }>(
-  ({ theme, borderless }) => ({
+const TabsContainer = styled(Box)<{ borderless?: boolean; fullWidth?: boolean }>(
+  ({ theme, borderless, fullWidth }) => ({
     display: 'flex',
-    gap: '40px',
+    gap: fullWidth ? '0px' : '40px',
     borderBottom: borderless ? 'none' : `1px solid ${theme.palette.divider}`,
     overflowX: 'auto',
     cursor: 'grab',
@@ -43,7 +44,7 @@ const TabsContainer = styled(Box)<{ borderless?: boolean }>(
   })
 );
 
-const TabItem = styled(Box)<{ active: boolean }>(({ active, theme }) => ({
+const TabItem = styled(Box)<{ active: boolean; fullWidth?: boolean }>(({ active, theme, fullWidth }) => ({
   padding: '16px 0',
   cursor: 'pointer',
   borderBottom: active
@@ -51,6 +52,8 @@ const TabItem = styled(Box)<{ active: boolean }>(({ active, theme }) => ({
     : '2px solid transparent',
   transition: 'all 0.2s ease',
   flexShrink: 0,
+  flex: fullWidth ? 1 : 'none',
+  textAlign: fullWidth ? 'center' : 'left',
   '&:hover': {
     color: active ? theme.palette.primary.main : theme.palette.primary.main
   }
@@ -60,7 +63,8 @@ export default function Tabs({
   tabs,
   activeTab,
   onTabChange,
-  borderless = false
+  borderless = false,
+  fullWidth = false
 }: TabsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -99,6 +103,7 @@ export default function Tabs({
     <TabsContainer
       ref={containerRef}
       borderless={borderless}
+      fullWidth={fullWidth}
       sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}
       onMouseDown={handleMouseDown}
       onMouseLeave={handleMouseLeave}
@@ -110,6 +115,7 @@ export default function Tabs({
           id={`${tab.id}_tab`}
           key={tab.id}
           active={activeTab === tab.id}
+          fullWidth={fullWidth}
           onClick={() => {
             if (dragDistance < 5) {
               onTabChange(tab.id);

@@ -7,6 +7,7 @@ import { withAuth } from '@/components/Auth/withAuth';
 import { Button, Card, Body1, Caption, H2 } from '@/components/common';
 import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
 import TicketTable from '@/components/features/events/create/ticket/table';
+import TicketAdditionalFormModal from '@/components/features/events/edit/tickets/modal';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketsService } from '@/services';
@@ -47,6 +48,7 @@ const EditTicketsPage = () => {
   >();
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [showAdditionalFormModal, setShowAdditionalFormModal] = useState(false);
 
   // Initialize tickets from eventDetail
   useEffect(() => {
@@ -77,7 +79,6 @@ const EditTicketsPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
     if (
-      eventDetail?.eventStatus === 'draft' ||
       eventDetail?.eventStatus === 'on_review' ||
       eventDetail?.eventStatus === 'on_going' ||
       eventDetail?.eventStatus === 'done'
@@ -333,10 +334,20 @@ const EditTicketsPage = () => {
           ticketStartDate: ticketStartISO,
           ticketEndDate: ticketEndISO
         };
-        await ticketsService.createTicketType(payload);
+        const createdTicket = await ticketsService.createTicketType(payload);
+        // Create default additional form for new ticket
+        if (createdTicket?.body?.id) {
+          await ticketsService.createAdditionalForm({
+            ticketTypeId: createdTicket.body.id,
+            field: 'Visitor Name',
+            type: 'TEXT',
+            isRequired: true,
+            order: 0
+          });
+        }
       }
       await mutateEventDetail();
-      router.push(`/events/${metaUrl}`);
+      setShowAdditionalFormModal(true);
     } catch (error: any) {
       console.error('Failed to update event tickets:', error);
       alert('Failed to update tickets. Please try again.');
@@ -414,7 +425,7 @@ const EditTicketsPage = () => {
               variant="primary"
               onClick={handleSubmitEvent}
             >
-              {isLoading ? 'Updating...' : 'Update Tickets'}
+              Update Tickets
             </Button>
           </Box>
         </Card>
@@ -426,6 +437,16 @@ const EditTicketsPage = () => {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreateTicket}
+      />
+
+      {/* Additional Form Modal */}
+      <TicketAdditionalFormModal
+        open={showAdditionalFormModal}
+        onClose={() => {
+          mutateEventDetail();
+          setIsInitialized(false);
+          setShowAdditionalFormModal(false)
+        }}
       />
     </DashboardLayout>
   );
