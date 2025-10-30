@@ -18,6 +18,10 @@ interface AttendeeData {
   eventDate?: string;
   transactionId?: string;
   transactionNumber?: string;
+  attendeeData?: Array<{
+    field: string;
+    value: string[];
+  }>;
 }
 
 interface TicketDetailModalProps {
@@ -87,21 +91,20 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
   );
 
   const renderAdditionalQuestion = () => (
-    <Box display="flex" flexDirection="column" gap={1.5}>
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Body2 color="text.secondary" fontWeight={600}>
-          Question 1:
-        </Body2>
-        <Body2 color="text.primary">
-          What is your dietary preference?
-        </Body2>
-        <Body2 color="text.secondary" fontWeight={600}>
-          Answer:
-        </Body2>
-        <Body2 color="text.primary">
-          Vegetarian
-        </Body2>
-      </Box>
+    <Box display="flex" flexDirection="column" gap={2}>
+      {(attendee?.attendeeData && attendee.attendeeData.length > 0) ? (
+        attendee.attendeeData.map((item, idx) => (
+          <Box key={`${item.field}-${idx}`} display="flex" flexDirection="column" gap={0.5}>
+            <Body2 color="text.secondary" fontWeight={600}>
+              {`Question ${idx + 1}:`}
+            </Body2>
+            <Body2 color="text.primary">{item.field}</Body2>
+            <Body2 color="text.primary">{(item.value || []).join(', ') || '-'}</Body2>
+          </Box>
+        ))
+      ) : (
+        <Body2 color="text.secondary">No additional answers</Body2>
+      )}
     </Box>
   );
 

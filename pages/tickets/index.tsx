@@ -8,7 +8,7 @@ import { Body1, Body2, H3 } from '@/components/common';
 import { AttendeeTable, SearchField } from '@/components/features/ticket-list';
 import { useEvents, useTickets } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
-import { Ticket } from '@/types/ticket';
+import { Ticket, AttendeeAdditionalData } from '@/types/ticket';
 
 // Transform ticket data to match UI expectations
 const transformTicketData = (tickets: Ticket[]) => {
@@ -25,7 +25,8 @@ const transformTicketData = (tickets: Ticket[]) => {
     email: ticket.email,
     eventDate: ticket.issued_at || undefined,
     transactionId: ticket.transaction_id,
-    transactionNumber: ticket.transaction_number
+    transactionNumber: ticket.transaction_number,
+    attendeeData: (ticket.attendee_data || []) as AttendeeAdditionalData[]
   }));
 };
 
