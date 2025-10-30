@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useAtom } from 'jotai';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { H4, Breadcrumb } from '@/components/common';
+import { H4 } from '@/components/common';
 import { CreateEventForm } from '@/components/features/events/create/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
@@ -47,7 +47,7 @@ function CreateEvent() {
   const [selectedEOName] = useAtom(selectedEONameAtom);
 
 
-  const onSubmit = async (data: FormData, isDraft: boolean = false) => {
+  const onSubmit = async (data: FormData) => {
     setError('');
     setLoading(true);
 
