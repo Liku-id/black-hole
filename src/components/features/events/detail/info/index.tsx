@@ -242,6 +242,13 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
                 isRejected={isFieldRejected('tax')}
               />
             </Grid>
+            <Grid item xs={12}>
+              <EventField
+                label="User Must Login*"
+                value={eventDetail.login_required ? 'Yes' : 'No'}
+                isRejected={isFieldRejected('login_required')}
+              />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

@@ -78,7 +78,9 @@ function EditEvent() {
 
       // Fallbacks dan normalisasi format waktu (ganti titik dengan titik dua)
       const normalizeTime = (time: string) => time.replace(/\./g, ':');
-      const startTime = normalizeTime(rawStartTime || formData.startTime || '00:00');
+      const startTime = normalizeTime(
+        rawStartTime || formData.startTime || '00:00'
+      );
       const endTime = normalizeTime(rawEndTime || formData.endTime || '00:00');
 
       // Parse dates from "MMM d, yyyy" then format to yyyy-MM-dd
@@ -191,6 +193,12 @@ function EditEvent() {
 
       if (hasChanged(calculatedTax, eventDetail?.tax)) {
         payload.tax = calculatedTax;
+      }
+
+      if (
+        hasChanged(formData.loginRequired, eventDetail?.login_required ? 1 : 2)
+      ) {
+        payload.login_required = formData.loginRequired === 1;
       }
 
       // Check if there are any actual changes (excluding required fields)

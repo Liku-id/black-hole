@@ -313,6 +313,22 @@ export const CreateEventForm = ({
                 }}
               />
             </Grid>
+            <Grid item md={6} xs={12}>
+              <Select
+                id="select-login-required"
+                fullWidth
+                label="User Must Login*"
+                name="loginRequired"
+                options={[
+                  { value: 1, label: 'Yes' },
+                  { value: 2, label: 'No' }
+                ]}
+                placeholder="Select Yes or No"
+                rules={{
+                  required: 'Login requirement is required'
+                }}
+              />
+            </Grid>
           </Grid>
 
           {/* TextArea fields - always on same row */}
