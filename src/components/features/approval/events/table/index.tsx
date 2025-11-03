@@ -7,7 +7,8 @@ import {
   Body2,
   StyledTableContainer,
   StyledTableHead,
-  StyledTableBody
+  StyledTableBody,
+  Pagination
 } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { EventSubmission } from '@/types/events-submission';
@@ -20,12 +21,20 @@ interface SubmissionsTableProps {
   submissions: EventSubmission[];
   loading?: boolean;
   onRefresh?: () => void;
+  total?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 }
 
 const SubmissionsTable: FC<SubmissionsTableProps> = ({
   activeTab,
   submissions,
-  loading = false
+  loading = false,
+  total = 0,
+  currentPage = 0,
+  pageSize = 10,
+  onPageChange
 }) => {
   const router = useRouter();
 
@@ -91,7 +100,7 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
             <TableRow key={submission.id}>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  {index + 1}.
+                  {index + 1 + currentPage * 10}.
                 </Body2>
               </TableCell>
               <TableCell>
@@ -153,6 +162,15 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
           ))}
         </StyledTableBody>
       </Table>
+
+      {/* Pagination */}
+      <Pagination
+        total={total}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={(page) => onPageChange && onPageChange(page)}
+        loading={loading}
+      />
     </StyledTableContainer>
   );
 };
