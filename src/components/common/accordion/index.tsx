@@ -12,12 +12,14 @@ interface CustomAccordionProps {
   title: string;
   children: React.ReactNode;
   defaultExpanded?: boolean;
+  id?: string;
 }
 
 export const CustomAccordion = ({
   title,
   children,
-  defaultExpanded = false
+  defaultExpanded = false,
+  id
 }: CustomAccordionProps) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
@@ -28,6 +30,7 @@ export const CustomAccordion = ({
   return (
     <MuiAccordion
       expanded={expanded}
+      id={id}
       sx={{
         boxShadow: 'none',
         borderBottom: '1px solid',
