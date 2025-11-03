@@ -100,6 +100,14 @@ export const PaymentMethodSelector = ({
     return `${typeMapping[type] || type.toLowerCase().replace(/\s+/g, '_')}_payment_method`;
   };
 
+  // Get checkbox id locator for payment method
+  const getCheckboxId = (method: PaymentMethod): string => {
+    const paymentMethodName = method.bank
+      ? method.bank.channelCode.toLowerCase()
+      : method.name.toLowerCase().replace(/\s+/g, '_');
+    return `${paymentMethodName}_payment_method_checkbox`;
+  };
+
   return (
     <Controller
       control={control}
@@ -179,18 +187,12 @@ export const PaymentMethodSelector = ({
             {Object.entries(groupedPaymentMethods).map(([type, methods]) => (
               <Accordion key={type} title={type} id={getPaymentMethodId(type)}>
                 <Grid container spacing={2}>
-                  {methods.map((method) => {
-                    const paymentMethodName = method.bank
-                      ? method.bank.channelCode.toLowerCase()
-                      : method.name.toLowerCase().replace(/\s+/g, '_');
-                    const checkboxId = `${paymentMethodName}_payment_method_checkbox`;
-
-                    return (
-                      <Grid key={method.id} item xs={6}>
-                        <Checkbox
-                          id={checkboxId}
-                          checked={(field.value || []).includes(method.id)}
-                          label={
+                  {methods.map((method) => (
+                    <Grid key={method.id} item xs={6}>
+                      <Checkbox
+                        id={getCheckboxId(method)}
+                        checked={(field.value || []).includes(method.id)}
+                        label={
                           <Box alignItems="center" display="flex">
                             {method.logo && method.type !== 'free' && (
                               <Image
@@ -235,9 +237,8 @@ export const PaymentMethodSelector = ({
                           field.onChange(newValue);
                         }}
                       />
-                      </Grid>
-                    );
-                  })}
+                    </Grid>
+                  ))}
                 </Grid>
               </Accordion>
             ))}
