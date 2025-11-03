@@ -36,6 +36,7 @@ interface PaymentMethodSelectorProps {
   placeholder?: string;
   fullWidth?: boolean;
   isRejected?: boolean;
+  id?: string;
 }
 
 export const PaymentMethodSelector = ({
@@ -45,7 +46,8 @@ export const PaymentMethodSelector = ({
   groupedPaymentMethods,
   placeholder,
   fullWidth,
-  isRejected
+  isRejected,
+  id
 }: PaymentMethodSelectorProps) => {
   const {
     control,
@@ -88,6 +90,16 @@ export const PaymentMethodSelector = ({
     };
   }, [expanded]);
 
+  // Map payment method type to id locator
+  const getPaymentMethodId = (type: string): string => {
+    const typeMapping: Record<string, string> = {
+      'Virtual Account': 'va',
+      'QRIS': 'qris',
+      'Free': 'free'
+    };
+    return `${typeMapping[type] || type.toLowerCase().replace(/\s+/g, '_')}_payment_method`;
+  };
+
   return (
     <Controller
       control={control}
@@ -113,6 +125,7 @@ export const PaymentMethodSelector = ({
             error={!!fieldError}
             fullWidth={fullWidth}
             helperText={fieldError?.message as string}
+            id={id}
             InputProps={{
               readOnly: true,
               endAdornment: (
@@ -164,13 +177,20 @@ export const PaymentMethodSelector = ({
             }}
           >
             {Object.entries(groupedPaymentMethods).map(([type, methods]) => (
-              <Accordion key={type} title={type}>
+              <Accordion key={type} title={type} id={getPaymentMethodId(type)}>
                 <Grid container spacing={2}>
-                  {methods.map((method) => (
-                    <Grid key={method.id} item xs={6}>
-                      <Checkbox
-                        checked={(field.value || []).includes(method.id)}
-                        label={
+                  {methods.map((method) => {
+                    const paymentMethodName = method.bank
+                      ? method.bank.channelCode.toLowerCase()
+                      : method.name.toLowerCase().replace(/\s+/g, '_');
+                    const checkboxId = `${paymentMethodName}_payment_method_checkbox`;
+
+                    return (
+                      <Grid key={method.id} item xs={6}>
+                        <Checkbox
+                          id={checkboxId}
+                          checked={(field.value || []).includes(method.id)}
+                          label={
                           <Box alignItems="center" display="flex">
                             {method.logo && method.type !== 'free' && (
                               <Image
@@ -215,8 +235,9 @@ export const PaymentMethodSelector = ({
                           field.onChange(newValue);
                         }}
                       />
-                    </Grid>
-                  ))}
+                      </Grid>
+                    );
+                  })}
                 </Grid>
               </Accordion>
             ))}

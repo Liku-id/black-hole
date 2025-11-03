@@ -7,6 +7,7 @@ import { Body2 } from '@/components/common';
 interface DropdownOption {
   value: string;
   label: string;
+  id?: string;
 }
 
 interface DropdownSelectorProps {
@@ -15,6 +16,7 @@ interface DropdownSelectorProps {
   options: DropdownOption[];
   defaultLabel?: string;
   disabled?: boolean;
+  id?: string;
 }
 
 export const DropdownSelector = ({
@@ -22,7 +24,8 @@ export const DropdownSelector = ({
   onValueChange,
   options,
   defaultLabel,
-  disabled
+  disabled,
+  id
 }: DropdownSelectorProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -51,6 +54,7 @@ export const DropdownSelector = ({
   return (
     <>
       <Box
+        id={id}
         alignItems="center"
         component="span"
         display="flex"
@@ -90,6 +94,7 @@ export const DropdownSelector = ({
         {options.map((option) => (
           <MenuItem
             key={option.value}
+            id={option.id}
             sx={(theme) => ({
               py: 1.5,
               px: 2,

@@ -236,10 +236,10 @@ const TicketPage = () => {
             justifyContent="flex-end"
             marginBottom="24px"
           >
-            <Button variant="secondary" onClick={handleSaveDraft}>
+            <Button id="save_draft_button" variant="secondary" onClick={handleSaveDraft}>
               Save Draft
             </Button>
-            <Button variant="primary" onClick={handleContinue}>
+            <Button id="continue_button" variant="primary" onClick={handleContinue}>
               Continue
             </Button>
           </Box>
