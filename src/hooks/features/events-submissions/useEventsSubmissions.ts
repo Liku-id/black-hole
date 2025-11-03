@@ -1,5 +1,6 @@
 import { useApi } from '@/hooks/useApi';
 import { eventSubmissionsService } from '@/services/events-submissions';
+import { Pagination } from '@/types/event';
 import { EventSubmissionsFilters } from '@/types/events-submission';
 
 interface UseEventsSubmissionsReturn {
@@ -7,10 +8,7 @@ interface UseEventsSubmissionsReturn {
   loading: boolean;
   error: string | null;
   mutate: () => void;
-  total: number;
-  totalPage: number;
-  currentPage: number;
-  currentShow: number;
+  pagination: Pagination;
 }
 
 const useEventsSubmissions = (
@@ -26,10 +24,7 @@ const useEventsSubmissions = (
     loading,
     error,
     mutate,
-    total: data?.body?.pagination?.totalData || 0,
-    totalPage: data?.body?.pagination?.totalPage || 0,
-    currentPage: data?.body?.pagination?.page || 1,
-    currentShow: data?.body?.pagination?.show || 10
+    pagination: data?.body?.pagination
   };
 };
 
