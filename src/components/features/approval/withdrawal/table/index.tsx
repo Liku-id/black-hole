@@ -2,7 +2,7 @@ import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Body2 } from '@/components/common';
+import { Body2, Pagination } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
 import {
   StyledTableContainer,
@@ -20,12 +20,20 @@ interface WithdrawalTableProps {
   withdrawals: WithdrawalListItem[];
   loading?: boolean;
   onRefresh?: () => void;
+  total?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 }
 
 const WithdrawalTable = ({
   withdrawals,
   loading,
-  onRefresh
+  onRefresh,
+  total = 0,
+  currentPage = 0,
+  pageSize = 10,
+  onPageChange
 }: WithdrawalTableProps) => {
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -157,7 +165,7 @@ const WithdrawalTable = ({
               <TableRow key={withdrawal.id}>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {index + 1}.
+                    {index + 1 + currentPage * 10}.
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -218,6 +226,15 @@ const WithdrawalTable = ({
             ))}
           </StyledTableBody>
         </Table>
+
+        {/* Pagination */}
+        <Pagination
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={(page) => onPageChange && onPageChange(page)}
+          loading={loading}
+        />
       </StyledTableContainer>
 
       <WithdrawalApprovalModal

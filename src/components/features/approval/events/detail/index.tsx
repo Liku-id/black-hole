@@ -273,6 +273,16 @@ export const EventsSubmissionsInfo = ({
               value={`${eventDetail.tax}%`}
             />
           </Grid>
+
+          <Grid item xs={12}>
+            <Field
+              eventDetail={eventDetail}
+              eventUpdateRequest={eventUpdateRequest}
+              fieldKey="login_required"
+              label={renderLabel('User Must Login*', 'login_required')}
+              value={eventDetail.login_required ? 'Yes' : 'No'}
+            />
+          </Grid>
         </Grid>
       </Grid>
     </Grid>

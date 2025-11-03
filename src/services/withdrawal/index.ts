@@ -221,12 +221,26 @@ class WithdrawalService {
     );
   }
 
-  async getWithdrawals(status?: string): Promise<WithdrawalListResponse> {
-    return apiUtils.get<WithdrawalListResponse>(
-      '/api/withdrawal/list',
-      status ? { status } : undefined,
-      'Failed to fetch withdrawals'
-    );
+  async getWithdrawals(filters: {
+    status?: string;
+    show?: number;
+    page?: number;
+  }): Promise<WithdrawalListResponse> {
+    try {
+      const params: Record<string, any> = {};
+
+      if (filters?.show) params.show = filters.show.toString();
+      if (filters?.page) params.page = filters.page.toString();
+      if (filters?.status) params.status = filters.status.toString();
+
+      return apiUtils.get<WithdrawalListResponse>(
+        '/api/withdrawal/list',
+        params,
+        'Failed to fetch withdrawals'
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createWithdrawal(data: WithdrawalRequest): Promise<WithdrawalResponse> {
