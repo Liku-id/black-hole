@@ -112,6 +112,7 @@ export default function Tabs({
     >
       {tabs.map((tab) => (
         <TabItem
+          id={`${tab.id}_tab`}
           key={tab.id}
           active={activeTab === tab.id}
           fullWidth={fullWidth}

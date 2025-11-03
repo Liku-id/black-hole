@@ -74,6 +74,7 @@ export const BankEditForm = ({
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
+                  id="bank_account_number_field"
                   fullWidth
                   label="Bank Account Number*"
                   name="account_number"
@@ -85,6 +86,7 @@ export const BankEditForm = ({
               </Grid>
               <Grid item xs={12}>
                 <TextField
+                  id="bank_account_holder_field"
                   fullWidth
                   label="Bank Account Holder Name*"
                   name="account_holder_name"
@@ -102,6 +104,7 @@ export const BankEditForm = ({
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Select
+                  id="bank_name_field"
                   fullWidth
                   label="Bank Name*"
                   name="bank_id"
@@ -136,7 +139,12 @@ export const BankEditForm = ({
             </Body2>
 
             {/* Buttons */}
-            <Button type="submit" variant="primary" disabled={loading}>
+            <Button
+              id="save_bank_account_button"
+              type="submit"
+              variant="primary"
+              disabled={loading}
+            >
               {loading ? 'Updating...' : 'Save Bank Account'}
             </Button>
           </Box>

@@ -287,12 +287,6 @@ class WithdrawalService {
       params.eventOrganizerId = eventOrganizerId;
     }
 
-    console.log(
-      'WithdrawalService.getWithdrawalHistory called with params:',
-      params
-    );
-    console.log('API endpoint: /api/withdrawal/history');
-
     return apiUtils.get<WithdrawalHistoryResponse>(
       '/api/withdrawal/history',
       params,

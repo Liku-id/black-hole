@@ -112,6 +112,7 @@ const OrganizerRegStatus = () => {
 
                 <Box display="flex" justifyContent="end">
                   <Button
+                    id={`edit_${item.id}_button`}
                     onClick={() => router.push(item.redirectUrl)}
                     sx={{ padding: '9px 12px', fontSize: '12px' }}
                   >

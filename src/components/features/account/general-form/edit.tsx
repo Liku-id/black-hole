@@ -239,6 +239,7 @@ export const OrganizerEditForm = ({
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
+                  id="organizer_name_field"
                   fullWidth
                   label="Organizer Name*"
                   name="name"
@@ -260,6 +261,7 @@ export const OrganizerEditForm = ({
 
               <Grid item xs={12}>
                 <TextField
+                  id="phone_number_field"
                   fullWidth
                   label="Phone Number*"
                   name="phoneNumber"
@@ -286,6 +288,7 @@ export const OrganizerEditForm = ({
                   {/* TikTok */}
                   <Box mb={2}>
                     <TextField
+                      id="tiktok_url_field"
                       fullWidth
                       label=""
                       name="tiktok"
@@ -302,7 +305,10 @@ export const OrganizerEditForm = ({
                       }
                       endComponent={
                         watchedTiktok && watchedTiktok.trim() ? (
-                          <IconButton onClick={() => setValue('tiktok', '')}>
+                          <IconButton
+                            id="tiktok_delete_icon"
+                            onClick={() => setValue('tiktok', '')}
+                          >
                             <Image
                               src="/icon/trash.svg"
                               alt="trash icon"
@@ -318,6 +324,7 @@ export const OrganizerEditForm = ({
                   {/* Instagram */}
                   <Box mb={2}>
                     <TextField
+                      id="instagram_url_field"
                       fullWidth
                       label=""
                       name="instagram"
@@ -334,7 +341,10 @@ export const OrganizerEditForm = ({
                       }
                       endComponent={
                         watchedInstagram && watchedInstagram.trim() ? (
-                          <IconButton onClick={() => setValue('instagram', '')}>
+                          <IconButton
+                            id="instagram_delete_icon"
+                            onClick={() => setValue('instagram', '')}
+                          >
                             <Image
                               src="/icon/trash.svg"
                               alt="trash icon"
@@ -350,6 +360,7 @@ export const OrganizerEditForm = ({
                   {/* Twitter */}
                   <Box mb={2}>
                     <TextField
+                      id="x_url_field"
                       fullWidth
                       label=""
                       name="twitter"
@@ -366,7 +377,10 @@ export const OrganizerEditForm = ({
                       }
                       endComponent={
                         watchedTwitter && watchedTwitter.trim() ? (
-                          <IconButton onClick={() => setValue('twitter', '')}>
+                          <IconButton
+                            id="x_delete_icon"
+                            onClick={() => setValue('twitter', '')}
+                          >
                             <Image
                               src="/icon/trash.svg"
                               alt="trash icon"
@@ -383,6 +397,7 @@ export const OrganizerEditForm = ({
 
               <Grid item xs={12}>
                 <TextArea
+                  id="about_organizer_field"
                   fullWidth
                   label="About Organizer*"
                   name="aboutOrganizer"
@@ -400,6 +415,7 @@ export const OrganizerEditForm = ({
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
+                  id="email_address_field"
                   fullWidth
                   label="Email Address*"
                   name="email"
@@ -418,6 +434,7 @@ export const OrganizerEditForm = ({
 
               <Grid item xs={12}>
                 <TextField
+                  id="address_field"
                   fullWidth
                   label="Address*"
                   name="address"
@@ -456,7 +473,11 @@ export const OrganizerEditForm = ({
                     </Body2>
 
                     {imagePreview ? (
-                      <IconButton size="small" onClick={handleImageRemove}>
+                      <IconButton
+                        id="clear_icon"
+                        size="small"
+                        onClick={handleImageRemove}
+                      >
                         <Image
                           src="/icon/close.svg"
                           alt="remove icon"
@@ -465,7 +486,11 @@ export const OrganizerEditForm = ({
                         />
                       </IconButton>
                     ) : (
-                      <IconButton component="label" disabled={uploadingImage}>
+                      <IconButton
+                        id="profile_picture_field"
+                        component="label"
+                        disabled={uploadingImage}
+                      >
                         <Image
                           src="/icon/upload.svg"
                           alt="upload icon"
@@ -524,6 +549,7 @@ export const OrganizerEditForm = ({
 
           <Box display="flex" gap={2} justifyContent="flex-end">
             <Button
+              id="save_data_button"
               type="submit"
               variant="primary"
               disabled={loading || uploadingImage}

@@ -35,12 +35,37 @@ interface DashboardLayoutProps {
 const drawerWidth = 290;
 
 const menuItems = [
-  { text: 'Dashboard', icon: '/icon/dashboard.svg', path: '/dashboard' },
-  { text: 'Event', icon: '/icon/event.svg', path: '/events' },
-  { text: 'Approval', icon: '/icon/approval.svg', path: '/approval' },
-  { text: 'Finance', icon: '/icon/finance.svg', path: '/finance' },
-  { text: 'Ticket', icon: '/icon/ticket.svg', path: '/tickets' },
-  { text: 'Account', icon: '/icon/account.svg', path: '/account' }
+  {
+    text: 'Dashboard',
+    icon: '/icon/dashboard.svg',
+    path: '/dashboard',
+    id: 'dashboard_menu'
+  },
+  { text: 'Event', icon: '/icon/event.svg', path: '/events', id: 'event_menu' },
+  {
+    text: 'Approval',
+    icon: '/icon/approval.svg',
+    path: '/approval',
+    id: 'approval_menu'
+  },
+  {
+    text: 'Finance',
+    icon: '/icon/finance.svg',
+    path: '/finance',
+    id: 'finance_menu'
+  },
+  {
+    text: 'Ticket',
+    icon: '/icon/ticket.svg',
+    path: '/tickets',
+    id: 'ticket_menu'
+  },
+  {
+    text: 'Account',
+    icon: '/icon/account.svg',
+    path: '/account',
+    id: 'account_menu'
+  }
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -88,7 +113,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Check if user is admin
   const isAdmin =
     sessionRole === 'admin' ||
-    process.env.NEXT_PUBLIC_PREVILAGE_ROLE.includes(sessionRole || '');
+    (process.env.NEXT_PUBLIC_PREVILAGE_ROLE || '').includes(sessionRole || '');
 
   // Fetch event organizers if user is admin
   useEffect(() => {
@@ -173,6 +198,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           return (
             <ListItem
+              id={item.id}
               key={item.text}
               selected={isActive}
               sx={{
@@ -226,6 +252,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         <Box alignItems="center" display="flex" justifyContent="space-between">
           <Box
+            id="profile_menu"
             alignItems="center"
             display="flex"
             sx={{
@@ -467,6 +494,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           }}
         >
           <MenuItem
+            id="privacy_policy_menu"
             onClick={() => {
               handleProfileMenuClose();
               router.push('/dashboard/privacy-policy');
@@ -499,6 +527,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </MenuItem>
 
           <MenuItem
+            id="term_and_condition_menu"
             onClick={() => {
               handleProfileMenuClose();
               router.push('/dashboard/term-and-condition');
@@ -539,6 +568,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           />
 
           <MenuItem
+            id="logout"
             onClick={handleLogout}
             sx={{
               padding: '12px 16px',

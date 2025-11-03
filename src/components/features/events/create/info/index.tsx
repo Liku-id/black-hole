@@ -19,8 +19,8 @@ import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
 
 // Admin Fee Type Options
 const adminFeeTypeOptions = [
-  { value: '%', label: '%' },
-  { value: 'Rp', label: 'Rp' }
+  { value: '%', label: '%', id: 'admin_fee_percentage_option' },
+  { value: 'Rp', label: 'Rp', id: 'admin_fee_rupiah_option' }
 ];
 
 interface FormData {
@@ -125,6 +125,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
+                id="event_name_field"
                 label="Event Name*"
                 name="eventName"
                 placeholder="Your Event Name"
@@ -136,6 +137,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <Select
                 fullWidth
+                id="event_type_field"
                 label="Event Type*"
                 name="eventType"
                 options={eventTypeOptions}
@@ -148,6 +150,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
+                id="event_date_field"
                 InputProps={{
                   readOnly: true
                 }}
@@ -172,6 +175,7 @@ export const CreateEventForm = ({
                 InputProps={{
                   readOnly: true
                 }}
+                id="event_time_field"
                 label="Start & End Time*"
                 name="timeRange"
                 placeholder="Select time range"
@@ -190,6 +194,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
+                id="address_field"
                 label="Address*"
                 name="address"
                 placeholder="Location"
@@ -201,6 +206,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
+                id="maps_url_field"
                 label="Google Maps Link*"
                 name="googleMapsLink"
                 placeholder="Location Link"
@@ -215,6 +221,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
+                id="website_url_field"
                 label="Website Url*"
                 name="websiteUrl"
                 placeholder="Website Url"
@@ -226,6 +233,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <Select
                 fullWidth
+                id="city_field"
                 label="City*"
                 name="city"
                 options={cityOptions}
@@ -242,6 +250,7 @@ export const CreateEventForm = ({
                   startAdornment: (
                     <InputAdornment position="start">
                       <DropdownSelector
+                        id="admin_fee_type_selector"
                         defaultLabel="%"
                         options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
@@ -250,6 +259,7 @@ export const CreateEventForm = ({
                     </InputAdornment>
                   )
                 }}
+                id="admin_fee_field"
                 label="Admin Fee*"
                 name="adminFee"
                 placeholder={
@@ -276,6 +286,7 @@ export const CreateEventForm = ({
               <PaymentMethodSelector
                 fullWidth
                 groupedPaymentMethods={paymentMethods}
+                id="payment_method_field"
                 label="Payment Method*"
                 name="paymentMethod"
                 placeholder="Select payment methods for your event"
@@ -289,6 +300,7 @@ export const CreateEventForm = ({
               <TextField
                 fullWidth
                 endComponent={<Caption color="text.primary">%</Caption>}
+                id="tax_nominal_field"
                 label="Tax Nominal*"
                 name="taxNominal"
                 placeholder="Tax percentage"
@@ -308,6 +320,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextArea
                 fullWidth
+                id="event_desc_field"
                 label="Event Description*"
                 maxLength={3000}
                 name="eventDescription"
@@ -320,6 +333,7 @@ export const CreateEventForm = ({
             <Grid item md={6} xs={12}>
               <TextArea
                 fullWidth
+                id="terms_condition_field"
                 label="Terms & Conditions*"
                 name="termsAndConditions"
                 placeholder="Your Terms & Condition for Event"

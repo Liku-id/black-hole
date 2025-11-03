@@ -17,6 +17,7 @@ interface CustomDateFieldProps extends Omit<TextFieldProps, 'variant'> {
   error?: boolean;
   helperText?: string;
   placeholder?: string;
+  id?: string;
 }
 
 // Custom input component for DatePicker
@@ -27,11 +28,12 @@ interface CustomInputProps {
   error?: boolean;
   helperText?: string;
   fullWidth?: boolean;
+  id?: string;
   [key: string]: any; // Allow additional props
 }
 
 const CustomInput = forwardRef<HTMLDivElement, CustomInputProps>(
-  ({ value, onClick, placeholder, error, helperText, ...otherProps }, ref) => (
+  ({ value, onClick, placeholder, error, helperText, id, ...otherProps }, ref) => (
     <StyledTextField
       ref={ref}
       error={error}
@@ -63,6 +65,7 @@ const CustomInput = forwardRef<HTMLDivElement, CustomInputProps>(
       variant="outlined"
       onClick={onClick}
       {...otherProps}
+      id={id}
     />
   )
 );
@@ -273,7 +276,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export const CustomDateField = (props: CustomDateFieldProps) => {
-  const { label, name, rules, placeholder, ...otherProps } = props;
+  const { label, name, rules, placeholder, id, ...otherProps } = props;
 
   const {
     control,
@@ -301,6 +304,7 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
                 <CustomInput
                   error={!!fieldError}
                   helperText={fieldError?.message as string}
+                  id={id}
                   {...otherProps}
                 />
               }
@@ -329,6 +333,7 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
                 const dd = String(date.getDate()).padStart(2, '0');
                 field.onChange(`${yyyy}-${mm}-${dd}`);
               }}
+              
             />
           </DatePickerWrapper>
         </Box>

@@ -41,6 +41,7 @@ export const EventDateModal: React.FC<EventDateModalProps> = ({
         <Grid item xs={12}>
           <DateField
             fullWidth
+            id="start_date_field"
             label="Start Date*"
             name="startDate"
             placeholder="Select start date"
@@ -52,6 +53,7 @@ export const EventDateModal: React.FC<EventDateModalProps> = ({
         <Grid item xs={12}>
           <DateField
             fullWidth
+            id="end_date_field"
             label="End Date*"
             name="endDate"
             placeholder="Select end date"
@@ -62,7 +64,7 @@ export const EventDateModal: React.FC<EventDateModalProps> = ({
         </Grid>
       </Grid>
       <Box display="flex" justifyContent="flex-end" marginTop="48px">
-        <Button variant="primary" onClick={onSubmit}>
+        <Button id="save_data_button" variant="primary" onClick={onSubmit}>
           Save Data
         </Button>
       </Box>
