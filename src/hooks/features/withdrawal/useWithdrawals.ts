@@ -22,9 +22,10 @@ export const useWithdrawals = (params?: UseWithdrawalsParams) => {
   );
 
   return {
-    withdrawals: data?.body || [],
+    withdrawals: data?.body?.data || [],
     loading: isLoading,
     error: error?.message || null,
-    mutate
+    mutate,
+    pagination: data?.body?.pagination || null
   };
 };
