@@ -22,14 +22,14 @@ const useEventsSubmissions = (
   );
 
   return {
-    submissions: data?.body?.rows || [],
+    submissions: data?.body?.data || [],
     loading,
     error,
     mutate,
-    total: data?.body?.pagination?.totalData || 0,
-    totalPage: data?.body?.pagination?.totalPage || 0,
+    total: data?.body?.pagination?.totalRecords || 0,
+    totalPage: data?.body?.pagination?.totalPages || 0,
     currentPage: data?.body?.pagination?.page ?? 0,
-    currentShow: data?.body?.pagination?.show || 10
+    currentShow: data?.body?.pagination?.limit || 10
   };
 };
 

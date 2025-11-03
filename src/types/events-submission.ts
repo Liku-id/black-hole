@@ -193,12 +193,14 @@ export interface EventSubmissionsResponse {
   statusCode: number;
   message: string;
   body: {
-    rows: EventSubmission[];
+    data: EventSubmission[];
     pagination: {
       page: number;
-      show: number;
-      totalData: number;
-      totalPage: number;
+      limit: number;
+      totalRecords: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
     };
   };
 }
