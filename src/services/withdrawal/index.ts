@@ -126,7 +126,10 @@ export interface WithdrawalListItem {
 export interface WithdrawalListResponse {
   statusCode: number;
   message: string;
-  body: WithdrawalListItem[];
+  body: {
+    data: WithdrawalListItem[];
+    pagination: Pagination;
+  };
 }
 
 export interface WithdrawalActionRequest {
