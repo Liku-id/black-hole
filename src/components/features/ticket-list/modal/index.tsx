@@ -18,6 +18,8 @@ interface AttendeeData {
   eventDate?: string;
   transactionId?: string;
   transactionNumber?: string;
+  redeemedAt?: string;
+  checkedInAt?: string;
   attendeeData?: Array<{
     field: string;
     value: string[];
@@ -76,15 +78,31 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
         </Body2>
       </Box>
       <Box display="flex" justifyContent="space-between">
-        <Body2 color="text.secondary">Transaction Date:</Body2>
-        <Body2 fontWeight={500}>
-          {attendee?.date ? dateUtils.formatDateDDMMYYYY(attendee.date) : '-'}
-        </Body2>
+        <Body2 color="text.secondary">Payment Method:</Body2>
+        <Body2 fontWeight={500}>{attendee?.paymentMethod || '-'}</Body2>
       </Box>
       <Box display="flex" justifyContent="space-between">
         <Body2 color="text.secondary">Transaction ID:</Body2>
         <Body2 fontWeight={500}>
           {attendee?.transactionNumber || '-'}
+        </Body2>
+      </Box>
+      <Box display="flex" justifyContent="space-between">
+        <Body2 color="text.secondary">Transaction Date:</Body2>
+        <Body2 fontWeight={500}>
+          {attendee?.date ? dateUtils.formatDateDDMMYYYYHHMM(attendee.date) : '-'}
+        </Body2>
+      </Box>
+      <Box display="flex" justifyContent="space-between">
+        <Body2 color="text.secondary">Redeemed At:</Body2>
+        <Body2 fontWeight={500}>
+          {attendee?.redeemedAt ? dateUtils.formatDateDDMMYYYYHHMM(attendee.redeemedAt) : '-'}
+        </Body2>
+      </Box>
+      <Box display="flex" justifyContent="space-between">
+        <Body2 color="text.secondary">Checked In At:</Body2>
+        <Body2 fontWeight={500}>
+          {attendee?.checkedInAt ? dateUtils.formatDateDDMMYYYYHHMM(attendee.checkedInAt) : '-'}
         </Body2>
       </Box>
     </Box>

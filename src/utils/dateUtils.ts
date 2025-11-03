@@ -183,6 +183,36 @@ export const dateUtils = {
   },
 
   /**
+   * Format date to dd/mm/yyyy HH:mm format
+   * Converts any timezone to WIB (UTC+7) for consistent display
+   * @param dateString - Date string to format
+   * @returns Formatted date string in dd/mm/yyyy HH:mm format
+   */
+  formatDateDDMMYYYYHHMM: (dateString: string): string => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    // Get date components in WIB timezone
+    const dateInWIB = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(date);
+
+    const day = dateInWIB.find(part => part.type === 'day')?.value || '';
+    const month = dateInWIB.find(part => part.type === 'month')?.value || '';
+    const year = dateInWIB.find(part => part.type === 'year')?.value || '';
+    const hour = dateInWIB.find(part => part.type === 'hour')?.value?.padStart(2, '0') || '';
+    const minute = dateInWIB.find(part => part.type === 'minute')?.value?.padStart(2, '0') || '';
+
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+  },
+
+  /**
    * Format date to MMM d, yyyy format (e.g., May 3, 2026)
    * Converts any timezone to WIB (UTC+7) for consistent display
    * @param dateString - Date string to format
