@@ -28,7 +28,7 @@ const useEventsSubmissions = (
     mutate,
     total: data?.body?.pagination?.totalData || 0,
     totalPage: data?.body?.pagination?.totalPage || 0,
-    currentPage: data?.body?.pagination?.page || 1,
+    currentPage: data?.body?.pagination?.page ?? 0,
     currentShow: data?.body?.pagination?.show || 10
   };
 };
