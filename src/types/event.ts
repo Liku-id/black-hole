@@ -177,6 +177,7 @@ export interface EventDetail {
   rejectedReason: string | null;
   rejectedFields: string[] | null;
   withdrawalFee: string;
+  login_required: boolean;
 }
 
 export interface EventDetailResponse {
