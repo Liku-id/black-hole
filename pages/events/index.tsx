@@ -191,6 +191,7 @@ function Events() {
             Events
           </H2>
           <Button
+            id="create_event_button"
             onClick={() => router.push('/events/create')}
             disabled={!isOrganizerDataComplete}
           >
