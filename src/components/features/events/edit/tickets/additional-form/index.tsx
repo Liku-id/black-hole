@@ -21,6 +21,7 @@ interface CustomQuestion {
   question: string;
   formType: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
+  isRequired?: boolean;
 }
 
 interface AdditionalFormProps {
@@ -43,7 +44,6 @@ export function AdditionalForm({
   const { additionalForms, loading: additionalFormsLoading, mutate } = useTicketType(selectedTicketType || null);
   const { showInfo } = useToast();
 
-
   const selectedTicket = ticketTypes.find(ticket => ticket.id === selectedTicketType);
   const selectOptions = ticketTypes.map(ticketType => ({
     value: ticketType.id,
@@ -61,14 +61,13 @@ export function AdditionalForm({
 
   // Custom question handlers
   const addNewQuestion = () => {
-    if (customQuestions.length < 5) {
-      const newQuestion: CustomQuestion = {
-        id: `question-${Date.now()}`,
-        question: '',
-        formType: 'TEXT'
-      };
-      setCustomQuestions([...customQuestions, newQuestion]);
-    }
+    const newQuestion: CustomQuestion = {
+      id: `question-${Date.now()}`,
+      question: '',
+      formType: 'TEXT',
+      isRequired: false
+    };
+    setCustomQuestions([...customQuestions, newQuestion]);
   };
 
   const updateQuestion = (id: string, updates: Partial<CustomQuestion>) => {
@@ -97,10 +96,11 @@ export function AdditionalForm({
 
   const duplicateQuestion = (id: string) => {
     const questionToDuplicate = customQuestions.find(q => q.id === id);
-    if (questionToDuplicate && customQuestions.length < 5) {
+    if (questionToDuplicate) {
       const newQuestion: CustomQuestion = {
         ...questionToDuplicate,
-        id: `question-${Date.now()}`
+        id: `question-${Date.now()}`,
+        isRequired: questionToDuplicate.isRequired || false
       };
       setCustomQuestions([...customQuestions, newQuestion]);
     }
@@ -185,12 +185,13 @@ export function AdditionalForm({
 
   const handleClickDuplicateIcon = (formId: string) => {
     const formToDuplicate = additionalForms.find(form => form.id === formId);
-    if (formToDuplicate && customQuestions.length < 5) {
+    if (formToDuplicate) {
       const newQuestion: CustomQuestion = {
         id: `question-${Date.now()}`,
         question: formToDuplicate.field,
         formType: formToDuplicate.type as any,
-        options: Array.isArray(formToDuplicate.options) ? formToDuplicate.options : []
+        options: Array.isArray(formToDuplicate.options) ? formToDuplicate.options : [],
+        isRequired: formToDuplicate.isRequired || false
       };
       setCustomQuestions([...customQuestions, newQuestion]);
     }
@@ -255,6 +256,7 @@ export function AdditionalForm({
             question: editableForm.field,
             type: editableForm.type,
             order: newOrder,
+            isRequired: editableForm.isRequired || false,
             ...(editableForm.options && editableForm.options.length > 0 ? { options: editableForm.options } : {})
           } : null;
         })
@@ -268,6 +270,7 @@ export function AdditionalForm({
         question: q.question,
         type: q.formType,
         order: startingOrderForNew + index,
+        isRequired: q.isRequired !== undefined ? q.isRequired : false,
         ...(q.options && q.options.length > 0 ? { options: q.options } : {})
       }));
 
@@ -286,7 +289,7 @@ export function AdditionalForm({
             ticketTypeId: selectedTicketType,
             field: form.question,
             type: form.type,
-            isRequired: true,
+            isRequired: form.isRequired !== undefined ? form.isRequired : true,
             order: form.order,
             ...(form.options ? { options: form.options } : {})
           });
@@ -295,16 +298,15 @@ export function AdditionalForm({
 
       // Create new forms
       if (newForms.length > 0) {
-        const createPayload = newForms.map(form => ({
-          ticketTypeId: selectedTicketType,
-          field: form.question,
-          type: form.type,
-          isRequired: true,
-          order: form.order,
-          ...(form.options ? { options: form.options } : {})
-        }));
-        const promises = createPayload.map(form => ticketsService.createAdditionalForm(form));
-        await Promise.all(promises); // Create all new forms in parallel
+        for (const form of newForms) {
+          await ticketsService.createAdditionalForm({
+            ticketTypeId: selectedTicketType,
+            field: form.question,
+            type: form.type,
+            isRequired: form.isRequired !== undefined ? form.isRequired : false,
+            ...(form.options ? { options: form.options } : {})
+          });
+        }
       }
 
       // STEP 5: Clean up
@@ -329,7 +331,8 @@ export function AdditionalForm({
           ...form,
           field: form.field,
           type: form.type,
-          options: optionsArray
+          options: optionsArray,
+          isRequired: form.isRequired || false
         });
       });
       setEditableForms(editableMap);

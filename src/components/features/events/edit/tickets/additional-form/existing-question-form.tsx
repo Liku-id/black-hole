@@ -2,7 +2,7 @@ import { Box, Grid, IconButton } from '@mui/material';
 import Image from 'next/image';
 import React from 'react';
 
-import { Select, TextField } from '@/components/common';
+import { Select, TextField, Checkbox } from '@/components/common';
 import { Body2, H4 } from '@/components/common';
 import { FormFieldRenderer } from './form-field-renderer';
 
@@ -11,6 +11,7 @@ interface ExistingForm {
   field: string;
   type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
+  isRequired?: boolean;
 }
 
 interface ExistingQuestionFormProps {
@@ -85,9 +86,23 @@ export function ExistingQuestionForm({
               />
             </Box>
 
-            <Body2 color="text.primary" fontWeight={400} fontSize="14px" mb="12px">
-              Option
-            </Body2>
+            <Box display="flex" alignItems="center" gap={2} mb="12px" justifyContent="space-between">
+              <Box display="flex" alignItems="center">
+                <Body2 color="text.primary" fontWeight={400} fontSize="14px">
+                  Option
+                </Body2>
+              </Box>
+              <Box display="flex" alignItems="center" gap={0}>
+                <Checkbox
+                  checked={form.isRequired || false}
+                  onChange={(e) => onFieldChange(form.id, 'isRequired', e.target.checked)}
+                  sx={{ marginRight: "8px" }}
+                />
+                <Body2 color="text.primary" fontWeight={400} fontSize="14px">
+                  Required Question
+                </Body2>
+              </Box>
+            </Box>
 
             <Box display="flex">
               <IconButton onClick={() => onDelete(form.id)} size="small">
