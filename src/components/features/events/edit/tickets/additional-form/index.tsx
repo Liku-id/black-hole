@@ -401,7 +401,6 @@ export function AdditionalForm({
               })}
 
               <SubmitSection
-                customQuestionsCount={customQuestions.length}
                 isSubmitting={isSubmitting}
                 submitError={submitError}
                 isSubmitDisabled={isSubmitDisabled()}
