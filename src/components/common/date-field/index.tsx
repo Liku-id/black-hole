@@ -33,7 +33,7 @@ interface CustomInputProps {
 }
 
 const CustomInput = forwardRef<HTMLDivElement, CustomInputProps>(
-  ({ value, onClick, placeholder, error, helperText, id, ...otherProps }, ref) => (
+  ({ value, onClick, placeholder, error, helperText, ...otherProps }, ref) => (
     <StyledTextField
       ref={ref}
       error={error}
@@ -65,7 +65,6 @@ const CustomInput = forwardRef<HTMLDivElement, CustomInputProps>(
       variant="outlined"
       onClick={onClick}
       {...otherProps}
-      id={id}
     />
   )
 );
@@ -297,6 +296,7 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
           )}
           <DatePickerWrapper>
             <DatePicker
+              id={id}
               scrollableYearDropdown
               showMonthDropdown
               showYearDropdown
@@ -304,7 +304,6 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
                 <CustomInput
                   error={!!fieldError}
                   helperText={fieldError?.message as string}
-                  id={id}
                   {...otherProps}
                 />
               }
