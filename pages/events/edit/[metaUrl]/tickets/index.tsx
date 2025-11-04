@@ -342,7 +342,6 @@ const EditTicketsPage = () => {
             field: 'Visitor Name',
             type: 'TEXT',
             isRequired: true,
-            order: 0
           });
         }
       }
