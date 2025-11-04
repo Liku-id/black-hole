@@ -28,7 +28,6 @@ export interface CreateAdditionalFormRequest {
   type: 'TEXT' | 'PARAGRAPH' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX';
   options?: string[];
   isRequired: boolean;
-  order: number;
 }
 
 export interface UpdateAdditionalFormRequest {
