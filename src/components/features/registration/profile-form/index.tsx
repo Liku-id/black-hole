@@ -383,7 +383,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
 
               {/* Submit Button */}
               <Button
-                id="sign_up_button"
+                id="btn_rgs_signup"
                 disabled={isLoading}
                 sx={{
                   width: '322px',
