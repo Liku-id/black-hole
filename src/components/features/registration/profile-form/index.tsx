@@ -179,6 +179,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                   {/* Address */}
                   <Box mb={3}>
                     <TextField
+                      id="organizer_address_field"
                       fullWidth
                       name="address"
                       label="Address *"
@@ -206,6 +207,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                         width="100%"
                       >
                         <TextField
+                          id={`${[link.platform]}_url_field`}
                           fullWidth
                           placeholder="Link Profile Account"
                           value={link.url}
@@ -232,6 +234,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                             ),
                             endAdornment: link.url !== '' && (
                               <Box
+                                id={`${[link.platform]}_clear_icon_button`}
                                 display="flex"
                                 alignItems="center"
                                 justifyContent="center"
@@ -261,6 +264,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                   {/* About Organizer */}
                   <Box mb={3}>
                     <TextArea
+                      id="about_organizer_field"
                       label="About Organizer *"
                       fullWidth
                       name="aboutOrganizer"
@@ -303,6 +307,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
                           {...field}
                           checked={!!field.value}
                           color="primary"
+                          id="sign_up_checkbox"
                         />
                       )}
                     />
@@ -378,6 +383,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
 
               {/* Submit Button */}
               <Button
+                id="btn_rgs_signup"
                 disabled={isLoading}
                 sx={{
                   width: '322px',

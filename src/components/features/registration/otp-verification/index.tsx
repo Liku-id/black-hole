@@ -173,7 +173,7 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
             {otp.map((digit, index) => (
               <OTPInput
                 key={index}
-                id={`otp-${index}`}
+                id={`otp_code_${index + 1}_field`}
                 type="text"
                 maxLength={1}
                 value={digit}
