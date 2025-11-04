@@ -5,7 +5,6 @@ import { Button } from '@/components/common';
 import { Body2 } from '@/components/common';
 
 interface SubmitSectionProps {
-  customQuestionsCount: number;
   isSubmitting: boolean;
   submitError: string | null;
   isSubmitDisabled: boolean;
@@ -14,7 +13,6 @@ interface SubmitSectionProps {
 }
 
 export function SubmitSection({
-  customQuestionsCount,
   isSubmitting,
   submitError,
   isSubmitDisabled,
@@ -30,15 +28,13 @@ export function SubmitSection({
       )}
 
       <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
-        {customQuestionsCount < 5 && (
-          <Button
-            variant="secondary"
-            onClick={onAddNewQuestion}
-            disabled={isSubmitting}
-          >
-            Add New Question
-          </Button>
-        )}
+        <Button
+          variant="secondary"
+          onClick={onAddNewQuestion}
+          disabled={isSubmitting}
+        >
+          Add New Question
+        </Button>
         <Button
           variant="primary"
           disabled={isSubmitDisabled}
