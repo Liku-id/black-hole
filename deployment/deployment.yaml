@@ -20,6 +20,8 @@ spec:
       labels:
         app: black-hole
     spec:
+      imagePullSecrets:
+      - name: private-repository
       containers:
       - name: black-hole
         image: registry-prem.eku.id/wukong/black-hole:latest
