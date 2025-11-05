@@ -18,6 +18,38 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
 }) => {
   if (!transaction) return null;
 
+  // Calculate admin fee
+  const calculateAdminFee = (adminFee: number, basedPrice: number): number => {
+    if (!adminFee) return 0;
+    if (adminFee < 100) {
+      return (adminFee / 100) * basedPrice;
+    }
+    return adminFee;
+  };
+
+  // Calculate payment method fee
+  const calculatePaymentMethodFee = (paymentMethodFee: number, basedPrice: number): number => {
+    if (!paymentMethodFee) return 0;
+    if (paymentMethodFee < 1) {
+      return (paymentMethodFee / 100) * basedPrice;
+    }
+    return paymentMethodFee;
+  };
+
+  // Extract payment breakdown data
+  const paymentBreakdown = transaction.paymentBreakdown;
+  const basedPrice = paymentBreakdown?.basedPrice || 0;
+  const tax = paymentBreakdown?.tax || 0;
+  const adminFee = transaction.event?.adminFee || 0;
+  const paymentMethodFee = transaction.paymentMethod?.paymentMethodFee || 0;
+
+  // Calculate fees
+  const calculatedAdminFee = calculateAdminFee(adminFee, basedPrice);
+  const calculatedPaymentMethodFee = calculatePaymentMethodFee(paymentMethodFee, basedPrice);
+  const totalPayment = basedPrice > 0
+    ? basedPrice + tax + calculatedAdminFee + calculatedPaymentMethodFee
+    : null;
+
   const modalContent = (
     <Box display="flex" flexDirection="column" gap="12px">
       {/* Name */}
@@ -96,14 +128,7 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Admin Fee
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.event.adminFee
-            ? transaction.event.adminFee < 100
-              ? formatUtils.formatPrice(
-                (transaction.event.adminFee / 100) *
-                transaction.paymentBreakdown.basedPrice
-              )
-              : formatUtils.formatPrice(transaction.event.adminFee)
-            : '-'}
+          {calculatedAdminFee > 0 ? formatUtils.formatPrice(calculatedAdminFee) : '-'}
         </Body2>
       </Box>
 
@@ -113,16 +138,7 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Transaction Fee
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.paymentMethod?.paymentMethodFee
-            ? transaction.paymentMethod.paymentMethodFee < 1
-              ? formatUtils.formatPrice(
-                (transaction.paymentMethod.paymentMethodFee / 100) *
-                transaction.paymentBreakdown.basedPrice
-              )
-              : formatUtils.formatPrice(
-                transaction.paymentMethod.paymentMethodFee
-              )
-            : '-'}
+          {calculatedPaymentMethodFee > 0 ? formatUtils.formatPrice(calculatedPaymentMethodFee) : '-'}
         </Body2>
       </Box>
 
@@ -132,22 +148,7 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Total Payment
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.paymentBreakdown?.basedPrice
-            ? formatUtils.formatPrice(
-                transaction.paymentBreakdown.basedPrice + 
-                transaction.paymentBreakdown.tax + 
-                (transaction.event?.adminFee
-                  ? transaction.event.adminFee < 100
-                    ? (transaction.event.adminFee / 100) * transaction.paymentBreakdown.basedPrice
-                    : transaction.event.adminFee
-                  : 0) + 
-                (transaction.paymentMethod?.paymentMethodFee 
-                  ? transaction.paymentMethod.paymentMethodFee < 1
-                    ? transaction.paymentMethod.paymentMethodFee * transaction.paymentBreakdown.basedPrice / 100
-                    : transaction.paymentMethod.paymentMethodFee
-                  : 0)
-              )
-            : '-'}
+          {totalPayment !== null ? formatUtils.formatPrice(totalPayment) : '-'}
         </Body2>
       </Box>
 
