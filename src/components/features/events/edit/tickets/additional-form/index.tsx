@@ -232,31 +232,27 @@ export function AdditionalForm({
       const deleted = Array.from(deletedForms);
       const validForms = additionalForms?.filter(f => f.id && f.field?.trim()) || [];
       const remainingForms = validForms.filter(f => !deletedForms.has(f.id));
-      const hasDeletions = deleted.length > 0;
       
       // STEP 2: Prepare forms to update (skip first form order 0)
       const formsToUpdate = remainingForms.filter(form => form.order !== 0);
       
       const updated = formsToUpdate
-        .sort((a, b) => a.order - b.order) // Sort by order
-        .map((form, index) => {
+        .map((form) => {
           const editableForm = editableForms.get(form.id) || form;
           
-          // Check content changes or order update needed
+          // Check content changes only (field, type, options, isRequired)
           const hasContentChanged =
             editableForm.field !== form.field ||
             editableForm.type !== form.type ||
+            editableForm.isRequired !== form.isRequired ||
             JSON.stringify(editableForm.options || []) !== JSON.stringify(form.options || []);
-          
-          const newOrder = index + 1; // New order (skip 0, start from 1)
-          const needsOrderUpdate = hasDeletions && form.order !== newOrder;
 
-          return (hasContentChanged || needsOrderUpdate) ? {
+          return hasContentChanged ? {
             id: form.id,
             question: editableForm.field,
             type: editableForm.type,
-            order: newOrder,
-            isRequired: editableForm.isRequired || false,
+            order: form.order,
+            isRequired: editableForm.isRequired !== undefined ? editableForm.isRequired : false,
             ...(editableForm.options && editableForm.options.length > 0 ? { options: editableForm.options } : {})
           } : null;
         })
@@ -274,7 +270,7 @@ export function AdditionalForm({
         ...(q.options && q.options.length > 0 ? { options: q.options } : {})
       }));
 
-      // STEP 4: Execute operations
+      // STEP 4: Execute operations SEQUENTIALLY
       // Delete forms first
       if (deleted.length > 0) {
         for (const formId of deletedForms) {
@@ -289,8 +285,8 @@ export function AdditionalForm({
             ticketTypeId: selectedTicketType,
             field: form.question,
             type: form.type,
-            isRequired: form.isRequired !== undefined ? form.isRequired : true,
             order: form.order,
+            isRequired: form.isRequired !== undefined ? form.isRequired : false,
             ...(form.options ? { options: form.options } : {})
           });
         }
