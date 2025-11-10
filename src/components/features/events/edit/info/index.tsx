@@ -46,6 +46,7 @@ interface FormData {
   taxNominal: string;
   eventDescription: string;
   termsAndConditions: string;
+  loginRequired: number;
 }
 
 interface EventEditInfoProps {
@@ -128,7 +129,8 @@ export const EventEditInfo = ({
       tax: eventDetail.tax ? 'true' : 'false',
       taxNominal: eventDetail.tax?.toString() || '',
       eventDescription: eventDetail.description || '',
-      termsAndConditions: eventDetail.termAndConditions || ''
+      termsAndConditions: eventDetail.termAndConditions || '',
+      loginRequired: eventDetail.login_required ? 1 : 2
     }
   });
 
@@ -373,6 +375,23 @@ export const EventEditInfo = ({
                 }}
                 isRejected={isFieldRejected('tax')}
                 disabled={eventDetail.eventStatus === 'on_going'}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <Select
+                id="select-login-required"
+                fullWidth
+                label="User Must Login*"
+                name="loginRequired"
+                options={[
+                  { value: 1, label: 'Yes' },
+                  { value: 2, label: 'No' }
+                ]}
+                placeholder="Select Yes or No"
+                rules={{
+                  required: 'Login requirement is required'
+                }}
+                isRejected={isFieldRejected('login_required')}
               />
             </Grid>
           </Grid>

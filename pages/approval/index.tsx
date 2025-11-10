@@ -22,23 +22,28 @@ function Approval() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('upcoming_draft');
   const [searchValue, setSearchValue] = useState('');
-  const [withdrawalStatus, setWithdrawalStatus] = useState('');
   const [filters, setFilters] = useState<EventSubmissionsFilters>({
     show: 10,
     page: 0,
     type: 'new',
     search: ''
   });
+  const [withdrawalFilters, setWithdrawalFilters] = useState({
+    show: 10,
+    page: 0,
+    status: ''
+  });
 
-  const { submissions, loading, error, mutate } = useEventsSubmissions(filters);
+  const { submissions, loading, error, mutate, pagination } =
+    useEventsSubmissions(filters);
+
   const {
     withdrawals,
     loading: withdrawalLoading,
     error: withdrawalError,
-    mutate: withdrawalMutate
-  } = useWithdrawals({
-    status: withdrawalStatus || undefined
-  });
+    mutate: withdrawalMutate,
+    pagination: withdrawalPagination
+  } = useWithdrawals(withdrawalFilters);
 
   useEffect(() => {
     if (user) {
@@ -70,6 +75,20 @@ function Approval() {
       ...prev,
       type: newTab === 'upcoming_draft' ? 'new' : 'update',
       page: 0
+    }));
+  };
+
+  const handleWithdrawalPage = (newPage: number) => {
+    setWithdrawalFilters((prev) => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      page: newPage
     }));
   };
 
@@ -117,8 +136,10 @@ function Approval() {
 
               {activeTab === 'withdrawal' ? (
                 <WithdrawalFilter
-                  status={withdrawalStatus}
-                  onStatusChange={setWithdrawalStatus}
+                  status={withdrawalFilters.status}
+                  onStatusChange={(v) => {
+                    setWithdrawalFilters((prev) => ({ ...prev, status: v }));
+                  }}
                 />
               ) : (
                 <TextField
@@ -147,6 +168,9 @@ function Approval() {
                     withdrawals={withdrawals}
                     loading={withdrawalLoading}
                     onRefresh={withdrawalMutate}
+                    total={withdrawalPagination?.totalRecords || 0}
+                    currentPage={withdrawalFilters.page}
+                    onPageChange={handleWithdrawalPage}
                   />
                 )}
 
@@ -194,6 +218,9 @@ function Approval() {
                     loading={loading}
                     submissions={submissions as any}
                     onRefresh={mutate}
+                    total={pagination?.totalRecords || 0}
+                    currentPage={filters.page}
+                    onPageChange={handlePageChange}
                   />
                 )}
 

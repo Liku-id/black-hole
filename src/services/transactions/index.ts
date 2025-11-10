@@ -8,19 +8,16 @@ import axios from 'axios';
 
 class TransactionsService {
   async getEventTransactions(
-    eventId: string,
-    filters?: TransactionsFilters
+    filters: TransactionsFilters
   ): Promise<TransactionsResponse> {
     try {
       const params: Record<string, any> = {};
 
-      if (filters?.page !== undefined) {
-        params.page = (filters.page + 1).toString();
-      }
-      if (filters?.limit !== undefined) params.limit = filters.limit.toString();
+      if (filters?.page !== undefined) params.page = filters.page.toString();
+      if (filters?.show !== undefined) params.limit = filters.show.toString();
 
       return await apiUtils.get<TransactionsResponse>(
-        `/api/transactions/${eventId}`,
+        `/api/transactions/${filters.eventId}`,
         params,
         'Failed to fetch event transactions'
       );
@@ -30,13 +27,17 @@ class TransactionsService {
     }
   }
 
-  async exportTransactions(request: ExportTransactionsRequest, eventName?: string): Promise<void> {
+  async exportTransactions(
+    request: ExportTransactionsRequest,
+    eventName?: string
+  ): Promise<void> {
     try {
       const params: Record<string, string> = {};
 
       if (request.from_date) params.from_date = request.from_date;
       if (request.to_date) params.to_date = request.to_date;
-      if (request.payment_status) params.payment_status = request.payment_status;
+      if (request.payment_status)
+        params.payment_status = request.payment_status;
       if (request.event_id) params.event_id = request.event_id;
 
       const url = '/api/transactions-export';
@@ -54,14 +55,18 @@ class TransactionsService {
       // Generate filename with new format: transactions_[event name]_[exported date DDMMYYYY & time HH:MM:SS].csv
       const now = new Date();
       const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, ''); // DDMMYYYY format
-      const timeStr = now.toLocaleTimeString('en-GB', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' 
-      }).replace(/:/g, ''); // HHMMSS format
-      
-      const eventNameFormatted = eventName ? eventName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') : 'all_events';
+      const timeStr = now
+        .toLocaleTimeString('en-GB', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })
+        .replace(/:/g, ''); // HHMMSS format
+
+      const eventNameFormatted = eventName
+        ? eventName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_')
+        : 'all_events';
       const filename = `transactions_${eventNameFormatted}_${dateStr}_${timeStr}.csv`;
 
       // Convert response to blob and download

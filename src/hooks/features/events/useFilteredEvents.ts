@@ -28,7 +28,7 @@ const useFilteredEvents = (
     () => eventsService.getEvents(filters)
   );
 
-  const temp = data?.body?.events || [];
+  const temp = data?.body?.data || [];
 
   // Guard limit 2
   const limitedEvents = temp.slice(0, 2);

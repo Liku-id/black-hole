@@ -47,6 +47,8 @@ interface AttendeeData {
   eventDate?: string;
   transactionId?: string;
   transactionNumber?: string;
+  redeemedAt?: string;
+  checkedInAt?: string;
   attendeeData?: Array<{
     field: string;
     value: string[];
@@ -334,21 +336,10 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="80px"
+                    width="140px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
-                      Date
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="120px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Payment Method
+                      Transaction Date
                     </Body2>
                   </TableCell>
                   <TableCell
@@ -378,7 +369,7 @@ export const AttendeeTable = ({
               <StyledTableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
+                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
                       <Box
                         alignItems="center"
                         display="flex"
@@ -405,7 +396,7 @@ export const AttendeeTable = ({
                   </TableRow>
                 ) : attendeeData.length === 0 ? (
                   <TableRow>
-                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
+                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
                       <Body2 color="text.secondary">No tickets found</Body2>
                     </TableCell>
                   </TableRow>
@@ -429,11 +420,8 @@ export const AttendeeTable = ({
                       </TableCell>
                       <TableCell>
                         <Body2>
-                          {dateUtils.formatDateDDMMYYYY(attendee.date)}
+                          {dateUtils.formatDateDDMMYYYYHHMM(attendee.date)}
                         </Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>{attendee.paymentMethod}</Body2>
                       </TableCell>
                       <TableCell>
                         <Box

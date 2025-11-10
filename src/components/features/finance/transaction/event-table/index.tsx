@@ -10,7 +10,7 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import { formatUtils } from '@/utils';
+import { formatUtils, dateUtils } from '@/utils';
 
 import { TransactionDetailModal } from '../detail-modal';
 
@@ -67,47 +67,52 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
         <Table>
           <StyledTableHead>
             <TableRow>
-              <TableCell sx={{ width: '4%' }}>
+              <TableCell width={"4%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   No.
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '22%' }}>
+              <TableCell width={"16%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Name
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '10%' }}>
+              <TableCell width={"11%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Type
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '10%' }}>
+              <TableCell width={"9%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Qty
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell width={"11%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Transaction ID
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell width={"11%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Amount
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '18%' }}>
+              <TableCell width={"10%"}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Payment Method
+                  Payment
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '7%' }}>
+              <TableCell width={"14%"}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Date
+                </Body2>
+              </TableCell>
+              <TableCell width={"7%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Status
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '5%' }}>
+              <TableCell width={"7%"}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Action
                 </Body2>
@@ -117,7 +122,7 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
           <StyledTableBody>
             {transactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9}>
+                <TableCell colSpan={10}>
                   <Box display="flex" justifyContent="center" padding="40px">
                     <Body2 color="text.secondary">No transactions found.</Body2>
                   </Box>
@@ -129,11 +134,29 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                   <TableCell>
                     <Body2>{index + 1 + currentPage * pageSize}.</Body2>
                   </TableCell>
-                  <TableCell>
-                    <Body2>{transaction.name}</Body2>
+                  <TableCell sx={{ maxWidth: 0 }}>
+                    <Body2
+                      display="block"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {transaction.name}
+                    </Body2>
                   </TableCell>
-                  <TableCell>
-                    <Body2>{transaction.ticketType?.name || '-'}</Body2>
+                  <TableCell sx={{ maxWidth: 0 }}>
+                    <Body2
+                      display="block"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {transaction.ticketType?.name || '-'}
+                    </Body2>
                   </TableCell>
                   <TableCell>
                     <Body2>{transaction.orderQuantity || 0} Ticket</Body2>
@@ -150,8 +173,24 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                         : '-'}
                     </Body2>
                   </TableCell>
+                  <TableCell sx={{ maxWidth: 0 }}>
+                    <Body2
+                      display="block"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {transaction.paymentMethod?.name || '-'}
+                    </Body2>
+                  </TableCell>
                   <TableCell>
-                    <Body2>{transaction.paymentMethod?.name || '-'}</Body2>
+                    <Body2>
+                      {transaction.createdAt
+                        ? dateUtils.formatDateDDMMYYYYHHMM(transaction.createdAt)
+                        : '-'}
+                    </Body2>
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={transaction.status || 'UNKNOWN'} />

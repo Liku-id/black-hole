@@ -1,13 +1,14 @@
 import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 
 import {
   Body2,
   StyledTableContainer,
   StyledTableHead,
-  StyledTableBody
+  StyledTableBody,
+  Pagination
 } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { useWithdrawalSummaries } from '@/hooks';
@@ -21,11 +22,19 @@ export const FinanceTransactionTable: FC<FinanceTransactionTableProps> = ({
   loading = false
 }) => {
   const router = useRouter();
+
+  // Initialize state
+  const [filters, setFilters] = useState<{ page: number; show: number }>({
+    page: 0,
+    show: 10
+  });
+
   const {
     summaries,
     loading: summariesLoading,
-    error
-  } = useWithdrawalSummaries();
+    error,
+    pagination
+  } = useWithdrawalSummaries(filters);
 
   const handleViewTransaction = (eventId: string) => {
     router.push(`/finance/event-transactions/${eventId}`);
@@ -102,7 +111,7 @@ export const FinanceTransactionTable: FC<FinanceTransactionTableProps> = ({
             summaries.map((summary, index) => (
               <TableRow key={summary.eventId}>
                 <TableCell>
-                  <Body2>{index + 1}.</Body2>
+                  <Body2>{index + 1 + filters.page * filters.show}.</Body2>
                 </TableCell>
                 <TableCell>
                   <Body2>{summary.eventName}</Body2>
@@ -148,6 +157,17 @@ export const FinanceTransactionTable: FC<FinanceTransactionTableProps> = ({
           )}
         </StyledTableBody>
       </Table>
+
+      {/* Pagination */}
+      <Pagination
+        total={pagination?.totalRecords}
+        currentPage={filters.page}
+        pageSize={filters.show}
+        onPageChange={(page) => {
+          setFilters((prev) => ({ ...prev, page }));
+        }}
+        loading={loading}
+      />
     </StyledTableContainer>
   );
 };

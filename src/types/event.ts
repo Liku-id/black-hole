@@ -84,7 +84,7 @@ export interface EventCountByStatus {
 export interface Event {
   id: string;
   name: string;
-  eventStatus:string;
+  eventStatus: string;
   eventType: string;
   eventOrganizerId: string;
   eventOrganizerName: string;
@@ -186,6 +186,7 @@ export interface EventDetail {
   rejectedReason: string | null;
   rejectedFields: string[] | null;
   withdrawalFee: string;
+  login_required: boolean;
 }
 
 export interface EventDetailResponse {
@@ -194,15 +195,21 @@ export interface EventDetailResponse {
   body: EventDetail;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  totalRecords: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export interface EventsResponse {
   message: string;
   body: {
-    events: Event[];
+    data: Event[];
     eventCountByStatus: EventCountByStatus;
-    show: number;
-    page: number;
-    total: string;
-    totalPage: number;
+    pagination: Pagination;
   };
 }
 
