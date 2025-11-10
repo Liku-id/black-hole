@@ -117,11 +117,6 @@ export const CreateEventForm = ({
     onSubmit(data as FormData, false);
   };
 
-  const handleSaveDraft = () => {
-    const data = methods.getValues();
-    onSubmit(data as FormData, true);
-  };
-
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(handleFormSubmit)}>
@@ -360,15 +355,8 @@ export const CreateEventForm = ({
             )}
 
             <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button
-                disabled={loading}
-                variant="secondary"
-                onClick={handleSaveDraft}
-              >
-                Save Draft
-              </Button>
               <Button disabled={loading} type="submit" variant="primary">
-                Continue
+                Submit
               </Button>
             </Box>
           </Box>

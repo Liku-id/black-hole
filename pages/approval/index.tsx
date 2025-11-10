@@ -24,7 +24,7 @@ function Approval() {
   const [searchValue, setSearchValue] = useState('');
   const [filters, setFilters] = useState<EventSubmissionsFilters>({
     show: 10,
-    page: 1,
+    page: 0,
     type: 'new',
     search: ''
   });
@@ -59,7 +59,7 @@ function Approval() {
       ...prev,
       type: activeTab === 'upcoming_draft' ? 'new' : 'update',
       search: value,
-      page: 1
+      page: 0
     }));
   }, 1000);
 
@@ -74,7 +74,7 @@ function Approval() {
     setFilters((prev) => ({
       ...prev,
       type: newTab === 'upcoming_draft' ? 'new' : 'update',
-      page: 1
+      page: 0
     }));
   };
 

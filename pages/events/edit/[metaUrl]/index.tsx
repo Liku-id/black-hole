@@ -234,7 +234,6 @@ function EditEvent() {
     if (!router.isReady) return;
     const status = eventDetail?.eventStatus;
     if (
-      status === 'draft' ||
       status === 'on_review' ||
       status === 'done' ||
       eventDetail?.is_requested

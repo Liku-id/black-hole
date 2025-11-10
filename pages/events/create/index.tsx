@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useAtom } from 'jotai';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { H4, Breadcrumb } from '@/components/common';
+import { H4 } from '@/components/common';
 import { CreateEventForm } from '@/components/features/events/create/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
@@ -46,13 +46,8 @@ function CreateEvent() {
   const [selectedEOId] = useAtom(selectedEOIdAtom);
   const [selectedEOName] = useAtom(selectedEONameAtom);
 
-  const breadcrumbSteps = [
-    { label: 'Event Detail', active: true },
-    { label: 'Ticket Detail' },
-    { label: 'Asset Event' }
-  ];
 
-  const onSubmit = async (data: FormData, isDraft: boolean = false) => {
+  const onSubmit = async (data: FormData) => {
     setError('');
     setLoading(true);
 
@@ -81,11 +76,7 @@ function CreateEvent() {
       };
       const response = await eventsService.createEvent(payload);
 
-      if (isDraft) {
-        router.push('/events');
-      } else {
-        router.push(`/events/create/${response.body.metaUrl}/ticket`);
-      }
+      router.push(`/events/${response.body.metaUrl}`);
     } catch (error: any) {
       setLoading(false);
       const errorMessage =
@@ -106,11 +97,6 @@ function CreateEvent() {
         <H4 color="text.primary" fontWeight={700} marginBottom="16px">
           Create New Event {selectedEOName ? `for ${selectedEOName}` : ''}
         </H4>
-
-        {/* Breadcrumb */}
-        <Box marginBottom="24px">
-          <Breadcrumb steps={breadcrumbSteps} />
-        </Box>
 
         {/* Form Component */}
         <CreateEventForm error={error} loading={loading} onSubmit={onSubmit} />

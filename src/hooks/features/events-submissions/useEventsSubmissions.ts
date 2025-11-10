@@ -20,7 +20,7 @@ const useEventsSubmissions = (
   );
 
   return {
-    submissions: data?.body?.rows || [],
+    submissions: data?.body?.data || [],
     loading,
     error,
     mutate,

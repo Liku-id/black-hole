@@ -2,6 +2,7 @@
 export { useApi } from './useApi';
 export { useEventDetail } from './features/events/useEventDetail';
 export { useTickets } from './features/tickets/useTickets';
+export { useTicketType } from './features/tickets/useTicketType';
 export { useEventTypes } from './features/events/useEventTypes';
 export { useEvents } from './features/events/useEvents';
 export { useFilteredEvents } from './features/events/useFilteredEvents';

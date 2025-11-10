@@ -43,25 +43,8 @@ const EventsTable: FC<EventsTableProps> = ({
   const router = useRouter();
 
   const handleViewClick = (event: Event) => {
-    const status = ((event as any).eventStatus || (event as any).status || '')
-      .toString()
-      .toLowerCase();
-    const meta = event.metaUrl;
-
-    if (status && status !== 'draft') {
-      router.push(`/events/${meta}`);
-      return;
-    }
-
-    if (status === 'draft') {
-      const hasLowest = !!event.lowestPriceTicketType;
-      if (!hasLowest) {
-        router.push(`/events/create/${meta}/ticket`);
-        return;
-      }
-      router.push(`/events/create/${meta}/assets`);
-      return;
-    }
+    router.push(`/events/${event.metaUrl}`);
+    return;
   };
 
   if (loading) {
