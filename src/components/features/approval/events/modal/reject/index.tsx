@@ -79,7 +79,8 @@ export const RejectModal = ({
                     city: 'City',
                     payment_methods: 'Payment Methods',
                     admin_fee: 'Admin Fee',
-                    tax: 'Tax Nominal'
+                    tax: 'Tax Nominal',
+                    login_required: 'User Must Login'
                   };
                   return fieldLabels[field] || field;
                 })

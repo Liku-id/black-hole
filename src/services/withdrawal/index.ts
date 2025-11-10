@@ -1,3 +1,4 @@
+import { Pagination } from '@/types/event';
 import { apiUtils } from '@/utils/apiUtils';
 
 export interface WithdrawalSummary {
@@ -22,7 +23,7 @@ export interface WithdrawalSummary {
 export interface WithdrawalSummariesResponse {
   statusCode: number;
   message: string;
-  body: WithdrawalSummary[];
+  body: { data: WithdrawalSummary[]; pagination: Pagination };
 }
 
 export interface WithdrawalSummaryResponse {
@@ -174,11 +175,23 @@ export interface WithdrawalHistoryResponse {
   body: WithdrawalHistoryItem[];
 }
 
+export interface PaginationFilters {
+  page: number;
+  show: number;
+}
+
 class WithdrawalService {
-  async getSummaries(): Promise<WithdrawalSummariesResponse> {
+  async getSummaries(
+    filters: PaginationFilters
+  ): Promise<WithdrawalSummariesResponse> {
+    const params: Record<string, any> = {};
+
+    if (filters?.show) params.show = filters.show.toString();
+    if (filters?.page) params.page = filters.page.toString();
+
     return apiUtils.get<WithdrawalSummariesResponse>(
       '/api/withdrawal/summary',
-      undefined,
+      params,
       'Failed to fetch withdrawal summaries'
     );
   }
@@ -205,12 +218,26 @@ class WithdrawalService {
     );
   }
 
-  async getWithdrawals(status?: string): Promise<WithdrawalListResponse> {
-    return apiUtils.get<WithdrawalListResponse>(
-      '/api/withdrawal/list',
-      status ? { status } : undefined,
-      'Failed to fetch withdrawals'
-    );
+  async getWithdrawals(filters: {
+    status?: string;
+    show?: number;
+    page?: number;
+  }): Promise<WithdrawalListResponse> {
+    try {
+      const params: Record<string, any> = {};
+
+      if (filters?.show) params.show = filters.show.toString();
+      if (filters?.page) params.page = filters.page.toString();
+      if (filters?.status) params.status = filters.status.toString();
+
+      return apiUtils.get<WithdrawalListResponse>(
+        '/api/withdrawal/list',
+        params,
+        'Failed to fetch withdrawals'
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createWithdrawal(data: WithdrawalRequest): Promise<WithdrawalResponse> {

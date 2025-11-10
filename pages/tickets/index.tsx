@@ -33,34 +33,27 @@ function Tickets() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get('event');
 
-  const [selectedEvent, setSelectedEvent] = useState(eventId);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(0);
+  const [filters, setFilters] = useState({
+    eventId: eventId,
+    page: 0,
+    show: 10,
+    search: ''
+  });
 
   // Get events list for dropdown
-  const { events, loading: eventsLoading, error: eventsError } = useEvents();
-
-  // Create stable filters object to prevent unnecessary re-renders
-  const ticketFilters = useMemo(() => {
-    if (!selectedEvent) return null;
-
-    return {
-      eventId: selectedEvent,
-      page: currentPage,
-      show: 10,
-      search: searchQuery
-    };
-  }, [selectedEvent, currentPage, searchQuery]);
+  const {
+    events,
+    loading: eventsLoading,
+    error: eventsError
+  } = useEvents({ show: 100, page: 0 });
 
   // Get tickets data when event is selected
   const {
     tickets,
-    total: apiTotal,
-    currentPage: apiCurrentPage,
-    currentShow: apiCurrentShow,
     loading: ticketsLoading,
-    mutate: mutateTickets
-  } = useTickets(ticketFilters);
+    mutate: mutateTickets,
+    pagination
+  } = useTickets(filters);
 
   // Transform events for dropdown options
   const eventOptions = events.map((event) => ({
@@ -70,9 +63,9 @@ function Tickets() {
 
   // Get selected event data for detailed information
   const selectedEventData = useMemo(() => {
-    if (!selectedEvent) return null;
-    return events.find((event) => event.id === selectedEvent) || null;
-  }, [selectedEvent, events]);
+    if (!filters.eventId) return null;
+    return events.find((event) => event.id === filters.eventId) || null;
+  }, [filters.eventId, events]);
 
   // Transform tickets for table
   const attendeeData = transformTicketData(tickets);
@@ -88,17 +81,15 @@ function Tickets() {
   };
 
   const handleEventChange = (value: string) => {
-    setSelectedEvent(value);
-    setCurrentPage(0); // Reset to first page when event changes
+    setFilters((prev) => ({ ...prev, eventId: value, page: 0 }));
   };
 
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setCurrentPage(0); // Reset to first page when searching
+    setFilters((prev) => ({ ...prev, search: value, page: 0 }));
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setFilters((prev) => ({ ...prev, page }));
   };
 
   const handleRedeemTicket = (_ticketId: string) => {
@@ -165,21 +156,21 @@ function Tickets() {
         {/* Event Search Section */}
         <SearchField
           eventOptions={eventOptions}
-          selectedEvent={selectedEvent}
+          selectedEvent={filters.eventId || ''}
           onEventChange={handleEventChange}
           onScanTicket={handleScanTicket}
         />
 
         {/* Attendee Details Section - only show when event is selected */}
-        {selectedEvent && (
+        {filters.eventId && (
           <AttendeeTable
             attendeeData={attendeeData}
-            currentPage={apiCurrentPage}
+            currentPage={filters.page}
             loading={ticketsLoading}
-            pageSize={apiCurrentShow}
-            searchQuery={searchQuery}
+            pageSize={10}
+            searchQuery={filters.search}
             selectedEventData={selectedEventData}
-            total={apiTotal}
+            total={pagination?.totalRecords}
             onPageChange={handlePageChange}
             onRedeemTicket={handleRedeemTicket}
             onSearchChange={handleSearchChange}
@@ -187,7 +178,7 @@ function Tickets() {
         )}
 
         {/* Show message when no event is selected */}
-        {!selectedEvent && (
+        {!filters.eventId && (
           <Box
             alignItems="center"
             display="flex"
