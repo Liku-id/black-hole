@@ -56,15 +56,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -107,15 +100,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -157,15 +143,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -212,15 +191,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -513,7 +485,10 @@ export const apiRouteUtils = {
           'Content-Type',
           response.headers['content-type'] || 'text/csv; charset=utf-8'
         );
-        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${filename}`
+        );
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
         // Send the file content
@@ -534,7 +509,9 @@ export const apiRouteUtils = {
           // Try to parse error message from response
           let errorMessage = 'Export failed';
           try {
-            const errorText = Buffer.from(error.response.data).toString('utf-8');
+            const errorText = Buffer.from(error.response.data).toString(
+              'utf-8'
+            );
             const errorData = JSON.parse(errorText);
             errorMessage = errorData.message || errorMessage;
           } catch {

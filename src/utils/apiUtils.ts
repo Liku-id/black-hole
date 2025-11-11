@@ -1,5 +1,23 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+let refreshTokenPromise: Promise<void> | null = null;
+
+const refreshTokens = async (): Promise<void> => {
+  if (!refreshTokenPromise) {
+    refreshTokenPromise = axios
+      .post('/api/auth/refresh-token')
+      .then(() => {
+        refreshTokenPromise = null;
+      })
+      .catch((error) => {
+        refreshTokenPromise = null;
+        throw error;
+      });
+  }
+
+  return refreshTokenPromise;
+};
+
 /**
  * API utilities for common operations using axios
  */
@@ -158,7 +176,7 @@ export const apiUtils = {
 
         if (shouldAttemptRefresh) {
           try {
-            await axios.post('/api/auth/refresh-token');
+            await refreshTokens();
             return apiUtils.makeRequest<T>(
               config,
               defaultErrorMessage,
