@@ -5,6 +5,7 @@ export { ticketsService } from './tickets';
 export { transactionsService } from './transactions';
 export { organizersService } from './organizers';
 export { authService } from './auth';
+export { forgotPasswordService } from './auth/forgot-password';
 export { listService } from './list';
 export { assetsService } from './assets';
 export { withdrawalService } from './withdrawal';
