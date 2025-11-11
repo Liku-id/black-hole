@@ -35,6 +35,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
 export interface LoginResponse {
   message: string;
   body: {
@@ -54,6 +58,15 @@ export interface LoginResponse {
       updatedAt: string;
       isGuest: boolean;
     };
+  };
+}
+
+export interface RefreshTokenResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    accessToken: string;
+    refreshToken: string;
   };
 }
 
