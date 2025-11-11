@@ -310,6 +310,89 @@ export const apiRouteUtils = {
     };
   },
 
+  createRefreshTokenHandler: (options: ApiRouteOptions) => {
+    return async (req: NextApiRequest, res: NextApiResponse) => {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method not allowed' });
+      }
+
+      try {
+        if (!process.env.BACKEND_URL) {
+          return res.status(500).json({
+            message: 'Server configuration error: BACKEND_URL not set'
+          });
+        }
+
+        const session = await getSession(req, res);
+
+        const requestRefreshToken =
+          (req.body && req.body.refreshToken) || session.refreshToken;
+
+        if (!requestRefreshToken) {
+          return res.status(400).json({
+            message: 'Refresh token is required'
+          });
+        }
+
+        const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+
+        const response = await axios.post(
+          url,
+          { refreshToken: requestRefreshToken },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            timeout: options.timeout || 30000
+          }
+        );
+
+        const responseBody = response.data?.body ?? {};
+
+        if (responseBody.accessToken && responseBody.refreshToken) {
+          setSessionData(session, {
+            user: responseBody.user ?? session.user,
+            accessToken: responseBody.accessToken,
+            refreshToken: responseBody.refreshToken,
+            isLoggedIn: true
+          });
+          await session.save();
+        }
+
+        return res.status(response.status).json({
+          statusCode: response.data?.statusCode ?? 0,
+          message: response.data?.message ?? 'Token refreshed successfully',
+          body: {
+            accessToken: responseBody.accessToken,
+            refreshToken: responseBody.refreshToken
+          }
+        });
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+          } else if (error.request) {
+            return res.status(503).json({
+              message:
+                'Backend server is not responding. Please try again later.'
+            });
+          }
+
+          return res.status(500).json({
+            message: 'Request failed: ' + error.message
+          });
+        }
+
+        return res.status(500).json({
+          message:
+            'Internal server error: ' +
+            (error instanceof Error ? error.message : 'Unknown error')
+        });
+      }
+    };
+  },
+
   createLogoutHandler: (options: ApiRouteOptions) => {
     return async (req: NextApiRequest, res: NextApiResponse) => {
       if (req.method !== 'POST') {

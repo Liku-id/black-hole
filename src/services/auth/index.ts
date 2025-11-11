@@ -2,7 +2,9 @@ import {
   LoginRequest,
   LoginResponse,
   LogoutResponse,
-  MeResponse
+  MeResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse
 } from '@/types/auth';
 import { EventOrganizerMeResponse } from '@/types/organizer';
 import { apiUtils } from '@/utils/apiUtils';
@@ -35,6 +37,21 @@ class AuthService {
           'Unable to connect to server. Please check your internet connection and try again.'
         );
       }
+      throw error;
+    }
+  }
+
+  async refreshToken(
+    data?: RefreshTokenRequest
+  ): Promise<RefreshTokenResponse> {
+    try {
+      return await apiUtils.post<RefreshTokenResponse>(
+        '/api/auth/refresh-token',
+        data,
+        'Failed to refresh token'
+      );
+    } catch (error) {
+      console.error('Refresh token error:', error);
       throw error;
     }
   }
