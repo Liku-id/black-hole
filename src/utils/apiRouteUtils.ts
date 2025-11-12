@@ -73,11 +73,14 @@ export const apiRouteUtils = {
 
       try {
         const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+        const origin = req.headers.origin;
 
         // Forward headers from request to backend
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
+          'X-Frontend-Origin': origin,
+          Origin: origin
         };
 
         // Get tokens from session for authentication
