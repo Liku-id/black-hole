@@ -80,11 +80,14 @@ export const apiRouteUtils = {
 
       try {
         const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+        const origin = req.headers.origin;
 
         // Forward headers from request to backend
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
+          'X-Frontend-Origin': origin,
+          Origin: origin
         };
 
         // Get tokens from session for authentication
@@ -513,7 +516,10 @@ export const apiRouteUtils = {
           'Content-Type',
           response.headers['content-type'] || 'text/csv; charset=utf-8'
         );
-        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${filename}`
+        );
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
         // Send the file content
@@ -534,7 +540,9 @@ export const apiRouteUtils = {
           // Try to parse error message from response
           let errorMessage = 'Export failed';
           try {
-            const errorText = Buffer.from(error.response.data).toString('utf-8');
+            const errorText = Buffer.from(error.response.data).toString(
+              'utf-8'
+            );
             const errorData = JSON.parse(errorText);
             errorMessage = errorData.message || errorMessage;
           } catch {
