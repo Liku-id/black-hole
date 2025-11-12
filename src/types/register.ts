@@ -80,8 +80,8 @@ export interface CreateEventOrganizerResponse {
 }
 
 export interface CheckAvailabilityRequest {
-  email: string;
-  phoneNumber: string;
+  email?: string;
+  phoneNumber?: string;
 }
 
 export interface CheckAvailabilityResponse {
