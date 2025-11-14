@@ -56,15 +56,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -107,15 +100,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -157,15 +143,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -212,15 +191,8 @@ export const apiRouteUtils = {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
-          if (error.response.status === 401) {
-            // Clear session on auth error
-            try {
-              const session = await getSession(req, res);
-              session.destroy();
-            } catch (sessionError) {
-              console.error('Session clear error:', sessionError);
-            }
-          }
+          // Preserve session data on auth errors so the client can attempt a token refresh.
+          // Session cleanup is handled after refresh failures.
           return res.status(error.response.status).json(error.response.data);
         }
         return res.status(500).json({ message: 'Internal server error' });
@@ -301,6 +273,89 @@ export const apiRouteUtils = {
         }
 
         // Non-axios error
+        return res.status(500).json({
+          message:
+            'Internal server error: ' +
+            (error instanceof Error ? error.message : 'Unknown error')
+        });
+      }
+    };
+  },
+
+  createRefreshTokenHandler: (options: ApiRouteOptions) => {
+    return async (req: NextApiRequest, res: NextApiResponse) => {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method not allowed' });
+      }
+
+      try {
+        if (!process.env.BACKEND_URL) {
+          return res.status(500).json({
+            message: 'Server configuration error: BACKEND_URL not set'
+          });
+        }
+
+        const session = await getSession(req, res);
+
+        const requestRefreshToken =
+          (req.body && req.body.refreshToken) || session.refreshToken;
+
+        if (!requestRefreshToken) {
+          return res.status(400).json({
+            message: 'Refresh token is required'
+          });
+        }
+
+        const url = `${process.env.BACKEND_URL}${options.endpoint}`;
+
+        const response = await axios.post(
+          url,
+          { refreshToken: requestRefreshToken },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            timeout: options.timeout || 30000
+          }
+        );
+
+        const responseBody = response.data?.body ?? {};
+
+        if (responseBody.accessToken && responseBody.refreshToken) {
+          setSessionData(session, {
+            user: responseBody.user ?? session.user,
+            accessToken: responseBody.accessToken,
+            refreshToken: responseBody.refreshToken,
+            isLoggedIn: true
+          });
+          await session.save();
+        }
+
+        return res.status(response.status).json({
+          statusCode: response.data?.statusCode ?? 0,
+          message: response.data?.message ?? 'Token refreshed successfully',
+          body: {
+            accessToken: responseBody.accessToken,
+            refreshToken: responseBody.refreshToken
+          }
+        });
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+          } else if (error.request) {
+            return res.status(503).json({
+              message:
+                'Backend server is not responding. Please try again later.'
+            });
+          }
+
+          return res.status(500).json({
+            message: 'Request failed: ' + error.message
+          });
+        }
+
         return res.status(500).json({
           message:
             'Internal server error: ' +
@@ -430,7 +485,10 @@ export const apiRouteUtils = {
           'Content-Type',
           response.headers['content-type'] || 'text/csv; charset=utf-8'
         );
-        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${filename}`
+        );
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
         // Send the file content
@@ -451,7 +509,9 @@ export const apiRouteUtils = {
           // Try to parse error message from response
           let errorMessage = 'Export failed';
           try {
-            const errorText = Buffer.from(error.response.data).toString('utf-8');
+            const errorText = Buffer.from(error.response.data).toString(
+              'utf-8'
+            );
             const errorData = JSON.parse(errorText);
             errorMessage = errorData.message || errorMessage;
           } catch {
