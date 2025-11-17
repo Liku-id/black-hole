@@ -80,11 +80,6 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
                 Email
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '15%' }}>
-              <Body2 color="text.secondary" fontSize="14px">
-                Number of Events
-              </Body2>
-            </TableCell>
             <TableCell align={'left'} sx={{ width: '10%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Action
@@ -116,18 +111,12 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {creator.pic_name || creator.event_organizer_pic?.name || '-'}
+                    {creator.pic_name || creator.event_organizer_pic?.name || creator.full_name || '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
                     {creator.email || '-'}
-                  </Body2>
-                </TableCell>
-                <TableCell>
-                  <Body2 color="text.primary" fontSize="14px">
-                    {/* TODO: Fetch number of events for each creator */}
-                    -
                   </Body2>
                 </TableCell>
                 <TableCell>
