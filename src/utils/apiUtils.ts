@@ -1,5 +1,23 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+let refreshTokenPromise: Promise<void> | null = null;
+
+const refreshTokens = async (): Promise<void> => {
+  if (!refreshTokenPromise) {
+    refreshTokenPromise = axios
+      .post('/api/auth/refresh-token')
+      .then(() => {
+        refreshTokenPromise = null;
+      })
+      .catch((error) => {
+        refreshTokenPromise = null;
+        throw error;
+      });
+  }
+
+  return refreshTokenPromise;
+};
+
 /**
  * API utilities for common operations using axios
  */
@@ -53,8 +71,10 @@ export const apiUtils = {
    */
   handleAxiosError: (
     error: AxiosError,
-    defaultErrorMessage: string = 'Request failed'
+    defaultErrorMessage: string = 'Request failed',
+    options: { skipSessionClear?: boolean } = {}
   ): Error => {
+    const { skipSessionClear = false } = options;
     let errorMessage = defaultErrorMessage;
 
     if (error.response) {
@@ -69,7 +89,9 @@ export const apiUtils = {
             errorMessage = (data as any).message;
           }
         } else {
-          apiUtils.clearExpiredSession();
+          if (!skipSessionClear) {
+            apiUtils.clearExpiredSession();
+          }
           errorMessage = 'Session expired. Please log in again.';
         }
       } else if (status === 413) {
@@ -122,7 +144,8 @@ export const apiUtils = {
    */
   makeRequest: async <T = any>(
     config: AxiosRequestConfig,
-    defaultErrorMessage: string = 'Request failed'
+    defaultErrorMessage: string = 'Request failed',
+    retryOn401: boolean = true
   ): Promise<T> => {
     try {
       const axiosConfig = apiUtils.createConfig(config);
@@ -130,6 +153,48 @@ export const apiUtils = {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const requestUrl =
+          error.config?.url || config.url || '';
+
+        const isLoginRequest =
+          typeof requestUrl === 'string' &&
+          requestUrl.includes('/api/auth/login');
+        const isRefreshRequest =
+          typeof requestUrl === 'string' &&
+          requestUrl.includes('/api/auth/refresh-token');
+        const isClearSessionRequest =
+          typeof requestUrl === 'string' &&
+          requestUrl.includes('/api/auth/clear-session');
+
+        const shouldAttemptRefresh =
+          retryOn401 &&
+          status === 401 &&
+          !isLoginRequest &&
+          !isRefreshRequest &&
+          !isClearSessionRequest;
+
+        if (shouldAttemptRefresh) {
+          try {
+            await refreshTokens();
+            return apiUtils.makeRequest<T>(
+              config,
+              defaultErrorMessage,
+              false
+            );
+          } catch (refreshError) {
+            if (axios.isAxiosError(refreshError)) {
+              await apiUtils.clearExpiredSession();
+              throw apiUtils.handleAxiosError(
+                refreshError,
+                'Failed to refresh token',
+                { skipSessionClear: true }
+              );
+            }
+            throw refreshError;
+          }
+        }
+
         throw apiUtils.handleAxiosError(error, defaultErrorMessage);
       }
       throw error;
