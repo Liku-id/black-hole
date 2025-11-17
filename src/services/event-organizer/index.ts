@@ -139,5 +139,16 @@ export const eventOrganizerService = {
       'Failed to fetch event organizers'
     );
     return response;
+  },
+
+  getEventOrganizerById: async (
+    eoId: string
+  ): Promise<EventOrganizerMeResponse> => {
+    const response = await apiUtils.get<EventOrganizerMeResponse>(
+      `/api/event-organizers/${eoId}`,
+      {},
+      'Failed to fetch event organizer'
+    );
+    return response;
   }
 };
