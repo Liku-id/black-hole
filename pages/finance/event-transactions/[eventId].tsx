@@ -54,7 +54,7 @@ function EventTransactions() {
       </Box>
 
       {/* Title */}
-      <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="32px">
+      <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="24px">
         Event Transactions
       </H2>
 
