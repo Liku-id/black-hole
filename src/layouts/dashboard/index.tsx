@@ -65,6 +65,12 @@ const menuItems = [
     icon: '/icon/account.svg',
     path: '/account',
     id: 'account_menu'
+  },
+  {
+    text: 'Creator',
+    icon: '/icon/creator.svg',
+    path: '/creator',
+    id: 'creator_menu'
   }
 ];
 
@@ -161,8 +167,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const drawer = (
     <Box display="flex" flexDirection="column" height="100%">
       <Box
-        marginBottom="68px"
-        padding="16px"
+        marginBottom="48px"
+        padding="16px 16px 0px"
         sx={{ backgroundColor: 'primary.dark' }}
       >
         <Image
@@ -180,6 +186,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {menuItems.map((item) => {
           if (
             item.text === 'Approval' &&
+            sessionRole !== 'admin' &&
+            sessionRole !== 'business_development'
+          ) {
+            return null;
+          }
+
+          if (
+            item.text === 'Creator' &&
             sessionRole !== 'admin' &&
             sessionRole !== 'business_development'
           ) {
