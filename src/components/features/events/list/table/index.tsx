@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { FC } from 'react';
 
 import {
+  Body1,
   Body2,
   Pagination,
   StyledTableBody,
@@ -29,6 +30,7 @@ interface EventsTableProps {
   currentPage?: number;
   pageSize?: number;
   onPageChange?: (page: number) => void;
+  showAction?: boolean;
 }
 
 const EventsTable: FC<EventsTableProps> = ({
@@ -38,7 +40,8 @@ const EventsTable: FC<EventsTableProps> = ({
   total = 0,
   currentPage = 0,
   pageSize = 10,
-  onPageChange
+  onPageChange,
+  showAction = true
 }) => {
   const router = useRouter();
 
@@ -99,16 +102,32 @@ const EventsTable: FC<EventsTableProps> = ({
                 Total Revenue
               </Body2>
             </TableCell>
-            <TableCell align={'left'} sx={{ width: '9%' }}>
-              <Body2 color="text.secondary" fontSize="14px">
-                Action
-              </Body2>
-            </TableCell>
+            {showAction && (
+              <TableCell align={'left'} sx={{ width: '9%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Action
+                </Body2>
+              </TableCell>
+            )}
           </TableRow>
         </StyledTableHead>
         <StyledTableBody>
-          {events.map((event, index) => (
-            <TableRow key={event.id}>
+          {events.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={showAction ? 8 : 7}
+                sx={{ border: 'none' }}
+              >
+                <Box py={4} textAlign="center">
+                  <Body1 gutterBottom color="text.secondary">
+                    No events found
+                  </Body1>
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : (
+            events.map((event, index) => (
+              <TableRow key={event.id}>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
                   {index + 1 + currentPage * 10}.
@@ -153,80 +172,83 @@ const EventsTable: FC<EventsTableProps> = ({
                   {formatUtils.formatPrice(parseFloat(event.totalRevenue))}
                 </Body2>
               </TableCell>
-              <TableCell>
-                <Box display="flex">
-                  <Tooltip title="Detail" arrow>
-                    <IconButton
-                      size="small"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                      onClick={() => handleViewClick(event)}
-                    >
-                      <Image
-                        alt="View"
-                        height={24}
-                        src="/icon/eye.svg"
-                        width={24}
-                      />
-                    </IconButton>
-                  </Tooltip>
+              {showAction && (
+                <TableCell>
+                  <Box display="flex">
+                    <Tooltip title="Detail" arrow>
+                      <IconButton
+                        size="small"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={() => handleViewClick(event)}
+                      >
+                        <Image
+                          alt="View"
+                          height={24}
+                          src="/icon/eye.svg"
+                          width={24}
+                        />
+                      </IconButton>
+                    </Tooltip>
 
-                  <Tooltip title="Attandee" arrow>
-                    <IconButton
-                      size="small"
-                      sx={{
-                        color: 'text.secondary',
-                        cursor: 'pointer',
-                        opacity: ['on_going', 'done'].includes(
-                          event.eventStatus
-                        )
-                          ? 1
-                          : 0.5
-                      }}
-                      onClick={() => router.push(`/tickets?event=${event.id}`)}
-                      disabled={
-                        !['on_going', 'done'].includes(event.eventStatus)
-                      }
-                    >
-                      <Image
-                        alt="tickets"
-                        height={22}
-                        src="/icon/voucher.svg"
-                        width={22}
-                      />
-                    </IconButton>
-                  </Tooltip>
+                    <Tooltip title="Attandee" arrow>
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: 'text.secondary',
+                          cursor: 'pointer',
+                          opacity: ['on_going', 'done'].includes(
+                            event.eventStatus
+                          )
+                            ? 1
+                            : 0.5
+                        }}
+                        onClick={() => router.push(`/tickets?event=${event.id}`)}
+                        disabled={
+                          !['on_going', 'done'].includes(event.eventStatus)
+                        }
+                      >
+                        <Image
+                          alt="tickets"
+                          height={22}
+                          src="/icon/voucher.svg"
+                          width={22}
+                        />
+                      </IconButton>
+                    </Tooltip>
 
-                  <Tooltip title="Transaction" arrow>
-                    <IconButton
-                      size="small"
-                      sx={{
-                        color: 'text.secondary',
-                        cursor: 'pointer',
-                        opacity: ['on_going', 'done'].includes(
-                          event.eventStatus
-                        )
-                          ? 1
-                          : 0.5
-                      }}
-                      onClick={() =>
-                        router.push(`/finance/event-transactions/${event.id}`)
-                      }
-                      disabled={
-                        !['on_going', 'done'].includes(event.eventStatus)
-                      }
-                    >
-                      <Image
-                        alt="transactions"
-                        height={22}
-                        src="/icon/money.svg"
-                        width={22}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </TableCell>
+                    <Tooltip title="Transaction" arrow>
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: 'text.secondary',
+                          cursor: 'pointer',
+                          opacity: ['on_going', 'done'].includes(
+                            event.eventStatus
+                          )
+                            ? 1
+                            : 0.5
+                        }}
+                        onClick={() =>
+                          router.push(`/finance/event-transactions/${event.id}`)
+                        }
+                        disabled={
+                          !['on_going', 'done'].includes(event.eventStatus)
+                        }
+                      >
+                        <Image
+                          alt="transactions"
+                          height={22}
+                          src="/icon/money.svg"
+                          width={22}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </TableCell>
+              )}
             </TableRow>
-          ))}
+            ))
+          )}
         </StyledTableBody>
       </Table>
 
