@@ -37,7 +37,7 @@ const ModalFooter = styled(Box)({
 
 interface ModalProps {
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   title: string;
   titleSize?: string;
   children: React.ReactNode;
@@ -56,8 +56,18 @@ export default function CustomModal({
   width = 443,
   height = 332
 }: ModalProps) {
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <StyledModal aria-labelledby="modal-title" open={open} onClose={onClose}>
+    <StyledModal
+      aria-labelledby="modal-title"
+      open={open}
+      onClose={handleClose}
+    >
       <ModalContent
         display="flex"
         flexDirection="column"
@@ -70,14 +80,16 @@ export default function CustomModal({
           <Body1 color="text.primary" fontSize={titleSize} fontWeight={700}>
             {title}
           </Body1>
-          <Image
-            alt="Close"
-            height={24}
-            src="/icon/close.svg"
-            style={{ cursor: 'pointer' }}
-            width={24}
-            onClick={onClose}
-          />
+          {onClose && (
+            <Image
+              alt="Close"
+              height={24}
+              src="/icon/close.svg"
+              style={{ cursor: 'pointer' }}
+              width={24}
+              onClick={onClose}
+            />
+          )}
         </ModalHeader>
 
         {/* Content */}
