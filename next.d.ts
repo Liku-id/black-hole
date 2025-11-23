@@ -13,3 +13,6 @@ declare module 'next' {
     getLayout?: (page: ReactElement) => ReactNode;
   };
 }
+
+// Jest DOM matchers for TypeScript
+import '@testing-library/jest-dom';
