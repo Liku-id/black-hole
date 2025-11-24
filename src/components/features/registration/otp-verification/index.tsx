@@ -8,7 +8,6 @@ import {
   Typography
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 import { Button, Body2, H3 } from '@/components/common';
 
@@ -22,15 +21,6 @@ const OTPCard = styled(Card)(
     backdrop-filter: blur(10px);
     border-radius: 0px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`
-);
-
-const LogoWrapper = styled(Box)(
-  ({ theme }) => `
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: ${theme.spacing(3)};
 `
 );
 
@@ -140,84 +130,73 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
   );
 
   return (
-    <Box>
-      <LogoWrapper>
-        <Image
-          alt="Wukong Creator Logo"
-          height={48}
-          src="/logo/wukong.svg"
-          width={176}
-        />
-      </LogoWrapper>
+    <OTPCard elevation={6}>
+      <CardContent sx={{ p: 0, pb: '0px !important' }}>
+        <Box mb={5} textAlign={'center'}>
+          <H3 gutterBottom color="text.primary" fontWeight={700}>
+            Verify Your Account
+          </H3>
+          <Body2 color="text.secondary">
+            We've sent you verification code to {maskedPhoneNumber}
+          </Body2>
+        </Box>
 
-      <OTPCard elevation={6}>
-        <CardContent sx={{ p: 0, pb: '0px !important' }}>
-          <Box mb={5} textAlign={'center'}>
-            <H3 gutterBottom color="text.primary" fontWeight={700}>
-              Verify Your Account
-            </H3>
-            <Body2 color="text.secondary">
-              We've sent you verification code to {maskedPhoneNumber}
-            </Body2>
-          </Box>
+        {/* Countdown Timer */}
+        <Box mb={4} textAlign="center">
+          <Typography variant="body2" color="primary.main" fontWeight={700}>
+            {formatTime(timeLeft)}
+          </Typography>
+        </Box>
 
-          {/* Countdown Timer */}
-          <Box mb={4} textAlign="center">
-            <Typography variant="body2" color="primary.main" fontWeight={700}>
-              {formatTime(timeLeft)}
-            </Typography>
-          </Box>
+        {/* OTP Input Fields */}
+        <Box mb={4} display="flex" justifyContent="center">
+          {otp.map((digit, index) => (
+            <OTPInput
+              key={index}
+              id={`otp_code_${index + 1}_field`}
+              type="text"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleOtpChange(index, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(index, e)}
+              placeholder=""
+              autoComplete="one-time-code"
+              disabled={isLoading}
+            />
+          ))}
+        </Box>
 
-          {/* OTP Input Fields */}
-          <Box mb={4} display="flex" justifyContent="center">
-            {otp.map((digit, index) => (
-              <OTPInput
-                key={index}
-                id={`otp_code_${index + 1}_field`}
-                type="text"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleOtpChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                placeholder=""
-                autoComplete="one-time-code"
-                disabled={isLoading}
-              />
-            ))}
-          </Box>
-
-          {/* Submit Button */}
-          <Box mb={3}>
-            <Button
-              id="btn_rgs_verify"
-              disabled={
-                isLoading || (!canResend && otp.some((digit) => digit === ''))
-              }
-              sx={{
-                width: '322px',
-                height: '48px',
-                display: 'block',
-                margin: '0 auto'
-              }}
-              onClick={() =>
-                canResend ? handleResendOTP() : handleSubmit(otp.join(''))
-              }
-            >
-              {isLoading ? (
-                <>
-                  <CircularProgress color="inherit" size={20} sx={{ mr: 1 }} />
-                  {canResend ? 'Resending...' : 'Verifying...'}
-                </>
-              ) : canResend ? (
-                `Resend`
-              ) : (
-                'Verify'
-              )}
-            </Button>
-          </Box>
-        </CardContent>
-      </OTPCard>
-    </Box>
+        {/* Submit Button */}
+        <Box mb={3}>
+          <Button
+            id="btn_rgs_verify"
+            disabled={
+              isLoading || (!canResend && otp.some((digit) => digit === ''))
+            }
+            sx={{
+              width: '322px',
+              height: '48px',
+              display: 'block',
+              margin: '0 auto'
+            }}
+            onClick={() =>
+              canResend ? handleResendOTP() : handleSubmit(otp.join(''))
+            }
+          >
+            {isLoading ? (
+              <>
+                <CircularProgress color="inherit" size={20} sx={{ mr: 1 }} />
+                {canResend ? 'Resending...' : 'Verifying...'}
+              </>
+            ) : canResend ? (
+              `Resend`
+            ) : (
+              'Verify'
+            )}
+          </Button>
+        </Box>
+      </CardContent>
+    </OTPCard>
   );
 };
 

@@ -36,15 +36,6 @@ const ProfileCard = styled(Card)(
   `
 );
 
-const LogoWrapper = styled(Box)(
-  ({ theme }) => `
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: ${theme.spacing(3)};
-  `
-);
-
 interface RegisterProfileFormProps {
   onSubmit: (data: RegisterProfileRequest) => void;
   isLoading?: boolean;
@@ -135,271 +126,260 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
   };
 
   return (
-    <Box>
-      <LogoWrapper>
-        <Image
-          alt="Wukong Creator Logo"
-          height={48}
-          src="/logo/wukong.svg"
-          width={176}
-        />
-      </LogoWrapper>
+    <ProfileCard elevation={6}>
+      <CardContent sx={{ p: 0, pb: '0px !important' }}>
+        <Box mb={5} textAlign={'center'}>
+          <H3 gutterBottom color="text.primary" fontWeight={700}>
+            Complete Your Profile
+          </H3>
+          <Body2 color="text.secondary">
+            Tell us more about yourself and your organization
+          </Body2>
+        </Box>
 
-      <ProfileCard elevation={6}>
-        <CardContent sx={{ p: 0, pb: '0px !important' }}>
-          <Box mb={5} textAlign={'center'}>
-            <H3 gutterBottom color="text.primary" fontWeight={700}>
-              Complete Your Profile
-            </H3>
-            <Body2 color="text.secondary">
-              Tell us more about yourself and your organization
-            </Body2>
-          </Box>
+        <FormProvider {...methods}>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
 
-          <FormProvider {...methods}>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
+              // Trigger all form validations first
+              const isValid = await methods.trigger();
 
-                // Trigger all form validations first
-                const isValid = await methods.trigger();
+              // Then validate social media
+              const socialMediaValid = validateSocialMedia();
 
-                // Then validate social media
-                const socialMediaValid = validateSocialMedia();
+              // Only proceed if all validations pass
+              if (isValid && socialMediaValid) {
+                methods.handleSubmit(handleSubmit)(e);
+              }
+            }}
+          >
+            <Grid container spacing={3}>
+              {/* Left Column */}
+              <Grid item xs={12} md={6}>
+                {/* Address */}
+                <Box mb={3}>
+                  <TextField
+                    id="organizer_address_field"
+                    fullWidth
+                    name="address"
+                    label="Address *"
+                    placeholder="Address"
+                    rules={{ required: 'Address is required' }}
+                  />
+                </Box>
 
-                // Only proceed if all validations pass
-                if (isValid && socialMediaValid) {
-                  methods.handleSubmit(handleSubmit)(e);
-                }
-              }}
-            >
-              <Grid container spacing={3}>
-                {/* Left Column */}
-                <Grid item xs={12} md={6}>
-                  {/* Address */}
-                  <Box mb={3}>
-                    <TextField
-                      id="organizer_address_field"
-                      fullWidth
-                      name="address"
-                      label="Address *"
-                      placeholder="Address"
-                      rules={{ required: 'Address is required' }}
-                    />
-                  </Box>
-
-                  {/* Social Media */}
-                  <Box mb={3}>
-                    <Body2 color="text.primary" mb={1} display="block">
-                      Social media *
-                    </Body2>
-                    {methods.formState.errors.socialMedia && (
-                      <Caption color="error.main" mb={1} display="block">
-                        {methods.formState.errors.socialMedia.message}
-                      </Caption>
-                    )}
-                    {socialMediaLinks.map((link, index) => (
-                      <Box
-                        key={link.id}
-                        alignItems="center"
-                        mb={2}
-                        gap={1}
-                        width="100%"
-                      >
-                        <TextField
-                          id={`${[link.platform]}_url_field`}
-                          fullWidth
-                          placeholder="Link Profile Account"
-                          value={link.url}
-                          onChange={(e) =>
-                            handleSocialMediaChange(index, e.target.value)
-                          }
-                          InputProps={{
-                            startAdornment: (
-                              <Box
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                width={24}
-                                height={24}
-                                mr={1}
-                              >
-                                <Image
-                                  src={link.icon}
-                                  alt={link.platform}
-                                  width={24}
-                                  height={24}
-                                />
-                              </Box>
-                            ),
-                            endAdornment: link.url !== '' && (
-                              <Box
-                                id={`${[link.platform]}_clear_icon_button`}
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                width={24}
-                                height={24}
-                                ml={1}
-                                sx={{ cursor: 'pointer' }}
-                                onClick={() => removeSocialMediaLink(index)}
-                              >
-                                <Image
-                                  src="/icon/trash.svg"
-                                  alt="Delete"
-                                  width={24}
-                                  height={24}
-                                />
-                              </Box>
-                            )
-                          }}
-                        />
-                      </Box>
-                    ))}
-                  </Box>
-                </Grid>
-
-                {/* Right Column */}
-                <Grid item xs={12} md={6}>
-                  {/* About Organizer */}
-                  <Box mb={3}>
-                    <TextArea
-                      id="about_organizer_field"
-                      label="About Organizer *"
-                      fullWidth
-                      name="aboutOrganizer"
-                      placeholder="Max 1000 Characters"
-                      rules={{
-                        required: 'About organizer is required',
-                        maxLength: {
-                          value: 1000,
-                          message:
-                            'About organizer must not exceed 1000 characters'
+                {/* Social Media */}
+                <Box mb={3}>
+                  <Body2 color="text.primary" mb={1} display="block">
+                    Social media *
+                  </Body2>
+                  {methods.formState.errors.socialMedia && (
+                    <Caption color="error.main" mb={1} display="block">
+                      {methods.formState.errors.socialMedia.message}
+                    </Caption>
+                  )}
+                  {socialMediaLinks.map((link, index) => (
+                    <Box
+                      key={link.id}
+                      alignItems="center"
+                      mb={2}
+                      gap={1}
+                      width="100%"
+                    >
+                      <TextField
+                        id={`${[link.platform]}_url_field`}
+                        fullWidth
+                        placeholder="Link Profile Account"
+                        value={link.url}
+                        onChange={(e) =>
+                          handleSocialMediaChange(index, e.target.value)
                         }
-                      }}
-                      maxLength={1000}
-                      height="260px"
-                    />
-                  </Box>
-                </Grid>
+                        InputProps={{
+                          startAdornment: (
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              width={24}
+                              height={24}
+                              mr={1}
+                            >
+                              <Image
+                                src={link.icon}
+                                alt={link.platform}
+                                width={24}
+                                height={24}
+                              />
+                            </Box>
+                          ),
+                          endAdornment: link.url !== '' && (
+                            <Box
+                              id={`${[link.platform]}_clear_icon_button`}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              width={24}
+                              height={24}
+                              ml={1}
+                              sx={{ cursor: 'pointer' }}
+                              onClick={() => removeSocialMediaLink(index)}
+                            >
+                              <Image
+                                src="/icon/trash.svg"
+                                alt="Delete"
+                                width={24}
+                                height={24}
+                              />
+                            </Box>
+                          )
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
               </Grid>
 
-              {/* Terms and Conditions */}
-              <Box
-                mt={4}
-                mb={4}
-                display="flex"
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <FormControlLabel
-                  sx={{ m: '0px' }}
-                  control={
-                    <Controller
-                      name="termsAccepted"
-                      rules={{
-                        required:
-                          'You must accept the terms and conditions and privacy policy'
-                      }}
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={!!field.value}
-                          color="primary"
-                          id="sign_up_checkbox"
-                        />
-                      )}
-                    />
-                  }
-                  label={
-                    <Box
-                      display="flex"
-                      flexDirection="row"
-                      flexWrap="wrap"
-                      alignItems="center"
-                      gap={0.5}
-                      maxWidth="315px"
-                    >
-                      <Caption color="text.primary">I agree to the </Caption>
-                      <Link
-                        href={
-                          process.env.NODE_ENV === 'production'
-                            ? 'https://wukong.co.id/term-and-condition'
-                            : 'https://staging-aws.wukong.co.id/term-and-condition'
-                        }
-                        target="_blank"
-                        passHref
-                      >
-                        <Caption
-                          color="primary.main"
-                          fontWeight={500}
-                          sx={{
-                            cursor: 'pointer',
-                            textDecoration: 'underline'
-                          }}
-                        >
-                          terms and conditions
-                        </Caption>
-                      </Link>
-                      <Caption color="text.primary"> and </Caption>
-                      <Link
-                        href={
-                          process.env.NODE_ENV === 'production'
-                            ? 'https://wukong.co.id/privacy-policy'
-                            : 'https://staging-aws.wukong.co.id/privacy-policy'
-                        }
-                        target="_blank"
-                        passHref
-                      >
-                        <Caption
-                          color="primary.main"
-                          fontWeight={500}
-                          sx={{
-                            cursor: 'pointer',
-                            textDecoration: 'underline'
-                          }}
-                        >
-                          privacy policy
-                        </Caption>
-                      </Link>
-                      <Caption color="text.primary">
-                        applicable at Wukong
-                      </Caption>
-                    </Box>
-                  }
-                />
-                {methods.formState.errors.termsAccepted && (
-                  <Caption
-                    color="error.main"
-                    mt={1}
-                    display="block"
-                    textAlign="center"
-                  >
-                    {methods.formState.errors.termsAccepted.message}
-                  </Caption>
-                )}
-              </Box>
+              {/* Right Column */}
+              <Grid item xs={12} md={6}>
+                {/* About Organizer */}
+                <Box mb={3}>
+                  <TextArea
+                    id="about_organizer_field"
+                    label="About Organizer *"
+                    fullWidth
+                    name="aboutOrganizer"
+                    placeholder="Max 1000 Characters"
+                    rules={{
+                      required: 'About organizer is required',
+                      maxLength: {
+                        value: 1000,
+                        message:
+                          'About organizer must not exceed 1000 characters'
+                      }
+                    }}
+                    maxLength={1000}
+                    height="260px"
+                  />
+                </Box>
+              </Grid>
+            </Grid>
 
-              {/* Submit Button */}
-              <Button
-                id="btn_rgs_signup"
-                disabled={isLoading}
-                sx={{
-                  width: '322px',
-                  height: '48px',
-                  margin: '0 auto',
-                  display: 'block'
-                }}
-                type="submit"
-              >
-                {isLoading ? 'Processing...' : 'Sign Up'}
-              </Button>
-            </form>
-          </FormProvider>
-        </CardContent>
-      </ProfileCard>
-    </Box>
+            {/* Terms and Conditions */}
+            <Box
+              mt={4}
+              mb={4}
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <FormControlLabel
+                sx={{ m: '0px' }}
+                control={
+                  <Controller
+                    name="termsAccepted"
+                    rules={{
+                      required:
+                        'You must accept the terms and conditions and privacy policy'
+                    }}
+                    render={({ field }) => (
+                      <Checkbox
+                        {...field}
+                        checked={!!field.value}
+                        color="primary"
+                        id="sign_up_checkbox"
+                      />
+                    )}
+                  />
+                }
+                label={
+                  <Box
+                    display="flex"
+                    flexDirection="row"
+                    flexWrap="wrap"
+                    alignItems="center"
+                    gap={0.5}
+                    maxWidth="315px"
+                  >
+                    <Caption color="text.primary">I agree to the </Caption>
+                    <Link
+                      href={
+                        process.env.NODE_ENV === 'production'
+                          ? 'https://wukong.co.id/term-and-condition'
+                          : 'https://staging-aws.wukong.co.id/term-and-condition'
+                      }
+                      target="_blank"
+                      passHref
+                    >
+                      <Caption
+                        color="primary.main"
+                        fontWeight={500}
+                        sx={{
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        terms and conditions
+                      </Caption>
+                    </Link>
+                    <Caption color="text.primary"> and </Caption>
+                    <Link
+                      href={
+                        process.env.NODE_ENV === 'production'
+                          ? 'https://wukong.co.id/privacy-policy'
+                          : 'https://staging-aws.wukong.co.id/privacy-policy'
+                      }
+                      target="_blank"
+                      passHref
+                    >
+                      <Caption
+                        color="primary.main"
+                        fontWeight={500}
+                        sx={{
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        privacy policy
+                      </Caption>
+                    </Link>
+                    <Caption color="text.primary">
+                      applicable at Wukong
+                    </Caption>
+                  </Box>
+                }
+              />
+              {methods.formState.errors.termsAccepted && (
+                <Caption
+                  color="error.main"
+                  mt={1}
+                  display="block"
+                  textAlign="center"
+                >
+                  {methods.formState.errors.termsAccepted.message}
+                </Caption>
+              )}
+            </Box>
+
+            {/* Submit Button */}
+            <Button
+              id="btn_rgs_signup"
+              disabled={isLoading}
+              sx={{
+                width: '322px',
+                height: '48px',
+                margin: '0 auto',
+                display: 'block'
+              }}
+              type="submit"
+            >
+              {isLoading ? 'Processing...' : 'Sign Up'}
+            </Button>
+          </form>
+        </FormProvider>
+      </CardContent>
+    </ProfileCard>
   );
 };
 

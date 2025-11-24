@@ -21,7 +21,8 @@ export function themeCreator(): Theme {
       },
       grey: {
         100: '#E2E8F0',
-        '200': '#D9D9D9'
+        200: '#D9D9D9',
+        900: '#131B2A'
       },
       background: {
         default: '#F1F5F9',
