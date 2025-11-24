@@ -97,23 +97,30 @@ export const ExpiredDateModal = ({
         return;
       }
 
-      const date = new Date(data.date);
+      // Parse date and time from form data
       const [hours, minutes] = data.time.split(':');
-      date.setHours(parseInt(hours, 10));
-      date.setMinutes(parseInt(minutes, 10));
+      const formattedHours = hours.padStart(2, '0');
+      const formattedMinutes = minutes.padStart(2, '0');
 
       // Get timezone offset
+      const timeZoneOffset = data.timeZone;
       const timeZoneLabel =
         timeZoneOptions.find((option) => option.value === data.timeZone)
           ?.label || 'WIB';
 
+      // Create ISO string with timezone directly without UTC conversion
+      // Format: YYYY-MM-DDTHH:mm:ss.SSS+TZ:TZ
+      // Use the date string directly from form (YYYY-MM-DD format)
+      const isoDate = `${data.date}T${formattedHours}:${formattedMinutes}:00.000${timeZoneOffset}`;
+
+      // For display formatting, create date object (this is only for display)
+      const date = new Date(data.date);
+      date.setHours(parseInt(hours, 10));
+      date.setMinutes(parseInt(minutes, 10));
+
       // Format for display: "15 January 2026, 12.00 WIB" (with dot instead of colon)
       const timeFormatted = data.time.replace(':', '.');
       const formattedDate = `${format(date, 'd MMMM yyyy')}, ${timeFormatted} ${timeZoneLabel}`;
-
-      // Create ISO string with timezone
-      const timeZoneOffset = data.timeZone;
-      const isoDate = `${date.toISOString().slice(0, -1)}${timeZoneOffset}`;
 
       await onSave({
         date: data.date,
