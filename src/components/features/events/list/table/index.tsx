@@ -194,10 +194,7 @@ const EventsTable: FC<EventsTableProps> = ({
         <StyledTableBody>
           {events.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={showAction ? 8 : 7}
-                sx={{ border: 'none' }}
-              >
+              <TableCell colSpan={showAction ? 8 : 7} sx={{ border: 'none' }}>
                 <Box py={4} textAlign="center">
                   <Body1 gutterBottom color="text.secondary">
                     No events found
@@ -208,194 +205,91 @@ const EventsTable: FC<EventsTableProps> = ({
           ) : (
             events.map((event, index) => (
               <TableRow key={event.id}>
-              <TableCell>
-                <Body2 color="text.primary" fontSize="14px">
-                  {index + 1 + currentPage * 10}.
-                </Body2>
-              </TableCell>
-              <TableCell>
-                <Body2 color="text.primary" fontSize="14px">
-                  {event.name}
-                </Body2>
-              </TableCell>
-              {!isCompact && (
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {dateUtils.formatDateDDMMYYYY(event.createdAt)}
+                    {index + 1 + currentPage * 10}.
                   </Body2>
                 </TableCell>
-              )}
-              <TableCell>
-                <Body2 color="text.primary" fontSize="14px">
-                  {dateUtils.formatDateDDMMYYYY(event.startDate)} -{' '}
-                  {dateUtils.formatDateDDMMYYYY(event.endDate)}
-                </Body2>
-              </TableCell>
-              {!isCompact && (
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {event.lowestPriceTicketType?.sales_start_date
-                      ? dateUtils.formatDateDDMMYYYY(
-                          event.lowestPriceTicketType.sales_start_date
-                        )
-                      : '-'}
+                    {event.name}
                   </Body2>
                 </TableCell>
-              )}
-              <TableCell>
-                <Body2 color="text.primary" fontSize="14px">
-                  {event.soldTickets} Ticket
-                </Body2>
-              </TableCell>
-              <TableCell>
-                <Body2 color="primary.main" fontSize="14px" fontWeight={700}>
-                  {formatUtils.formatPrice(parseFloat(event.totalRevenue))}
-                </Body2>
-              </TableCell>
-              <TableCell>
-                <Box>
-                  <IconButton
-                    size="small"
-                    id="hamburger_icon_button"
-                    sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                    onClick={(e) => handleMenuOpen(e, event.id)}
-                  >
-                    <Image
-                      alt="Options"
-                      height={24}
-                      src="/icon/options.svg"
-                      width={24}
-                    />
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl[event.id]}
-                    open={Boolean(anchorEl[event.id])}
-                    onClose={() => handleMenuClose(event.id)}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'right'
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right'
-                    }}
-                    slotProps={{
-                      paper: {
-                        sx: {
-                          backgroundColor: 'common.white',
-                          boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
-                          borderRadius: 1,
-                          minWidth: 200,
-                          mt: 1
-                        }
-                      }
-                    }}
-                  >
-                    <MenuItem
-                      onClick={() => handleViewClick(event)}
-                      sx={{
-                        padding: '12px 16px',
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                {!isCompact && (
+                  <TableCell>
+                    <Body2 color="text.primary" fontSize="14px">
+                      {dateUtils.formatDateDDMMYYYY(event.createdAt)}
+                    </Body2>
+                  </TableCell>
+                )}
+                <TableCell>
+                  <Body2 color="text.primary" fontSize="14px">
+                    {dateUtils.formatDateDDMMYYYY(event.startDate)} -{' '}
+                    {dateUtils.formatDateDDMMYYYY(event.endDate)}
+                  </Body2>
+                </TableCell>
+                {!isCompact && (
+                  <TableCell>
+                    <Body2 color="text.primary" fontSize="14px">
+                      {event.lowestPriceTicketType?.sales_start_date
+                        ? dateUtils.formatDateDDMMYYYY(
+                            event.lowestPriceTicketType.sales_start_date
+                          )
+                        : '-'}
+                    </Body2>
+                  </TableCell>
+                )}
+                <TableCell>
+                  <Body2 color="text.primary" fontSize="14px">
+                    {event.soldTickets} Ticket
+                  </Body2>
+                </TableCell>
+                <TableCell>
+                  <Body2 color="primary.main" fontSize="14px" fontWeight={700}>
+                    {formatUtils.formatPrice(parseFloat(event.totalRevenue))}
+                  </Body2>
+                </TableCell>
+                <TableCell>
+                  <Box>
+                    <IconButton
+                      size="small"
+                      id="hamburger_icon_button"
+                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                      onClick={(e) => handleMenuOpen(e, event.id)}
+                    >
+                      <Image
+                        alt="Options"
+                        height={24}
+                        src="/icon/options.svg"
+                        width={24}
+                      />
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl[event.id]}
+                      open={Boolean(anchorEl[event.id])}
+                      onClose={() => handleMenuClose(event.id)}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right'
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right'
+                      }}
+                      slotProps={{
+                        paper: {
+                          sx: {
+                            backgroundColor: 'common.white',
+                            boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
+                            borderRadius: 1,
+                            minWidth: 200,
+                            mt: 1
+                          }
                         }
                       }}
                     >
-                      <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-                        <Image
-                          alt="Event Detail"
-                          src="/icon/eye.svg"
-                          height={18}
-                          width={18}
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Body2
-                            color="text.primary"
-                            fontSize="14px"
-                            fontWeight="400"
-                          >
-                            Event Detail
-                          </Body2>
-                        }
-                      />
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => handleAttendeeClick(event)}
-                      disabled={
-                        !['on_going', 'done'].includes(event.eventStatus)
-                      }
-                      sx={{
-                        padding: '12px 16px',
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                        },
-                        '&.Mui-disabled': {
-                          opacity: 0.5
-                        }
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-                        <Image
-                          alt="Attendee Tickets"
-                          src="/icon/voucher.svg"
-                          height={18}
-                          width={18}
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Body2
-                            color="text.primary"
-                            fontSize="14px"
-                            fontWeight="400"
-                          >
-                            Attendee Tickets
-                          </Body2>
-                        }
-                      />
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => handleTransactionClick(event)}
-                      disabled={
-                        !['on_going', 'done'].includes(event.eventStatus)
-                      }
-                      sx={{
-                        padding: '12px 16px',
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                        },
-                        '&.Mui-disabled': {
-                          opacity: 0.5
-                        }
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-                        <Image
-                          alt="Event Transaction"
-                          src="/icon/money.svg"
-                          height={18}
-                          width={18}
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Body2
-                            color="text.primary"
-                            fontSize="14px"
-                            fontWeight="400"
-                          >
-                            Event Transaction
-                          </Body2>
-                        }
-                      />
-                    </MenuItem>
-                    {['on_going', 'approved', 'done'].includes(
-                      event.eventStatus
-                    ) && (
                       <MenuItem
-                        id="partner_ticket"
-                        onClick={() => handlePartnerTicketClick(event)}
+                        onClick={() => handleViewClick(event)}
                         sx={{
                           padding: '12px 16px',
                           '&:hover': {
@@ -405,8 +299,8 @@ const EventsTable: FC<EventsTableProps> = ({
                       >
                         <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
                           <Image
-                            alt="Partner Ticket"
-                            src="/icon/partner-ticket.svg"
+                            alt="Event Detail"
+                            src="/icon/eye.svg"
                             height={18}
                             width={18}
                           />
@@ -418,26 +312,30 @@ const EventsTable: FC<EventsTableProps> = ({
                               fontSize="14px"
                               fontWeight="400"
                             >
-                              Partner Ticket
+                              Event Detail
                             </Body2>
                           }
                         />
                       </MenuItem>
-                    )}
-                    {event.eventStatus !== 'draft' && (
                       <MenuItem
-                        onClick={() => handleDuplicateClick(event)}
+                        onClick={() => handleAttendeeClick(event)}
+                        disabled={
+                          !['on_going', 'done'].includes(event.eventStatus)
+                        }
                         sx={{
                           padding: '12px 16px',
                           '&:hover': {
                             backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                          },
+                          '&.Mui-disabled': {
+                            opacity: 0.5
                           }
                         }}
                       >
                         <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
                           <Image
-                            alt="Duplicate Event"
-                            src="/icon/copy.svg"
+                            alt="Attendee Tickets"
+                            src="/icon/voucher.svg"
                             height={18}
                             width={18}
                           />
@@ -449,16 +347,115 @@ const EventsTable: FC<EventsTableProps> = ({
                               fontSize="14px"
                               fontWeight="400"
                             >
-                              Duplicate Event
+                              Attendee Tickets
                             </Body2>
                           }
                         />
                       </MenuItem>
-                    )}
-                  </Menu>
-                </Box>
-              </TableCell>
-            </TableRow>
+                      <MenuItem
+                        onClick={() => handleTransactionClick(event)}
+                        disabled={
+                          !['on_going', 'done'].includes(event.eventStatus)
+                        }
+                        sx={{
+                          padding: '12px 16px',
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                          },
+                          '&.Mui-disabled': {
+                            opacity: 0.5
+                          }
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                          <Image
+                            alt="Event Transaction"
+                            src="/icon/money.svg"
+                            height={18}
+                            width={18}
+                          />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={
+                            <Body2
+                              color="text.primary"
+                              fontSize="14px"
+                              fontWeight="400"
+                            >
+                              Event Transaction
+                            </Body2>
+                          }
+                        />
+                      </MenuItem>
+                      {['on_going', 'approved', 'done'].includes(
+                        event.eventStatus
+                      ) && (
+                        <MenuItem
+                          id="partner_ticket"
+                          onClick={() => handlePartnerTicketClick(event)}
+                          sx={{
+                            padding: '12px 16px',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                            <Image
+                              alt="Partner Ticket"
+                              src="/icon/partner-ticket.svg"
+                              height={18}
+                              width={18}
+                            />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              <Body2
+                                color="text.primary"
+                                fontSize="14px"
+                                fontWeight="400"
+                              >
+                                Partner Ticket
+                              </Body2>
+                            }
+                          />
+                        </MenuItem>
+                      )}
+                      {event.eventStatus !== 'draft' && (
+                        <MenuItem
+                          onClick={() => handleDuplicateClick(event)}
+                          sx={{
+                            padding: '12px 16px',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                            <Image
+                              alt="Duplicate Event"
+                              src="/icon/copy.svg"
+                              height={18}
+                              width={18}
+                            />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              <Body2
+                                color="text.primary"
+                                fontSize="14px"
+                                fontWeight="400"
+                              >
+                                Duplicate Event
+                              </Body2>
+                            }
+                          />
+                        </MenuItem>
+                      )}
+                    </Menu>
+                  </Box>
+                </TableCell>
+              </TableRow>
             ))
           )}
         </StyledTableBody>

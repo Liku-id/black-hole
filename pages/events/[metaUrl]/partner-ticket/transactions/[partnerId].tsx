@@ -7,7 +7,11 @@ import { useState, useEffect } from 'react';
 import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2, Card, TextField, Body1 } from '@/components/common';
 import { PartnerTransactionTable } from '@/components/features/events/partner-ticket/transaction-table';
-import { useTransactions, useEventDetail, usePartnerTicketTypes } from '@/hooks';
+import {
+  useTransactions,
+  useEventDetail,
+  usePartnerTicketTypes
+} from '@/hooks';
 import { TransactionsFilters } from '@/types/transaction';
 import DashboardLayout from '@/layouts/dashboard';
 import { useDebouncedCallback } from '@/utils/debounceUtils';
