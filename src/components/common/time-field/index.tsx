@@ -12,6 +12,7 @@ import { Body2 } from '@/components/common';
 import { StyledTextField } from '../text-field/StyledTextField';
 
 interface TimeFieldProps {
+  id?: string;
   label?: string;
   name?: string;
   rules?: RegisterOptions;
@@ -30,6 +31,7 @@ interface TimeValue {
 
 // Internal component for rendering the time field UI
 const TimeFieldUI = ({
+  id,
   label,
   error,
   helperText,
@@ -37,6 +39,7 @@ const TimeFieldUI = ({
   timeValue,
   onTimeChange
 }: {
+  id?: string;
   label?: string;
   error?: boolean;
   helperText?: string;
@@ -82,7 +85,7 @@ const TimeFieldUI = ({
   );
 
   const endComponent = (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    <Box id={id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       {/* Hours spinner */}
       <Box
         sx={{
@@ -267,6 +270,7 @@ const TimeFieldUI = ({
 // Main TimeField component
 const TimeField = (props: TimeFieldProps) => {
   const {
+    id,
     label,
     name,
     rules,

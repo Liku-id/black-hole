@@ -17,6 +17,8 @@ interface CustomDateFieldProps extends Omit<TextFieldProps, 'variant'> {
   error?: boolean;
   helperText?: string;
   placeholder?: string;
+  id?: string;
+  minDate?: Date;
 }
 
 // Custom input component for DatePicker
@@ -273,7 +275,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export const CustomDateField = (props: CustomDateFieldProps) => {
-  const { label, name, rules, placeholder, ...otherProps } = props;
+  const { label, name, rules, placeholder, id, minDate, ...otherProps } = props;
 
   const {
     control,
@@ -318,6 +320,7 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
                   : null
               }
               yearDropdownItemNumber={10}
+              minDate={minDate}
               onChange={(date: Date | null) => {
                 if (!date) {
                   field.onChange('');
