@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm, useFieldArray } from 'react-hook-form';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {
@@ -51,12 +51,14 @@ interface CreatePrivateLinkFormData {
 function CreatePrivateLink() {
   const router = useRouter();
   const { metaUrl, partnerId } = router.query;
-  const [pendingPartner, setPendingPartner] = useAtom(pendingPartnerAtom);
+  const [pendingPartner] = useAtom(pendingPartnerAtom);
+  const setPendingPartner = useSetAtom(pendingPartnerAtom);
   const [loadingStep, setLoadingStep] = useState<
     'idle' | 'creating-partner' | 'creating-link'
   >('idle');
   const [createdPartnerId, setCreatedPartnerId] = useState<string | null>(null);
   const [expiredDateModalOpen, setExpiredDateModalOpen] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const {
     eventDetail,
@@ -162,6 +164,13 @@ function CreatePrivateLink() {
   };
 
   const handleSubmit = async (data: CreatePrivateLinkFormData) => {
+    setSubmitAttempted(true);
+
+    // Validate link expired date
+    if (!data.linkExpiredDate) {
+      return;
+    }
+
     let partnerIdToUse: string | null = null;
 
     try {
@@ -238,8 +247,17 @@ function CreatePrivateLink() {
           const originalPrice = ticketType?.price || 0;
           const ticketPrice = parseFloat(category.ticketPrice) || 0;
 
-          // Calculate discount amount: original price - ticket price
-          const discountAmount = Math.max(0, originalPrice - ticketPrice);
+          // Calculate discount amount
+          let discountAmount = 0;
+
+          // If ticket price is between 1-100, treat it as percentage
+          if (ticketPrice >= 1 && ticketPrice <= 100) {
+            // Calculate discount as percentage of original price
+            discountAmount = (ticketPrice / 100) * originalPrice;
+          } else {
+            // Calculate discount amount: original price - ticket price
+            discountAmount = Math.max(0, originalPrice - ticketPrice);
+          }
 
           discount[category.ticketCategoryId] = {
             discount: Math.round(discountAmount),
@@ -593,7 +611,9 @@ function CreatePrivateLink() {
                         alignItems="center"
                         border="1px solid"
                         borderColor={
-                          watch('linkExpiredDate') ? 'divider' : 'error.main'
+                          submitAttempted && !watch('linkExpiredDate')
+                            ? 'error.main'
+                            : 'divider'
                         }
                         borderRadius={1}
                         display="flex"
@@ -630,7 +650,7 @@ function CreatePrivateLink() {
                           </Body2>
                         </Box>
                       </Box>
-                      {!watch('linkExpiredDate') && (
+                      {submitAttempted && !watch('linkExpiredDate') && (
                         <Body2 color="error.main" fontSize="12px" mt={0.5}>
                           Link expired date is required
                         </Body2>

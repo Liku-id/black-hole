@@ -229,12 +229,13 @@ function PartnerTicket() {
 
       {/* Event Name with Action Buttons */}
       <Box
-        alignItems="center"
+        alignItems="flex-start"
         display="flex"
         justifyContent="space-between"
         mb="24px"
+        gap={2}
       >
-        <Box>
+        <Box flex={1} minWidth={0}>
           {/* Back Button */}
           <Box
             alignItems="center"
@@ -254,11 +255,18 @@ function PartnerTicket() {
             Event Name: {eventDetail.name}
           </H2>
         </Box>
-        <Box display="flex" gap={2}>
+        <Box
+          display="flex"
+          gap={2}
+          flexShrink={0}
+          alignItems="flex-start"
+          pt={0.5}
+        >
           <Button
             id="choose_existing_partner_button"
             variant="secondary"
             onClick={handleChooseExistingPartner}
+            sx={{ whiteSpace: 'nowrap' }}
           >
             Choose Existing Partner
           </Button>
@@ -266,6 +274,7 @@ function PartnerTicket() {
             id="add_new_partner_button"
             variant="primary"
             onClick={handleAddPartner}
+            sx={{ whiteSpace: 'nowrap' }}
           >
             Add New Partner
           </Button>

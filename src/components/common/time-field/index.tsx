@@ -339,16 +339,29 @@ const FormTimeField = ({ name, rules, ...props }: TimeFieldProps) => {
       name={name as string}
       render={({ field }) => {
         const handleTimeChange = (newTime: TimeValue) => {
-          if (newTime.hours !== null && newTime.minutes !== null) {
-            const timeString = `${newTime.hours.toString().padStart(2, '0')}:${newTime.minutes.toString().padStart(2, '0')}`;
+          // If either hours or minutes is set, initialize the other to 0 if null
+          const finalTime: TimeValue = {
+            hours: newTime.hours !== null ? newTime.hours : (newTime.minutes !== null ? 0 : null),
+            minutes: newTime.minutes !== null ? newTime.minutes : (newTime.hours !== null ? 0 : null)
+          };
+          
+          if (finalTime.hours !== null && finalTime.minutes !== null) {
+            const timeString = `${finalTime.hours.toString().padStart(2, '0')}:${finalTime.minutes.toString().padStart(2, '0')}`;
             field.onChange(timeString);
           }
         };
 
-        const timeValue: TimeValue = field.value
+        const timeValue: TimeValue = field.value && typeof field.value === 'string' && field.value.trim() !== ''
           ? (() => {
-              const [hours, minutes] = field.value.split(':').map(Number);
-              return { hours: hours || 0, minutes: minutes || 0 };
+              try {
+                const [hours, minutes] = field.value.split(':').map(Number);
+                if (isNaN(hours) || isNaN(minutes)) {
+                  return { hours: null, minutes: null };
+                }
+                return { hours: hours || 0, minutes: minutes || 0 };
+              } catch {
+                return { hours: null, minutes: null };
+              }
             })()
           : { hours: null, minutes: null };
 

@@ -11,12 +11,4 @@ export interface PendingPartnerData {
 }
 
 // Create writable atom
-const basePendingPartnerAtom = atom<PendingPartnerData | null>(null);
-
-export const pendingPartnerAtom = atom(
-  (get) => get(basePendingPartnerAtom),
-  (get, set, update: PendingPartnerData | null) => {
-    set(basePendingPartnerAtom, update);
-  }
-);
-
+export const pendingPartnerAtom = atom(null as PendingPartnerData | null);

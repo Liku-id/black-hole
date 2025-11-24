@@ -175,8 +175,24 @@ const PartnerEventTable: FC<PartnerEventTableProps> = ({
                       {index + 1 + currentPage * pageSize}.
                     </Body2>
                   </TableCell>
-                  <TableCell>
-                    <Body2 color="text.primary" fontSize="14px">
+                  <TableCell
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '15%'
+                    }}
+                  >
+                    <Body2
+                      color="text.primary"
+                      fontSize="14px"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'block'
+                      }}
+                    >
                       {partner.partnerName}
                     </Body2>
                   </TableCell>
