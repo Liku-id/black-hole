@@ -28,15 +28,6 @@ const RegisterCard = styled(Card)(
 `
 );
 
-const LogoWrapper = styled(Box)(
-  ({ theme }) => `
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: ${theme.spacing(3)};
-`
-);
-
 interface RegisterFormData {
   organizerName: string;
   email: string;
@@ -122,17 +113,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const isFormDisabled = isSubmitting;
 
   return (
-    <Box>
-      <LogoWrapper>
-        <Image
-          alt="Wukong Creator Logo"
-          height={48}
-          src="/logo/wukong.svg"
-          width={176}
-        />
-      </LogoWrapper>
-
-      <RegisterCard elevation={6}>
+    <RegisterCard elevation={6}>
         <CardContent sx={{ p: 0, pb: '0px !important' }}>
           <Box mb={5} textAlign={'center'}>
             <H2 gutterBottom color="text.primary" fontWeight={700}>
@@ -320,7 +301,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           </Box>
         </CardContent>
       </RegisterCard>
-    </Box>
   );
 };
 

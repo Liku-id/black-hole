@@ -17,7 +17,7 @@ export default function Document() {
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=Bebas+Neue&display=swap"
           rel="stylesheet"
         />
         {facebookDomainVerification ? (
