@@ -41,6 +41,7 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
 
   const {
     control,
+    watch,
     formState: { errors },
     setValue,
     setError,
@@ -55,6 +56,26 @@ export const CustomPhoneField = (props: CustomPhoneFieldProps) => {
 
   // Local state for display value (what user sees)
   const [displayValue, setDisplayValue] = useState<string>('');
+
+  // Watch the form value to sync with displayValue (for edit mode)
+  const formValue = watch(name);
+
+  // Sync displayValue with form value when form value changes (for edit mode)
+  useEffect(() => {
+    if (formValue && typeof formValue === 'string' && formValue !== '') {
+      // Extract phone number without country code for display
+      const phoneWithoutCode = formValue.replace(/^(\+62|62)/, '').trim();
+      if (phoneWithoutCode && phoneWithoutCode !== displayValue) {
+        setDisplayValue(phoneWithoutCode);
+        // Update country code if it's in the form value
+        if (formValue.startsWith('+62')) {
+          setSelectedCountryCode('+62');
+        }
+      }
+    } else if (!formValue && displayValue) {
+      setDisplayValue('');
+    }
+  }, [formValue, displayValue]);
 
   // Handle phone number input change
   const handlePhoneNumberChange = async (
