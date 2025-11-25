@@ -141,6 +141,9 @@ const LoginForm: React.FC = () => {
                     )
                   }}
                 />
+                <Box mt={1} textAlign="right">
+                  <Caption color="info.contrastText" sx={{ cursor: 'pointer' }} onClick={() => router.push('/forgot-password')}>Forgot Password?</Caption>
+                </Box>
               </Box>
 
               {error && (

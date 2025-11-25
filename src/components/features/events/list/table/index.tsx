@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { FC, useState } from 'react';
 
 import {
+  Body1,
   Body2,
   Pagination,
   StyledTableBody,
@@ -32,6 +33,7 @@ interface EventsTableProps {
   currentPage?: number;
   pageSize?: number;
   onPageChange?: (page: number) => void;
+  showAction?: boolean;
 }
 
 const EventsTable: FC<EventsTableProps> = ({
@@ -41,7 +43,8 @@ const EventsTable: FC<EventsTableProps> = ({
   total = 0,
   currentPage = 0,
   pageSize = 10,
-  onPageChange
+  onPageChange,
+  showAction = true
 }) => {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<{
@@ -131,16 +134,32 @@ const EventsTable: FC<EventsTableProps> = ({
                 Total Revenue
               </Body2>
             </TableCell>
-            <TableCell align={'left'} sx={{ width: '9%' }}>
-              <Body2 color="text.secondary" fontSize="14px">
-                Action
-              </Body2>
-            </TableCell>
+            {showAction && (
+              <TableCell align={'left'} sx={{ width: '9%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Action
+                </Body2>
+              </TableCell>
+            )}
           </TableRow>
         </StyledTableHead>
         <StyledTableBody>
-          {events.map((event, index) => (
-            <TableRow key={event.id}>
+          {events.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={showAction ? 8 : 7}
+                sx={{ border: 'none' }}
+              >
+                <Box py={4} textAlign="center">
+                  <Body1 gutterBottom color="text.secondary">
+                    No events found
+                  </Body1>
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : (
+            events.map((event, index) => (
+              <TableRow key={event.id}>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
                   {index + 1 + currentPage * 10}.
@@ -361,7 +380,8 @@ const EventsTable: FC<EventsTableProps> = ({
                 </Box>
               </TableCell>
             </TableRow>
-          ))}
+            ))
+          )}
         </StyledTableBody>
       </Table>
 
