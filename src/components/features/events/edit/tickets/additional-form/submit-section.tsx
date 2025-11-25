@@ -1,8 +1,7 @@
 import { Box } from '@mui/material';
 import React from 'react';
 
-import { Button } from '@/components/common';
-import { Body2 } from '@/components/common';
+import { Button, Body2 } from '@/components/common';
 
 interface SubmitSectionProps {
   isSubmitting: boolean;

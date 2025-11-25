@@ -1,9 +1,7 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 
-import { Body2 } from '@/components/common';
-import CustomButton from '@/components/common/button';
-import CustomModal from '@/components/common/modal';
+import { Body2, Button as CustomButton, Modal as CustomModal } from '@/components/common';
 
 interface TicketAdditionalFormModalProps {
   open: boolean;
