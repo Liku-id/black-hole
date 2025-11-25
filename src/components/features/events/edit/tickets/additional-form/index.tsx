@@ -75,13 +75,14 @@ export function AdditionalForm({
       questions.map(q => {
         if (q.id === id) {
           const updatedQuestion = { ...q, ...updates };
-          if (updates.formType && updates.formType !== q.formType) {
-            updatedQuestion.question = '';
-          }
-          if (updates.formType === 'DROPDOWN' || updates.formType === 'CHECKBOX') {
-            updatedQuestion.options = ['', ''];
-          } else if (updates.formType) {
-            delete updatedQuestion.options;
+          if (updates.formType) {
+            if (updates.formType === 'DROPDOWN' || updates.formType === 'CHECKBOX') {
+              if (!updatedQuestion.options) {
+                updatedQuestion.options = ['', ''];
+              }
+            } else {
+              delete updatedQuestion.options;
+            }
           }
           return updatedQuestion;
         }
@@ -138,6 +139,15 @@ export function AdditionalForm({
       const currentForm = newMap.get(formId);
       if (currentForm) {
         const updatedForm = { ...currentForm, [field]: value };
+        if (field === 'type') {
+          if (value === 'DROPDOWN' || value === 'CHECKBOX') {
+            if (!updatedForm.options) {
+              updatedForm.options = ['', ''];
+            }
+          } else {
+            delete updatedForm.options;
+          }
+        }
         newMap.set(formId, updatedForm);
       }
       return newMap;
@@ -309,8 +319,15 @@ export function AdditionalForm({
       setDeletedForms(new Set());
       setCustomQuestions([]);
       showInfo('Additional forms updated successfully!');
-    } catch (error) {
-      setSubmitError('Failed to submit changes. Please try again.');
+    } catch (error: any) {
+      let errorMessage = 'Failed to submit changes. Please try again.';
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
       mutate(); // Refresh data
