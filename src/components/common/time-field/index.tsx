@@ -314,6 +314,7 @@ const TimeField = (props: TimeFieldProps) => {
   // Regular TimeField without form
   return (
     <TimeFieldUI
+      id={id}
       disabled={disabled}
       error={error}
       helperText={helperText}
