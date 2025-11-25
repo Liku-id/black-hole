@@ -114,7 +114,7 @@ const PartnerEventTable: FC<PartnerEventTableProps> = ({
         <Table>
           <StyledTableHead>
             <TableRow>
-              <TableCell sx={{ width: '5%' }}>
+              <TableCell sx={{ width: '4%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   No
                 </Body2>
@@ -129,27 +129,27 @@ const PartnerEventTable: FC<PartnerEventTableProps> = ({
                   PIC Name
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Link Expired Date
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '13%' }}>
+              <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   PIC Phone Number
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell sx={{ width: '14%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Total Revenue
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '13%' }}>
+              <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Private Link
                 </Body2>
               </TableCell>
-              <TableCell align="left" sx={{ width: '15%' }}>
+              <TableCell align="left" sx={{ width: '7%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Action
                 </Body2>
