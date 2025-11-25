@@ -17,8 +17,8 @@ const StyledLink = styled(Link)(({ theme }) => ({
 
 const Footer = () => {
   const theme = useTheme();
-  const wukongUrl = process.env.NEXT_PUBLIC_WUKONG_URL;
-  const blogUrl = process.env.NEXT_PUBLIC_BLOG_URL;
+  const wukongUrl = process.env.NEXT_PUBLIC_WUKONG_URL || 'https://wukong.co.id';
+  const blogUrl = process.env.NEXT_PUBLIC_BLOG_URL || 'https://blog.wukong.co.id';
 
   return (
     <Box component="footer" width="100%" pb="24px">
