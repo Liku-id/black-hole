@@ -167,6 +167,19 @@ class EventsService {
       throw error;
     }
   }
+
+  async duplicateEvent(id: string): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        '/api/events/duplicate',
+        { id },
+        'Failed to duplicate event'
+      );
+    } catch (error) {
+      console.error('Error duplicating event:', error);
+      throw error;
+    }
+  }
 }
 
 const eventsService = new EventsService();

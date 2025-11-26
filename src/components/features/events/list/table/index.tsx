@@ -21,8 +21,10 @@ import {
   StyledTableContainer,
   StyledTableHead
 } from '@/components/common';
+import { eventsService } from '@/services/events';
 import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
+import { DuplicateEventModal } from './modal/duplicate';
 
 interface EventsTableProps {
   events: Event[];
@@ -44,12 +46,18 @@ const EventsTable: FC<EventsTableProps> = ({
   currentPage = 0,
   pageSize = 10,
   onPageChange,
-  showAction = true
+  showAction = true,
+  onRefresh
 }) => {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<{
     [key: string]: HTMLElement | null;
   }>({});
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [duplicateLoading, setDuplicateLoading] = useState(false);
+  const [duplicateSuccess, setDuplicateSuccess] = useState(false);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -80,6 +88,46 @@ const EventsTable: FC<EventsTableProps> = ({
   const handlePartnerTicketClick = (event: Event) => {
     router.push(`/events/${event.metaUrl}/partner-ticket`);
     handleMenuClose(event.id);
+  };
+
+  const handleDuplicateClick = (event: Event) => {
+    setSelectedEvent(event);
+    setDuplicateModalOpen(true);
+    setDuplicateError(null);
+    setDuplicateSuccess(false);
+    handleMenuClose(event.id);
+  };
+
+  const handleDuplicateConfirm = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      setDuplicateLoading(true);
+      setDuplicateError(null);
+      await eventsService.duplicateEvent(selectedEvent.id);
+      setDuplicateSuccess(true);
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error: any) {
+      console.error('Failed to duplicate event:', error);
+      let errorMessage = 'Failed to duplicate event. Please try again.';
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      setDuplicateError(errorMessage);
+    } finally {
+      setDuplicateLoading(false);
+    }
+  };
+
+  const handleDuplicateModalClose = () => {
+    setDuplicateModalOpen(false);
+    setSelectedEvent(null);
+    setDuplicateSuccess(false);
+    setDuplicateError(null);
   };
 
   if (loading) {
@@ -376,6 +424,37 @@ const EventsTable: FC<EventsTableProps> = ({
                         />
                       </MenuItem>
                     )}
+                    {event.eventStatus !== 'draft' && (
+                      <MenuItem
+                        onClick={() => handleDuplicateClick(event)}
+                        sx={{
+                          padding: '12px 16px',
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                          }
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                          <Image
+                            alt="Duplicate Event"
+                            src="/icon/copy.svg"
+                            height={18}
+                            width={18}
+                          />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={
+                            <Body2
+                              color="text.primary"
+                              fontSize="14px"
+                              fontWeight="400"
+                            >
+                              Duplicate Event
+                            </Body2>
+                          }
+                        />
+                      </MenuItem>
+                    )}
                   </Menu>
                 </Box>
               </TableCell>
@@ -392,6 +471,16 @@ const EventsTable: FC<EventsTableProps> = ({
         pageSize={pageSize}
         onPageChange={(page) => onPageChange && onPageChange(page)}
         loading={loading}
+      />
+
+      {/* Duplicate Event Modal */}
+      <DuplicateEventModal
+        open={duplicateModalOpen}
+        onClose={handleDuplicateModalClose}
+        onConfirm={handleDuplicateConfirm}
+        loading={duplicateLoading}
+        isSuccess={duplicateSuccess}
+        error={duplicateError}
       />
     </StyledTableContainer>
   );
