@@ -36,7 +36,7 @@ const Register: NextPage = () => {
   );
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [otpExpiredIn, setOtpExpiredIn] = useState(300);
+  const [otpExpiredAt, setOtpExpiredAt] = useState<string | null>(null);
 
   const router = useRouter();
   const { showInfo, showError } = useToast();
@@ -56,7 +56,7 @@ const Register: NextPage = () => {
         phoneNumber: phoneNumber
       });
 
-      setOtpExpiredIn(otpResponse.expiredIn);
+      setOtpExpiredAt(otpResponse.expiredAt);
       setActiveStep(2);
       showInfo('OTP sent successfully!');
     } catch (error) {
@@ -139,7 +139,7 @@ const Register: NextPage = () => {
       const otpResponse = await registerService.requestOTP({
         phoneNumber
       });
-      setOtpExpiredIn(otpResponse.expiredIn);
+      setOtpExpiredAt(otpResponse.expiredAt);
       showInfo('OTP resent successfully!');
     } catch (error) {
       const errorMessage =
@@ -168,7 +168,7 @@ const Register: NextPage = () => {
             onSubmit={handleOTPSubmit}
             onResendOTP={handleResendOTP}
             isLoading={isLoading}
-            countdown={otpExpiredIn}
+            expiredAt={otpExpiredAt}
           />
         );
       default:
