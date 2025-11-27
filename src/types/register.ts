@@ -27,7 +27,7 @@ export interface OTPRequestRequest {
 export interface OTPRequestResponse {
   success: boolean;
   message: string;
-  expiredIn: number;
+  expiredAt: string;
 }
 
 export interface OTPVerificationRequest {
