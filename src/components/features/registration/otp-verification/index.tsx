@@ -7,7 +7,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { Button, Body2, H3 } from '@/components/common';
 
@@ -53,7 +53,7 @@ interface OTPVerificationFormProps {
   onSubmit: (otp: string) => void;
   onResendOTP: () => void;
   isLoading?: boolean;
-  countdown?: number;
+  expiredAt?: string | null;
 }
 
 const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
@@ -61,20 +61,43 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
   onSubmit,
   onResendOTP,
   isLoading = false,
-  countdown = 180 // 5 minutes in seconds
+  expiredAt
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [timeLeft, setTimeLeft] = useState(countdown);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [canResend, setCanResend] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Calculate time left from expiredAt
+  const calculateTimeLeft = (expiredAtString: string | null | undefined): number => {
+    if (!expiredAtString) return 0;
+    
+    const expiredDate = new Date(expiredAtString);
+    const now = new Date();
+    const diff = Math.max(0, Math.floor((expiredDate.getTime() - now.getTime()) / 1000));
+    return diff;
+  };
+
+  // Update timeLeft when expiredAt changes and setup countdown timer
   useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
+    if (!expiredAt) {
+      setTimeLeft(0);
       setCanResend(true);
+      return;
     }
-  }, [timeLeft]);
+
+    // Calculate initial time left
+    const updateTimeLeft = () => {
+      const newTimeLeft = calculateTimeLeft(expiredAt);
+      setTimeLeft(newTimeLeft);
+      setCanResend(newTimeLeft === 0);
+    };
+
+    updateTimeLeft();
+    const timer = setInterval(updateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [expiredAt]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -83,29 +106,62 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Only allow single character
+    const numericValue = value.replace(/\D/g, '');
+    if (numericValue.length > 1) return;
 
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = numericValue;
     setOtp(newOtp);
 
-    // Auto-focus next input
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      if (nextInput) nextInput.focus();
+    if (numericValue && index < 5) {
+      setTimeout(() => {
+        inputRefs.current[index + 1]?.focus();
+      }, 0);
     }
 
-    // Auto-submit when all fields are filled
     if (newOtp.every((digit) => digit !== '') && index === 5) {
-      handleSubmit(newOtp.join(''));
+      setTimeout(() => {
+        handleSubmit(newOtp.join(''));
+      }, 0);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent, index: number) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, ''); 
+    const digits = pastedData.slice(0, 6).split('');
+
+    if (digits.length > 0) {
+      const newOtp = [...otp];
+      
+      digits.forEach((digit, i) => {
+        if (index + i < 6) {
+          newOtp[index + i] = digit;
+        }
+      });
+
+      setOtp(newOtp);
+
+      const nextIndex = Math.min(index + digits.length, 5);
+      setTimeout(() => {
+        inputRefs.current[nextIndex]?.focus();
+        
+        if (newOtp.every((digit) => digit !== '')) {
+          handleSubmit(newOtp.join(''));
+        }
+      }, 0);
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      // Move to previous input on backspace if current is empty
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      if (prevInput) prevInput.focus();
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      e.preventDefault();
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowRight' && index < 5) {
+      e.preventDefault();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -118,9 +174,8 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
   const handleResendOTP = () => {
     if (canResend) {
       onResendOTP();
-      setTimeLeft(countdown);
       setCanResend(false);
-      setOtp(['', '', '', '', '', '']); // Clear OTP input fields
+      setOtp(['', '', '', '', '', '']);
     }
   };
 
@@ -154,11 +209,16 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
             <OTPInput
               key={index}
               id={`otp_code_${index + 1}_field`}
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
               type="text"
+              inputMode="numeric"
               maxLength={1}
               value={digit}
               onChange={(e) => handleOtpChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
+              onPaste={(e) => handlePaste(e, index)}
               placeholder=""
               autoComplete="one-time-code"
               disabled={isLoading}
