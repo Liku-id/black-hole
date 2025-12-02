@@ -3,7 +3,7 @@ import { FC, useEffect } from 'react';
 
 import { H3 } from '@/components/common';
 
-const PopupOverlay = styled(Box)<{ open: boolean }>(({ open }) => ({
+const PopupOverlay = styled(Box)<{ open: boolean }>(({ open, theme }) => ({
   position: 'fixed',
   top: 0,
   left: 0,
@@ -18,7 +18,7 @@ const PopupOverlay = styled(Box)<{ open: boolean }>(({ open }) => ({
   padding: '20px'
 }));
 
-const PopupContent = styled(Box)(() => ({
+const PopupContent = styled(Box)(({ theme }) => ({
   position: 'relative',
   backgroundColor: '#FFFFFF',
   borderRadius: 0,
