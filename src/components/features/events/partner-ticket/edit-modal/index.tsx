@@ -94,14 +94,6 @@ const parseSocialMediaLink = (
   return { tiktok: '', instagram: '', twitter: '' };
 };
 
-// Helper function to extract phone number without country code for display
-const extractPhoneNumberForDisplay = (phoneNumber: string): string => {
-  if (!phoneNumber) return '';
-  // Remove country code (+62, 62, etc.) for display in input field
-  // The PhoneField component will add country code back when submitting
-  return phoneNumber.replace(/^(\+62|62)/, '').trim();
-};
-
 export const EditPartnerModal: FC<EditPartnerModalProps> = ({
   open,
   onClose,

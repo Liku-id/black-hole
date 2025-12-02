@@ -91,14 +91,6 @@ const EventsTable: FC<EventsTableProps> = ({
     handleMenuClose(event.id);
   };
 
-  const handleDuplicateClick = (event: Event) => {
-    setSelectedEvent(event);
-    setDuplicateModalOpen(true);
-    setDuplicateError(null);
-    setDuplicateSuccess(false);
-    handleMenuClose(event.id);
-  };
-
   const handleDuplicateConfirm = async () => {
     if (!selectedEvent) return;
 
