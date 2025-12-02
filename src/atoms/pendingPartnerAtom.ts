@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom, PrimitiveAtom } from 'jotai';
 
 export interface PendingPartnerData {
   partnerName: string;
@@ -10,12 +10,7 @@ export interface PendingPartnerData {
   eventOrganizerId: string;
 }
 
-// Create writable atom
-const basePendingPartnerAtom = atom<PendingPartnerData | null>(null);
-
-export const pendingPartnerAtom = atom(
-  (get) => get(basePendingPartnerAtom),
-  (get, set, update: PendingPartnerData | null) => {
-    set(basePendingPartnerAtom, update);
-  }
-);
+// Create writable atom using PrimitiveAtom with type assertion
+export const pendingPartnerAtom = atom<PendingPartnerData | null>(
+  null
+) as PrimitiveAtom<PendingPartnerData | null>;
