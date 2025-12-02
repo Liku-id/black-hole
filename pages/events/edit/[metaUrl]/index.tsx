@@ -218,7 +218,7 @@ function EditEvent() {
       });
 
       if (result && result.body && result.body.id) {
-        router.push(`/events/${metaUrl}?updateSuccess=true`);
+        router.push(`/events/${result.body.metaUrl}?updateSuccess=true`);
       }
     } catch (error) {
       setUpdateError(
