@@ -85,7 +85,7 @@ function PartnerTicket() {
 
   // Helper function to build private link
   const buildPrivateLink = (code: string, metaUrl: string): string => {
-    return `https://wukong.co.id/event/${metaUrl}?partner_code=${code}`;
+    return `${process.env.NEXT_PUBLIC_WUKONG_URL || 'https://wukong.co.id'}/event/${metaUrl}?partner_code=${code}`;
   };
 
   // Transform partner ticket types data to match table format
