@@ -2,7 +2,7 @@ import { Box, Divider, styled } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Button, Card, Caption, H2, H3, Overline } from '@/components/common';
@@ -12,7 +12,6 @@ import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import { SuccessUpdateModal } from '@/components/features/events/edit/info/success-update-modal';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 
@@ -27,22 +26,11 @@ const StyledDivider = styled(Divider)({
 function EventDetail() {
   const router = useRouter();
   const { metaUrl } = router.query;
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { showSuccess } = useToast();
 
   const { eventDetail, loading, error, mutate } = useEventDetail(metaUrl as string);
-
-  // Check for updateSuccess parameter and show modal
-  useEffect(() => {
-    if (router.query.updateSuccess === 'true') {
-      setShowSuccessModal(true);
-      // Remove the parameter from URL without triggering a page reload
-      const newUrl = router.asPath.split('?')[0];
-      router.replace(newUrl, undefined, { shallow: true });
-    }
-  }, [router.query.updateSuccess, router]);
 
   const handleSubmitEvent = async () => {
     if (!eventDetail) return;
@@ -182,13 +170,6 @@ function EventDetail() {
           )}
         </Box>
       )}
-
-      {/* Success Update Modal */}
-      <SuccessUpdateModal
-        open={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        eventStatus={eventDetail?.eventStatus || ''}
-      />
     </DashboardLayout>
   );
 }
