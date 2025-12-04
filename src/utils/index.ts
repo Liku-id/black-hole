@@ -2,6 +2,7 @@ import { apiUtils } from './apiUtils';
 import { dateUtils } from './dateUtils';
 import { useDebouncedCallback } from './debounceUtils';
 import { deviceUtils } from './deviceUtils';
+import { encryptUtils } from './encryptUtils';
 import { fileUtils } from './fileUtils';
 import { formatUtils } from './formatUtils';
 import { stringUtils } from './stringUtils';
@@ -12,6 +13,7 @@ export {
   apiUtils,
   dateUtils,
   deviceUtils,
+  encryptUtils,
   fileUtils,
   formatUtils,
   stringUtils,
@@ -79,6 +81,10 @@ export const {
   isValidForm
 } = validationUtils;
 
+export const {
+  encrypt
+} = encryptUtils;
+
 // Common utility functions
 export const utils = {
   date: dateUtils,
@@ -86,5 +92,6 @@ export const utils = {
   string: stringUtils,
   format: formatUtils,
   validation: validationUtils,
-  api: apiUtils
+  api: apiUtils,
+  encrypt: encryptUtils
 };
