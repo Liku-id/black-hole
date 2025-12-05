@@ -180,6 +180,18 @@ class EventsService {
       throw error;
     }
   }
+
+  async deleteEvent(id: string): Promise<void> {
+    try {
+      await apiUtils.delete(
+        `/api/events/${id}/delete`,
+        'Failed to delete event'
+      );
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      throw error;
+    }
+  }
 }
 
 const eventsService = new EventsService();
