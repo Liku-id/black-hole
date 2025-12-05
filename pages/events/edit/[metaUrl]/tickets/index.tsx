@@ -216,11 +216,6 @@ const EditTicketsPage = () => {
       return;
     }
 
-    if (tickets.length === 0) {
-      alert('At least one ticket is required');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -341,7 +336,7 @@ const EditTicketsPage = () => {
             ticketTypeId: createdTicket.body.id,
             field: 'Visitor Name',
             type: 'TEXT',
-            isRequired: true,
+            isRequired: true
           });
         }
       }
@@ -444,7 +439,7 @@ const EditTicketsPage = () => {
         onClose={() => {
           mutateEventDetail();
           setIsInitialized(false);
-          setShowAdditionalFormModal(false)
+          setShowAdditionalFormModal(false);
         }}
       />
     </DashboardLayout>

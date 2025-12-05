@@ -25,6 +25,7 @@ import { eventsService } from '@/services/events';
 import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
 import { DuplicateEventModal } from './modal/duplicate';
+import { DeleteEventModal } from './modal/delete';
 
 interface EventsTableProps {
   events: Event[];
@@ -58,6 +59,10 @@ const EventsTable: FC<EventsTableProps> = ({
   const [duplicateLoading, setDuplicateLoading] = useState(false);
   const [duplicateSuccess, setDuplicateSuccess] = useState(false);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -128,6 +133,46 @@ const EventsTable: FC<EventsTableProps> = ({
     setSelectedEvent(null);
     setDuplicateSuccess(false);
     setDuplicateError(null);
+  };
+
+  const handleDeleteClick = (event: Event) => {
+    setSelectedEvent(event);
+    setDeleteModalOpen(true);
+    setDeleteError(null);
+    setDeleteSuccess(false);
+    handleMenuClose(event.id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError(null);
+      await eventsService.deleteEvent(selectedEvent.id);
+      setDeleteSuccess(true);
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error: any) {
+      console.error('Failed to delete event:', error);
+      let errorMessage = 'Failed to delete event. Please try again.';
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      setDeleteError(errorMessage);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteModalClose = () => {
+    setDeleteModalOpen(false);
+    setSelectedEvent(null);
+    setDeleteSuccess(false);
+    setDeleteError(null);
   };
 
   if (loading) {
@@ -452,6 +497,38 @@ const EventsTable: FC<EventsTableProps> = ({
                           />
                         </MenuItem>
                       )}
+                      {(event.eventStatus === 'draft' ||
+                        event.eventStatus === 'rejected') && (
+                        <MenuItem
+                          onClick={() => handleDeleteClick(event)}
+                          sx={{
+                            padding: '12px 16px',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                            <Image
+                              alt="Delete Event"
+                              src="/icon/trash.svg"
+                              height={18}
+                              width={18}
+                            />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              <Body2
+                                color="text.primary"
+                                fontSize="14px"
+                                fontWeight="400"
+                              >
+                                Delete Event
+                              </Body2>
+                            }
+                          />
+                        </MenuItem>
+                      )}
                     </Menu>
                   </Box>
                 </TableCell>
@@ -478,6 +555,16 @@ const EventsTable: FC<EventsTableProps> = ({
         loading={duplicateLoading}
         isSuccess={duplicateSuccess}
         error={duplicateError}
+      />
+
+      {/* Delete Event Modal */}
+      <DeleteEventModal
+        open={deleteModalOpen}
+        onClose={handleDeleteModalClose}
+        onConfirm={handleDeleteConfirm}
+        loading={deleteLoading}
+        isSuccess={deleteSuccess}
+        error={deleteError}
       />
     </StyledTableContainer>
   );
