@@ -644,7 +644,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {isAdmin &&
             (router.pathname.includes('/events') ||
-              router.pathname === '/dashboard') && (
+              router.pathname === '/dashboard' || router.pathname === '/finance/withdrawal/history') && (
               <Box sx={{ width: '220px', marginLeft: '12px' }}>
                 <Select
                   fullWidth
