@@ -81,7 +81,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [eventOrganizers, setEventOrganizers] = useState<EventOrganizer[]>([]);
   const [loadingOrganizers, setLoadingOrganizers] = useState(false);
   const [selectedEOId, setSelectedEOId] = useAtom(selectedEOIdAtom);
-  const [_, setSelectedEOName] = useAtom(selectedEONameAtom);
+  const [selectedEOName, setSelectedEOName] = useAtom(selectedEONameAtom);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -134,9 +134,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [searchInput]);
 
   // Fetch event organizers if user is admin
+  // Only fetch when dropdown is open and search query changes
   useEffect(() => {
     const fetchEventOrganizers = async () => {
-      if (!isAdmin) return;
+      if (!isAdmin || !dropdownOpen) return;
 
       try {
         setLoadingOrganizers(true);
@@ -152,22 +153,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     fetchEventOrganizers();
-  }, [isAdmin, searchQuery]);
+  }, [isAdmin, searchQuery, dropdownOpen]);
 
   // Get display value for selected organizer
   const getDisplayValue = () => {
-    if (selectedEOId === '0' || selectedEOId === '') {
+    if (selectedEOId === '' || selectedEOId === '0') {
       return 'All Event Organizer';
+    }
+    // Use selectedEOName if available, otherwise try to find in current list
+    if (selectedEOName) {
+      return selectedEOName;
     }
     const foundEO = eventOrganizers.find((eo) => eo.id === selectedEOId);
     return foundEO?.name || 'All Event Organizer';
   };
 
   const handleSelectOrganizer = (eoId: string) => {
-    setSelectedEOId(eoId);
     if (eoId === '0') {
+      // Set to empty string for "All Event Organizer"
+      setSelectedEOId('');
       setSelectedEOName('');
     } else {
+      setSelectedEOId(eoId);
       const eo = eventOrganizers.find((item) => item.id === eoId);
       setSelectedEOName(eo?.name || '');
     }
@@ -716,7 +723,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <TextField
                   fullWidth
                   placeholder={
-                    loadingOrganizers ? 'Loading...' : 'All Event Organizer'
+                    loadingOrganizers
+                      ? 'Loading...'
+                      : selectedEOName || 'All Event Organizer'
                   }
                   value={dropdownOpen ? searchInput : getDisplayValue()}
                   onChange={(e) => {
@@ -782,7 +791,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             padding: '12px 16px',
                             cursor: 'pointer',
                             backgroundColor:
-                              selectedEOId === '0' || selectedEOId === ''
+                              selectedEOId === '' || selectedEOId === '0'
                                 ? 'rgba(0, 0, 0, 0.04)'
                                 : 'transparent',
                             '&:hover': {
@@ -795,9 +804,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             All Event Organizer
                           </Body2>
                         </Box>
-                        {eventOrganizers.length > 0 && (
-                          <Divider sx={{ borderColor: 'divider' }} />
-                        )}
+                        {(eventOrganizers.length > 0 ||
+                          (selectedEOId &&
+                            selectedEOId !== '' &&
+                            selectedEOId !== '0' &&
+                            !eventOrganizers.find(
+                              (eo) => eo.id === selectedEOId
+                            ))) && <Divider sx={{ borderColor: 'divider' }} />}
+                        {/* Show selected EO if it's not in the current list */}
+                        {selectedEOId &&
+                          selectedEOId !== '' &&
+                          selectedEOId !== '0' &&
+                          !eventOrganizers.find(
+                            (eo) => eo.id === selectedEOId
+                          ) &&
+                          selectedEOName && (
+                            <Box>
+                              <Box
+                                sx={{
+                                  padding: '12px 16px',
+                                  cursor: 'pointer',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                  }
+                                }}
+                                onClick={() =>
+                                  handleSelectOrganizer(selectedEOId)
+                                }
+                              >
+                                <Body2 color="text.primary" fontSize="14px">
+                                  {selectedEOName}
+                                </Body2>
+                              </Box>
+                              {eventOrganizers.length > 0 && (
+                                <Divider sx={{ borderColor: 'divider' }} />
+                              )}
+                            </Box>
+                          )}
                         {eventOrganizers.map((eo, index) => (
                           <Box key={eo.id}>
                             <Box
