@@ -2,6 +2,7 @@ import { Box, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2 } from '@/components/common';
@@ -16,12 +17,22 @@ import DashboardLayout from '@/layouts/dashboard';
 function WithdrawalHistory() {
   const router = useRouter();
   const { metaUrl } = router.query as { metaUrl: string };
+  const [filters, setFilters] = useState({
+    page: 0,
+    show: 10
+  });
+
   const { eventDetail } = useEventDetail(metaUrl);
   const { data: eventOrganizer } = useEventOrganizerMe();
-  const { withdrawals, loading } = useWithdrawalHistory(
+  const { withdrawals, loading, pagination } = useWithdrawalHistory(
     eventDetail?.id,
-    eventOrganizer?.id
+    eventOrganizer?.id,
+    filters
   );
+
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
 
   return (
     <DashboardLayout>
@@ -57,7 +68,11 @@ function WithdrawalHistory() {
           <WithdrawalHistoryTable
             withdrawals={withdrawals}
             loading={loading}
-            hideEventName={true}
+            hideEOName={eventDetail?.id ? true : false}
+            total={pagination?.totalRecords || 0}
+            currentPage={filters.page}
+            pageSize={filters.show}
+            onPageChange={handlePageChange}
           />
         </CardContent>
       </Card>
