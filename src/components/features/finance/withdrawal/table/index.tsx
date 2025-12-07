@@ -1,14 +1,8 @@
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import {
-  Box,
-  IconButton,
-  Table,
-  TableCell,
-  TableRow
-} from '@mui/material';
+import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import { FC, useState } from 'react';
 
-import { Body1, Body2, Caption } from '@/components/common';
+import { Body1, Body2, Caption, Pagination } from '@/components/common';
 import {
   StyledTableBody,
   StyledTableContainer,
@@ -23,15 +17,21 @@ import WithdrawalDetailModal from '../modal/detail';
 interface WithdrawalHistoryTableProps {
   withdrawals: WithdrawalHistoryItem[];
   loading?: boolean;
-  hideEventName?: boolean;
+  hideEOName?: boolean;
+  total?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 }
-
-
 
 const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
   withdrawals,
   loading = false,
-  hideEventName = false
+  hideEOName = false,
+  total = 0,
+  currentPage = 0,
+  pageSize = 10,
+  onPageChange
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] =
@@ -75,13 +75,18 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                   Request ID
                 </Body2>
               </TableCell>
-              {!hideEventName && (
+              {!hideEOName && (
                 <TableCell sx={{ width: '20%' }}>
                   <Body2 color="text.secondary" fontSize="14px">
-                    Event Name
+                    Event Organizer
                   </Body2>
                 </TableCell>
               )}
+              <TableCell sx={{ width: '20%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Event Name
+                </Body2>
+              </TableCell>
               <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Withdrawal Name
@@ -113,7 +118,7 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
             {withdrawals.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={hideEventName ? 7 : 8}
+                  colSpan={hideEOName ? 7 : 8}
                   align="center"
                   sx={{ padding: '40px' }}
                 >
@@ -126,17 +131,24 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
               withdrawals.map((withdrawal, index) => (
                 <TableRow key={withdrawal.id}>
                   <TableCell>
-                    <Body2 fontSize="14px">{index + 1}</Body2>
+                    <Body2 fontSize="14px">
+                      {index + 1 + currentPage * pageSize}
+                    </Body2>
                   </TableCell>
                   <TableCell>
                     <Body2 fontSize="14px">{withdrawal.withdrawalId}</Body2>
                   </TableCell>
+                  {!hideEOName && (
+                    <TableCell>
+                      <Body2 fontSize="14px">{withdrawal.eventOrganizerName}</Body2>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Body2 fontSize="14px">{withdrawal.eventName}</Body2>
                   </TableCell>
                   <TableCell>
                     <Body2 fontSize="14px">
-                      {withdrawal.withdrawalName || "-"}
+                      {withdrawal.withdrawalName || '-'}
                     </Body2>
                   </TableCell>
                   <TableCell>
@@ -152,7 +164,12 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                     </Body2>
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={withdrawal.status} displayName={withdrawal.status === "APPROVED" ? "Approved" : ""}/>
+                    <StatusBadge
+                      status={withdrawal.status}
+                      displayName={
+                        withdrawal.status === 'APPROVED' ? 'Approved' : ''
+                      }
+                    />
                   </TableCell>
                   <TableCell align="right">
                     <IconButton
@@ -170,6 +187,15 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
             )}
           </StyledTableBody>
         </Table>
+
+        {/* Pagination */}
+        <Pagination
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={(page) => onPageChange && onPageChange(page)}
+          loading={loading}
+        />
       </StyledTableContainer>
 
       <WithdrawalDetailModal

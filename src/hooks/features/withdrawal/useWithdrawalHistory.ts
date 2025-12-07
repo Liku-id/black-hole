@@ -1,48 +1,41 @@
-import { useEffect, useState } from 'react';
-
 import {
   withdrawalService,
-  WithdrawalHistoryItem
+  WithdrawalHistoryItem,
+  PaginationFilters
 } from '@/services/withdrawal';
+
+import { useApi } from '../../useApi';
+import { Pagination } from '@/types/event';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface UseWithdrawalHistoryReturn {
+  withdrawals: WithdrawalHistoryItem[];
+  loading: boolean;
+  error: string | null;
+  mutate: () => void;
+  pagination: Pagination | undefined;
+}
 
 export const useWithdrawalHistory = (
   eventId: string | undefined,
-  eventOrganizerId: string | undefined
-) => {
-  const [withdrawals, setWithdrawals] = useState<WithdrawalHistoryItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  eventOrganizerId: string | undefined,
+  filters?: PaginationFilters
+): UseWithdrawalHistoryReturn => {
+  // Get current user to include in cache key for user-specific caching
+  const { user } = useAuth();
+  const userId = user?.id || 'anonymous';
 
-  const fetchWithdrawalHistory = async () => {
-    if (!eventOrganizerId) {
-      setWithdrawals([]);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await withdrawalService.getWithdrawalHistory(
-        eventId,
-        eventOrganizerId
-      );
-      setWithdrawals(response.body);
-    } catch (err) {
-      setError('Failed to fetch withdrawal history');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchWithdrawalHistory();
-  }, [eventId, eventOrganizerId]);
+  const { data, loading, error, mutate } = useApi(
+    ['/api/withdrawal/history', eventId, eventOrganizerId, filters, userId],
+    () =>
+      withdrawalService.getWithdrawalHistory(eventId, eventOrganizerId, filters)
+  );
 
   return {
-    withdrawals,
+    withdrawals: data?.body?.data || [],
     loading,
     error,
-    refetch: fetchWithdrawalHistory
+    mutate,
+    pagination: data?.body?.pagination
   };
 };

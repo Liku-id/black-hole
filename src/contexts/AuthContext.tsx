@@ -365,9 +365,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout error:', err);
       // Continue with logout even if API call fails
     } finally {
-      // Track logout
-      resetUser();
-      
+      if (typeof window !== 'undefined') {
+        try {
+          const { mutate } = await import('swr');
+          // Clear all SWR cache by invalidating all keys
+          mutate(() => true, undefined, { revalidate: false });
+        } catch (error) {
+          console.error('Failed to clear SWR cache:', error);
+        }
+      }
+
       dispatch({ type: 'LOGOUT_SUCCESS' });
       router.replace('/login');
     }
