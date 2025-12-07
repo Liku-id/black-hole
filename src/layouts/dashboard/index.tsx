@@ -3,6 +3,7 @@ import {
   AppBar,
   Box,
   Container,
+  Divider,
   Drawer,
   IconButton,
   List,
@@ -18,7 +19,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 
-import { Body1, Body2, Select } from '@/components/common';
+import { Body1, Body2, TextField } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
 import { EventOrganizer } from '@/types/organizer';
@@ -81,6 +82,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [loadingOrganizers, setLoadingOrganizers] = useState(false);
   const [selectedEOId, setSelectedEOId] = useAtom(selectedEOIdAtom);
   const [_, setSelectedEOName] = useAtom(selectedEONameAtom);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -121,6 +125,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     sessionRole === 'admin' ||
     (process.env.NEXT_PUBLIC_PREVILAGE_ROLE || '').includes(sessionRole || '');
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   // Fetch event organizers if user is admin
   useEffect(() => {
     const fetchEventOrganizers = async () => {
@@ -128,7 +140,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       try {
         setLoadingOrganizers(true);
-        const response = await eventOrganizerService.getAllEventOrganizers();
+        const params = searchQuery.trim() ? { name: searchQuery.trim() } : {};
+        const response =
+          await eventOrganizerService.getAllEventOrganizers(params);
         setEventOrganizers(response.body.eventOrganizers);
       } catch (error) {
         console.error('Failed to fetch event organizers:', error);
@@ -138,7 +152,57 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     fetchEventOrganizers();
-  }, [isAdmin]);
+  }, [isAdmin, searchQuery]);
+
+  // Get display value for selected organizer
+  const getDisplayValue = () => {
+    if (selectedEOId === '0' || selectedEOId === '') {
+      return 'All Event Organizer';
+    }
+    const foundEO = eventOrganizers.find((eo) => eo.id === selectedEOId);
+    return foundEO?.name || 'All Event Organizer';
+  };
+
+  const handleSelectOrganizer = (eoId: string) => {
+    setSelectedEOId(eoId);
+    if (eoId === '0') {
+      setSelectedEOName('');
+    } else {
+      const eo = eventOrganizers.find((item) => item.id === eoId);
+      setSelectedEOName(eo?.name || '');
+    }
+    setDropdownOpen(false);
+  };
+
+  // Reset search when dropdown closes
+  useEffect(() => {
+    if (!dropdownOpen) {
+      setSearchInput('');
+      setSearchQuery('');
+    }
+  }, [dropdownOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const container = document.querySelector('[data-dropdown-container]');
+      if (dropdownOpen && container && !container.contains(target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      // Use setTimeout to avoid immediate closure when clicking
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 100);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -639,29 +703,143 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {isAdmin &&
             (router.pathname.includes('/events') ||
-              router.pathname === '/dashboard' || router.pathname === '/finance/withdrawal/history') && (
-              <Box sx={{ width: '220px', marginLeft: '12px' }}>
-                <Select
+              router.pathname === '/dashboard' ||
+              router.pathname === '/finance/withdrawal/history') && (
+              <Box
+                data-dropdown-container
+                sx={{
+                  width: '220px',
+                  marginLeft: '12px',
+                  position: 'relative'
+                }}
+              >
+                <TextField
                   fullWidth
-                  label=""
-                  value={selectedEOId}
-                  options={[
-                    { value: 0, label: 'All Event Organizer' },
-                    ...eventOrganizers.map((eo) => ({
-                      value: eo.id,
-                      label: eo.name
-                    }))
-                  ]}
                   placeholder={
                     loadingOrganizers ? 'Loading...' : 'All Event Organizer'
                   }
-                  onChange={(e: string) => {
-                    setSelectedEOId(e);
-
-                    const eo = eventOrganizers.find((item) => item.id === e);
-                    setSelectedEOName(eo?.name);
+                  value={dropdownOpen ? searchInput : getDisplayValue()}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setDropdownOpen(true);
                   }}
+                  onFocus={() => {
+                    if (!dropdownOpen) {
+                      setSearchInput('');
+                    }
+                    setDropdownOpen(true);
+                  }}
+                  startComponent={
+                    <Image
+                      alt="Search"
+                      height={20}
+                      src="/icon/search.svg"
+                      width={20}
+                    />
+                  }
                 />
+                {dropdownOpen && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      marginTop: '4px',
+                      backgroundColor: 'common.white',
+                      borderRadius: '4px',
+                      boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
+                      zIndex: 1300,
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      '&::-webkit-scrollbar': {
+                        width: '8px'
+                      },
+                      '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1'
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: '#888',
+                        borderRadius: '4px'
+                      },
+                      '&::-webkit-scrollbar-thumb:hover': {
+                        background: '#555'
+                      }
+                    }}
+                  >
+                    {loadingOrganizers ? (
+                      <Box
+                        display="flex"
+                        justifyContent="center"
+                        padding="20px"
+                      >
+                        <Body2 color="text.secondary">Loading...</Body2>
+                      </Box>
+                    ) : (
+                      <>
+                        <Box
+                          sx={{
+                            padding: '12px 16px',
+                            cursor: 'pointer',
+                            backgroundColor:
+                              selectedEOId === '0' || selectedEOId === ''
+                                ? 'rgba(0, 0, 0, 0.04)'
+                                : 'transparent',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                          onClick={() => handleSelectOrganizer('0')}
+                        >
+                          <Body2 color="text.primary" fontSize="14px">
+                            All Event Organizer
+                          </Body2>
+                        </Box>
+                        {eventOrganizers.length > 0 && (
+                          <Divider sx={{ borderColor: 'divider' }} />
+                        )}
+                        {eventOrganizers.map((eo, index) => (
+                          <Box key={eo.id}>
+                            <Box
+                              sx={{
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                backgroundColor:
+                                  selectedEOId === eo.id
+                                    ? 'rgba(0, 0, 0, 0.04)'
+                                    : 'transparent',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                }
+                              }}
+                              onClick={() => handleSelectOrganizer(eo.id)}
+                            >
+                              <Body2 color="text.primary" fontSize="14px">
+                                {eo.name}
+                              </Body2>
+                            </Box>
+                            {index < eventOrganizers.length - 1 && (
+                              <Divider sx={{ borderColor: 'divider' }} />
+                            )}
+                          </Box>
+                        ))}
+                        {!loadingOrganizers &&
+                          eventOrganizers.length === 0 &&
+                          searchQuery && (
+                            <Box
+                              display="flex"
+                              justifyContent="center"
+                              padding="20px"
+                            >
+                              <Body2 color="text.secondary">
+                                No event organizers found
+                              </Body2>
+                            </Box>
+                          )}
+                      </>
+                    )}
+                  </Box>
+                )}
               </Box>
             )}
         </Toolbar>
