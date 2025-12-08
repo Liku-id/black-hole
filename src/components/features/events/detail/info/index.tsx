@@ -130,12 +130,14 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
         eventDetail.eventStatus !== 'on_review' &&
         eventDetail.is_requested === false ? (
           <Box display="flex" gap={2}>
-            <Button
-              variant="secondary"
-              onClick={() => setIsPreviewModalOpen(true)}
-            >
-              Preview Event
-            </Button>
+            {eventDetail.eventStatus === "draft" && (
+              <Button
+                variant="secondary"
+                onClick={() => setIsPreviewModalOpen(true)}
+              >
+                Preview Event
+              </Button>
+            )}
             <Button
               variant="primary"
               onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
