@@ -28,7 +28,10 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
   };
 
   // Calculate payment method fee
-  const calculatePaymentMethodFee = (paymentMethodFee: number, basedPrice: number): number => {
+  const calculatePaymentMethodFee = (
+    paymentMethodFee: number,
+    basedPrice: number
+  ): number => {
     if (!paymentMethodFee) return 0;
     if (paymentMethodFee < 1) {
       return (paymentMethodFee / 100) * basedPrice;
@@ -45,10 +48,14 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
 
   // Calculate fees
   const calculatedAdminFee = calculateAdminFee(adminFee, basedPrice);
-  const calculatedPaymentMethodFee = calculatePaymentMethodFee(paymentMethodFee, basedPrice);
-  const totalPayment = basedPrice > 0
-    ? basedPrice + tax + calculatedAdminFee + calculatedPaymentMethodFee
-    : null;
+  const calculatedPaymentMethodFee = calculatePaymentMethodFee(
+    paymentMethodFee,
+    basedPrice
+  );
+  const totalPayment =
+    basedPrice > 0
+      ? basedPrice + tax + calculatedAdminFee + calculatedPaymentMethodFee
+      : null;
 
   const modalContent = (
     <Box display="flex" flexDirection="column" gap="12px">
@@ -98,7 +105,27 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Ticket Price
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {formatUtils.formatPrice(transaction.ticketType.price) || 0}
+          {(() => {
+            // If payment has partner code (basedPrice exists and is different from original price),
+            // show the discounted price per ticket
+            const originalPrice = transaction.ticketType?.price || 0;
+            const orderQuantity = transaction.orderQuantity || 1;
+            const basedPrice = paymentBreakdown?.basedPrice || 0;
+
+            // Check if there's a discount (basedPrice is less than original price * quantity)
+            const totalOriginalPrice = originalPrice * orderQuantity;
+            const hasDiscount =
+              basedPrice > 0 && basedPrice < totalOriginalPrice;
+
+            if (hasDiscount) {
+              // Calculate price per ticket after discount
+              const pricePerTicket = basedPrice / orderQuantity;
+              return formatUtils.formatPrice(pricePerTicket);
+            }
+
+            // Otherwise, show original price
+            return formatUtils.formatPrice(originalPrice) || '0';
+          })()}
         </Body2>
       </Box>
 
@@ -118,7 +145,9 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Tax
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.paymentBreakdown?.tax ? formatUtils.formatPrice(transaction.paymentBreakdown?.tax) : '-'}
+          {transaction.paymentBreakdown?.tax
+            ? formatUtils.formatPrice(transaction.paymentBreakdown?.tax)
+            : '-'}
         </Body2>
       </Box>
 
@@ -128,7 +157,9 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Admin Fee
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {calculatedAdminFee > 0 ? formatUtils.formatPrice(calculatedAdminFee) : '-'}
+          {calculatedAdminFee > 0
+            ? formatUtils.formatPrice(calculatedAdminFee)
+            : '-'}
         </Body2>
       </Box>
 
@@ -138,7 +169,9 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
           Transaction Fee
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {calculatedPaymentMethodFee > 0 ? formatUtils.formatPrice(calculatedPaymentMethodFee) : '-'}
+          {calculatedPaymentMethodFee > 0
+            ? formatUtils.formatPrice(calculatedPaymentMethodFee)
+            : '-'}
         </Body2>
       </Box>
 
