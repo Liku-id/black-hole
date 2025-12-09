@@ -658,6 +658,7 @@ const EventsTable: FC<EventsTableProps> = ({
         loading={deleteLoading}
         isSuccess={deleteSuccess}
         error={deleteError}
+        eventName={selectedEvent?.name || ''}
       />
     </StyledTableContainer>
   );
