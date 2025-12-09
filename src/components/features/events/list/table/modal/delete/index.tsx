@@ -10,6 +10,7 @@ interface DeleteEventModalProps {
   loading?: boolean;
   isSuccess?: boolean;
   error?: string | null;
+  eventName?: string;
 }
 
 export const DeleteEventModal: React.FC<DeleteEventModalProps> = ({
@@ -18,7 +19,8 @@ export const DeleteEventModal: React.FC<DeleteEventModalProps> = ({
   onConfirm,
   loading = false,
   isSuccess = false,
-  error
+  error,
+  eventName
 }) => {
   if (isSuccess) {
     return (
@@ -36,9 +38,7 @@ export const DeleteEventModal: React.FC<DeleteEventModalProps> = ({
         titleSize="22px"
         onClose={onClose}
       >
-        <Body2 fontSize="14px">
-          Your event has been deleted successfully.
-        </Body2>
+        <Body2 fontSize="14px">Your event has been deleted successfully.</Body2>
       </Modal>
     );
   }
@@ -67,9 +67,8 @@ export const DeleteEventModal: React.FC<DeleteEventModalProps> = ({
       title="Delete Event"
       onClose={onClose}
     >
-      <Body2 fontSize="14px">
-        Are you sure you want to delete this event?
-      </Body2>
+      <Body2 fontSize="14px">Are you sure you want to delete this event?</Body2>
+      <Body2 fontSize="14px" fontWeight={700}>{eventName}</Body2>
     </Modal>
   );
 };
