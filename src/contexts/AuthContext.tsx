@@ -321,12 +321,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
 
         // Track successful login
-        trackLogin(
-          userData.id,
-          userData.name,
-          userData.email,
-          'email'
-        );
+        trackLogin(userData.id, userData.name, userData.email, 'email');
 
         // Redirect to intended route or dashboard
         const redirectTo = (router.query.redirect as string) || '/dashboard';
@@ -365,6 +360,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout error:', err);
       // Continue with logout even if API call fails
     } finally {
+      // Track logout
+      resetUser();
       if (typeof window !== 'undefined') {
         try {
           const { mutate } = await import('swr');
