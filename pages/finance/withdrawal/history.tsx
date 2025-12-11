@@ -2,6 +2,7 @@ import { Box, Card, CardContent } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2 } from '@/components/common';
@@ -9,16 +10,36 @@ import WithdrawalHistoryTable from '@/components/features/finance/withdrawal/tab
 import { useEventOrganizerMe } from '@/hooks';
 import { useWithdrawalHistory } from '@/hooks/features/withdrawal/useWithdrawalHistory';
 import DashboardLayout from '@/layouts/dashboard';
+import { useAtom } from 'jotai';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 
 function GeneralWithdrawalHistory() {
   const router = useRouter();
+  const [selectedEventOrganizerId] = useAtom(selectedEOIdAtom);
+  const [filters, setFilters] = useState({
+    page: 0,
+    show: 10
+  });
+
+  // Fetch the current event organizer data
   const { data: eventOrganizer } = useEventOrganizerMe();
 
-  // Get all withdrawals without specific event (pass undefined for eventId)
-  const { withdrawals, loading } = useWithdrawalHistory(
+  const eventOrganizerId =
+    selectedEventOrganizerId && selectedEventOrganizerId.trim() !== ''
+      ? selectedEventOrganizerId
+      : eventOrganizer?.id && eventOrganizer.id.trim() !== ''
+        ? eventOrganizer.id
+        : undefined;
+
+  const { withdrawals, loading, pagination } = useWithdrawalHistory(
     undefined,
-    eventOrganizer?.id
+    eventOrganizerId,
+    filters
   );
+
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
 
   return (
     <DashboardLayout>
@@ -54,6 +75,11 @@ function GeneralWithdrawalHistory() {
           <WithdrawalHistoryTable
             withdrawals={withdrawals}
             loading={loading}
+            hideEOName={eventOrganizer?.id ? true : false}
+            total={pagination?.totalRecords || 0}
+            currentPage={filters.page}
+            pageSize={filters.show}
+            onPageChange={handlePageChange}
           />
         </CardContent>
       </Card>

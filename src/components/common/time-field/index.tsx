@@ -12,6 +12,7 @@ import { Body2 } from '@/components/common';
 import { StyledTextField } from '../text-field/StyledTextField';
 
 interface TimeFieldProps {
+  id?: string;
   label?: string;
   name?: string;
   rules?: RegisterOptions;
@@ -30,6 +31,7 @@ interface TimeValue {
 
 // Internal component for rendering the time field UI
 const TimeFieldUI = ({
+  id,
   label,
   error,
   helperText,
@@ -37,6 +39,7 @@ const TimeFieldUI = ({
   timeValue,
   onTimeChange
 }: {
+  id?: string;
   label?: string;
   error?: boolean;
   helperText?: string;
@@ -82,7 +85,7 @@ const TimeFieldUI = ({
   );
 
   const endComponent = (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    <Box id={id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       {/* Hours spinner */}
       <Box
         sx={{
@@ -267,6 +270,7 @@ const TimeFieldUI = ({
 // Main TimeField component
 const TimeField = (props: TimeFieldProps) => {
   const {
+    id,
     label,
     name,
     rules,
@@ -310,6 +314,7 @@ const TimeField = (props: TimeFieldProps) => {
   // Regular TimeField without form
   return (
     <TimeFieldUI
+      id={id}
       disabled={disabled}
       error={error}
       helperText={helperText}
@@ -335,16 +340,29 @@ const FormTimeField = ({ name, rules, ...props }: TimeFieldProps) => {
       name={name as string}
       render={({ field }) => {
         const handleTimeChange = (newTime: TimeValue) => {
-          if (newTime.hours !== null && newTime.minutes !== null) {
-            const timeString = `${newTime.hours.toString().padStart(2, '0')}:${newTime.minutes.toString().padStart(2, '0')}`;
+          // If either hours or minutes is set, initialize the other to 0 if null
+          const finalTime: TimeValue = {
+            hours: newTime.hours !== null ? newTime.hours : (newTime.minutes !== null ? 0 : null),
+            minutes: newTime.minutes !== null ? newTime.minutes : (newTime.hours !== null ? 0 : null)
+          };
+          
+          if (finalTime.hours !== null && finalTime.minutes !== null) {
+            const timeString = `${finalTime.hours.toString().padStart(2, '0')}:${finalTime.minutes.toString().padStart(2, '0')}`;
             field.onChange(timeString);
           }
         };
 
-        const timeValue: TimeValue = field.value
+        const timeValue: TimeValue = field.value && typeof field.value === 'string' && field.value.trim() !== ''
           ? (() => {
-              const [hours, minutes] = field.value.split(':').map(Number);
-              return { hours: hours || 0, minutes: minutes || 0 };
+              try {
+                const [hours, minutes] = field.value.split(':').map(Number);
+                if (isNaN(hours) || isNaN(minutes)) {
+                  return { hours: null, minutes: null };
+                }
+                return { hours: hours || 0, minutes: minutes || 0 };
+              } catch {
+                return { hours: null, minutes: null };
+              }
             })()
           : { hours: null, minutes: null };
 

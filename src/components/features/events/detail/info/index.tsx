@@ -1,10 +1,12 @@
 import { Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import { Body2, Button, H3 } from '@/components/common';
 import { EventDetail } from '@/types/event';
-import { dateUtils } from '@/utils';
+import { dateUtils, apiUtils } from '@/utils';
 import { ErrorOutline } from '@mui/icons-material';
+import { PreviewEventModal } from './preview-modal';
 
 interface EventDetailInfoProps {
   eventDetail: EventDetail;
@@ -78,10 +80,39 @@ export const RejectedReason = ({ reason }: { reason: string }) => {
 
 export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
   const router = useRouter();
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   const isFieldRejected = (fieldName: string) => {
     if (!eventDetail.rejectedFields) return false;
     return eventDetail.rejectedFields.includes(fieldName);
+  };
+
+  const handlePreviewConfirm = async () => {
+    try {
+      const response = await apiUtils.get<{
+        accessToken: string;
+        refreshToken: string;
+      }>('/api/auth/tokens');
+      
+      // Encrypt token via API route (server-side encryption with key)
+      const encryptResponse = await apiUtils.post<{
+        encryptedToken: string;
+      }>('/api/preview-token/encrypt', {
+        token: response.accessToken
+      });
+      
+      // Build URL dengan preview_token (encode untuk URL safety)
+      const wukongUrl = process.env.NEXT_PUBLIC_WUKONG_URL || 'https://wukong.co.id';
+      const previewUrl = `${wukongUrl}/event/${eventDetail.metaUrl}?preview_token=${encodeURIComponent(encryptResponse.encryptedToken)}`;
+      
+      // Redirect ke black-void dengan preview_token
+      window.open(previewUrl, '_blank', 'noopener,noreferrer');
+      
+      setIsPreviewModalOpen(false);
+    } catch (error) {
+      console.error('Error fetching or encrypting token:', error);
+      setIsPreviewModalOpen(false);
+    }
   };
 
   return (
@@ -98,12 +129,22 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
         {eventDetail.eventStatus !== 'done' &&
         eventDetail.eventStatus !== 'on_review' &&
         eventDetail.is_requested === false ? (
-          <Button
-            variant="primary"
-            onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
-          >
-            Edit Detail Event
-          </Button>
+          <Box display="flex" gap={2}>
+            {eventDetail.eventStatus === "draft" && (
+              <Button
+                variant="secondary"
+                onClick={() => setIsPreviewModalOpen(true)}
+              >
+                Preview Event
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+            >
+              Edit Detail Event
+            </Button>
+          </Box>
         ) : (
           eventDetail.is_requested === true && (
             <Box
@@ -252,6 +293,11 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
           </Grid>
         </Grid>
       </Grid>
+      <PreviewEventModal
+        open={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        onConfirm={handlePreviewConfirm}
+      />
     </>
   );
 };

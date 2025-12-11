@@ -12,9 +12,13 @@ interface EventStatisticProps {
 const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
   const router = useRouter();
 
-  // Fetch - pass eventOrganizerId only if it's not empty
+  // Fetch - pass eventOrganizerId only if it's a valid UUID (not empty or '0')
+  const validEventOrganizerId =
+    eventOrganizerId && eventOrganizerId !== '' && eventOrganizerId !== '0'
+      ? eventOrganizerId
+      : undefined;
   const { data, loading, error } = useEventOrganizerStatistics(
-    eventOrganizerId || undefined
+    validEventOrganizerId
   );
 
   const stats = [

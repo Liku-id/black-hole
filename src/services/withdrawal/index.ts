@@ -152,6 +152,7 @@ export interface WithdrawalHistoryItem {
   eventId: string;
   eventName: string;
   eventOrganizerId: string;
+  eventOrganizerName: string;
   createdBy: string;
   requestedAmount: string;
   totalFee: number;
@@ -175,7 +176,10 @@ export interface WithdrawalHistoryItem {
 export interface WithdrawalHistoryResponse {
   statusCode: number;
   message: string;
-  body: WithdrawalHistoryItem[];
+  body: {
+    data: WithdrawalHistoryItem[];
+    pagination: Pagination;
+  };
 }
 
 export interface PaginationFilters {
@@ -289,7 +293,8 @@ class WithdrawalService {
 
   async getWithdrawalHistory(
     eventId: string | undefined,
-    eventOrganizerId: string | undefined
+    eventOrganizerId: string | undefined,
+    filters?: PaginationFilters
   ): Promise<WithdrawalHistoryResponse> {
     const params: any = {};
 
@@ -297,8 +302,17 @@ class WithdrawalService {
       params.eventId = eventId;
     }
 
-    if (eventOrganizerId) {
+    // Only add eventOrganizerId if it's a valid non-empty string
+    if (eventOrganizerId && eventOrganizerId.trim() !== '') {
       params.eventOrganizerId = eventOrganizerId;
+    }
+
+    if (filters?.show) {
+      params.limit = filters.show.toString();
+    }
+
+    if (filters?.page !== undefined) {
+      params.page = filters.page.toString();
     }
 
     return apiUtils.get<WithdrawalHistoryResponse>(

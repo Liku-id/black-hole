@@ -33,10 +33,13 @@ export const DuplicateEventModal: React.FC<DuplicateEventModalProps> = ({
         height={180}
         open={open}
         title="Duplicate Event Success!"
-        titleSize='22px'
+        titleSize="22px"
         onClose={onClose}
       >
-        <Body2 fontSize="14px">Your event have been duplicated. You can check and edit your event on draft even tab.</Body2>
+        <Body2 fontSize="14px">
+          Your event have been duplicated. You can check and edit your event on
+          draft even tab.
+        </Body2>
       </Modal>
     );
   }
@@ -65,10 +68,7 @@ export const DuplicateEventModal: React.FC<DuplicateEventModalProps> = ({
       title="Duplicate Event"
       onClose={onClose}
     >
-      <Body2 fontSize="14px">
-        Are you sure want to duplicate this event?
-      </Body2>
+      <Body2 fontSize="14px">Are you sure want to duplicate this event?</Body2>
     </Modal>
   );
 };
-

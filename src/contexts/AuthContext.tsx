@@ -321,12 +321,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
 
         // Track successful login
-        trackLogin(
-          userData.id,
-          userData.name,
-          userData.email,
-          'email'
-        );
+        trackLogin(userData.id, userData.name, userData.email, 'email');
 
         // Redirect to intended route or dashboard
         const redirectTo = (router.query.redirect as string) || '/dashboard';
@@ -367,7 +362,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       // Track logout
       resetUser();
-      
+      if (typeof window !== 'undefined') {
+        try {
+          const { mutate } = await import('swr');
+          // Clear all SWR cache by invalidating all keys
+          mutate(() => true, undefined, { revalidate: false });
+        } catch (error) {
+          console.error('Failed to clear SWR cache:', error);
+        }
+      }
+
       dispatch({ type: 'LOGOUT_SUCCESS' });
       router.replace('/login');
     }

@@ -3,6 +3,7 @@ export { default as Card } from './card';
 export { default as DateField } from './date-field';
 export { default as DropdownSelector } from './dropdown-selector';
 export { default as Modal } from './modal';
+export { default as Popup } from './popup';
 export { default as PhoneField } from './phone-field';
 export { default as Select } from './select';
 export { default as Tabs } from './tabs';

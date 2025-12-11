@@ -11,7 +11,7 @@ export default async function handler(
   }
 
   try {
-    const { eventId } = req.query;
+    const { eventId, partnerId, search } = req.query;
 
     if (!eventId || typeof eventId !== 'string') {
       return res.status(400).json({ message: 'Invalid eventId parameter' });
@@ -22,6 +22,14 @@ export default async function handler(
       endpoint: `/events/${eventId}/transactions`,
       timeout: 10000
     });
+
+    // Pass partnerId and search as query params if provided
+    if (partnerId && typeof partnerId === 'string') {
+      req.query.partnerId = partnerId;
+    }
+    if (search && typeof search === 'string') {
+      req.query.search = search;
+    }
 
     return await getHandler(req, res);
   } catch (error) {

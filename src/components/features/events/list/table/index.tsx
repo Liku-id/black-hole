@@ -85,6 +85,11 @@ const EventsTable: FC<EventsTableProps> = ({
     handleMenuClose(event.id);
   };
 
+  const handlePartnerTicketClick = (event: Event) => {
+    router.push(`/events/${event.metaUrl}/partner-ticket`);
+    handleMenuClose(event.id);
+  };
+
   const handleDuplicateClick = (event: Event) => {
     setSelectedEvent(event);
     setDuplicateModalOpen(true);
@@ -382,6 +387,40 @@ const EventsTable: FC<EventsTableProps> = ({
                           }
                         />
                       </MenuItem>
+                      {['on_going', 'approved', 'done'].includes(
+                        event.eventStatus
+                      ) && (
+                        <MenuItem
+                          id="partner_ticket"
+                          onClick={() => handlePartnerTicketClick(event)}
+                          sx={{
+                            padding: '12px 16px',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                            <Image
+                              alt="Partner Ticket"
+                              src="/icon/partner-ticket.svg"
+                              height={18}
+                              width={18}
+                            />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              <Body2
+                                color="text.primary"
+                                fontSize="14px"
+                                fontWeight="400"
+                              >
+                                Partner Ticket
+                              </Body2>
+                            }
+                          />
+                        </MenuItem>
+                      )}
                       {event.eventStatus !== 'draft' && (
                         <MenuItem
                           onClick={() => handleDuplicateClick(event)}

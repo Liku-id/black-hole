@@ -217,6 +217,8 @@ export interface TransactionsFilters {
   page?: number;
   show?: number;
   eventId?: string;
+  partnerId?: string;
+  search?: string;
 }
 
 export interface TransactionError {
