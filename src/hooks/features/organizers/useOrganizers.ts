@@ -1,4 +1,4 @@
-import { organizersService } from '@/services';
+import { eventOrganizerService } from '@/services/event-organizer';
 import { EventOrganizer } from '@/types/organizer';
 
 import { useApi } from '../../useApi';
@@ -14,7 +14,7 @@ const useOrganizers = (): UseOrganizersReturn => {
   const { data, loading, error, mutate } = useApi(
     '/api/organizers',
     async () => {
-      const response = await organizersService.getEventOrganizers();
+      const response = await eventOrganizerService.getAllEventOrganizers();
       return response.body.eventOrganizers;
     }
   );
