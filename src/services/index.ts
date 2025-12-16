@@ -3,7 +3,7 @@ export { eventsService } from './events';
 export { eventTypesService } from './events/types';
 export { ticketsService } from './tickets';
 export { transactionsService } from './transactions';
-export { organizersService } from './organizers';
+export { eventOrganizerService } from './event-organizer';
 export { authService } from './auth';
 export { forgotPasswordService } from './auth/forgot-password';
 export { listService } from './list';

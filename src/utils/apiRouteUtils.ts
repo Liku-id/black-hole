@@ -13,6 +13,7 @@ interface ApiRouteOptions {
   endpoint: string;
   timeout?: number;
   transformQuery?: (query: any) => any;
+  transformResponse?: (data: any) => any;
   requireAuth?: boolean;
 }
 
@@ -52,7 +53,11 @@ export const apiRouteUtils = {
           timeout: options.timeout || 10000
         });
 
-        return res.status(response.status).json(response.data);
+        const responseData = options.transformResponse
+          ? options.transformResponse(response.data)
+          : response.data;
+
+        return res.status(response.status).json(responseData);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           // Check if it's an auth error and handle accordingly
