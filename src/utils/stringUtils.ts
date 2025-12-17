@@ -155,5 +155,70 @@ export const stringUtils = {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
+  },
+
+  /**
+   * Unified masking function for strings
+   * Masks all characters except first N chars (or last N chars for data masking)
+   * @param value - Value to mask
+   * @param options - Optional configuration
+   * @returns Masked value or null if invalid
+   */
+  mask: (
+    value: string | null | undefined,
+    options?: {
+      visibleFirstChars?: number; // Number of first chars to show (default: 1)
+      visibleLastChars?: number; // Number of last chars to show for data masking (if set, uses data masking instead)
+      maskChar?: string; // Character to use for masking (default: '*')
+      minLength?: number; // Minimum length to apply masking
+    }
+  ): string | null => {
+    if (!value || typeof value !== 'string' || value.trim().length === 0) {
+      return null;
+    }
+
+    const {
+      visibleFirstChars = 8,
+      visibleLastChars,
+      maskChar = '*',
+      minLength = 4
+    } = options || {};
+
+    if (value.length <= minLength) {
+      return value;
+    }
+
+    if (visibleLastChars !== undefined) {
+      const lastChars = value.slice(-visibleLastChars);
+      const masked = maskChar.repeat(4);
+      return `${masked}${lastChars}`;
+    }
+
+    const firstChars = value.substring(0, visibleFirstChars);
+    const masked = maskChar.repeat(Math.max(3, value.length - visibleFirstChars));
+    return `${firstChars}${masked}`;
+  },
+
+  /**
+   * Unmask data (only works if original value is provided)
+   * Note: This cannot restore original value if it was fully masked
+   * Use this only if you have stored the original value separately
+   * @param maskedValue - Masked value to unmask
+   * @param originalValue - Original value (required for actual unmasking)
+   * @returns Unmasked value (original) or masked value if original not provided
+   */
+  unmask: (
+    maskedValue: string | null | undefined,
+    originalValue?: string | null
+  ): string | null => {
+    if (originalValue) {
+      return originalValue;
+    }
+
+    if (!maskedValue || typeof maskedValue !== 'string') {
+      return null;
+    }
+
+    return maskedValue;
   }
 };
