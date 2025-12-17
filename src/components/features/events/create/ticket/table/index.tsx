@@ -1,6 +1,7 @@
 import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { FC } from 'react';
+import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import {
   Body2,
@@ -22,11 +23,15 @@ interface TicketCategory {
   salesEndDate: string;
   ticketStartDate: string;
   ticketEndDate: string;
+  status?: string;
+  rejectedFields?: string[];
+  rejectedReason?: string;
 }
 
 interface TicketTableProps {
   tickets: TicketCategory[];
   loading?: boolean;
+  eventStatus?: string;
   onEdit?: (ticket: TicketCategory) => void;
   onDelete?: (ticketId: string) => void;
 }
@@ -34,9 +39,53 @@ interface TicketTableProps {
 const TicketTable: FC<TicketTableProps> = ({
   tickets,
   loading = false,
+  eventStatus,
   onEdit,
   onDelete
 }) => {
+  // Check if action buttons should be shown for a ticket
+  const shouldShowActions = (ticket: TicketCategory) => {
+    // For upcoming (approved) or ongoing events, hide actions for approved tickets
+    if ((eventStatus === 'approved' || eventStatus === 'on_going') && ticket.status === 'approved') {
+      return false;
+    }
+    return true;
+  };
+
+  const getStatusChip = (status?: string) => {
+    if (status === 'rejected') {
+      return (
+        <ErrorOutline 
+          sx={{ 
+            color: 'error.main',
+            fontSize: '24px'
+          }} 
+        />
+      );
+    }
+    if (status === 'approved') {
+      return (
+        <CheckCircleOutline 
+          sx={{ 
+            color: 'success.main',
+            fontSize: '24px'
+          }} 
+        />
+      );
+    }
+    if (status === 'pending') {
+      return (
+        <ErrorOutline 
+          sx={{ 
+            color: 'grey.500',
+            fontSize: '24px'
+          }} 
+        />
+      );
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" padding="40px">
@@ -85,6 +134,11 @@ const TicketTable: FC<TicketTableProps> = ({
                 Sale End Date
               </Body2>
             </TableCell>
+            <TableCell sx={{ width: '12%' }}>
+              <Body2 color="text.secondary" fontSize="14px">
+                Status
+              </Body2>
+            </TableCell>
             <TableCell align="right" sx={{ width: '5%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Action
@@ -95,7 +149,7 @@ const TicketTable: FC<TicketTableProps> = ({
         <StyledTableBody>
           {tickets.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8}>
+              <TableCell colSpan={9}>
                 <Box display="flex" justifyContent="center" padding="40px">
                   <Body2 color="text.secondary">
                     No tickets found. Add your first ticket category.
@@ -141,33 +195,42 @@ const TicketTable: FC<TicketTableProps> = ({
                     {dateUtils.formatDateTimeWIB(ticket.salesEndDate)}
                   </Body2>
                 </TableCell>
+                <TableCell>
+                  {getStatusChip(ticket.status)}
+                </TableCell>
                 <TableCell align="right">
-                  <Box display="flex" gap={1} justifyContent="flex-end">
-                    <IconButton
-                      size="small"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                      onClick={() => onEdit?.(ticket)}
-                    >
-                      <Image
-                        alt="Edit"
-                        height={24}
-                        src="/icon/edit.svg"
-                        width={24}
-                      />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                      onClick={() => onDelete?.(ticket.id)}
-                    >
-                      <Image
-                        alt="Delete"
-                        height={24}
-                        src="/icon/trash.svg"
-                        width={24}
-                      />
-                    </IconButton>
-                  </Box>
+                  {shouldShowActions(ticket) ? (
+                    <Box display="flex" gap={1} justifyContent="flex-end">
+                      <IconButton
+                        size="small"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={() => onEdit?.(ticket)}
+                      >
+                        <Image
+                          alt="Edit"
+                          height={24}
+                          src="/icon/edit.svg"
+                          width={24}
+                        />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={() => onDelete?.(ticket.id)}
+                      >
+                        <Image
+                          alt="Delete"
+                          height={24}
+                          src="/icon/trash.svg"
+                          width={24}
+                        />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Body2 color="text.secondary" fontSize="14px">
+                      -
+                    </Body2>
+                  )}
                 </TableCell>
               </TableRow>
             ))

@@ -11,6 +11,9 @@ interface RejectModalProps {
   loading?: boolean;
   error?: string | null;
   rejectedFields?: string[];
+  title?: string;
+  message?: string;
+  fieldDisplayMap?: Record<string, string>;
 }
 
 export const RejectModal = ({
@@ -19,9 +22,15 @@ export const RejectModal = ({
   onConfirm,
   loading = false,
   error,
-  rejectedFields = []
+  rejectedFields = [],
+  title,
+  message,
+  fieldDisplayMap
 }: RejectModalProps) => {
   const [reason, setReason] = useState('');
+
+  const defaultTitle = 'Reject Event Submission';
+  const defaultMessage = 'Are you sure you want to reject this event submission?';
 
   return (
     <Modal
@@ -43,12 +52,12 @@ export const RejectModal = ({
       }
       height={320}
       open={open}
-      title="Reject Event Submission"
+      title={title || defaultTitle}
       width={560}
       onClose={onClose}
     >
       <Body2 color="text.secondary" mb={2}>
-        Are you sure you want to reject this event submission?
+        {message || defaultMessage}
       </Body2>
 
       {rejectedFields.length > 0 && (
@@ -66,6 +75,12 @@ export const RejectModal = ({
             <Body2 color="error.main">
               {rejectedFields
                 .map((field) => {
+                  // First check if there's a custom display map provided
+                  if (fieldDisplayMap && fieldDisplayMap[field]) {
+                    return fieldDisplayMap[field];
+                  }
+                  
+                  // Otherwise use default field labels
                   const fieldLabels: Record<string, string> = {
                     name: 'Event Name',
                     event_type: 'Event Type',

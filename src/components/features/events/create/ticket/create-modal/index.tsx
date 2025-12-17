@@ -2,7 +2,7 @@ import { Box, Grid, InputAdornment } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Button, Modal, TextField, TextArea } from '@/components/common';
+import { Button, Modal, TextField, TextArea, Body2 } from '@/components/common';
 
 import { TicketDateModal } from '../date-modal';
 import { SalesModal } from '../sales-modal';
@@ -44,6 +44,9 @@ interface TicketCategory {
   salesEndDate: string;
   ticketStartDate: string;
   ticketEndDate: string;
+  status?: string;
+  rejectedFields?: string[];
+  rejectedReason?: string;
 }
 
 interface TicketCreateModalProps {
@@ -51,19 +54,63 @@ interface TicketCreateModalProps {
   onClose: () => void;
   onSubmit: (data: TicketFormData) => void;
   editingTicket?: TicketCategory;
+  eventStatus?: string;
 }
+
+// Rejected Reason Component
+const RejectedReason = ({ reason }: { reason?: string }) => {
+  if (!reason || reason.trim() === '') return null;
+
+  return (
+    <Box mb={2}>
+      <Box
+        border="1px solid"
+        borderColor="error.main"
+        borderRadius={1}
+        p="12px 16px"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          backgroundColor: 'error.light',
+          borderLeft: '4px solid',
+          borderLeftColor: 'error.main'
+        }}
+      >
+        <Body2 color="error.dark" fontWeight={500}>
+          Rejection Reason:
+        </Body2>
+        <Body2 color="text.primary">{reason}</Body2>
+      </Box>
+    </Box>
+  );
+};
 
 export const TicketCreateModal = ({
   open,
   onClose,
   onSubmit,
-  editingTicket
+  editingTicket,
+  eventStatus
 }: TicketCreateModalProps) => {
   const [loading, setLoading] = useState(false);
   const [salesStartModalOpen, setSalesStartModalOpen] = useState(false);
   const [salesEndModalOpen, setSalesEndModalOpen] = useState(false);
   const [ticketStartModalOpen, setTicketStartModalOpen] = useState(false);
   const [ticketEndModalOpen, setTicketEndModalOpen] = useState(false);
+
+  // Helper function to check if a field is rejected
+  const isFieldRejected = (fieldName: string) => {
+    if (!editingTicket || editingTicket.status !== 'rejected' || !editingTicket.rejectedFields) {
+      return false;
+    }
+    return editingTicket.rejectedFields.includes(fieldName);
+  };
+
+  // Show rejection info if event status is rejected or draft AND ticket status is rejected
+  const shouldShowRejectionInfo = 
+    (eventStatus === 'rejected' || eventStatus === 'draft') && 
+    editingTicket?.status === 'rejected';
 
   const methods = useForm<TicketFormData>({
     defaultValues: {
@@ -203,6 +250,11 @@ export const TicketCreateModal = ({
       >
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(handleSubmit)}>
+            {/* Show rejected reason if applicable */}
+            {shouldShowRejectionInfo && (
+              <RejectedReason reason={editingTicket?.rejectedReason} />
+            )}
+            
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -213,6 +265,7 @@ export const TicketCreateModal = ({
                   rules={{
                     required: 'Ticket name is required'
                   }}
+                  isRejected={isFieldRejected('name')}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -228,6 +281,7 @@ export const TicketCreateModal = ({
                       message: 'Description must be less than 500 characters'
                     }
                   }}
+                  isRejected={isFieldRejected('description')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -268,6 +322,7 @@ export const TicketCreateModal = ({
                       message: 'Price must be a number'
                     }
                   }}
+                  isRejected={isFieldRejected('price')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -283,6 +338,7 @@ export const TicketCreateModal = ({
                       message: 'Quantity must be a number'
                     }
                   }}
+                  isRejected={isFieldRejected('quantity')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -303,6 +359,7 @@ export const TicketCreateModal = ({
                       message: 'Max ticket per user must be a number'
                     }
                   }}
+                  isRejected={isFieldRejected('max_order_quantity')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -319,6 +376,7 @@ export const TicketCreateModal = ({
                   }}
                   value={salesStartDate}
                   onClick={() => setSalesStartModalOpen(true)}
+                  isRejected={isFieldRejected('sales_start_date')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -335,6 +393,7 @@ export const TicketCreateModal = ({
                   }}
                   value={salesEndDate}
                   onClick={() => setSalesEndModalOpen(true)}
+                  isRejected={isFieldRejected('sales_end_date')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -351,6 +410,7 @@ export const TicketCreateModal = ({
                   }}
                   value={ticketStartDate}
                   onClick={() => setTicketStartModalOpen(true)}
+                  isRejected={isFieldRejected('ticketStartDate')}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -367,6 +427,7 @@ export const TicketCreateModal = ({
                   }}
                   value={ticketEndDate}
                   onClick={() => setTicketEndModalOpen(true)}
+                  isRejected={isFieldRejected('ticketEndDate')}
                 />
               </Grid>
             </Grid>

@@ -19,8 +19,8 @@ interface AssetChangeInfo {
   files: AssetFiles;
   deletedAssetIds: string[];
   existingAssets: {
-    thumbnail?: { id: string; order: number };
-    supportingImages: Array<{ id: string; order: number } | null>;
+    thumbnail?: { id: string; eventAssetId: string; order: number };
+    supportingImages: Array<{ id: string; eventAssetId: string; order: number } | null>;
   };
 }
 
@@ -155,13 +155,54 @@ const EditAssetsPage = () => {
         })
       );
 
-      // Step 4: Create new event assets for uploaded files
+      // Step 4: Create or update event assets for uploaded files
+      // Logic: 
+      // 1. If there's an existing asset at the same order position that wasn't deleted, UPDATE it
+      // 2. Otherwise, CREATE a new event asset
+      
       for (const { assetId, order } of newAssetIds) {
-        await eventsService.createEventAsset({
-          eventId: eventDetail.id,
-          assetId,
-          order
-        });
+        // Find if there's an existing asset at this order position
+        let existingEventAssetId: string | undefined;
+        
+        if (order === 1) {
+          // Thumbnail (order 1)
+          const existingThumbnail = assetChangeInfo.existingAssets.thumbnail;
+          if (
+            existingThumbnail &&
+            !assetChangeInfo.deletedAssetIds.includes(existingThumbnail.id)
+          ) {
+            // Use eventAssetId for the update API call
+            existingEventAssetId = existingThumbnail.eventAssetId;
+          }
+        } else {
+          // Supporting images (order 2-5)
+          const supportingImageIndex = order - 2;
+          const existingSupporting =
+            assetChangeInfo.existingAssets.supportingImages[supportingImageIndex];
+          if (
+            existingSupporting &&
+            !assetChangeInfo.deletedAssetIds.includes(existingSupporting.id)
+          ) {
+            // Use eventAssetId for the update API call
+            existingEventAssetId = existingSupporting.eventAssetId;
+          }
+        }
+        
+        if (existingEventAssetId) {
+          // Update existing event asset with new assetId
+          await eventsService.updateEventAsset(existingEventAssetId, {
+            eventId: eventDetail.id,
+            assetId,
+            order
+          });
+        } else {
+          // Create new event asset
+          await eventsService.createEventAsset({
+            eventId: eventDetail.id,
+            assetId,
+            order
+          });
+        }
       }
 
       // Navigate back to event detail page

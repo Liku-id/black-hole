@@ -10,6 +10,8 @@ interface ApprovalModalProps {
   eventName?: string;
   loading?: boolean;
   error?: string | null;
+  title?: string;
+  message?: string;
 }
 
 export const ApprovalModal = ({
@@ -18,8 +20,13 @@ export const ApprovalModal = ({
   onConfirm,
   eventName,
   loading = false,
-  error
+  error,
+  title,
+  message
 }: ApprovalModalProps) => {
+  const defaultTitle = 'Approve Event Submission';
+  const defaultMessage = `Are you sure you want to approve the event "${eventName || 'this event'}"?`;
+
   return (
     <Modal
       footer={
@@ -37,13 +44,12 @@ export const ApprovalModal = ({
       }
       height={error ? 280 : 240}
       open={open}
-      title="Approve Event Submission"
+      title={title || defaultTitle}
       width={520}
       onClose={onClose}
     >
       <Body2 color="text.secondary">
-        Are you sure you want to approve the event "{eventName || 'this event'}
-        "?
+        {message || defaultMessage}
       </Body2>
     </Modal>
   );

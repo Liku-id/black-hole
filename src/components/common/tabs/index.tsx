@@ -1,12 +1,16 @@
 import { Box, styled } from '@mui/material';
 import { useRef, useState } from 'react';
+import { ErrorOutline, CheckCircleOutline } from '@mui/icons-material';
 
 import { Body2 } from '@/components/common';
+
+type TabStatus = 'rejected' | 'approved' | 'pending';
 
 interface TabItem {
   id: string;
   title: string;
   quantity?: number;
+  status?: TabStatus;
 }
 
 interface TabsProps {
@@ -99,6 +103,21 @@ export default function Tabs({
     }
   };
 
+  const getStatusIcon = (status?: TabStatus) => {
+    if (!status) return null;
+    
+    switch (status) {
+      case 'rejected':
+        return <ErrorOutline fontSize="small" sx={{ color: 'error.main' }} />;
+      case 'approved':
+        return <CheckCircleOutline fontSize="small" sx={{ color: 'success.main' }} />;
+      case 'pending':
+        return <ErrorOutline fontSize="small" sx={{ color: 'grey.500' }} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <TabsContainer
       ref={containerRef}
@@ -122,14 +141,17 @@ export default function Tabs({
             }
           }}
         >
-          <Body2
-            color={activeTab === tab.id ? 'primary.main' : 'text.secondary'}
-            fontFamily="Onest"
-            fontSize="14px"
-          >
-            {tab.title}
-            {tab.quantity !== undefined && `(${tab.quantity})`}
-          </Body2>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Body2
+              color={activeTab === tab.id ? 'primary.main' : 'text.secondary'}
+              fontFamily="Onest"
+              fontSize="14px"
+            >
+              {tab.title}
+              {tab.quantity !== undefined && ` (${tab.quantity})`}
+            </Body2>
+            {tab.status && getStatusIcon(tab.status)}
+          </Box>
         </TabItem>
       ))}
     </TabsContainer>

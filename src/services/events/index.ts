@@ -192,6 +192,61 @@ class EventsService {
       throw error;
     }
   }
+
+  // Event Detail Approval/Rejection
+  async approveOrRejectEventDetail(
+    eventId: string,
+    payload: {
+      rejectedFields?: string[];
+      rejectedReason?: string;
+      status: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        `/api/events/event-detail-approval/${eventId}`,
+        payload,
+        'Failed to process event detail'
+      );
+    } catch (error) {
+      console.error('Error processing event detail:', error);
+      throw error;
+    }
+  }
+
+  // Event Asset Approval/Rejection
+  async batchApproveAssets(ids: string[]): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        '/api/events/event-asset/batch-approve',
+        { ids },
+        'Failed to approve assets'
+      );
+    } catch (error) {
+      console.error('Error approving assets:', error);
+      throw error;
+    }
+  }
+
+  async batchRejectAssets(
+    ids: string[],
+    rejectedReason: string
+  ): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        '/api/events/event-asset/batch-reject',
+        {
+          ids,
+          rejectedFields: ids, // asset ids as rejected fields
+          rejectedReason
+        },
+        'Failed to reject assets'
+      );
+    } catch (error) {
+      console.error('Error rejecting assets:', error);
+      throw error;
+    }
+  }
 }
 
 const eventsService = new EventsService();

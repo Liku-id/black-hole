@@ -10,6 +10,7 @@ import { PreviewEventModal } from './preview-modal';
 
 interface EventDetailInfoProps {
   eventDetail: EventDetail;
+  showRejectionInfo?: boolean;
 }
 
 // EventField component
@@ -78,13 +79,36 @@ export const RejectedReason = ({ reason }: { reason: string }) => {
   );
 };
 
-export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
+export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: EventDetailInfoProps) => {
   const router = useRouter();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
+  // Check if we should show event update request rejection info
+  const isEventApprovedOrOngoing = 
+    eventDetail.eventStatus === 'approved' || eventDetail.eventStatus === 'on_going';
+  const hasRejectedUpdateRequest = 
+    eventDetail.eventUpdateRequest && 
+    eventDetail.eventUpdateRequest.status === 'rejected';
+  const showUpdateRequestRejection = isEventApprovedOrOngoing && hasRejectedUpdateRequest;
+
+  // Determine which rejection info to show
+  const rejectionReason = showUpdateRequestRejection 
+    ? eventDetail.eventUpdateRequest?.rejectedReason 
+    : eventDetail.rejectedReason;
+  const rejectedFieldsArray = showUpdateRequestRejection 
+    ? eventDetail.eventUpdateRequest?.rejectedFields 
+    : eventDetail.rejectedFields;
+
   const isFieldRejected = (fieldName: string) => {
-    if (!eventDetail.rejectedFields) return false;
-    return eventDetail.rejectedFields.includes(fieldName);
+    // Check for update request rejection first
+    if (showUpdateRequestRejection && rejectedFieldsArray) {
+      return rejectedFieldsArray.includes(fieldName);
+    }
+    // Fallback to event rejection
+    if (showRejectionInfo && eventDetail.rejectedFields) {
+      return eventDetail.rejectedFields.includes(fieldName);
+    }
+    return false;
   };
 
   const handlePreviewConfirm = async () => {
@@ -166,8 +190,10 @@ export const EventDetailInfo = ({ eventDetail }: EventDetailInfoProps) => {
           )
         )}
       </Box>
-      {/* Rejected Reason */}
-      <RejectedReason reason={eventDetail.rejectedReason} />
+      {/* Rejected Reason - Show for event rejection or update request rejection */}
+      {(showRejectionInfo || showUpdateRequestRejection) && rejectionReason && (
+        <RejectedReason reason={rejectionReason} />
+      )}
 
       <Grid container spacing={2}>
         {/* Left Grid */}

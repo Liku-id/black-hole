@@ -218,7 +218,7 @@ function EditEvent() {
       });
 
       if (result && result.body && result.body.id) {
-        router.push(`/events`);
+        router.push(`/events/${metaUrl}`);
       }
     } catch (error) {
       setUpdateError(

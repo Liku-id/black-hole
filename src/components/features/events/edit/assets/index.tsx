@@ -56,10 +56,11 @@ export const EventAssetsEditForm = ({
   ].map((i) => eventAssets.find((ea) => Number(ea.order) === i + 2) || null);
 
   // Build existing assets info
+  // Store event asset record IDs (join table IDs) for update operations
   const existingAssets = {
-    thumbnail: mainEventAsset ? { id: mainEventAsset.id, order: 1 } : undefined,
+    thumbnail: mainEventAsset ? { id: mainEventAsset.assetId, eventAssetId: mainEventAsset.id, order: 1 } : undefined,
     supportingImages: sideEventAssets.map((ea, index) =>
-      ea ? { id: ea.id, order: index + 2 } : null
+      ea ? { id: ea.assetId, eventAssetId: ea.id, order: index + 2 } : null
     )
   };
 

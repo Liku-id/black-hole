@@ -32,7 +32,6 @@ function AdditionalFormPage() {
     if (!router.isReady) return;
     if (
       eventDetail?.eventStatus === 'on_review' ||
-      eventDetail?.eventStatus === 'on_going' ||
       eventDetail?.eventStatus === 'done'
     ) {
       router.replace('/events');

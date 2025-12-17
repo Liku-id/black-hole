@@ -1,9 +1,39 @@
 import { Box, Grid } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
 
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
 import { EventDetail } from '@/types/event';
 import { dateUtils } from '@/utils';
+
+// Rejected Reason Component
+const RejectedReason = ({ reason }: { reason: string | null }) => {
+  if (!reason || reason.trim() === '') return null;
+
+  return (
+    <Box mb={2}>
+      <Box
+        border="1px solid"
+        borderColor="error.main"
+        borderRadius={1}
+        p="12px 16px"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          backgroundColor: 'error.light',
+          borderLeft: '4px solid',
+          borderLeftColor: 'error.main'
+        }}
+      >
+        <Body2 color="error.dark" fontWeight={500}>
+          Rejection Reason:
+        </Body2>
+        <Body2 color="text.primary">{reason}</Body2>
+      </Box>
+    </Box>
+  );
+};
 
 const Field = ({
   label,
@@ -11,7 +41,8 @@ const Field = ({
   isTextArea = false,
   eventDetail,
   eventUpdateRequest,
-  fieldKey
+  fieldKey,
+  isRejected = false
 }: {
   label: React.ReactNode;
   value: string;
@@ -19,6 +50,7 @@ const Field = ({
   eventDetail?: any;
   eventUpdateRequest?: any;
   fieldKey?: string;
+  isRejected?: boolean;
 }) => {
   // Check if field has changes
   const hasChanges =
@@ -76,9 +108,10 @@ const Field = ({
 
   return (
     <Box>
-      <Body2 color="text.secondary" mb={1}>
-        {label}
-      </Body2>
+      <Box display="flex" alignItems="center" gap={0.5} mb={1}>
+        <Body2 color="text.secondary">{label}</Body2>
+        {isRejected && <ErrorOutline fontSize="small" color="error" />}
+      </Box>
 
       <Box
         border="1px solid"
@@ -119,6 +152,24 @@ export const EventsSubmissionsInfo = ({
   selectedFields = [],
   onToggleField
 }: EventsSubmissionsInfoProps) => {
+  // Check if we should use eventUpdateRequest rejection info
+  const useUpdateRequestRejection = 
+    (eventDetail.eventStatus === 'on_going' || eventDetail.eventStatus === 'approved') && 
+    eventUpdateRequest !== null && 
+    eventUpdateRequest !== undefined;
+
+  const isFieldRejected = (fieldName: string) => {
+    // Use eventUpdateRequest rejectedFields if applicable
+    if (useUpdateRequestRejection) {
+      if (!eventUpdateRequest?.rejectedFields) return false;
+      return eventUpdateRequest.rejectedFields.includes(fieldName);
+    }
+    
+    // Otherwise use eventDetail rejectedFields
+    if (!eventDetail.rejectedFields) return false;
+    return eventDetail.rejectedFields.includes(fieldName);
+  };
+
   const renderLabel = (text: string, key: string | string[]) => {
     if (
       !rejectMode ||
@@ -146,8 +197,17 @@ export const EventsSubmissionsInfo = ({
     );
   };
 
+  // Determine which rejection reason to display
+  const rejectionReason = useUpdateRequestRejection 
+    ? eventUpdateRequest?.rejectedReason 
+    : eventDetail.rejectedReason;
+
   return (
-    <Grid container spacing={2}>
+    <>
+      {/* Rejected Reason */}
+      <RejectedReason reason={rejectionReason} />
+
+      <Grid container spacing={2}>
       <Grid item md={6} xs={12}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -157,6 +217,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="name"
               label={renderLabel('Event Name*', 'name')}
               value={eventDetail.name}
+              isRejected={isFieldRejected('name')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -166,6 +227,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="eventType"
               label={renderLabel('Event Type*', 'event_type')}
               value={eventDetail.eventType}
+              isRejected={isFieldRejected('event_type')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -175,6 +237,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="startDate"
               label={renderLabel('Start & End Date*, Time*', ['start_date'])}
               value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`}
+              isRejected={isFieldRejected('start_date') || isFieldRejected('end_date')}
             />
           </Grid>
 
@@ -185,6 +248,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="address"
               label={renderLabel('Address*', 'address')}
               value={eventDetail.address}
+              isRejected={isFieldRejected('address')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -194,6 +258,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="mapLocationUrl"
               label={renderLabel('Google Maps Link*', 'map_location_url')}
               value={eventDetail.mapLocationUrl}
+              isRejected={isFieldRejected('map_location_url')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -203,6 +268,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="cityId"
               label={renderLabel('City*', 'city')}
               value={eventDetail.city?.name || '-'}
+              isRejected={isFieldRejected('city')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -213,6 +279,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="description"
               label={renderLabel('Event Description*', 'description')}
               value={eventDetail.description}
+              isRejected={isFieldRejected('description')}
             />
           </Grid>
         </Grid>
@@ -227,6 +294,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="termAndConditions"
               label={renderLabel('Terms & Condition*', 'term_and_conditions')}
               value={eventDetail.termAndConditions}
+              isRejected={isFieldRejected('term_and_conditions')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -240,6 +308,7 @@ export const EventsSubmissionsInfo = ({
                   ? `${eventDetail.adminFee}%`
                   : `Rp ${eventDetail.adminFee}`
               }
+              isRejected={isFieldRejected('admin_fee')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -252,6 +321,7 @@ export const EventsSubmissionsInfo = ({
                 eventDetail.paymentMethods?.map((pm) => pm.name).join(' / ') ||
                 ''
               }
+              isRejected={isFieldRejected('payment_methods')}
             />
           </Grid>
           <Grid item xs={12}>
@@ -261,6 +331,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="websiteUrl"
               label={renderLabel('Website URL*', 'website_url')}
               value={eventDetail.websiteUrl || '-'}
+              isRejected={isFieldRejected('website_url')}
             />
           </Grid>
 
@@ -271,6 +342,7 @@ export const EventsSubmissionsInfo = ({
               fieldKey="tax"
               label={renderLabel('Tax Nominal*', 'tax')}
               value={`${eventDetail.tax}%`}
+              isRejected={isFieldRejected('tax')}
             />
           </Grid>
 
@@ -281,10 +353,12 @@ export const EventsSubmissionsInfo = ({
               fieldKey="login_required"
               label={renderLabel('User Must Login*', 'login_required')}
               value={eventDetail.login_required ? 'Yes' : 'No'}
+              isRejected={isFieldRejected('login_required')}
             />
           </Grid>
         </Grid>
       </Grid>
     </Grid>
+    </>
   );
 };

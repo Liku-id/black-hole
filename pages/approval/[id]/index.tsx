@@ -1,11 +1,11 @@
-import { Box, Divider, styled } from '@mui/material';
+import { Box } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Card, Caption, H3, Button } from '@/components/common';
+import { Card, Caption, H3, Button, Tabs, Body2 } from '@/components/common';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { StatusBadge } from '@/components/features/events/status-badge';
@@ -14,33 +14,169 @@ import { EventsSubmissionsInfo } from '@/components/features/approval/events/det
 import { RejectModal } from '@/components/features/approval/events/modal/reject';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEventsSubmissionDetail } from '@/hooks';
+import { useToast } from '@/contexts/ToastContext';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventSubmissionsService } from '@/services/events-submissions';
+import { eventsService } from '@/services/events';
+import { ticketsService } from '@/services/tickets';
 import { User } from '@/types/auth';
 
-const StyledDivider = styled(Divider)({
-  margin: '24px 0px',
-  borderColor: 'grey.100',
-  borderWidth: '1px'
-});
-
-// Using shared StatusBadge component
 function ApprovalDetail() {
   const { user } = useAuth();
   const router = useRouter();
   const { id } = router.query;
-  const [isApproveOpen, setIsApproveOpen] = useState(false);
-  const [isRejectOpen, setIsRejectOpen] = useState(false);
-  const [approveLoading, setApproveLoading] = useState(false);
-  const [approveError, setApproveError] = useState<string | null>(null);
-  const [rejectLoading, setRejectLoading] = useState(false);
-  const [rejectError, setRejectError] = useState<string | null>(null);
-  const [rejectMode, setRejectMode] = useState(false);
-  const [rejectedFields, setRejectedFields] = useState<string[]>([]);
+  const { showSuccess, showError } = useToast();
+  const [activeTab, setActiveTab] = useState('detail');
+  
+  // Event Detail Tab State
+  const [detailRejectMode, setDetailRejectMode] = useState(false);
+  const [detailRejectedFields, setDetailRejectedFields] = useState<string[]>([]);
+  const [detailApproveLoading, setDetailApproveLoading] = useState(false);
+  const [detailRejectLoading, setDetailRejectLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const [isDetailApproveOpen, setIsDetailApproveOpen] = useState(false);
+  const [isDetailRejectOpen, setIsDetailRejectOpen] = useState(false);
+  
+  // Assets Tab State
+  const [assetsRejectMode, setAssetsRejectMode] = useState(false);
+  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [assetsApproveLoading, setAssetsApproveLoading] = useState(false);
+  const [assetsRejectLoading, setAssetsRejectLoading] = useState(false);
+  const [assetsError, setAssetsError] = useState<string | null>(null);
+  const [isAssetsApproveOpen, setIsAssetsApproveOpen] = useState(false);
+  const [isAssetsRejectOpen, setIsAssetsRejectOpen] = useState(false);
+  
+  // Tickets Tab State (handled per-ticket via modal)
+  const [ticketApprovalLoading, setTicketApprovalLoading] = useState(false);
+  const [ticketApprovalError, setTicketApprovalError] = useState<string | null>(null);
+  const [isTicketRejectOpen, setIsTicketRejectOpen] = useState(false);
+  const [pendingTicketReject, setPendingTicketReject] = useState<{
+    ticketId: string;
+    rejectedFields: string[];
+  } | null>(null);
 
-  const { submission, loading, error } = useEventsSubmissionDetail(
+  // Global Event Approval State
+  const [globalApprovalLoading, setGlobalApprovalLoading] = useState(false);
+  const [isSubmitReviewConfirmOpen, setIsSubmitReviewConfirmOpen] = useState(false);
+
+  const { submission, loading, error, mutate } = useEventsSubmissionDetail(
     id as string
   );
+
+  // Calculate tab statuses for indicators
+  const getTabStatus = () => {
+    if (!submission?.event) return { detail: undefined, assets: undefined, tickets: undefined };
+
+    const event = submission.event;
+    
+    // Event Detail Status
+    // For approved or ongoing events, check eventUpdateRequest instead
+    let detailStatus: 'rejected' | 'approved' | 'pending' | undefined;
+    
+    if (event.eventStatus === 'approved' || event.eventStatus === 'on_going') {
+      // Check eventUpdateRequest for update request status
+      if (submission.eventUpdateRequest) {
+        const updateRequestStatus = submission.eventUpdateRequest.status;
+        if (updateRequestStatus === 'rejected') {
+          detailStatus = 'rejected';
+        } else if (updateRequestStatus === 'approved') {
+          detailStatus = 'approved';
+        } else if (updateRequestStatus === 'pending') {
+          detailStatus = 'pending';
+        }
+      }
+      // If no eventUpdateRequest, no changes requested, so no status to show
+    } else {
+      // For other statuses, use regular eventDetailStatus
+      if (event.eventDetailStatus === 'rejected') {
+        detailStatus = 'rejected';
+      } else if (event.eventDetailStatus === 'approved') {
+        detailStatus = 'approved';
+      } else if (event.eventDetailStatus === 'pending') {
+        detailStatus = 'pending';
+      }
+    }
+
+    // Event Asset Status - Priority: rejected > pending > approved
+    let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
+    const hasRejectedAsset = event.eventAssets?.some((ea: any) => 
+      ea.status === 'rejected'
+    );
+    const hasPendingAsset = event.eventAssets?.some((ea: any) => 
+      !ea.status || ea.status === 'pending'
+    );
+    const allAssetsApproved = event.eventAssets?.length > 0 && 
+      event.eventAssets?.every((ea: any) => ea.status === 'approved');
+
+    if (hasRejectedAsset) {
+      assetStatus = 'rejected';
+    } else if (hasPendingAsset) {
+      assetStatus = 'pending';
+    } else if (allAssetsApproved) {
+      assetStatus = 'approved';
+    }
+
+    // Ticket Status - Priority: pending > rejected > approved
+    let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
+    const hasPendingTicket = event.ticketTypes?.some((tt: any) => 
+      !tt.status || tt.status === 'pending'
+    );
+    const hasRejectedTicket = event.ticketTypes?.some((tt: any) => 
+      tt.status === 'rejected'
+    );
+    const allApproved = event.ticketTypes?.length > 0 && 
+      event.ticketTypes?.every((tt: any) => tt.status === 'approved');
+
+    if (hasPendingTicket) {
+      ticketStatus = 'pending';
+    } else if (hasRejectedTicket) {
+      ticketStatus = 'rejected';
+    } else if (allApproved) {
+      ticketStatus = 'approved';
+    }
+    
+    return {
+      detail: detailStatus,
+      assets: assetStatus,
+      tickets: ticketStatus
+    };
+  };
+
+  const tabStatuses = getTabStatus();
+
+  // Check if all sections are reviewed (no pending sections)
+  const areAllSectionsReviewed = (): boolean => {
+    if (!submission?.event) return false;
+    
+    const statuses = [
+      tabStatuses.detail,
+      tabStatuses.assets,
+      tabStatuses.tickets
+    ];
+
+    // All sections must be either approved or rejected (no pending)
+    return statuses.every(status => status === 'approved' || status === 'rejected');
+  };
+
+  // Determine if the final action should be approve or reject
+  const getFinalAction = (): 'approve' | 'reject' => {
+    const statuses = [
+      tabStatuses.detail,
+      tabStatuses.assets,
+      tabStatuses.tickets
+    ];
+
+    // If any section is rejected, the final action is reject
+    if (statuses.some(status => status === 'rejected')) {
+      return 'reject';
+    }
+
+    // Otherwise, approve (all sections are approved)
+    return 'approve';
+  };
+
+  const allSectionsReviewed = areAllSectionsReviewed();
+  const finalAction = getFinalAction();
 
   useEffect(() => {
     if (user) {
@@ -50,6 +186,213 @@ function ApprovalDetail() {
       }
     }
   }, [user, router]);
+
+  // Event Detail Tab Handlers
+  const handleDetailApprove = async () => {
+    setDetailError(null);
+    setDetailApproveLoading(true);
+    try {
+      await eventsService.approveOrRejectEventDetail(
+        submission?.event?.id,
+        {
+          status: 'approved'
+        }
+      );
+      setIsDetailApproveOpen(false);
+      showSuccess('Event detail approved successfully');
+      await mutate();
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to approve event detail';
+      setDetailError(msg);
+      showError(msg);
+    } finally {
+      setDetailApproveLoading(false);
+    }
+  };
+
+  const handleDetailReject = async (reason: string) => {
+    setDetailError(null);
+    setDetailRejectLoading(true);
+    try {
+      await eventsService.approveOrRejectEventDetail(
+        submission?.event?.id,
+        {
+          rejectedFields: detailRejectedFields,
+          rejectedReason: reason,
+          status: 'rejected'
+        }
+      );
+      setIsDetailRejectOpen(false);
+      setDetailRejectMode(false);
+      setDetailRejectedFields([]);
+      showSuccess('Event detail rejected');
+      await mutate();
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to reject event detail';
+      setDetailError(msg);
+      showError(msg);
+    } finally {
+      setDetailRejectLoading(false);
+    }
+  };
+
+  // Assets Tab Handlers
+  const handleAssetsApprove = async () => {
+    if (!submission?.event?.eventAssets || submission.event.eventAssets.length === 0) {
+      showError('No assets to approve');
+      return;
+    }
+    
+    // Filter only pending assets
+    const pendingAssets = submission.event.eventAssets.filter(
+      (ea: any) => !ea.status || ea.status === 'pending'
+    );
+    
+    if (pendingAssets.length === 0) {
+      showError('No pending assets to approve');
+      return;
+    }
+    
+    setAssetsError(null);
+    setAssetsApproveLoading(true);
+    try {
+      const assetIds = pendingAssets.map(ea => ea.id);
+      await eventsService.batchApproveAssets(assetIds);
+      setIsAssetsApproveOpen(false);
+      showSuccess('Assets approved successfully');
+      await mutate();
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to approve assets';
+      setAssetsError(msg);
+      showError(msg);
+    } finally {
+      setAssetsApproveLoading(false);
+    }
+  };
+
+  const handleAssetsReject = async (reason: string) => {
+    if (selectedAssets.length === 0) {
+      showError('Please select at least one asset to reject');
+      return;
+    }
+    
+    setAssetsError(null);
+    setAssetsRejectLoading(true);
+    try {
+      await eventsService.batchRejectAssets(selectedAssets, reason);
+      setIsAssetsRejectOpen(false);
+      setAssetsRejectMode(false);
+      setSelectedAssets([]);
+      showSuccess('Assets rejected');
+      await mutate();
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to reject assets';
+      setAssetsError(msg);
+      showError(msg);
+    } finally {
+      setAssetsRejectLoading(false);
+    }
+  };
+
+  // Global Event Approval/Rejection Handlers
+  const handleSubmitReviewConfirm = async () => {
+    if (!id) return;
+    
+    setGlobalApprovalLoading(true);
+    try {
+      // Determine the action based on section statuses
+      const action = finalAction === 'approve' ? 'approved' : 'rejected';
+      
+      await eventSubmissionsService.approveOrRejectEvent(
+        id as string,
+        action
+      );
+      
+      setIsSubmitReviewConfirmOpen(false);
+      showSuccess(`Event ${action === 'approved' ? 'approved' : 'rejected'} successfully`);
+      await mutate();
+      // Redirect to approval list
+      router.push('/approval');
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to submit review';
+      showError(msg);
+    } finally {
+      setGlobalApprovalLoading(false);
+    }
+  };
+
+  // Ticket Handlers (per-ticket)
+  const handleTicketApprove = async (ticketId: string) => {
+    setTicketApprovalError(null);
+    setTicketApprovalLoading(true);
+    try {
+      await ticketsService.approveTicketType(ticketId);
+      showSuccess('Ticket approved successfully');
+      await mutate();
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to approve ticket';
+      setTicketApprovalError(msg);
+      showError(msg);
+    } finally {
+      setTicketApprovalLoading(false);
+    }
+  };
+
+  const handleTicketReject = (
+    ticketId: string,
+    rejectedFields: string[]
+  ) => {
+    // Store the pending rejection data and open the reject modal
+    setPendingTicketReject({
+      ticketId,
+      rejectedFields
+    });
+    setIsTicketRejectOpen(true);
+  };
+
+  const handleTicketRejectConfirm = async (rejectedReason: string) => {
+    if (!pendingTicketReject) return;
+
+    setTicketApprovalError(null);
+    setTicketApprovalLoading(true);
+    try {
+      await ticketsService.rejectTicketType(pendingTicketReject.ticketId, {
+        "rejected_fields": pendingTicketReject.rejectedFields,
+        "rejected_reason": rejectedReason
+      });
+      setIsTicketRejectOpen(false);
+      setPendingTicketReject(null);
+      showSuccess('Ticket rejected');
+      await mutate();
+    } catch (e) {
+      const msg =
+        (e as any)?.response?.data?.message ||
+        (e as Error)?.message ||
+        'Failed to reject ticket';
+      setTicketApprovalError(msg);
+      showError(msg);
+    } finally {
+      setTicketApprovalLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -72,57 +415,6 @@ function ApprovalDetail() {
       </DashboardLayout>
     );
   }
-
-  const handleApprove = async () => {
-    setApproveError(null);
-    setApproveLoading(true);
-    try {
-      await eventSubmissionsService.approveOrRejectSubmission(
-        submission?.event?.id,
-        {
-          rejectedFields: [],
-          rejectedReason: '',
-          status: 'approved'
-        }
-      );
-      setIsApproveOpen(false);
-      router.push('/events');
-    } catch (e) {
-      setApproveLoading(false);
-      const msg =
-        (e as any)?.response?.data?.message ||
-        (e as Error)?.message ||
-        'Failed to approve submission';
-      setApproveError(msg);
-    }
-  };
-
-  const handleReject = async (reason: string) => {
-    setRejectError(null);
-    setRejectLoading(true);
-    try {
-      const payload = {
-        rejectedFields,
-        rejectedReason: reason,
-        status: 'rejected' as const
-      };
-      await eventSubmissionsService.approveOrRejectSubmission(
-        submission?.event?.id,
-        payload
-      );
-      setIsRejectOpen(false);
-      setRejectMode(false);
-      setRejectedFields([]);
-      router.push(submission.type === 'new' ? '/events' : '/approval');
-    } catch (e) {
-      const msg =
-        (e as any)?.response?.data?.message ||
-        (e as Error)?.message ||
-        'Failed to reject submission';
-      setRejectError(msg);
-      setRejectLoading(false);
-    }
-  };
 
   return (
     <DashboardLayout>
@@ -167,96 +459,349 @@ function ApprovalDetail() {
             }
           />
         </Box>
-        {!rejectMode && submission.eventUpdateRequest?.status !== 'rejected' ? (
-          <Box display="flex" gap={1}>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setRejectMode(true);
-                setRejectedFields([]);
-              }}
-            >
-              Reject
-            </Button>
-            <Button onClick={() => setIsApproveOpen(true)}>Approve</Button>
-          </Box>
-        ) : null}
+        
+        {/* Global Submit Review Button */}
+        <Button
+          variant="primary"
+          onClick={() => setIsSubmitReviewConfirmOpen(true)}
+          disabled={!allSectionsReviewed || globalApprovalLoading}
+        >
+          Submit Review
+        </Button>
       </Box>
 
-      {/* Main Card */}
-      <Card sx={{ mb: 3 }}>
-        <EventsSubmissionsInfo
-          eventDetail={submission.event}
-          eventUpdateRequest={submission.eventUpdateRequest}
-          rejectMode={rejectMode}
-          selectedFields={rejectedFields}
-          onToggleField={(key, checked) => {
-            setRejectedFields((prev) => {
-              const next = new Set(prev);
-              if (checked) next.add(key);
-              else next.delete(key);
-              return Array.from(next);
-            });
-          }}
+      {/* Tabs */}
+      <Box mb={3}>
+        <Tabs
+          activeTab={activeTab}
+          tabs={[
+            { 
+              id: 'detail', 
+              title: 'Event Detail',
+              status: tabStatuses.detail
+            },
+            { 
+              id: 'assets', 
+              title: 'Event Assets',
+              status: tabStatuses.assets
+            },
+            { 
+              id: 'tickets', 
+              title: 'Event Tickets',
+              status: tabStatuses.tickets
+            }
+          ]}
+          onTabChange={setActiveTab}
         />
-        <StyledDivider />
-        <EventDetailAssets eventDetail={submission.event} />
-        <StyledDivider />
-        <EventDetailTicket eventDetail={submission.event} />
+      </Box>
+
+      {/* Tab Content Card */}
+      <Card sx={{ mb: 3 }}>
+        {activeTab === 'detail' && (
+          <>
+            {/* Event Detail Header with Title and Actions */}
+            <Box 
+              display="flex" 
+              justifyContent="space-between" 
+              alignItems="center" 
+              mb={3}
+            >
+              <H3 color="text.primary" fontWeight={700}>
+                Event Detail
+              </H3>
+              {/* Hide buttons if status is already rejected or approved */}
+              {tabStatuses.detail !== 'rejected' && tabStatuses.detail !== 'approved' && (
+                <Box display="flex" gap={2}>
+                  {!detailRejectMode ? (
+                    <>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setDetailRejectMode(true)}
+                        disabled={detailApproveLoading}
+                      >
+                        Reject
+                      </Button>
+                      <Button
+                        onClick={() => setIsDetailApproveOpen(true)}
+                        disabled={detailApproveLoading}
+                      >
+                        Approve
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setDetailRejectMode(false);
+                          setDetailRejectedFields([]);
+                        }}
+                        disabled={detailRejectLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => setIsDetailRejectOpen(true)}
+                        disabled={detailRejectedFields.length === 0 || detailRejectLoading}
+                      >
+                        Submit Rejection
+                      </Button>
+                    </>
+                  )}
+                </Box>
+              )}
+            </Box>
+            
+            <EventsSubmissionsInfo
+              eventDetail={submission.event}
+              eventUpdateRequest={submission.eventUpdateRequest}
+              rejectMode={detailRejectMode}
+              selectedFields={detailRejectedFields}
+              onToggleField={(key, checked) => {
+                setDetailRejectedFields((prev) => {
+                  const next = new Set(prev);
+                  if (checked) next.add(key);
+                  else next.delete(key);
+                  return Array.from(next);
+                });
+              }}
+            />
+          </>
+        )}
+        
+        {activeTab === 'assets' && (
+          <>
+            {/* Event Assets Header with Title and Actions */}
+            <Box 
+              display="flex" 
+              justifyContent="space-between" 
+              alignItems="center" 
+              mb={3}
+            >
+              <H3 color="text.primary" fontWeight={700}>
+                Event Assets
+              </H3>
+              {(() => {
+                // Check if any asset has rejected status
+                const hasRejectedAsset = submission.event?.eventAssets?.some((ea: any) => 
+                  ea.status === 'rejected'
+                );
+                
+                // Check if all assets are approved
+                const allAssetsApproved = submission.event?.eventAssets?.length > 0 && 
+                  submission.event?.eventAssets?.every((ea: any) => ea.status === 'approved');
+
+                // Hide buttons if any rejected assets OR all assets approved
+                if (hasRejectedAsset || allAssetsApproved) {
+                  return null;
+                }
+
+                return (
+                  <Box display="flex" gap={2}>
+                    {!assetsRejectMode ? (
+                      <>
+                        <Button
+                          variant="secondary"
+                          onClick={() => setAssetsRejectMode(true)}
+                          disabled={assetsApproveLoading}
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          onClick={() => setIsAssetsApproveOpen(true)}
+                          disabled={assetsApproveLoading}
+                        >
+                          Approve
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            setAssetsRejectMode(false);
+                            setSelectedAssets([]);
+                          }}
+                          disabled={assetsRejectLoading}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => setIsAssetsRejectOpen(true)}
+                          disabled={selectedAssets.length === 0 || assetsRejectLoading}
+                        >
+                          Submit Rejection
+                        </Button>
+                      </>
+                    )}
+                  </Box>
+                );
+              })()}
+            </Box>
+            
+            {/* Rejected Reason from first rejected asset */}
+            {(() => {
+              const firstRejectedAsset = submission.event?.eventAssets?.find((ea: any) => 
+                ea.status === 'rejected' && ea.rejectedReason
+              );
+              
+              if (!firstRejectedAsset?.rejectedReason) return null;
+              
+              return (
+                <Box mb={2}>
+                  <Box
+                    border="1px solid"
+                    borderColor="error.main"
+                    borderRadius={1}
+                    p="12px 16px"
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      backgroundColor: 'error.light',
+                      borderLeft: '4px solid',
+                      borderLeftColor: 'error.main'
+                    }}
+                  >
+                    <Body2 color="error.dark" fontWeight={500}>
+                      Rejection Reason:
+                    </Body2>
+                    <Body2 color="text.primary">{firstRejectedAsset.rejectedReason}</Body2>
+                  </Box>
+                </Box>
+              );
+            })()}
+            
+            <EventDetailAssets
+              eventDetail={submission.event}
+              rejectMode={assetsRejectMode}
+              selectedAssets={selectedAssets}
+              onToggleAsset={(assetId, checked) => {
+                setSelectedAssets((prev) =>
+                  checked ? [...prev, assetId] : prev.filter((id) => id !== assetId)
+                );
+              }}
+              hideHeader={true}
+              showStatus={true}
+            />
+          </>
+        )}
+        
+        {activeTab === 'tickets' && (
+          <>
+            {/* Event Tickets Header with Title */}
+            <Box mb={3}>
+              <H3 color="text.primary" fontWeight={700}>
+                Event Tickets
+              </H3>
+            </Box>
+            
+            <EventDetailTicket
+              eventDetail={submission.event}
+              approvalMode={true}
+              onApproveTicket={handleTicketApprove}
+              onRejectTicket={handleTicketReject}
+              ticketApprovalLoading={ticketApprovalLoading}
+              ticketApprovalError={ticketApprovalError}
+              hideHeader={true}
+              showStatus={true}
+            />
+          </>
+        )}
       </Card>
 
-      {rejectMode ? (
-        <Box
-          bottom={24}
-          display="flex"
-          justifyContent="center"
-          position="sticky"
-          zIndex={100}
-        >
-          <Box
-            bgcolor="common.white"
-            borderRadius={1}
-            boxShadow={2}
-            display="flex"
-            gap={1}
-            p={1}
-          >
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setRejectMode(false);
-                setRejectedFields([]);
-                setRejectError(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={rejectedFields.length === 0}
-              onClick={() => setIsRejectOpen(true)}
-            >
-              Submit
-            </Button>
-          </Box>
-        </Box>
-      ) : null}
-
+      {/* Event Detail Modals */}
       <ApprovalModal
-        error={approveError}
+        error={detailError}
         eventName={submission.event?.name}
-        loading={approveLoading}
-        open={isApproveOpen}
-        onClose={() => setIsApproveOpen(false)}
-        onConfirm={handleApprove}
+        loading={detailApproveLoading}
+        open={isDetailApproveOpen}
+        onClose={() => setIsDetailApproveOpen(false)}
+        onConfirm={handleDetailApprove}
+        title="Approve Event Detail Section"
+        message="Are you sure you want to approve the Event Detail section?"
       />
 
       <RejectModal
-        error={rejectError}
-        loading={rejectLoading}
-        open={isRejectOpen}
-        rejectedFields={rejectedFields}
-        onClose={() => setIsRejectOpen(false)}
-        onConfirm={handleReject}
+        error={detailError}
+        loading={detailRejectLoading}
+        open={isDetailRejectOpen}
+        rejectedFields={detailRejectedFields}
+        onClose={() => setIsDetailRejectOpen(false)}
+        onConfirm={handleDetailReject}
+        title="Reject Event Detail Section"
+        message="Are you sure you want to reject the selected fields in the Event Detail section?"
+      />
+
+      {/* Assets Modals */}
+      <ApprovalModal
+        error={assetsError}
+        eventName={`${submission.event?.name} - Assets`}
+        loading={assetsApproveLoading}
+        open={isAssetsApproveOpen}
+        onClose={() => setIsAssetsApproveOpen(false)}
+        onConfirm={handleAssetsApprove}
+        title="Approve Event Assets"
+        message="Are you sure you want to approve all Event Assets?"
+      />
+
+      <RejectModal
+        error={assetsError}
+        loading={assetsRejectLoading}
+        open={isAssetsRejectOpen}
+        rejectedFields={selectedAssets}
+        onClose={() => setIsAssetsRejectOpen(false)}
+        onConfirm={handleAssetsReject}
+        title="Reject Event Assets"
+        message="Are you sure you want to reject the selected assets?"
+        fieldDisplayMap={
+          submission?.event?.eventAssets?.reduce((acc, asset, index) => {
+            acc[asset.id] = `Asset ${index + 1}`;
+            return acc;
+          }, {} as Record<string, string>)
+        }
+      />
+
+      {/* Ticket Rejection Modal */}
+      <RejectModal
+        error={ticketApprovalError}
+        loading={ticketApprovalLoading}
+        open={isTicketRejectOpen}
+        rejectedFields={pendingTicketReject?.rejectedFields || []}
+        onClose={() => {
+          setIsTicketRejectOpen(false);
+          setPendingTicketReject(null);
+        }}
+        onConfirm={handleTicketRejectConfirm}
+        title="Reject Ticket"
+        message="Please provide a reason for rejecting the selected ticket fields."
+        fieldDisplayMap={{
+          'name': 'Ticket Name',
+          'description': 'Description',
+          'price': 'Price',
+          'quantity': 'Quantity',
+          'max_order_quantity': 'Max Order Quantity',
+          'sales_start_date': 'Sales Start Date',
+          'sales_end_date': 'Sales End Date',
+          'ticketStartDate': 'Ticket Start Date',
+          'ticketEndDate': 'Ticket End Date'
+        }}
+      />
+
+      {/* Submit Review Confirmation Modal */}
+      <ApprovalModal
+        error={null}
+        eventName={submission.event?.name}
+        loading={globalApprovalLoading}
+        open={isSubmitReviewConfirmOpen}
+        onClose={() => setIsSubmitReviewConfirmOpen(false)}
+        onConfirm={handleSubmitReviewConfirm}
+        title="Submit Review"
+        message={`You are about to submit your review for "${submission.event?.name || 'this event'}". ${
+          finalAction === 'approve' 
+            ? 'All sections have been approved.' 
+            : 'One or more sections have been rejected.'
+        } Do you want to continue?`}
       />
     </DashboardLayout>
   );
