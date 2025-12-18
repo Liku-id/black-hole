@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Box, Container, styled, useTheme } from '@mui/material';
 import { H3, Body1, Body2, H4 } from '@/components/common/typography';
+import packageJson from '../../../../package.json';
 
 const StyledLink = styled(Link)(({ theme }) => ({
   color: theme.palette.common.white,
@@ -17,8 +18,12 @@ const StyledLink = styled(Link)(({ theme }) => ({
 
 const Footer = () => {
   const theme = useTheme();
-  const wukongUrl = process.env.NEXT_PUBLIC_WUKONG_URL;
-  const blogUrl = process.env.NEXT_PUBLIC_BLOG_URL;
+  const wukongUrl =
+    process.env.NEXT_PUBLIC_WUKONG_URL || 'https://wukong.co.id';
+  const blogUrl =
+    process.env.NEXT_PUBLIC_BLOG_URL || 'https://blog.wukong.co.id';
+  const currentYear = new Date().getFullYear();
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || packageJson.version;
 
   return (
     <Box component="footer" width="100%" pb="24px">
@@ -48,17 +53,10 @@ const Footer = () => {
                 height={48}
               />
             </Box>
-            <H4
-              mb="40px"
-              color={theme.palette.common.white}
-              fontWeight={600}
-            >
+            <H4 mb="40px" color={theme.palette.common.white} fontWeight={600}>
               PT Aku Rela Kamu Bahagia
             </H4>
-            <Body2
-            fontSize="14px"
-            color={theme.palette.common.white}
-            >
+            <Body2 fontSize="14px" color={theme.palette.common.white}>
               Jl. Ciniru III No.2, RT.2/RW.3, Rw. Barat,Kec. Kby. Baru, Jakarta
               Selatan 12180,Indonesia
             </Body2>
@@ -72,7 +70,7 @@ const Footer = () => {
               fontSize="24px"
               color={theme.palette.common.white}
               sx={{
-                fontFamily: 'Bebas Neue',
+                fontFamily: 'Bebas Neue'
               }}
             >
               EVENT TYPE
@@ -101,7 +99,7 @@ const Footer = () => {
               fontSize="24px"
               color={theme.palette.common.white}
               sx={{
-                fontFamily: 'Bebas Neue',
+                fontFamily: 'Bebas Neue'
               }}
             >
               ABOUT WUKONG
@@ -116,10 +114,16 @@ const Footer = () => {
               >
                 Terms & Conditions
               </StyledLink>
-              <StyledLink id="btn_privacy_policy" href={`${wukongUrl}/privacy-policy`}>
+              <StyledLink
+                id="btn_privacy_policy"
+                href={`${wukongUrl}/privacy-policy`}
+              >
                 Privacy Policy
               </StyledLink>
-              <StyledLink id="btn_cookie_policy" href={`${wukongUrl}/cookie-policy`}>
+              <StyledLink
+                id="btn_cookie_policy"
+                href={`${wukongUrl}/cookie-policy`}
+              >
                 Cookie Policy
               </StyledLink>
               <StyledLink
@@ -146,12 +150,7 @@ const Footer = () => {
             >
               FOLLOW US ON
             </H3>
-            <Box
-              mb="40px"
-              display="flex"
-              flexDirection="column"
-              gap="8px"
-            >
+            <Box mb="40px" display="flex" flexDirection="column" gap="8px">
               <Box
                 component={Link}
                 href="https://www.instagram.com/wukong.co.id"
@@ -176,12 +175,7 @@ const Footer = () => {
               </Box>
             </Box>
             <Box>
-              <Box
-                mb="8px"
-                display="flex"
-                alignItems="center"
-                gap="16px"
-              >
+              <Box mb="8px" display="flex" alignItems="center" gap="16px">
                 <Image src="/icon/sms.svg" alt="sms" width={24} height={24} />
                 <Link
                   href="https://wa.me/6285121328284"
@@ -246,7 +240,7 @@ const Footer = () => {
           }
         }}
       >
-        Version 1.0.0 | Hak Cipta 2025 - <br />
+        Version {appVersion} | Hak Cipta {currentYear} - <br />
         PT Aku Rela Kamu Bahagia
       </Body1>
     </Box>

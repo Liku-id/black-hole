@@ -305,7 +305,7 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
                           sx={{ fontSize: 16, color: theme.palette.info.main }}
                         />
                         <Typography noWrap variant="body2">
-                          {organizer.email}
+                          {organizer.email || '-'}
                         </Typography>
                       </Box>{' '}
                       <Box alignItems="center" display="flex" gap={1}>
