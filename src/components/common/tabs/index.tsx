@@ -142,14 +142,14 @@ export default function Tabs({
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
-            <Body2
-              color={activeTab === tab.id ? 'primary.main' : 'text.secondary'}
-              fontFamily="Onest"
-              fontSize="14px"
-            >
-              {tab.title}
+          <Body2
+            color={activeTab === tab.id ? 'primary.main' : 'text.secondary'}
+            fontFamily="Onest"
+            fontSize="14px"
+          >
+            {tab.title}
               {tab.quantity !== undefined && ` (${tab.quantity})`}
-            </Body2>
+          </Body2>
             {tab.status && getStatusIcon(tab.status)}
           </Box>
         </TabItem>

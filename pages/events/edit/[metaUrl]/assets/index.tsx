@@ -222,6 +222,18 @@ const EditAssetsPage = () => {
     router.push(`/events/${metaUrl}`);
   };
 
+  // Derive rejected assets info from eventAssetChanges for rejected/on_review events
+  const firstAssetChange =
+    eventDetail &&
+    (eventDetail.eventStatus === 'rejected' || eventDetail.eventStatus === 'on_review') &&
+    eventDetail.eventAssetChanges &&
+    eventDetail.eventAssetChanges.length > 0
+      ? eventDetail.eventAssetChanges[0]
+      : undefined;
+
+  const rejectedAssetIds: string[] = firstAssetChange?.rejectedFields ?? [];
+  const rejectionReason: string | undefined = firstAssetChange?.rejectedReason || undefined;
+
   return (
     <DashboardLayout>
       <Box>
@@ -248,8 +260,11 @@ const EditAssetsPage = () => {
         <Card>
           <EventAssetsEditForm
             eventDetail={eventDetail}
+            eventAssetChanges={(eventDetail?.eventStatus === 'rejected' || eventDetail?.eventStatus === 'on_review') ? eventDetail?.eventAssetChanges : undefined}
             showError={showError}
             onFilesChange={handleFilesChange}
+            rejectedAssetIds={rejectedAssetIds}
+            rejectionReason={rejectionReason}
           />
 
           <Box

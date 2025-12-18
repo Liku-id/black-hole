@@ -207,7 +207,7 @@ export const EventsSubmissionsInfo = ({
       {/* Rejected Reason */}
       <RejectedReason reason={rejectionReason} />
 
-      <Grid container spacing={2}>
+    <Grid container spacing={2}>
       <Grid item md={6} xs={12}>
         <Grid container spacing={2}>
           <Grid item xs={12}>

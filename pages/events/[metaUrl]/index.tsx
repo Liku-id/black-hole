@@ -41,21 +41,48 @@ function EventDetail() {
 
     // Event Asset Status - Priority: rejected > pending > approved
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    const hasRejectedAsset = eventDetail.eventAssets?.some((ea: any) => 
-      ea.status === 'rejected'
-    );
-    const hasPendingAsset = eventDetail.eventAssets?.some((ea: any) => 
-      !ea.status || ea.status === 'pending'
-    );
-    const allAssetsApproved = eventDetail.eventAssets?.length > 0 && 
-      eventDetail.eventAssets?.every((ea: any) => ea.status === 'approved');
 
-    if (hasRejectedAsset) {
-      assetStatus = 'rejected';
-    } else if (hasPendingAsset) {
-      assetStatus = 'pending';
-    } else if (allAssetsApproved) {
-      assetStatus = 'approved';
+    // When using eventAssetChanges (for rejected / on_review) the rejected mapping
+    // should be based on rejectedFields which contains assetIds that are rejected.
+    if (eventDetail.eventStatus === 'rejected' || eventDetail.eventStatus === 'on_review') {
+      const assetChanges = eventDetail.eventAssetChanges || [];
+
+      const hasRejectedAsset = assetChanges.some(
+        (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
+      );
+      const hasPendingAsset = assetChanges.some(
+        (ea: any) => !ea.status || ea.status === 'pending'
+      );
+      const allAssetsApproved =
+        assetChanges.length > 0 &&
+        assetChanges.every((ea: any) => ea.status === 'approved');
+
+      if (hasRejectedAsset) {
+        assetStatus = 'rejected';
+      } else if (hasPendingAsset) {
+        assetStatus = 'pending';
+      } else if (allAssetsApproved) {
+        assetStatus = 'approved';
+      }
+    } else {
+      // For other statuses, fall back to eventAssets status fields
+      const assetsToCheck = eventDetail.eventAssets;
+
+      const hasRejectedAsset = assetsToCheck?.some((ea: any) => ea.status === 'rejected');
+      const hasPendingAsset = assetsToCheck?.some(
+        (ea: any) => !ea.status || ea.status === 'pending'
+      );
+      const allAssetsApproved =
+        assetsToCheck?.length > 0 &&
+        assetsToCheck?.every((ea: any) => ea.status === 'approved');
+
+      if (hasRejectedAsset) {
+        assetStatus = 'rejected';
+      } else if (hasPendingAsset) {
+        assetStatus = 'pending';
+      } else if (allAssetsApproved) {
+        assetStatus = 'approved';
+      }
     }
 
     // Ticket Status - Priority: pending > rejected > approved
@@ -101,6 +128,14 @@ function EventDetail() {
     
     // No section should be rejected
     return statuses.every(status => status !== 'rejected');
+  };
+
+  // Determine if submit/resubmit button should be enabled
+  const isSubmitButtonEnabled = () => {
+    if (!eventDetail) return false;
+    if (eventDetail.eventStatus === 'draft') return true;
+    if (eventDetail.eventStatus === 'rejected') return canResubmitRejectedEvent();
+    return false;
   };
 
   const handleSubmitEvent = async () => {
@@ -201,12 +236,12 @@ function EventDetail() {
         <H2 color="text.primary" fontWeight={700}>
           Event Detail
         </H2>
-        {(eventDetail.eventStatus === 'draft' || canResubmitRejectedEvent()) && (
+        {eventDetail.eventStatus !== 'on_review' && (
           <Box display="flex" flexDirection="column" alignItems="flex-end">
             <Button
               variant="primary"
               onClick={handleSubmitEvent}
-              disabled={submitLoading}
+              disabled={submitLoading || !isSubmitButtonEnabled()}
             >
               {eventDetail.eventStatus === 'rejected' ? 'Resubmit Event' : 'Submit Event'}
             </Button>
@@ -255,16 +290,22 @@ function EventDetail() {
       {/* Tab Content Card */}
       <Card sx={{ mb: 3 }}>
         {activeTab === 'detail' && <EventDetailInfo eventDetail={eventDetail} showRejectionInfo={showStatusIndicators} />}
-        {activeTab === 'assets' && <EventDetailAssets eventDetail={eventDetail} showStatus={showStatusIndicators} />}
+        {activeTab === 'assets' && (
+          <EventDetailAssets 
+            eventDetail={eventDetail} 
+            eventAssetChanges={(eventDetail?.eventStatus === 'rejected' || eventDetail?.eventStatus === 'on_review') ? eventDetail?.eventAssetChanges : undefined}
+            showStatus={showStatusIndicators} 
+          />
+        )}
         {activeTab === 'tickets' && <EventDetailTicket eventDetail={eventDetail} showStatus={true} />}
       </Card>
 
-      {(eventDetail.eventStatus === 'draft' || canResubmitRejectedEvent()) && (
+      {eventDetail.eventStatus !== 'on_review' && (
         <Box display="flex" flexDirection="column" alignItems="flex-end">
           <Button
             variant="primary"
             onClick={handleSubmitEvent}
-            disabled={submitLoading}
+            disabled={submitLoading || !isSubmitButtonEnabled()}
           >
             {eventDetail.eventStatus === 'rejected' ? 'Resubmit Event' : 'Submit Event'}
           </Button>

@@ -215,11 +215,16 @@ class EventsService {
   }
 
   // Event Asset Approval/Rejection
-  async batchApproveAssets(ids: string[]): Promise<any> {
+  async batchApproveAssets(eventId: string): Promise<any> {
     try {
       return await apiUtils.post<any>(
-        '/api/events/event-asset/batch-approve',
-        { ids },
+        '/api/events/event-asset/approval',
+        {
+          eventId,
+          status: 'approved',
+          rejectedFields: [],
+          rejectedReason: ''
+        },
         'Failed to approve assets'
       );
     } catch (error) {
@@ -229,15 +234,17 @@ class EventsService {
   }
 
   async batchRejectAssets(
+    eventId: string,
     ids: string[],
     rejectedReason: string
   ): Promise<any> {
     try {
       return await apiUtils.post<any>(
-        '/api/events/event-asset/batch-reject',
+        '/api/events/event-asset/approval',
         {
-          ids,
-          rejectedFields: ids, // asset ids as rejected fields
+          eventId,
+          status: 'rejected',
+          rejectedFields: ids,
           rejectedReason
         },
         'Failed to reject assets'

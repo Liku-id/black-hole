@@ -74,14 +74,14 @@ function ApprovalDetail() {
     let detailStatus: 'rejected' | 'approved' | 'pending' | undefined;
     
     if (event.eventStatus === 'approved' || event.eventStatus === 'on_going') {
-      // Check eventUpdateRequest for update request status
+      // Check eventUpdateRequest for event detail status
       if (submission.eventUpdateRequest) {
-        const updateRequestStatus = submission.eventUpdateRequest.status;
-        if (updateRequestStatus === 'rejected') {
+        const eventDetailStatus = submission.eventUpdateRequest.eventDetailStatus;
+        if (eventDetailStatus === 'rejected') {
           detailStatus = 'rejected';
-        } else if (updateRequestStatus === 'approved') {
+        } else if (eventDetailStatus === 'approved') {
           detailStatus = 'approved';
-        } else if (updateRequestStatus === 'pending') {
+        } else if (eventDetailStatus === 'pending') {
           detailStatus = 'pending';
         }
       }
@@ -98,15 +98,19 @@ function ApprovalDetail() {
     }
 
     // Event Asset Status - Priority: rejected > pending > approved
+    // Since we now rely on eventAssetChanges, the rejected mapping should use
+    // rejectedFields which contains assetIds that are rejected.
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    const hasRejectedAsset = event.eventAssets?.some((ea: any) => 
-      ea.status === 'rejected'
+    const assetChanges = event.eventAssetChanges || [];
+
+    const hasRejectedAsset = assetChanges.some(
+      (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
     );
-    const hasPendingAsset = event.eventAssets?.some((ea: any) => 
-      !ea.status || ea.status === 'pending'
+    const hasPendingAsset = assetChanges.some(
+      (ea: any) => !ea.status || ea.status === 'pending'
     );
-    const allAssetsApproved = event.eventAssets?.length > 0 && 
-      event.eventAssets?.every((ea: any) => ea.status === 'approved');
+    const allAssetsApproved =
+      assetChanges.length > 0 && assetChanges.every((ea: any) => ea.status === 'approved');
 
     if (hasRejectedAsset) {
       assetStatus = 'rejected';
@@ -244,13 +248,18 @@ function ApprovalDetail() {
 
   // Assets Tab Handlers
   const handleAssetsApprove = async () => {
-    if (!submission?.event?.eventAssets || submission.event.eventAssets.length === 0) {
+    if (!submission?.event?.eventAssetChanges || submission.event.eventAssetChanges.length === 0) {
       showError('No assets to approve');
       return;
     }
     
+    if (!submission?.event?.id) {
+      showError('Event ID not found');
+      return;
+    }
+    
     // Filter only pending assets
-    const pendingAssets = submission.event.eventAssets.filter(
+    const pendingAssets = submission.event.eventAssetChanges.filter(
       (ea: any) => !ea.status || ea.status === 'pending'
     );
     
@@ -262,8 +271,7 @@ function ApprovalDetail() {
     setAssetsError(null);
     setAssetsApproveLoading(true);
     try {
-      const assetIds = pendingAssets.map(ea => ea.id);
-      await eventsService.batchApproveAssets(assetIds);
+      await eventsService.batchApproveAssets(submission.event.id);
       setIsAssetsApproveOpen(false);
       showSuccess('Assets approved successfully');
       await mutate();
@@ -285,10 +293,15 @@ function ApprovalDetail() {
       return;
     }
     
+    if (!submission?.event?.id) {
+      showError('Event ID not found');
+      return;
+    }
+    
     setAssetsError(null);
     setAssetsRejectLoading(true);
     try {
-      await eventsService.batchRejectAssets(selectedAssets, reason);
+      await eventsService.batchRejectAssets(submission.event.id, selectedAssets, reason);
       setIsAssetsRejectOpen(false);
       setAssetsRejectMode(false);
       setSelectedAssets([]);
@@ -461,14 +474,14 @@ function ApprovalDetail() {
         </Box>
         
         {/* Global Submit Review Button */}
-        <Button
+            <Button
           variant="primary"
           onClick={() => setIsSubmitReviewConfirmOpen(true)}
           disabled={!allSectionsReviewed || globalApprovalLoading}
-        >
+            >
           Submit Review
-        </Button>
-      </Box>
+            </Button>
+          </Box>
 
       {/* Tabs */}
       <Box mb={3}>
@@ -552,20 +565,20 @@ function ApprovalDetail() {
               )}
             </Box>
             
-            <EventsSubmissionsInfo
-              eventDetail={submission.event}
-              eventUpdateRequest={submission.eventUpdateRequest}
+        <EventsSubmissionsInfo
+          eventDetail={submission.event}
+          eventUpdateRequest={submission.eventUpdateRequest}
               rejectMode={detailRejectMode}
               selectedFields={detailRejectedFields}
-              onToggleField={(key, checked) => {
+          onToggleField={(key, checked) => {
                 setDetailRejectedFields((prev) => {
-                  const next = new Set(prev);
-                  if (checked) next.add(key);
-                  else next.delete(key);
-                  return Array.from(next);
-                });
-              }}
-            />
+              const next = new Set(prev);
+              if (checked) next.add(key);
+              else next.delete(key);
+              return Array.from(next);
+            });
+          }}
+        />
           </>
         )}
         
@@ -573,7 +586,7 @@ function ApprovalDetail() {
           <>
             {/* Event Assets Header with Title and Actions */}
             <Box 
-              display="flex" 
+          display="flex"
               justifyContent="space-between" 
               alignItems="center" 
               mb={3}
@@ -582,14 +595,17 @@ function ApprovalDetail() {
                 Event Assets
               </H3>
               {(() => {
-                // Check if any asset has rejected status
-                const hasRejectedAsset = submission.event?.eventAssets?.some((ea: any) => 
-                  ea.status === 'rejected'
+                const assetChanges = submission.event?.eventAssetChanges || [];
+
+                // Check if any asset is rejected via rejectedFields (assetIds)
+                const hasRejectedAsset = assetChanges.some(
+                  (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
                 );
-                
+
                 // Check if all assets are approved
-                const allAssetsApproved = submission.event?.eventAssets?.length > 0 && 
-                  submission.event?.eventAssets?.every((ea: any) => ea.status === 'approved');
+                const allAssetsApproved =
+                  assetChanges.length > 0 &&
+                  assetChanges.every((ea: any) => ea.status === 'approved');
 
                 // Hide buttons if any rejected assets OR all assets approved
                 if (hasRejectedAsset || allAssetsApproved) {
@@ -610,28 +626,28 @@ function ApprovalDetail() {
                         <Button
                           onClick={() => setIsAssetsApproveOpen(true)}
                           disabled={assetsApproveLoading}
-                        >
+          >
                           Approve
                         </Button>
                       </>
                     ) : (
                       <>
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
+            <Button
+              variant="secondary"
+              onClick={() => {
                             setAssetsRejectMode(false);
                             setSelectedAssets([]);
-                          }}
+              }}
                           disabled={assetsRejectLoading}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
+            >
+              Cancel
+            </Button>
+            <Button
                           onClick={() => setIsAssetsRejectOpen(true)}
                           disabled={selectedAssets.length === 0 || assetsRejectLoading}
-                        >
+            >
                           Submit Rejection
-                        </Button>
+            </Button>
                       </>
                     )}
                   </Box>
@@ -641,8 +657,11 @@ function ApprovalDetail() {
             
             {/* Rejected Reason from first rejected asset */}
             {(() => {
-              const firstRejectedAsset = submission.event?.eventAssets?.find((ea: any) => 
-                ea.status === 'rejected' && ea.rejectedReason
+              const firstRejectedAsset = submission.event?.eventAssetChanges?.find(
+                (ea: any) =>
+                  Array.isArray(ea.rejectedFields) &&
+                  ea.rejectedFields.length > 0 &&
+                  ea.rejectedReason
               );
               
               if (!firstRejectedAsset?.rejectedReason) return null;
@@ -667,13 +686,14 @@ function ApprovalDetail() {
                       Rejection Reason:
                     </Body2>
                     <Body2 color="text.primary">{firstRejectedAsset.rejectedReason}</Body2>
-                  </Box>
-                </Box>
+          </Box>
+        </Box>
               );
             })()}
             
             <EventDetailAssets
               eventDetail={submission.event}
+              eventAssetChanges={submission.event?.eventAssetChanges}
               rejectMode={assetsRejectMode}
               selectedAssets={selectedAssets}
               onToggleAsset={(assetId, checked) => {
@@ -755,10 +775,19 @@ function ApprovalDetail() {
         title="Reject Event Assets"
         message="Are you sure you want to reject the selected assets?"
         fieldDisplayMap={
-          submission?.event?.eventAssets?.reduce((acc, asset, index) => {
-            acc[asset.id] = `Asset ${index + 1}`;
-            return acc;
-          }, {} as Record<string, string>)
+          (() => {
+            const firstChange = submission?.event?.eventAssetChanges?.[0];
+            if (!firstChange?.items) return {};
+
+            return firstChange.items.reduce(
+              (acc: Record<string, string>, item: any) => {
+                // Key by assetId (what we send in rejectedFields)
+                acc[item.assetId] = `Asset ${item.order}`;
+                return acc;
+              },
+              {} as Record<string, string>
+            );
+          })()
         }
       />
 

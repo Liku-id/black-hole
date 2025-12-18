@@ -11,7 +11,7 @@ export default async function handler(
   }
 
   const postHandler = apiRouteUtils.createPostHandler({
-    endpoint: '/event-asset/batch-approve',
+    endpoint: '/event-asset/approval',
     timeout: 30000
   });
 

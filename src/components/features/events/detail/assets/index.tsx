@@ -4,10 +4,11 @@ import { useRouter } from 'next/router';
 import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import { Button, H3, Body2 } from '@/components/common';
-import { EventDetail } from '@/types/event';
+import { EventDetail, EventAssetChange } from '@/types/event';
 
 interface EventDetailAssetsProps {
   eventDetail: EventDetail;
+  eventAssetChanges?: EventAssetChange[];
   rejectMode?: boolean;
   selectedAssets?: string[];
   onToggleAsset?: (assetId: string, checked: boolean) => void;
@@ -17,6 +18,7 @@ interface EventDetailAssetsProps {
 
 export const EventDetailAssets = ({ 
   eventDetail,
+  eventAssetChanges,
   rejectMode = false,
   selectedAssets = [],
   onToggleAsset,
@@ -24,7 +26,55 @@ export const EventDetailAssets = ({
   showStatus = false
 }: EventDetailAssetsProps) => {
   const router = useRouter();
-  const eventAssets = eventDetail.eventAssets?.slice(0, 5) || [];
+
+  // Use eventAssetChanges if provided, otherwise fall back to eventDetail.eventAssets
+  let assetsSource;
+
+  if (eventAssetChanges && eventAssetChanges.length > 0) {
+    // Extract items from the first eventAssetChange and merge parent-level rejection info.
+    // IMPORTANT:
+    // - Do NOT overwrite item.status so per-asset statuses from BE are preserved.
+    // - When rejectedFields (array of assetId) is present, treat only those assetIds
+    //   as rejected and do NOT fall back to the parent status "rejected" for others.
+    const firstChange = eventAssetChanges[0];
+    const rejectedAssetIds = new Set(firstChange.rejectedFields || []);
+    const hasRejectedFields = rejectedAssetIds.size > 0;
+
+    assetsSource =
+      firstChange.items?.map((item: any) => {
+        // If BE already sends per-item status, respect it fully.
+        if (item.status) {
+          return {
+            ...item,
+            status: item.status,
+            rejectedReason: item.rejectedReason ?? firstChange.rejectedReason,
+            rejectedFields: item.rejectedFields ?? firstChange.rejectedFields
+          };
+        }
+
+        // When we have rejectedFields, mark only those assetIds as rejected.
+        if (hasRejectedFields) {
+          return {
+            ...item,
+            status: rejectedAssetIds.has(item.assetId) ? 'rejected' : undefined,
+            rejectedReason: firstChange.rejectedReason,
+            rejectedFields: firstChange.rejectedFields
+          };
+        }
+
+        // Fallback: no per-item status and no rejectedFields, inherit parent status.
+        return {
+          ...item,
+          status: firstChange.status,
+          rejectedReason: firstChange.rejectedReason,
+          rejectedFields: firstChange.rejectedFields
+        };
+      }) || [];
+  } else {
+    assetsSource = eventDetail.eventAssets;
+  }
+
+  const eventAssets = assetsSource?.slice(0, 5) || [];
   const mainAsset = eventAssets[0];
   const sideAssets = eventAssets.slice(1, 5);
 
@@ -32,8 +82,11 @@ export const EventDetailAssets = ({
     router.push(`/events/edit/${eventDetail.metaUrl}/assets`);
   };
 
-  const isAssetSelected = (eventAssetId: string) => {
-    return selectedAssets.includes(eventAssetId);
+  // Selection is based on the underlying assetId so each visual asset
+  // (thumbnail / supporting image) can be toggled independently
+  const isAssetSelected = (assetId: string | undefined) => {
+    if (!assetId) return false;
+    return selectedAssets.includes(assetId);
   };
 
   const getAssetStatusChip = (asset: any) => {
@@ -115,8 +168,10 @@ export const EventDetailAssets = ({
                     p={0.5}
                   >
                     <Checkbox
-                      checked={isAssetSelected(mainAsset.id)}
-                      onChange={(e) => onToggleAsset?.(mainAsset.id, e.target.checked)}
+                      checked={isAssetSelected(mainAsset.assetId)}
+                      onChange={(e) =>
+                        onToggleAsset?.(mainAsset.assetId, e.target.checked)
+                      }
                       disabled={mainAsset.status === 'approved' || mainAsset.status === 'rejected'}
                       sx={{
                         '& .MuiSvgIcon-root': { fontSize: 28 }
@@ -131,14 +186,14 @@ export const EventDetailAssets = ({
                   position="relative"
                   sx={{ 
                     aspectRatio: '16 / 9',
-                    border: rejectMode && isAssetSelected(mainAsset.id) 
+                    border: rejectMode && isAssetSelected(mainAsset.assetId) 
                       ? '3px solid' 
                       : showStatus && mainAsset.status === 'rejected' 
                       ? '2px solid'
                       : showStatus && mainAsset.status === 'approved'
                       ? '2px solid'
                       : 'none',
-                    borderColor: rejectMode && isAssetSelected(mainAsset.id)
+                    borderColor: rejectMode && isAssetSelected(mainAsset.assetId)
                       ? 'error.main'
                       : showStatus && mainAsset.status === 'rejected'
                       ? 'error.main'
@@ -151,8 +206,8 @@ export const EventDetailAssets = ({
                   <Image
                     fill
                     unoptimized
-                    alt={mainAsset.asset.key || 'Event asset'}
-                    src={mainAsset.asset.url}
+                    alt={mainAsset.asset?.key || 'Event asset'}
+                    src={mainAsset.asset?.url}
                     style={{ objectFit: 'cover' }}
                   />
                 </Box>
@@ -181,8 +236,10 @@ export const EventDetailAssets = ({
                           p={0.5}
                         >
                           <Checkbox
-                            checked={isAssetSelected(eventAsset.id)}
-                            onChange={(e) => onToggleAsset?.(eventAsset.id, e.target.checked)}
+                        checked={isAssetSelected(eventAsset.assetId)}
+                        onChange={(e) =>
+                          onToggleAsset?.(eventAsset.assetId, e.target.checked)
+                        }
                             disabled={eventAsset.status === 'approved' || eventAsset.status === 'rejected'}
                             sx={{
                               '& .MuiSvgIcon-root': { fontSize: 28 }
@@ -197,14 +254,14 @@ export const EventDetailAssets = ({
                         position="relative"
                         sx={{ 
                           aspectRatio: '16 / 9',
-                          border: rejectMode && isAssetSelected(eventAsset.id)
+                          border: rejectMode && isAssetSelected(eventAsset.assetId)
                             ? '3px solid'
                             : showStatus && eventAsset.status === 'rejected'
                             ? '2px solid'
                             : showStatus && eventAsset.status === 'approved'
                             ? '2px solid'
                             : 'none',
-                          borderColor: rejectMode && isAssetSelected(eventAsset.id)
+                          borderColor: rejectMode && isAssetSelected(eventAsset.assetId)
                             ? 'error.main'
                             : showStatus && eventAsset.status === 'rejected'
                             ? 'error.main'
@@ -217,8 +274,8 @@ export const EventDetailAssets = ({
                         <Image
                           fill
                           unoptimized
-                          alt={eventAsset.asset.key || `Event asset ${index + 2}`}
-                          src={eventAsset.asset.url}
+                          alt={eventAsset.asset?.key || `Event asset ${index + 2}`}
+                          src={eventAsset.asset?.url}
                           style={{ objectFit: 'cover' }}
                         />
                       </Box>

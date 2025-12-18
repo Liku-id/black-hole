@@ -67,6 +67,27 @@ export interface Asset {
   updatedAt: string;
 }
 
+export interface EventAssetChangeItem {
+  id: string;
+  eventAssetChangeId: string;
+  assetId: string;
+  order: number;
+  eventAssetId: string;
+  asset: Asset;
+  status?: string;
+  rejectedReason?: string;
+  rejectedFields?: string[];
+}
+
+export interface EventAssetChange {
+  id: string;
+  eventId: string;
+  status: string;
+  rejectedFields: string[];
+  rejectedReason: string;
+  items: EventAssetChangeItem[];
+}
+
 export interface EventAsset {
   id: string;
   eventId: string;
@@ -198,6 +219,7 @@ export interface EventDetail {
   tax: number;
   feeThresholds: FeeThreshold[];
   eventAssets: EventAsset[];
+  eventAssetChanges?: EventAssetChange[];
   is_requested: boolean;
   rejectedReason: string | null;
   rejectedFields: string[] | null;
