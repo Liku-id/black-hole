@@ -86,12 +86,13 @@ export const EventAssetsEditForm = ({
   // Store event asset record IDs (join table IDs) for update operations
   // For eventAssets: use .id (event asset record ID)
   // For eventAssetChanges.items: use .eventAssetId (event asset record ID)
+  // Note: If eventAssetId is empty string, treat as new asset (will use POST, not PUT)
   // supportingImages array indices: 0=order2, 1=order3, 2=order4, 3=order5
   const existingAssets = {
     thumbnail: mainEventAsset ? { 
       id: mainEventAsset.assetId, // Keep assetId for comparison purposes
       eventAssetId: eventAssetChanges && eventAssetChanges.length > 0
-        ? mainEventAsset.eventAssetId // From eventAssetChanges.items
+        ? (mainEventAsset.eventAssetId || (mainEventAsset as any).id) // From eventAssetChanges.items, fallback to .id if empty
         : (mainEventAsset as any).id, // From eventAssets - use .id (event asset record ID)
       order: 1 
     } : undefined,
@@ -99,7 +100,7 @@ export const EventAssetsEditForm = ({
       ea ? { 
         id: ea.assetId, // Keep assetId for comparison purposes
         eventAssetId: eventAssetChanges && eventAssetChanges.length > 0
-          ? ea.eventAssetId // From eventAssetChanges.items
+          ? (ea.eventAssetId || (ea as any).id) // From eventAssetChanges.items, fallback to .id if empty
           : (ea as any).id, // From eventAssets - use .id (event asset record ID)
         order: index + 2 // Position index maps to order: index 0 = order 2, index 1 = order 3, etc.
       } : null

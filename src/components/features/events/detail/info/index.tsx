@@ -231,28 +231,65 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
         <H3 color="text.primary" fontWeight={700}>
           Event Detail
         </H3>
-        {eventDetail.eventStatus !== 'done' &&
-        eventDetail.eventStatus !== 'on_review' &&
-        eventDetail.eventUpdateRequestStatus !== 'draft' &&
-        eventDetail.eventUpdateRequestStatus !== 'pending' &&
-        !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) && (
-          <Box display="flex" gap={2}>
-            {eventDetail.eventStatus === "draft" && (
+        {(() => {
+          // Base conditions: hide if done or on_review
+          if (eventDetail.eventStatus === 'done' || eventDetail.eventStatus === 'on_review') {
+            return null;
+          }
+
+          // For ongoing events with draft status, check eventDetailStatus
+          if (eventDetail.eventStatus === 'on_going' && eventDetail.eventUpdateRequestStatus === 'draft') {
+            const eventDetailStatus = eventDetail.eventUpdateRequest?.eventDetailStatus;
+            // Show if approved or rejected, hide if pending
+            if (eventDetailStatus === 'pending') {
+              return null;
+            }
+            // Show if approved or rejected (or undefined)
+            if (eventDetailStatus === 'approved' || eventDetailStatus === 'rejected') {
+              return (
+                <Box display="flex" gap={2}>
+                  <Button
+                    variant="primary"
+                    onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+                  >
+                    Edit Detail Event
+                  </Button>
+                </Box>
+              );
+            }
+            // If eventDetailStatus is undefined, fall through to default logic
+          }
+
+          // For ongoing events: hide if is_requested is true (unless draft with approved/rejected status handled above)
+          if (eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) {
+            return null;
+          }
+
+          // For non-draft update request status, hide if pending
+          if (eventDetail.eventUpdateRequestStatus === 'pending') {
+            return null;
+          }
+
+          // Default: show the button
+          return (
+            <Box display="flex" gap={2}>
+              {eventDetail.eventStatus === "draft" && (
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsPreviewModalOpen(true)}
+                >
+                  Preview Event
+                </Button>
+              )}
               <Button
-                variant="secondary"
-                onClick={() => setIsPreviewModalOpen(true)}
+                variant="primary"
+                onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
               >
-                Preview Event
+                Edit Detail Event
               </Button>
-            )}
-            <Button
-              variant="primary"
-              onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
-            >
-              Edit Detail Event
-            </Button>
-          </Box>
-        )}
+            </Box>
+          );
+        })()}
       </Box>
       {/* Rejected Reason - Show for event rejection or update request rejection */}
       {(showRejectionInfo || showUpdateRequestRejection) && rejectionReason && (

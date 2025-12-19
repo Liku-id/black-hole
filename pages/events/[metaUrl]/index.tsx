@@ -51,13 +51,14 @@ function EventDetail() {
       // For on_going or approved events, check eventUpdateRequest
       if (eventDetail.eventUpdateRequest) {
         const updateRequest = eventDetail.eventUpdateRequest;
-        const status = updateRequest.status;
+        // Use eventDetailStatus for event detail tab, not the main status
+        const eventDetailStatus = updateRequest.eventDetailStatus;
         
-        if (status === 'rejected') {
+        if (eventDetailStatus === 'rejected') {
           detailStatus = 'rejected';
-        } else if (status === 'pending' || status === 'draft') {
+        } else if (eventDetailStatus === 'pending' || eventDetailStatus === 'draft') {
           detailStatus = 'pending';
-        } else if (status === 'approved') {
+        } else if (eventDetailStatus === 'approved') {
           // Check if any fields have been updated
           const hasUpdatedFields = (() => {
             // Check name
@@ -129,41 +130,24 @@ function EventDetail() {
     // Event Asset Status - Priority: rejected > pending > approved
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
 
-    // For rejected events, use special rules:
-    // - If eventAssetChanges is not empty: read status from firstChange.status
-    // - If eventAssetChanges is empty: read from eventAssets statuses
+    // For rejected events, always use eventAssets (not eventAssetChanges)
     if (eventDetail.eventStatus === 'rejected') {
-      const assetChanges = eventDetail.eventAssetChanges || [];
+      const assetsToCheck = eventDetail.eventAssets || [];
 
-      if (assetChanges.length > 0) {
-        // Read status from firstChange.status
-        const firstChangeStatus = assetChanges[0]?.status;
-        if (firstChangeStatus === 'rejected') {
-          assetStatus = 'rejected';
-        } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
-          assetStatus = 'pending';
-        } else if (firstChangeStatus === 'approved') {
-          assetStatus = 'approved';
-        }
-      } else {
-        // No eventAssetChanges - fall back to eventAssets statuses
-        const assetsToCheck = eventDetail.eventAssets || [];
+      const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+      const hasPendingAsset = assetsToCheck.some(
+        (ea: any) => !ea.status || ea.status === 'pending'
+      );
+      const allAssetsApproved =
+        assetsToCheck.length > 0 &&
+        assetsToCheck.every((ea: any) => ea.status === 'approved');
 
-        const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
-        const hasPendingAsset = assetsToCheck.some(
-          (ea: any) => !ea.status || ea.status === 'pending'
-        );
-        const allAssetsApproved =
-          assetsToCheck.length > 0 &&
-          assetsToCheck.every((ea: any) => ea.status === 'approved');
-
-        if (hasRejectedAsset) {
-          assetStatus = 'rejected';
-        } else if (allAssetsApproved) {
-          assetStatus = 'approved';
-        } else if (hasPendingAsset) {
-          assetStatus = 'pending';
-        }
+      if (hasRejectedAsset) {
+        assetStatus = 'rejected';
+      } else if (allAssetsApproved) {
+        assetStatus = 'approved';
+      } else if (hasPendingAsset) {
+        assetStatus = 'pending';
       }
     } else if (eventDetail.eventStatus === 'on_review' || eventDetail.eventStatus === 'on_going') {
       // For on_review / on_going events, read status from firstChange.status if eventAssetChanges exists
@@ -264,6 +248,28 @@ function EventDetail() {
     
     // No section should be rejected
     return statuses.every(status => status !== 'rejected');
+  };
+
+  // Check if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes
+  const hasAnyPendingStatus = () => {
+    if (!eventDetail) return false;
+    
+    // Check eventUpdateRequest.eventDetailStatus
+    const hasPendingEventDetailStatus = 
+      eventDetail.eventUpdateRequest?.eventDetailStatus === 'pending';
+    
+    // Check eventAssetChanges firstChange status
+    const hasPendingAssetStatus = 
+      eventDetail.eventAssetChanges && 
+      eventDetail.eventAssetChanges.length > 0 &&
+      eventDetail.eventAssetChanges[0]?.status === 'pending';
+    
+    // Check if any ticket has pending status
+    const hasPendingTicket = eventDetail.ticketTypes?.some((tt: any) => 
+      tt.status === 'pending'
+    );
+    
+    return hasPendingEventDetailStatus || hasPendingAssetStatus || hasPendingTicket;
   };
 
   // Determine if submit/resubmit button should be enabled
@@ -414,32 +420,18 @@ function EventDetail() {
               </Box>
             ) : (
               <>
-                {/* For on_going events, show Submit Changes button only if eventUpdateRequestStatus is draft or pending */}
-                {eventDetail.eventStatus === 'on_going' ? (
-                  (eventDetail.eventUpdateRequestStatus === 'draft' || eventDetail.eventUpdateRequestStatus === 'pending') && (
-                    <>
-                      <Button
-                        variant="primary"
-                        onClick={handleSubmitEvent}
-                        disabled={submitLoading || !isSubmitButtonEnabled() || eventDetail.eventUpdateRequestStatus === 'pending'}
-                      >
-                        Submit Changes
-                      </Button>
-                      {errorMessage && (
-                        <Overline color="error" sx={{ mt: 1 }}>
-                          {errorMessage}
-                        </Overline>
-                      )}
-                    </>
-                  )
-                ) : (
+                {/* For rejected events, always show Resubmit Event button */}
+                {/* For other events, show button if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes */}
+                {(eventDetail.eventStatus === 'rejected' || hasAnyPendingStatus()) && (
                   <>
                     <Button
                       variant="primary"
                       onClick={handleSubmitEvent}
-                      disabled={submitLoading || !isSubmitButtonEnabled()}
+                      disabled={submitLoading || !isSubmitButtonEnabled() || eventDetail.eventUpdateRequestStatus === 'pending'}
                     >
                       {eventDetail.eventStatus === 'approved'
+                        ? 'Submit Changes'
+                        : eventDetail.eventStatus === 'on_going'
                         ? 'Submit Changes'
                         : eventDetail.eventStatus === 'rejected'
                         ? 'Resubmit Event'
@@ -502,7 +494,7 @@ function EventDetail() {
         {activeTab === 'assets' && (
           <EventDetailAssets 
             eventDetail={eventDetail} 
-            eventAssetChanges={(eventDetail?.eventStatus === 'rejected' || eventDetail?.eventStatus === 'on_review' || eventDetail?.eventStatus === 'on_going') ? eventDetail?.eventAssetChanges : undefined}
+            eventAssetChanges={(eventDetail?.eventStatus === 'on_review' || eventDetail?.eventStatus === 'on_going') ? eventDetail?.eventAssetChanges : undefined}
             showStatus={showStatusIndicators} 
           />
         )}

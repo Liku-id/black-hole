@@ -167,11 +167,11 @@ const EditAssetsPage = () => {
         if (order === 1) {
           // Thumbnail (order 1)
           const existingThumbnail = assetChangeInfo.existingAssets.thumbnail;
-          if (existingThumbnail) {
+          if (existingThumbnail && existingThumbnail.eventAssetId) {
             // Check if this asset was deleted - compare eventAssetId (not id/assetId)
             const wasDeleted = assetChangeInfo.deletedAssetIds.includes(existingThumbnail.eventAssetId);
             if (!wasDeleted) {
-              // Asset exists and wasn't deleted, so UPDATE it
+              // Asset exists and wasn't deleted, so UPDATE it (PUT)
               existingEventAssetId = existingThumbnail.eventAssetId;
             }
           }
@@ -180,11 +180,11 @@ const EditAssetsPage = () => {
           const supportingImageIndex = order - 2;
           const existingSupporting =
             assetChangeInfo.existingAssets.supportingImages[supportingImageIndex];
-          if (existingSupporting) {
+          if (existingSupporting && existingSupporting.eventAssetId) {
             // Check if this asset was deleted - compare eventAssetId (not id/assetId)
             const wasDeleted = assetChangeInfo.deletedAssetIds.includes(existingSupporting.eventAssetId);
             if (!wasDeleted) {
-              // Asset exists and wasn't deleted, so UPDATE it
+              // Asset exists and wasn't deleted, so UPDATE it (PUT)
               existingEventAssetId = existingSupporting.eventAssetId;
             }
           }
@@ -224,11 +224,11 @@ const EditAssetsPage = () => {
     router.push(`/events/${metaUrl}`);
   };
 
-  // Derive rejected assets info from eventAssetChanges for rejected/on_review/on_going (with changes) events
+  // Derive rejected assets info from eventAssetChanges for on_review/on_going (with changes) events
+  // For rejected events, use eventAssets instead of eventAssetChanges
   const firstAssetChange =
     eventDetail &&
-    (eventDetail.eventStatus === 'rejected' ||
-      eventDetail.eventStatus === 'on_review' ||
+    (eventDetail.eventStatus === 'on_review' ||
       (eventDetail.eventStatus === 'on_going' &&
         eventDetail.eventAssetChanges &&
         eventDetail.eventAssetChanges.length > 0)) &&
@@ -237,15 +237,22 @@ const EditAssetsPage = () => {
       ? eventDetail.eventAssetChanges[0]
       : undefined;
 
-  // Only show rejected mapping when the first change status is 'rejected'
-  const rejectedAssetIds: string[] =
-    firstAssetChange && firstAssetChange.status === 'rejected'
-      ? firstAssetChange.rejectedFields ?? []
-      : [];
-  const rejectionReason: string | undefined =
-    firstAssetChange && firstAssetChange.status === 'rejected'
-      ? firstAssetChange.rejectedReason || undefined
-      : undefined;
+  // For rejected events, read rejected info from eventAssets
+  // For on_review/on_going events, read from eventAssetChanges
+  let rejectedAssetIds: string[] = [];
+  let rejectionReason: string | undefined = undefined;
+
+  if (eventDetail?.eventStatus === 'rejected') {
+    // For rejected events, read from eventAssets
+    const rejectedAssets = eventDetail.eventAssets?.filter((ea: any) => ea.status === 'rejected') || [];
+    rejectedAssetIds = rejectedAssets.map((ea: any) => ea.assetId).filter(Boolean);
+    // Get rejection reason from first rejected asset
+    rejectionReason = (rejectedAssets[0] as any)?.rejectedReason || undefined;
+  } else if (firstAssetChange && firstAssetChange.status === 'rejected') {
+    // For on_review/on_going events, read from eventAssetChanges
+    rejectedAssetIds = firstAssetChange.rejectedFields ?? [];
+    rejectionReason = firstAssetChange.rejectedReason || undefined;
+  }
 
   return (
     <DashboardLayout>
@@ -275,8 +282,7 @@ const EditAssetsPage = () => {
             eventDetail={eventDetail}
             eventAssetChanges={
               eventDetail &&
-              (eventDetail.eventStatus === 'rejected' ||
-                eventDetail.eventStatus === 'on_review' ||
+              (eventDetail.eventStatus === 'on_review' ||
                 (eventDetail.eventStatus === 'on_going' &&
                   eventDetail.eventAssetChanges &&
                   eventDetail.eventAssetChanges.length > 0))
