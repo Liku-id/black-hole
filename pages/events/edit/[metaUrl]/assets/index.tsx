@@ -157,46 +157,48 @@ const EditAssetsPage = () => {
 
       // Step 4: Create or update event assets for uploaded files
       // Logic: 
-      // 1. If there's an existing asset at the same order position that wasn't deleted, UPDATE it
-      // 2. Otherwise, CREATE a new event asset
+      // 1. If there's an existing asset at the same order position that wasn't deleted, UPDATE it (PUT)
+      // 2. If there's no existing asset at that order position (empty slot), CREATE it (POST)
       
       for (const { assetId, order } of newAssetIds) {
-        // Find if there's an existing asset at this order position
+        // Find if there's an existing asset at this order position that wasn't deleted
         let existingEventAssetId: string | undefined;
         
         if (order === 1) {
           // Thumbnail (order 1)
           const existingThumbnail = assetChangeInfo.existingAssets.thumbnail;
-          if (
-            existingThumbnail &&
-            !assetChangeInfo.deletedAssetIds.includes(existingThumbnail.id)
-          ) {
-            // Use eventAssetId for the update API call
-            existingEventAssetId = existingThumbnail.eventAssetId;
+          if (existingThumbnail) {
+            // Check if this asset was deleted - compare eventAssetId (not id/assetId)
+            const wasDeleted = assetChangeInfo.deletedAssetIds.includes(existingThumbnail.eventAssetId);
+            if (!wasDeleted) {
+              // Asset exists and wasn't deleted, so UPDATE it
+              existingEventAssetId = existingThumbnail.eventAssetId;
+            }
           }
         } else {
           // Supporting images (order 2-5)
           const supportingImageIndex = order - 2;
           const existingSupporting =
             assetChangeInfo.existingAssets.supportingImages[supportingImageIndex];
-          if (
-            existingSupporting &&
-            !assetChangeInfo.deletedAssetIds.includes(existingSupporting.id)
-          ) {
-            // Use eventAssetId for the update API call
-            existingEventAssetId = existingSupporting.eventAssetId;
+          if (existingSupporting) {
+            // Check if this asset was deleted - compare eventAssetId (not id/assetId)
+            const wasDeleted = assetChangeInfo.deletedAssetIds.includes(existingSupporting.eventAssetId);
+            if (!wasDeleted) {
+              // Asset exists and wasn't deleted, so UPDATE it
+              existingEventAssetId = existingSupporting.eventAssetId;
+            }
           }
         }
         
         if (existingEventAssetId) {
-          // Update existing event asset with new assetId
+          // Update existing event asset with new assetId (PUT)
           await eventsService.updateEventAsset(existingEventAssetId, {
             eventId: eventDetail.id,
             assetId,
             order
           });
         } else {
-          // Create new event asset
+          // Create new event asset (POST) - no existing asset at this order position
           await eventsService.createEventAsset({
             eventId: eventDetail.id,
             assetId,

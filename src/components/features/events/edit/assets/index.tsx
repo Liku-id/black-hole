@@ -84,18 +84,23 @@ export const EventAssetsEditForm = ({
 
   // Build existing assets info
   // Store event asset record IDs (join table IDs) for update operations
-  // Handle both eventAssets (ea.assetId) and eventAssetChanges.items (ea.eventAssetId) structures
+  // For eventAssets: use .id (event asset record ID)
+  // For eventAssetChanges.items: use .eventAssetId (event asset record ID)
   // supportingImages array indices: 0=order2, 1=order3, 2=order4, 3=order5
   const existingAssets = {
     thumbnail: mainEventAsset ? { 
-      id: mainEventAsset.assetId, 
-      eventAssetId: mainEventAsset.eventAssetId || mainEventAsset.assetId, 
+      id: mainEventAsset.assetId, // Keep assetId for comparison purposes
+      eventAssetId: eventAssetChanges && eventAssetChanges.length > 0
+        ? mainEventAsset.eventAssetId // From eventAssetChanges.items
+        : (mainEventAsset as any).id, // From eventAssets - use .id (event asset record ID)
       order: 1 
     } : undefined,
     supportingImages: sideEventAssetsArray.map((ea, index) =>
       ea ? { 
-        id: ea.assetId, 
-        eventAssetId: ea.eventAssetId || ea.assetId, 
+        id: ea.assetId, // Keep assetId for comparison purposes
+        eventAssetId: eventAssetChanges && eventAssetChanges.length > 0
+          ? ea.eventAssetId // From eventAssetChanges.items
+          : (ea as any).id, // From eventAssets - use .id (event asset record ID)
         order: index + 2 // Position index maps to order: index 0 = order 2, index 1 = order 3, etc.
       } : null
     )
@@ -136,8 +141,10 @@ export const EventAssetsEditForm = ({
     let newRemovedFromDisplay = { ...removedFromDisplay };
 
     if (mainEventAsset && !thumbnail) {
-      // Use eventAssetId (or fall back to assetId) for both eventAssets and eventAssetChanges.items structures
-      const eventAssetIdToDelete = mainEventAsset.eventAssetId || mainEventAsset.assetId;
+      // Use .id from eventAssets (event asset record ID) or .eventAssetId from eventAssetChanges.items
+      const eventAssetIdToDelete = eventAssetChanges && eventAssetChanges.length > 0
+        ? mainEventAsset.eventAssetId // From eventAssetChanges.items
+        : (mainEventAsset as any).id; // From eventAssets - use .id (event asset record ID)
       newDeletedIds = [...deletedAssetIds, eventAssetIdToDelete];
       setDeletedAssetIds(newDeletedIds);
       newRemovedFromDisplay.thumbnail = true;
@@ -170,9 +177,10 @@ export const EventAssetsEditForm = ({
     const existingEventAsset = sideEventAssetsArray[index];
 
     if (existingEventAsset && !supportingImages[index]) {
-      // Use eventAssetId (or fall back to assetId) for both eventAssets and eventAssetChanges.items structures
-      const eventAssetIdToDelete =
-        existingEventAsset.eventAssetId || existingEventAsset.assetId;
+      // Use .id from eventAssets (event asset record ID) or .eventAssetId from eventAssetChanges.items
+      const eventAssetIdToDelete = eventAssetChanges && eventAssetChanges.length > 0
+        ? existingEventAsset.eventAssetId // From eventAssetChanges.items
+        : (existingEventAsset as any).id; // From eventAssets - use .id (event asset record ID)
       newDeletedIds = [...deletedAssetIds, eventAssetIdToDelete];
       setDeletedAssetIds(newDeletedIds);
       newRemovedFromDisplay.supportingImages[index] = true;

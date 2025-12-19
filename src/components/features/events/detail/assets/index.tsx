@@ -325,10 +325,11 @@ export const EventDetailAssets = ({
           <H3 color="text.primary" fontWeight={700}>
             Event Assets
           </H3>
-          {/* Hide Edit Thumbnail button if on_going with pending asset changes */}
+          {/* Hide Edit Thumbnail button if on_going with pending asset changes or if is_requested is true */}
           {eventDetail.eventStatus !== 'done' &&
             eventDetail.eventStatus !== 'on_review' &&
-            !(isOnGoingWithChanges && assetChangeStatus === 'pending') && (
+            !(isOnGoingWithChanges && assetChangeStatus === 'pending') &&
+            !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) && (
               <Button variant="primary" onClick={handleEditAssets}>
                 Edit Thumbnail
               </Button>

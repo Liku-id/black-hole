@@ -48,7 +48,8 @@ export const EventDetailTicket = ({
             </H3>
 
             {eventDetail.eventStatus !== 'done' &&
-              eventDetail.eventStatus !== 'on_review' && (
+              eventDetail.eventStatus !== 'on_review' &&
+              !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) && (
                 <Button variant="primary" onClick={handleEditTickets}>
                   Edit Ticket Detail
                 </Button>

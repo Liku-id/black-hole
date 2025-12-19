@@ -186,6 +186,7 @@ export interface EventUpdateRequest {
   id: string;
   eventId: string;
   status: string;
+  eventDetailStatus?: string;
   rejectedReason?: string;
   rejectedFields?: string[];
   updatedFields?: string[];

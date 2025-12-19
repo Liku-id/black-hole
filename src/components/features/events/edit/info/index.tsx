@@ -66,19 +66,22 @@ export const EventEditInfo = ({
   const { cities } = useCities();
   const { paymentMethods } = usePaymentMethods();
 
+  // Use eventUpdateRequest data if available, otherwise use eventDetail
+  const dataSource = eventDetail.eventUpdateRequest || eventDetail;
+  
   // Prepare date range and time range strings from existing data
   const dateRange =
-    eventDetail.startDate && eventDetail.endDate
-      ? `${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)}`
+    dataSource.startDate && dataSource.endDate
+      ? `${dateUtils.formatDateMMMDYYYY(dataSource.startDate)} - ${dateUtils.formatDateMMMDYYYY(dataSource.endDate)}`
       : '';
 
   const timeRange =
-    eventDetail.startDate && eventDetail.endDate
-      ? `${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB`
+    dataSource.startDate && dataSource.endDate
+      ? `${dateUtils.formatTime(dataSource.startDate)} - ${dateUtils.formatTime(dataSource.endDate)} WIB`
       : '';
 
   const detectedTimezone = dateUtils.extractTimezone(
-    eventDetail.startDate || ''
+    dataSource.startDate || ''
   );
 
   // Process Google Maps Link - remove https:// if present
@@ -101,36 +104,48 @@ export const EventEditInfo = ({
   };
 
   const { fee: adminFeeValue, type: adminFeeTypeValue } = processAdminFee(
-    eventDetail.adminFee
+    dataSource.adminFee
   );
+
+  // Get city ID - handle both eventDetail.city (object) and eventUpdateRequest.cityId (string)
+  const cityId = eventDetail.eventUpdateRequest 
+    ? eventDetail.eventUpdateRequest.cityId 
+    : (eventDetail.city?.id || '');
+
+  // Get payment method IDs - handle both eventDetail.paymentMethods (array) and eventUpdateRequest.paymentMethodIds (array)
+  const paymentMethodIds = eventDetail.eventUpdateRequest 
+    ? (eventDetail.eventUpdateRequest.paymentMethodIds || [])
+    : (eventDetail.paymentMethods?.map((pm) => pm.id) || []);
 
   const methods = useForm<FormData>({
     defaultValues: {
-      eventName: eventDetail.name || '',
-      eventType: eventDetail.eventType || '',
+      eventName: dataSource.name || '',
+      eventType: dataSource.eventType || '',
       dateRange: dateRange,
       timeRange: timeRange,
-      startTime: eventDetail.startDate
-        ? dateUtils.formatTime(eventDetail.startDate)
+      startTime: dataSource.startDate
+        ? dateUtils.formatTime(dataSource.startDate)
         : '00:00',
-      endTime: eventDetail.endDate
-        ? dateUtils.formatTime(eventDetail.endDate)
+      endTime: dataSource.endDate
+        ? dateUtils.formatTime(dataSource.endDate)
         : '00:00',
       timeZone: detectedTimezone,
-      startDate: eventDetail.startDate || '',
-      endDate: eventDetail.endDate || '',
-      address: eventDetail.address || '',
-      googleMapsLink: processGoogleMapsLink(eventDetail.mapLocationUrl || ''),
-      websiteUrl: eventDetail.websiteUrl || '',
-      city: eventDetail.city?.id || '',
+      startDate: dataSource.startDate || '',
+      endDate: dataSource.endDate || '',
+      address: dataSource.address || '',
+      googleMapsLink: processGoogleMapsLink(dataSource.mapLocationUrl || ''),
+      websiteUrl: dataSource.websiteUrl || '',
+      city: cityId,
       adminFee: adminFeeValue,
       adminFeeType: adminFeeTypeValue,
-      paymentMethod: eventDetail.paymentMethods?.map((pm) => pm.id) || [],
-      tax: eventDetail.tax ? 'true' : 'false',
-      taxNominal: eventDetail.tax?.toString() || '',
-      eventDescription: eventDetail.description || '',
-      termsAndConditions: eventDetail.termAndConditions || '',
-      loginRequired: eventDetail.login_required ? 1 : 2
+      paymentMethod: paymentMethodIds,
+      tax: dataSource.tax ? 'true' : 'false',
+      taxNominal: dataSource.tax?.toString() || '',
+      eventDescription: dataSource.description || '',
+      termsAndConditions: dataSource.termAndConditions || '',
+      loginRequired: (dataSource as any).login_required !== undefined 
+        ? ((dataSource as any).login_required ? 1 : 2)
+        : (eventDetail.login_required ? 1 : 2)
     }
   });
 

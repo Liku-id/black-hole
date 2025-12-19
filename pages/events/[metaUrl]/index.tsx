@@ -30,38 +30,22 @@ function EventDetail() {
     if (!eventDetail) return { detail: undefined, assets: undefined, tickets: undefined };
 
     // Event Detail Status
-    // Only for event detail tab: Use eventUpdateRequestStatus if available, otherwise use eventUpdateRequest.status or eventDetailStatus
+    // Only for event detail tab: Read from eventUpdateRequest.eventDetailStatus if eventUpdateRequest exists
+    // If no eventUpdateRequest, don't show tab status icon
     let detailStatus: 'rejected' | 'approved' | 'pending' | undefined;
     
-    // Check eventUpdateRequestStatus first (new field)
-    if (eventDetail.eventUpdateRequestStatus) {
-      if (eventDetail.eventUpdateRequestStatus === 'rejected') {
+    if (eventDetail.eventUpdateRequest) {
+      // Use eventUpdateRequest.eventDetailStatus if eventUpdateRequest exists
+      const eventDetailStatus = eventDetail.eventUpdateRequest.eventDetailStatus;
+      if (eventDetailStatus === 'rejected') {
         detailStatus = 'rejected';
-      } else if (eventDetail.eventUpdateRequestStatus === 'approved') {
+      } else if (eventDetailStatus === 'approved') {
         detailStatus = 'approved';
-      } else if (eventDetail.eventUpdateRequestStatus === 'pending' || eventDetail.eventUpdateRequestStatus === 'draft') {
-        detailStatus = 'pending';
-      }
-    } else if (eventDetail.eventUpdateRequest) {
-      // Fallback to eventUpdateRequest.status if eventUpdateRequestStatus not available
-      const updateRequestStatus = eventDetail.eventUpdateRequest.status;
-      if (updateRequestStatus === 'rejected') {
-        detailStatus = 'rejected';
-      } else if (updateRequestStatus === 'approved') {
-        detailStatus = 'approved';
-      } else if (updateRequestStatus === 'pending') {
-        detailStatus = 'pending';
-      }
-    } else {
-      // Use regular eventDetailStatus when no eventUpdateRequest
-      if (eventDetail.eventDetailStatus === 'rejected') {
-        detailStatus = 'rejected';
-      } else if (eventDetail.eventDetailStatus === 'approved') {
-        detailStatus = 'approved';
-      } else if (eventDetail.eventDetailStatus === 'pending') {
+      } else if (eventDetailStatus === 'pending' || eventDetailStatus === 'draft') {
         detailStatus = 'pending';
       }
     }
+    // If no eventUpdateRequest, detailStatus remains undefined (no tab status icon)
 
     // Event Asset Status - Priority: rejected > pending > approved
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
@@ -303,21 +287,43 @@ function EventDetail() {
               </Box>
             ) : (
               <>
-                <Button
-                  variant="primary"
-                  onClick={handleSubmitEvent}
-                  disabled={submitLoading || !isSubmitButtonEnabled()}
-                >
-                  {eventDetail.eventStatus === 'approved' || eventDetail.eventStatus === 'on_going'
-                    ? 'Submit Changes'
-                    : eventDetail.eventStatus === 'rejected'
-                    ? 'Resubmit Event'
-                    : 'Submit Event'}
-                </Button>
-                {errorMessage && (
-                  <Overline color="error" sx={{ mt: 1 }}>
-                    {errorMessage}
-                  </Overline>
+                {/* For on_going events, show Submit Changes button only if eventUpdateRequestStatus is draft or pending */}
+                {eventDetail.eventStatus === 'on_going' ? (
+                  (eventDetail.eventUpdateRequestStatus === 'draft' || eventDetail.eventUpdateRequestStatus === 'pending') && (
+                    <>
+                      <Button
+                        variant="primary"
+                        onClick={handleSubmitEvent}
+                        disabled={submitLoading || !isSubmitButtonEnabled() || eventDetail.eventUpdateRequestStatus === 'pending'}
+                      >
+                        Submit Changes
+                      </Button>
+                      {errorMessage && (
+                        <Overline color="error" sx={{ mt: 1 }}>
+                          {errorMessage}
+                        </Overline>
+                      )}
+                    </>
+                  )
+                ) : (
+                  <>
+                    <Button
+                      variant="primary"
+                      onClick={handleSubmitEvent}
+                      disabled={submitLoading || !isSubmitButtonEnabled()}
+                    >
+                      {eventDetail.eventStatus === 'approved'
+                        ? 'Submit Changes'
+                        : eventDetail.eventStatus === 'rejected'
+                        ? 'Resubmit Event'
+                        : 'Submit Event'}
+                    </Button>
+                    {errorMessage && (
+                      <Overline color="error" sx={{ mt: 1 }}>
+                        {errorMessage}
+                      </Overline>
+                    )}
+                  </>
                 )}
               </>
             )}

@@ -98,27 +98,19 @@ function ApprovalDetail() {
     }
 
     // Event Asset Status - Priority: rejected > pending > approved
-    // If eventAssetChanges is null, fall back to eventAssets
+    // Read from eventAssetChanges[0].status (firstChange) if available, otherwise fall back to eventAssets
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
     
     if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
-      // Use eventAssetChanges - rejected mapping uses rejectedFields which contains assetIds
-      const assetChanges = event.eventAssetChanges;
+      // Read status directly from firstChange
+      const firstChange = event.eventAssetChanges[0];
+      const firstChangeStatus = firstChange.status;
       
-      const hasRejectedAsset = assetChanges.some(
-        (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
-      );
-      const hasPendingAsset = assetChanges.some(
-        (ea: any) => !ea.status || ea.status === 'pending'
-      );
-      const allAssetsApproved =
-        assetChanges.length > 0 && assetChanges.every((ea: any) => ea.status === 'approved');
-
-      if (hasRejectedAsset) {
+      if (firstChangeStatus === 'rejected') {
         assetStatus = 'rejected';
-      } else if (hasPendingAsset) {
+      } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
         assetStatus = 'pending';
-      } else if (allAssetsApproved) {
+      } else if (firstChangeStatus === 'approved') {
         assetStatus = 'approved';
       }
     } else {
@@ -623,22 +615,18 @@ function ApprovalDetail() {
               {(() => {
                 // If eventAssetChanges is null, fall back to eventAssets
                 const hasAssetChanges = submission.event?.eventAssetChanges && submission.event.eventAssetChanges.length > 0;
-                const assetChanges = hasAssetChanges ? submission.event.eventAssetChanges : [];
                 const eventAssets = submission.event?.eventAssets || [];
 
                 let hasRejectedAsset = false;
                 let allAssetsApproved = false;
 
                 if (hasAssetChanges) {
-                  // Check if any asset is rejected via rejectedFields (assetIds)
-                  hasRejectedAsset = assetChanges.some(
-                    (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
-                  );
-
-                  // Check if all assets are approved
-                  allAssetsApproved =
-                    assetChanges.length > 0 &&
-                    assetChanges.every((ea: any) => ea.status === 'approved');
+                  // Read status from firstChange
+                  const firstChange = submission.event.eventAssetChanges[0];
+                  const firstChangeStatus = firstChange.status;
+                  
+                  hasRejectedAsset = firstChangeStatus === 'rejected';
+                  allAssetsApproved = firstChangeStatus === 'approved';
                 } else {
                   // Fall back to eventAssets
                   hasRejectedAsset = eventAssets.some((ea: any) => ea.status === 'rejected');
@@ -695,19 +683,18 @@ function ApprovalDetail() {
               })()}
             </Box>
             
-            {/* Rejected Reason from first rejected asset */}
+            {/* Rejected Reason from firstChange */}
             {(() => {
               // If eventAssetChanges is null, fall back to eventAssets
               const hasAssetChanges = submission.event?.eventAssetChanges && submission.event.eventAssetChanges.length > 0;
               
               let firstRejectedAsset;
               if (hasAssetChanges) {
-                firstRejectedAsset = submission.event?.eventAssetChanges?.find(
-                  (ea: any) =>
-                    Array.isArray(ea.rejectedFields) &&
-                    ea.rejectedFields.length > 0 &&
-                    ea.rejectedReason
-                );
+                // Read rejection info from firstChange
+                const firstChange = submission.event.eventAssetChanges[0];
+                if (firstChange.status === 'rejected' && firstChange.rejectedReason) {
+                  firstRejectedAsset = firstChange;
+                }
               } else {
                 // Fall back to eventAssets
                 firstRejectedAsset = submission.event?.eventAssets?.find(

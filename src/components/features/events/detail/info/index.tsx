@@ -234,7 +234,8 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
         {eventDetail.eventStatus !== 'done' &&
         eventDetail.eventStatus !== 'on_review' &&
         eventDetail.eventUpdateRequestStatus !== 'draft' &&
-        eventDetail.eventUpdateRequestStatus !== 'pending' && (
+        eventDetail.eventUpdateRequestStatus !== 'pending' &&
+        !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) && (
           <Box display="flex" gap={2}>
             {eventDetail.eventStatus === "draft" && (
               <Button
