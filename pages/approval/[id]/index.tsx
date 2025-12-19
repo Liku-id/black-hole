@@ -98,26 +98,47 @@ function ApprovalDetail() {
     }
 
     // Event Asset Status - Priority: rejected > pending > approved
-    // Since we now rely on eventAssetChanges, the rejected mapping should use
-    // rejectedFields which contains assetIds that are rejected.
+    // If eventAssetChanges is null, fall back to eventAssets
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    const assetChanges = event.eventAssetChanges || [];
+    
+    if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
+      // Use eventAssetChanges - rejected mapping uses rejectedFields which contains assetIds
+      const assetChanges = event.eventAssetChanges;
+      
+      const hasRejectedAsset = assetChanges.some(
+        (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
+      );
+      const hasPendingAsset = assetChanges.some(
+        (ea: any) => !ea.status || ea.status === 'pending'
+      );
+      const allAssetsApproved =
+        assetChanges.length > 0 && assetChanges.every((ea: any) => ea.status === 'approved');
 
-    const hasRejectedAsset = assetChanges.some(
-      (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
-    );
-    const hasPendingAsset = assetChanges.some(
-      (ea: any) => !ea.status || ea.status === 'pending'
-    );
-    const allAssetsApproved =
-      assetChanges.length > 0 && assetChanges.every((ea: any) => ea.status === 'approved');
+      if (hasRejectedAsset) {
+        assetStatus = 'rejected';
+      } else if (hasPendingAsset) {
+        assetStatus = 'pending';
+      } else if (allAssetsApproved) {
+        assetStatus = 'approved';
+      }
+    } else {
+      // Fall back to eventAssets when eventAssetChanges is null
+      const assetsToCheck = event.eventAssets || [];
+      
+      const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+      const hasPendingAsset = assetsToCheck.some(
+        (ea: any) => !ea.status || ea.status === 'pending'
+      );
+      const allAssetsApproved =
+        assetsToCheck.length > 0 && assetsToCheck.every((ea: any) => ea.status === 'approved');
 
-    if (hasRejectedAsset) {
-      assetStatus = 'rejected';
-    } else if (hasPendingAsset) {
-      assetStatus = 'pending';
-    } else if (allAssetsApproved) {
-      assetStatus = 'approved';
+      if (hasRejectedAsset) {
+        assetStatus = 'rejected';
+      } else if (hasPendingAsset) {
+        assetStatus = 'pending';
+      } else if (allAssetsApproved) {
+        assetStatus = 'approved';
+      }
     }
 
     // Ticket Status - Priority: pending > rejected > approved
@@ -595,17 +616,31 @@ function ApprovalDetail() {
                 Event Assets
               </H3>
               {(() => {
-                const assetChanges = submission.event?.eventAssetChanges || [];
+                // If eventAssetChanges is null, fall back to eventAssets
+                const hasAssetChanges = submission.event?.eventAssetChanges && submission.event.eventAssetChanges.length > 0;
+                const assetChanges = hasAssetChanges ? submission.event.eventAssetChanges : [];
+                const eventAssets = submission.event?.eventAssets || [];
 
-                // Check if any asset is rejected via rejectedFields (assetIds)
-                const hasRejectedAsset = assetChanges.some(
-                  (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
-                );
+                let hasRejectedAsset = false;
+                let allAssetsApproved = false;
 
-                // Check if all assets are approved
-                const allAssetsApproved =
-                  assetChanges.length > 0 &&
-                  assetChanges.every((ea: any) => ea.status === 'approved');
+                if (hasAssetChanges) {
+                  // Check if any asset is rejected via rejectedFields (assetIds)
+                  hasRejectedAsset = assetChanges.some(
+                    (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
+                  );
+
+                  // Check if all assets are approved
+                  allAssetsApproved =
+                    assetChanges.length > 0 &&
+                    assetChanges.every((ea: any) => ea.status === 'approved');
+                } else {
+                  // Fall back to eventAssets
+                  hasRejectedAsset = eventAssets.some((ea: any) => ea.status === 'rejected');
+                  allAssetsApproved =
+                    eventAssets.length > 0 &&
+                    eventAssets.every((ea: any) => ea.status === 'approved');
+                }
 
                 // Hide buttons if any rejected assets OR all assets approved
                 if (hasRejectedAsset || allAssetsApproved) {
@@ -657,12 +692,23 @@ function ApprovalDetail() {
             
             {/* Rejected Reason from first rejected asset */}
             {(() => {
-              const firstRejectedAsset = submission.event?.eventAssetChanges?.find(
-                (ea: any) =>
-                  Array.isArray(ea.rejectedFields) &&
-                  ea.rejectedFields.length > 0 &&
-                  ea.rejectedReason
-              );
+              // If eventAssetChanges is null, fall back to eventAssets
+              const hasAssetChanges = submission.event?.eventAssetChanges && submission.event.eventAssetChanges.length > 0;
+              
+              let firstRejectedAsset;
+              if (hasAssetChanges) {
+                firstRejectedAsset = submission.event?.eventAssetChanges?.find(
+                  (ea: any) =>
+                    Array.isArray(ea.rejectedFields) &&
+                    ea.rejectedFields.length > 0 &&
+                    ea.rejectedReason
+                );
+              } else {
+                // Fall back to eventAssets
+                firstRejectedAsset = submission.event?.eventAssets?.find(
+                  (ea: any) => ea.status === 'rejected' && ea.rejectedReason
+                );
+              }
               
               if (!firstRejectedAsset?.rejectedReason) return null;
               
@@ -702,6 +748,7 @@ function ApprovalDetail() {
                 );
               }}
               hideHeader={true}
+              hideOriginalAssets={true}
               showStatus={true}
             />
           </>

@@ -191,6 +191,20 @@ export interface EventUpdateRequest {
   updatedFields?: string[];
   createdAt: string;
   updatedAt: string;
+  name: string;
+  eventType: string;
+  description: string;
+  address: string;
+  mapLocationUrl: string;
+  termAndConditions: string;
+  websiteUrl: string;
+  adminFee: number;
+  tax: number;
+  startDate: string;
+  endDate: string;
+  cityId: string;
+  eventOrganizerId: string;
+  paymentMethodIds: string[];
 }
 
 export interface EventDetail {
@@ -221,6 +235,7 @@ export interface EventDetail {
   eventAssets: EventAsset[];
   eventAssetChanges?: EventAssetChange[];
   is_requested: boolean;
+  eventUpdateRequestStatus?: string;
   rejectedReason: string | null;
   rejectedFields: string[] | null;
   withdrawalFee: string;

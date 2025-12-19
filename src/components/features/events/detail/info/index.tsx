@@ -18,38 +18,118 @@ const EventField = ({
   label,
   value,
   isTextArea = false,
-  isRejected
+  isRejected,
+  eventDetail,
+  eventUpdateRequest,
+  fieldKey
 }: {
   label: string;
   value: string;
   isTextArea?: boolean;
   isRejected?: boolean;
-}) => (
-  <Box>
-    <Body2
-      color="text.secondary"
-      mb={1}
-      display="flex"
-      alignItems="center"
-      gap={0.5}
-    >
-      {label} {isRejected && <ErrorOutline fontSize="small" color="error" />}
-    </Body2>
-    <Box
-      border="1px solid"
-      borderColor="primary.main"
-      borderRadius={1}
-      overflow="scroll"
-      p="12px 16px"
-      sx={{
-        backgroundColor: 'primary.light',
-        ...(isTextArea && { height: '216px' })
-      }}
-    >
-      <Body2 color="text.primary">{value}</Body2>
+  eventDetail?: EventDetail;
+  eventUpdateRequest?: EventDetail['eventUpdateRequest'];
+  fieldKey?: string;
+}) => {
+  // Check if field has changes
+  const hasChanges =
+    eventUpdateRequest &&
+    fieldKey &&
+    (() => {
+      const updateRequest = eventUpdateRequest as any;
+      switch (fieldKey) {
+        case 'startDate':
+          const oldDateRange =
+            eventDetail?.startDate && eventDetail?.endDate
+              ? `${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`
+              : '';
+          const newDateRange =
+            updateRequest.startDate && updateRequest.endDate
+              ? `${dateUtils.formatDateMMMDYYYY(updateRequest.startDate)} - ${dateUtils.formatDateMMMDYYYY(updateRequest.endDate)} (${dateUtils.formatTime(updateRequest.startDate)} - ${dateUtils.formatTime(updateRequest.endDate)} WIB)`
+              : '';
+          return oldDateRange !== newDateRange;
+        case 'cityId':
+          return eventDetail?.city?.id !== updateRequest[fieldKey];
+        case 'paymentMethodIds': {
+          const a = (eventDetail?.paymentMethods ?? [])
+            .map((pm) => pm.id)
+            .filter(Boolean)
+            .slice()
+            .sort();
+
+          const b = (updateRequest[fieldKey] ?? []).slice().sort();
+
+          return JSON.stringify(a) !== JSON.stringify(b);
+        }
+        default:
+          return eventDetail?.[fieldKey] !== updateRequest[fieldKey];
+      }
+    })();
+
+  // Get new value
+  const getNewValue = () => {
+    if (!eventUpdateRequest || !fieldKey) return '';
+    const updateRequest = eventUpdateRequest as any;
+
+    switch (fieldKey) {
+      case 'startDate':
+        if (updateRequest.startDate && updateRequest.endDate) {
+          return `${dateUtils.formatDateMMMDYYYY(updateRequest.startDate)} - ${dateUtils.formatDateMMMDYYYY(updateRequest.endDate)} (${dateUtils.formatTime(updateRequest.startDate)} - ${dateUtils.formatTime(updateRequest.endDate)} WIB)`;
+        }
+        return '';
+      case 'time':
+        if (updateRequest.startDate && updateRequest.endDate) {
+          return `${dateUtils.formatTime(updateRequest.startDate)} - ${dateUtils.formatTime(updateRequest.endDate)} WIB`;
+        }
+        return '';
+      case 'cityId':
+        return `City ID: ${updateRequest?.city?.name || updateRequest[fieldKey]}`;
+      case 'paymentMethodIds':
+        return `Payment Method IDs: ${updateRequest[fieldKey]?.join(', ') || ''}`;
+      case 'adminFee':
+        const adminFee = updateRequest.adminFee ?? eventDetail?.adminFee ?? 0;
+        return adminFee < 100 ? `${adminFee}%` : `Rp ${adminFee}`;
+      case 'tax':
+        return `${updateRequest.tax ?? eventDetail?.tax ?? 0}%`;
+      default:
+        return updateRequest[fieldKey] || '';
+    }
+  };
+
+  return (
+    <Box>
+      <Body2
+        color="text.secondary"
+        mb={1}
+        display="flex"
+        alignItems="center"
+        gap={0.5}
+      >
+        {label} {isRejected && <ErrorOutline fontSize="small" color="error" />}
+      </Body2>
+      <Box
+        border="1px solid"
+        borderColor="primary.main"
+        borderRadius={1}
+        overflow="scroll"
+        p="12px 16px"
+        sx={{
+          backgroundColor: 'primary.light',
+          ...(isTextArea && { height: '216px' })
+        }}
+      >
+        <Body2 color="text.primary">{value}</Body2>
+        {hasChanges && (
+          <Box mt={1}>
+            <Body2 color="success.main" fontSize="12px">
+              → {getNewValue()}
+            </Body2>
+          </Box>
+        )}
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 export const RejectedReason = ({ reason }: { reason: string }) => {
   if (!reason || reason.trim() === '') return null;
@@ -111,6 +191,7 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
     return false;
   };
 
+
   const handlePreviewConfirm = async () => {
     try {
       const response = await apiUtils.get<{
@@ -152,7 +233,8 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
         </H3>
         {eventDetail.eventStatus !== 'done' &&
         eventDetail.eventStatus !== 'on_review' &&
-        eventDetail.is_requested === false ? (
+        eventDetail.eventUpdateRequestStatus !== 'draft' &&
+        eventDetail.eventUpdateRequestStatus !== 'pending' && (
           <Box display="flex" gap={2}>
             {eventDetail.eventStatus === "draft" && (
               <Button
@@ -169,25 +251,6 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
               Edit Detail Event
             </Button>
           </Box>
-        ) : (
-          eventDetail.is_requested === true && (
-            <Box
-              border="1px solid"
-              borderColor="warning.main"
-              borderRadius={1}
-              p="12px 16px"
-              sx={{
-                backgroundColor: 'warning.light',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1
-              }}
-            >
-              <Body2 color="warning.dark" fontWeight={500}>
-                Event update request is on review
-              </Body2>
-            </Box>
-          )
         )}
       </Box>
       {/* Rejected Reason - Show for event rejection or update request rejection */}
@@ -204,6 +267,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Event Name*"
                 value={eventDetail.name}
                 isRejected={isFieldRejected('name')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="name"
               />
             </Grid>
             <Grid item xs={12}>
@@ -211,15 +277,21 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Event Type*"
                 value={eventDetail.eventType}
                 isRejected={isFieldRejected('event_type')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="eventType"
               />
             </Grid>
             <Grid item xs={12}>
               <EventField
                 label="Start & End Date*"
-                value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)}`}
+                value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`}
                 isRejected={
                   isFieldRejected('start_date') || isFieldRejected('end_date')
                 }
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="startDate"
               />
             </Grid>
             <Grid item xs={12}>
@@ -229,6 +301,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 isRejected={
                   isFieldRejected('start_date') || isFieldRejected('end_date')
                 }
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="time"
               />
             </Grid>
             <Grid item xs={12}>
@@ -236,13 +311,19 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Address*"
                 value={eventDetail.address}
                 isRejected={isFieldRejected('address')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="address"
               />
             </Grid>
             <Grid item xs={12}>
               <EventField
                 label="City*"
-                value={eventDetail.city?.name}
+                value={eventDetail.city?.name || ''}
                 isRejected={isFieldRejected('city')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="cityId"
               />
             </Grid>
             <Grid item xs={12}>
@@ -250,6 +331,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Google Maps Link*"
                 value={eventDetail.mapLocationUrl}
                 isRejected={isFieldRejected('map_location_url')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="mapLocationUrl"
               />
             </Grid>
             <Grid item xs={12}>
@@ -258,6 +342,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Event Description*"
                 value={eventDetail.description}
                 isRejected={isFieldRejected('description')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="description"
               />
             </Grid>
           </Grid>
@@ -271,6 +358,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Terms & Condition*"
                 value={eventDetail.termAndConditions}
                 isRejected={isFieldRejected('term_and_conditions')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="termAndConditions"
               />
             </Grid>
             <Grid item xs={12}>
@@ -282,6 +372,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                     : `Rp ${eventDetail.adminFee}`
                 }
                 isRejected={isFieldRejected('admin_fee')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="adminFee"
               />
             </Grid>
             <Grid item xs={12}>
@@ -293,6 +386,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                     .join(' / ') || ''
                 }
                 isRejected={isFieldRejected('payment_methods')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="paymentMethodIds"
               />
             </Grid>
             <Grid item xs={12}>
@@ -300,6 +396,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Website Url*"
                 value={eventDetail.websiteUrl}
                 isRejected={isFieldRejected('website_url')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="websiteUrl"
               />
             </Grid>
             <Grid item xs={12}>
@@ -307,6 +406,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="Tax Nominal*"
                 value={`${eventDetail.tax}%`}
                 isRejected={isFieldRejected('tax')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="tax"
               />
             </Grid>
             <Grid item xs={12}>
@@ -314,6 +416,9 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 label="User Must Login*"
                 value={eventDetail.login_required ? 'Yes' : 'No'}
                 isRejected={isFieldRejected('login_required')}
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventDetail.eventUpdateRequest}
+                fieldKey="login_required"
               />
             </Grid>
           </Grid>
