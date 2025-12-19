@@ -30,59 +30,186 @@ function EventDetail() {
     if (!eventDetail) return { detail: undefined, assets: undefined, tickets: undefined };
 
     // Event Detail Status
-    // Only for event detail tab: Read from eventUpdateRequest.eventDetailStatus if eventUpdateRequest exists
-    // If no eventUpdateRequest, don't show tab status icon
+    // If event status is rejected, eventUpdateRequest is always empty, so use eventDetailStatus directly
+    // If event status is on_going or approved, check from eventUpdateRequest (if any) status
+    //   - If status is rejected → show rejected icon
+    //   - If status is pending → show pending icon
+    //   - If status is approved: check if any updated fields exist, if yes show approved icon, if no don't show icon
+    //   - If eventUpdateRequest empty → don't show tab status icon
     let detailStatus: 'rejected' | 'approved' | 'pending' | undefined;
     
-    if (eventDetail.eventUpdateRequest) {
-      // Use eventUpdateRequest.eventDetailStatus if eventUpdateRequest exists
-      const eventDetailStatus = eventDetail.eventUpdateRequest.eventDetailStatus;
-      if (eventDetailStatus === 'rejected') {
+    if (eventDetail.eventStatus === 'rejected') {
+      // For rejected events, eventUpdateRequest is always empty, use eventDetailStatus directly
+      if (eventDetail.eventDetailStatus === 'rejected') {
         detailStatus = 'rejected';
-      } else if (eventDetailStatus === 'approved') {
+      } else if (eventDetail.eventDetailStatus === 'approved') {
         detailStatus = 'approved';
-      } else if (eventDetailStatus === 'pending' || eventDetailStatus === 'draft') {
+      } else if (eventDetail.eventDetailStatus === 'pending') {
         detailStatus = 'pending';
       }
+    } else if (eventDetail.eventStatus === 'on_going' || eventDetail.eventStatus === 'approved') {
+      // For on_going or approved events, check eventUpdateRequest
+      if (eventDetail.eventUpdateRequest) {
+        const updateRequest = eventDetail.eventUpdateRequest;
+        const status = updateRequest.status;
+        
+        if (status === 'rejected') {
+          detailStatus = 'rejected';
+        } else if (status === 'pending' || status === 'draft') {
+          detailStatus = 'pending';
+        } else if (status === 'approved') {
+          // Check if any fields have been updated
+          const hasUpdatedFields = (() => {
+            // Check name
+            if (eventDetail.name !== updateRequest.name) return true;
+            
+            // Check eventType
+            if (eventDetail.eventType !== updateRequest.eventType) return true;
+            
+            // Check description
+            if (eventDetail.description !== updateRequest.description) return true;
+            
+            // Check address
+            if (eventDetail.address !== updateRequest.address) return true;
+            
+            // Check mapLocationUrl
+            if (eventDetail.mapLocationUrl !== updateRequest.mapLocationUrl) return true;
+            
+            // Check termAndConditions
+            if (eventDetail.termAndConditions !== updateRequest.termAndConditions) return true;
+            
+            // Check websiteUrl
+            if (eventDetail.websiteUrl !== updateRequest.websiteUrl) return true;
+            
+            // Check startDate/endDate
+            if (eventDetail.startDate !== updateRequest.startDate || eventDetail.endDate !== updateRequest.endDate) {
+              return true;
+            }
+            
+            // Check cityId
+            if (eventDetail.city?.id !== updateRequest.cityId) return true;
+            
+            // Check paymentMethodIds
+            const eventPaymentMethodIds = (eventDetail.paymentMethods ?? [])
+              .map((pm) => pm.id)
+              .filter(Boolean)
+              .slice()
+              .sort();
+            const updatePaymentMethodIds = (updateRequest.paymentMethodIds ?? []).slice().sort();
+            if (JSON.stringify(eventPaymentMethodIds) !== JSON.stringify(updatePaymentMethodIds)) {
+              return true;
+            }
+            
+            // Check adminFee
+            if (eventDetail.adminFee !== updateRequest.adminFee) return true;
+            
+            // Check tax
+            if (eventDetail.tax !== updateRequest.tax) return true;
+            
+            // Check login_required
+            const eventLoginRequired = eventDetail.login_required ? 1 : 2;
+            const updateLoginRequired = (updateRequest as any).login_required !== undefined
+              ? ((updateRequest as any).login_required ? 1 : 2)
+              : eventLoginRequired;
+            if (eventLoginRequired !== updateLoginRequired) return true;
+            
+            return false;
+          })();
+          
+          // Only show approved icon if there are updated fields
+          if (hasUpdatedFields) {
+            detailStatus = 'approved';
+          }
+          // If no updated fields, detailStatus remains undefined (no tab status icon)
+        }
+      }
+      // If no eventUpdateRequest, detailStatus remains undefined (no tab status icon)
     }
-    // If no eventUpdateRequest, detailStatus remains undefined (no tab status icon)
 
     // Event Asset Status - Priority: rejected > pending > approved
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
 
-    // When using eventAssetChanges (for rejected / on_review / on_going) the rejected mapping
-    // should be based on rejectedFields which contains assetIds that are rejected.
-    if (eventDetail.eventStatus === 'rejected' || eventDetail.eventStatus === 'on_review' || eventDetail.eventStatus === 'on_going') {
+    // For rejected events, use special rules:
+    // - If eventAssetChanges is not empty: read status from firstChange.status
+    // - If eventAssetChanges is empty: read from eventAssets statuses
+    if (eventDetail.eventStatus === 'rejected') {
       const assetChanges = eventDetail.eventAssetChanges || [];
 
-      const hasRejectedAsset = assetChanges.some(
-        (ea: any) => Array.isArray(ea.rejectedFields) && ea.rejectedFields.length > 0
-      );
-      const hasPendingAsset = assetChanges.some(
-        (ea: any) => !ea.status || ea.status === 'pending'
-      );
-      const allAssetsApproved =
-        assetChanges.length > 0 &&
-        assetChanges.every((ea: any) => ea.status === 'approved');
+      if (assetChanges.length > 0) {
+        // Read status from firstChange.status
+        const firstChangeStatus = assetChanges[0]?.status;
+        if (firstChangeStatus === 'rejected') {
+          assetStatus = 'rejected';
+        } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
+          assetStatus = 'pending';
+        } else if (firstChangeStatus === 'approved') {
+          assetStatus = 'approved';
+        }
+      } else {
+        // No eventAssetChanges - fall back to eventAssets statuses
+        const assetsToCheck = eventDetail.eventAssets || [];
 
-      if (hasRejectedAsset) {
-        assetStatus = 'rejected';
-      } else if (hasPendingAsset) {
-        assetStatus = 'pending';
-      } else if (allAssetsApproved) {
-        assetStatus = 'approved';
+        const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+        const hasPendingAsset = assetsToCheck.some(
+          (ea: any) => !ea.status || ea.status === 'pending'
+        );
+        const allAssetsApproved =
+          assetsToCheck.length > 0 &&
+          assetsToCheck.every((ea: any) => ea.status === 'approved');
+
+        if (hasRejectedAsset) {
+          assetStatus = 'rejected';
+        } else if (allAssetsApproved) {
+          assetStatus = 'approved';
+        } else if (hasPendingAsset) {
+          assetStatus = 'pending';
+        }
+      }
+    } else if (eventDetail.eventStatus === 'on_review' || eventDetail.eventStatus === 'on_going') {
+      // For on_review / on_going events, read status from firstChange.status if eventAssetChanges exists
+      const assetChanges = eventDetail.eventAssetChanges || [];
+
+      if (assetChanges.length > 0) {
+        // Read status directly from firstChange.status
+        const firstChangeStatus = assetChanges[0]?.status;
+        if (firstChangeStatus === 'rejected') {
+          assetStatus = 'rejected';
+        } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
+          assetStatus = 'pending';
+        } else if (firstChangeStatus === 'approved') {
+          assetStatus = 'approved';
+        }
+      } else {
+        // No eventAssetChanges - fall back to eventAssets statuses
+        const assetsToCheck = eventDetail.eventAssets || [];
+
+        const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+        const hasPendingAsset = assetsToCheck.some(
+          (ea: any) => !ea.status || ea.status === 'pending'
+        );
+        const allAssetsApproved =
+          assetsToCheck.length > 0 &&
+          assetsToCheck.every((ea: any) => ea.status === 'approved');
+
+        if (hasRejectedAsset) {
+          assetStatus = 'rejected';
+        } else if (hasPendingAsset) {
+          assetStatus = 'pending';
+        } else if (allAssetsApproved) {
+          assetStatus = 'approved';
+        }
       }
     } else {
       // For other statuses, fall back to eventAssets status fields
-      const assetsToCheck = eventDetail.eventAssets;
+      const assetsToCheck = eventDetail.eventAssets || [];
 
-      const hasRejectedAsset = assetsToCheck?.some((ea: any) => ea.status === 'rejected');
-      const hasPendingAsset = assetsToCheck?.some(
+      const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+      const hasPendingAsset = assetsToCheck.some(
         (ea: any) => !ea.status || ea.status === 'pending'
       );
       const allAssetsApproved =
-        assetsToCheck?.length > 0 &&
-        assetsToCheck?.every((ea: any) => ea.status === 'approved');
+        assetsToCheck.length > 0 &&
+        assetsToCheck.every((ea: any) => ea.status === 'approved');
 
       if (hasRejectedAsset) {
         assetStatus = 'rejected';

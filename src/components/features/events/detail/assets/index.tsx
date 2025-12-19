@@ -100,15 +100,27 @@ export const EventDetailAssets = ({
     }
   }
 
-  const eventAssets = assetsSource?.slice(0, 5) || [];
+  // Sort original assets by order (for consistency)
+  const eventAssets = (assetsSource || [])
+    .slice(0, 5)
+    .sort((a: any, b: any) => Number(a.order) - Number(b.order));
   const mainAsset = eventAssets[0];
   const sideAssets = eventAssets.slice(1, 5);
 
   // For on_going events with changes, prepare changed assets separately
   // Also prepare changed assets when hideOriginalAssets is true (for approval page)
-  const changedAssets = (isOnGoingWithChanges || (hideOriginalAssets && eventAssetChanges && eventAssetChanges.length > 0)) 
-    ? changedItemsSource?.slice(0, 5) || [] 
-    : [];
+  const sortedChangedItemsSource =
+    changedItemsSource && changedItemsSource.length > 0
+      ? [...changedItemsSource].sort(
+          (a: any, b: any) => Number(a.order) - Number(b.order)
+        )
+      : [];
+
+  const changedAssets =
+    isOnGoingWithChanges ||
+    (hideOriginalAssets && eventAssetChanges && eventAssetChanges.length > 0)
+      ? sortedChangedItemsSource.slice(0, 5)
+      : [];
   const changedMainAsset = changedAssets[0];
   const changedSideAssets = changedAssets.slice(1, 5);
 
@@ -313,6 +325,17 @@ export const EventDetailAssets = ({
     );
   };
 
+  // For rejected events with no eventAssetChanges, determine if all original assets are approved
+  const isRejectedWithoutChanges =
+    eventDetail.eventStatus === 'rejected' &&
+    (!eventAssetChanges || eventAssetChanges.length === 0);
+
+  const originalAssets = eventDetail.eventAssets || [];
+  const allOriginalAssetsApproved =
+    isRejectedWithoutChanges &&
+    originalAssets.length > 0 &&
+    originalAssets.every((ea: any) => ea.status === 'approved');
+
   return (
     <Box>
       {!hideHeader && (
@@ -325,11 +348,15 @@ export const EventDetailAssets = ({
           <H3 color="text.primary" fontWeight={700}>
             Event Assets
           </H3>
-          {/* Hide Edit Thumbnail button if on_going with pending asset changes or if is_requested is true */}
+          {/* Hide Edit Thumbnail button if:
+              - on_going with pending asset changes, or
+              - on_going and is_requested is true, or
+              - event is rejected, eventAssetChanges is empty, and all original assets are approved */}
           {eventDetail.eventStatus !== 'done' &&
             eventDetail.eventStatus !== 'on_review' &&
             !(isOnGoingWithChanges && assetChangeStatus === 'pending') &&
-            !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) && (
+            !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) &&
+            !allOriginalAssetsApproved && (
               <Button variant="primary" onClick={handleEditAssets}>
                 Edit Thumbnail
               </Button>

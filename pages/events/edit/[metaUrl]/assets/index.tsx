@@ -224,17 +224,28 @@ const EditAssetsPage = () => {
     router.push(`/events/${metaUrl}`);
   };
 
-  // Derive rejected assets info from eventAssetChanges for rejected/on_review events
+  // Derive rejected assets info from eventAssetChanges for rejected/on_review/on_going (with changes) events
   const firstAssetChange =
     eventDetail &&
-    (eventDetail.eventStatus === 'rejected' || eventDetail.eventStatus === 'on_review') &&
+    (eventDetail.eventStatus === 'rejected' ||
+      eventDetail.eventStatus === 'on_review' ||
+      (eventDetail.eventStatus === 'on_going' &&
+        eventDetail.eventAssetChanges &&
+        eventDetail.eventAssetChanges.length > 0)) &&
     eventDetail.eventAssetChanges &&
     eventDetail.eventAssetChanges.length > 0
       ? eventDetail.eventAssetChanges[0]
       : undefined;
 
-  const rejectedAssetIds: string[] = firstAssetChange?.rejectedFields ?? [];
-  const rejectionReason: string | undefined = firstAssetChange?.rejectedReason || undefined;
+  // Only show rejected mapping when the first change status is 'rejected'
+  const rejectedAssetIds: string[] =
+    firstAssetChange && firstAssetChange.status === 'rejected'
+      ? firstAssetChange.rejectedFields ?? []
+      : [];
+  const rejectionReason: string | undefined =
+    firstAssetChange && firstAssetChange.status === 'rejected'
+      ? firstAssetChange.rejectedReason || undefined
+      : undefined;
 
   return (
     <DashboardLayout>
@@ -262,7 +273,16 @@ const EditAssetsPage = () => {
         <Card>
           <EventAssetsEditForm
             eventDetail={eventDetail}
-            eventAssetChanges={(eventDetail?.eventStatus === 'rejected' || eventDetail?.eventStatus === 'on_review') ? eventDetail?.eventAssetChanges : undefined}
+            eventAssetChanges={
+              eventDetail &&
+              (eventDetail.eventStatus === 'rejected' ||
+                eventDetail.eventStatus === 'on_review' ||
+                (eventDetail.eventStatus === 'on_going' &&
+                  eventDetail.eventAssetChanges &&
+                  eventDetail.eventAssetChanges.length > 0))
+                ? eventDetail.eventAssetChanges
+                : undefined
+            }
             showError={showError}
             onFilesChange={handleFilesChange}
             rejectedAssetIds={rejectedAssetIds}
