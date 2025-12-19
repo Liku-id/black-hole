@@ -67,9 +67,16 @@ export const EventAssetsEditForm = ({
     .sort((a, b) => Number(a.order) - Number(b.order));
 
   const mainEventAsset = eventAssets.find((ea) => Number(ea.order) === 1);
-  const sideEventAssets: ((typeof eventAssets)[number] | null)[] = [
-    0, 1, 2, 3
-  ].map((i) => eventAssets.find((ea) => Number(ea.order) === i + 2) || null);
+  
+  // Create an array with 4 slots (for orders 2, 3, 4, 5)
+  // Place each asset at the position corresponding to its order
+  // Position index 0 = order 2, index 1 = order 3, index 2 = order 4, index 3 = order 5
+  const sideEventAssetsArray: ((typeof eventAssets)[number] | null)[] = [];
+  for (let i = 0; i < 4; i++) {
+    const targetOrder = i + 2; // orders 2, 3, 4, 5
+    const asset = eventAssets.find((ea) => Number(ea.order) === targetOrder) || null;
+    sideEventAssetsArray.push(asset);
+  }
 
   // Helper to check if a given asset (by assetId) was rejected
   const isAssetRejected = (assetId?: string) =>
@@ -78,17 +85,18 @@ export const EventAssetsEditForm = ({
   // Build existing assets info
   // Store event asset record IDs (join table IDs) for update operations
   // Handle both eventAssets (ea.assetId) and eventAssetChanges.items (ea.eventAssetId) structures
+  // supportingImages array indices: 0=order2, 1=order3, 2=order4, 3=order5
   const existingAssets = {
     thumbnail: mainEventAsset ? { 
       id: mainEventAsset.assetId, 
       eventAssetId: mainEventAsset.eventAssetId || mainEventAsset.assetId, 
       order: 1 
     } : undefined,
-    supportingImages: sideEventAssets.map((ea, index) =>
+    supportingImages: sideEventAssetsArray.map((ea, index) =>
       ea ? { 
         id: ea.assetId, 
         eventAssetId: ea.eventAssetId || ea.assetId, 
-        order: index + 2 
+        order: index + 2 // Position index maps to order: index 0 = order 2, index 1 = order 3, etc.
       } : null
     )
   };
@@ -159,7 +167,7 @@ export const EventAssetsEditForm = ({
     // If there's an existing asset and we're removing it, mark for deletion
     let newDeletedIds = deletedAssetIds;
     let newRemovedFromDisplay = { ...removedFromDisplay };
-    const existingEventAsset = sideEventAssets[index];
+    const existingEventAsset = sideEventAssetsArray[index];
 
     if (existingEventAsset && !supportingImages[index]) {
       // Use eventAssetId (or fall back to assetId) for both eventAssets and eventAssetChanges.items structures
@@ -245,7 +253,7 @@ export const EventAssetsEditForm = ({
         <Grid item md={6} xs={12}>
           <Grid container spacing="16px">
             {Array.from({ length: 4 }).map((_, index) => {
-              const existingEventAsset = sideEventAssets[index];
+              const existingEventAsset = sideEventAssetsArray[index];
               const hasNewFile = supportingImages[index];
 
               return (

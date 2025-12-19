@@ -110,6 +110,7 @@ function EventDetail() {
     }
 
     // Ticket Status - Priority: pending > rejected > approved
+    // Don't show approved status when event status is ongoing
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
     const hasPendingTicket = eventDetail.ticketTypes?.some((tt: any) => 
       !tt.status || tt.status === 'pending'
@@ -124,7 +125,7 @@ function EventDetail() {
       ticketStatus = 'pending';
     } else if (hasRejectedTicket) {
       ticketStatus = 'rejected';
-    } else if (allApproved) {
+    } else if (allApproved && eventDetail.eventStatus !== 'on_going') {
       ticketStatus = 'approved';
     }
 
@@ -281,7 +282,7 @@ function EventDetail() {
         <H2 color="text.primary" fontWeight={700}>
           Event Detail
         </H2>
-        {eventDetail.eventStatus !== 'on_review' && (
+        {eventDetail.eventStatus !== 'on_review' && eventDetail.eventStatus !== 'done' && (
           <Box display="flex" flexDirection="column" alignItems="flex-end">
             {eventDetail.is_requested ? (
               <Box

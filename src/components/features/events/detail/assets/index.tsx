@@ -123,6 +123,10 @@ export const EventDetailAssets = ({
     return selectedAssets.includes(assetId);
   };
 
+  // Check if assets are from eventAssets (not eventAssetChanges) and event is ongoing
+  const isOnGoingWithEventAssets = eventDetail.eventStatus === 'on_going' && 
+    (!eventAssetChanges || eventAssetChanges.length === 0);
+
   const getAssetStatusChip = (asset: any) => {
     if (!showStatus) return null;
     
@@ -143,7 +147,8 @@ export const EventDetailAssets = ({
         />
       );
     }
-    if (asset.status === 'approved') {
+    // Hide approved badge if assets come from eventAssets and event is ongoing
+    if (asset.status === 'approved' && !isOnGoingWithEventAssets) {
       return (
         <Chip
           icon={<CheckCircleOutline />}
@@ -206,14 +211,14 @@ export const EventDetailAssets = ({
                     ? '3px solid' 
                     : showStatusBadges && showStatus && mainAsset.status === 'rejected' 
                     ? '2px solid'
-                    : showStatusBadges && showStatus && mainAsset.status === 'approved'
+                    : showStatusBadges && showStatus && mainAsset.status === 'approved' && !isOnGoingWithEventAssets
                     ? '2px solid'
                     : 'none',
                   borderColor: rejectMode && isAssetSelected(mainAsset.assetId)
                     ? 'error.main'
                     : showStatusBadges && showStatus && mainAsset.status === 'rejected'
                     ? 'error.main'
-                    : showStatusBadges && showStatus && mainAsset.status === 'approved'
+                    : showStatusBadges && showStatus && mainAsset.status === 'approved' && !isOnGoingWithEventAssets
                     ? 'success.main'
                     : 'transparent'
                 }}
@@ -274,14 +279,14 @@ export const EventDetailAssets = ({
                             ? '3px solid'
                             : showStatusBadges && showStatus && eventAsset.status === 'rejected'
                             ? '2px solid'
-                            : showStatusBadges && showStatus && eventAsset.status === 'approved'
+                            : showStatusBadges && showStatus && eventAsset.status === 'approved' && !isOnGoingWithEventAssets
                             ? '2px solid'
                             : 'none',
                           borderColor: rejectMode && isAssetSelected(eventAsset.assetId)
                             ? 'error.main'
                             : showStatusBadges && showStatus && eventAsset.status === 'rejected'
                             ? 'error.main'
-                            : showStatusBadges && showStatus && eventAsset.status === 'approved'
+                            : showStatusBadges && showStatus && eventAsset.status === 'approved' && !isOnGoingWithEventAssets
                             ? 'success.main'
                             : 'transparent'
                         }}

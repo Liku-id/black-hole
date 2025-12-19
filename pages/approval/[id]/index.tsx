@@ -342,15 +342,20 @@ function ApprovalDetail() {
 
   // Global Event Approval/Rejection Handlers
   const handleSubmitReviewConfirm = async () => {
-    if (!id) return;
+    if (!id || !submission?.event) return;
     
     setGlobalApprovalLoading(true);
     try {
       // Determine the action based on section statuses
       const action = finalAction === 'approve' ? 'approved' : 'rejected';
       
+      // Use submission.event.id when event status is on_going, otherwise use event-submission id from router
+      const eventIdToUse = submission.event.eventStatus === 'on_going' 
+        ? submission.event.id 
+        : (id as string);
+      
       await eventSubmissionsService.approveOrRejectEvent(
-        id as string,
+        eventIdToUse,
         action
       );
       
