@@ -21,6 +21,7 @@ import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { StatusBadge } from '@/components/features/events/status-badge';
+import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 
@@ -30,6 +31,7 @@ function EventDetail() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('detail');
+  const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const { showSuccess } = useToast();
 
   // Set active tab from query params on mount and when query changes
@@ -202,26 +204,51 @@ function EventDetail() {
           assetStatus = 'approved';
         }
       } else {
-        // No eventAssetChanges - fall back to eventAssets statuses
-        const assetsToCheck = eventDetail.eventAssets || [];
+        // For on_going events, if eventAssetChanges is empty, don't show tab status
+        if (eventDetail.eventStatus === 'on_going') {
+          assetStatus = undefined;
+        } else {
+          // For on_review events, fall back to eventAssets statuses
+          const assetsToCheck = eventDetail.eventAssets || [];
 
-        const hasRejectedAsset = assetsToCheck.some(
-          (ea: any) => ea.status === 'rejected'
-        );
-        const hasPendingAsset = assetsToCheck.some(
-          (ea: any) => !ea.status || ea.status === 'pending'
-        );
-        const allAssetsApproved =
-          assetsToCheck.length > 0 &&
-          assetsToCheck.every((ea: any) => ea.status === 'approved');
+          const hasRejectedAsset = assetsToCheck.some(
+            (ea: any) => ea.status === 'rejected'
+          );
+          const hasPendingAsset = assetsToCheck.some(
+            (ea: any) => !ea.status || ea.status === 'pending'
+          );
+          const allAssetsApproved =
+            assetsToCheck.length > 0 &&
+            assetsToCheck.every((ea: any) => ea.status === 'approved');
 
-        if (hasRejectedAsset) {
+          if (hasRejectedAsset) {
+            assetStatus = 'rejected';
+          } else if (hasPendingAsset) {
+            assetStatus = 'pending';
+          } else if (allAssetsApproved) {
+            assetStatus = 'approved';
+          }
+        }
+      }
+    } else if (
+      eventDetail.eventStatus === 'approved'
+    ) {
+      // For approved events, only show status if eventAssetChanges exists
+      const assetChanges = eventDetail.eventAssetChanges || [];
+
+      if (assetChanges.length > 0) {
+        // Read status directly from firstChange.status
+        const firstChangeStatus = assetChanges[0]?.status;
+        if (firstChangeStatus === 'rejected') {
           assetStatus = 'rejected';
-        } else if (hasPendingAsset) {
+        } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
           assetStatus = 'pending';
-        } else if (allAssetsApproved) {
+        } else if (firstChangeStatus === 'approved') {
           assetStatus = 'approved';
         }
+      } else {
+        // If eventAssetChanges is empty, don't show tab status
+        assetStatus = undefined;
       }
     } else {
       // For other statuses, fall back to eventAssets status fields
@@ -259,12 +286,26 @@ function EventDetail() {
       eventDetail.ticketTypes?.length > 0 &&
       eventDetail.ticketTypes?.every((tt: any) => tt.status === 'approved');
 
-    if (hasPendingTicket) {
-      ticketStatus = 'pending';
-    } else if (hasRejectedTicket) {
-      ticketStatus = 'rejected';
-    } else if (allApproved && eventDetail.eventStatus !== 'on_going') {
-      ticketStatus = 'approved';
+    // For on_going or approved events, only show status if there are pending tickets
+    if (
+      eventDetail.eventStatus === 'on_going' ||
+      eventDetail.eventStatus === 'approved'
+    ) {
+      if (hasPendingTicket) {
+        ticketStatus = 'pending';
+      } else {
+        // Don't show tab status if no pending tickets
+        ticketStatus = undefined;
+      }
+    } else {
+      // For other event statuses, use the original logic
+      if (hasPendingTicket) {
+        ticketStatus = 'pending';
+      } else if (hasRejectedTicket) {
+        ticketStatus = 'rejected';
+      } else if (allApproved) {
+        ticketStatus = 'approved';
+      }
     }
 
     return {
@@ -386,6 +427,9 @@ function EventDetail() {
       // Mutate event detail untuk update data
       await mutate();
 
+      // Close modal
+      setIsSubmitConfirmOpen(false);
+
       // Show success toast
       const message =
         eventDetail.eventStatus === 'rejected'
@@ -402,6 +446,36 @@ function EventDetail() {
     } finally {
       setSubmitLoading(false);
     }
+  };
+
+  const getSubmitButtonText = () => {
+    if (!eventDetail) return 'Submit Event';
+    if (eventDetail.eventStatus === 'approved') return 'Submit Changes';
+    if (eventDetail.eventStatus === 'on_going') return 'Submit Changes';
+    if (eventDetail.eventStatus === 'rejected') return 'Resubmit Event';
+    return 'Submit Event';
+  };
+
+  const getSubmitModalTitle = () => {
+    if (!eventDetail) return 'Submit Event';
+    if (eventDetail.eventStatus === 'approved') return 'Submit Changes';
+    if (eventDetail.eventStatus === 'on_going') return 'Submit Changes';
+    if (eventDetail.eventStatus === 'rejected') return 'Resubmit Event';
+    return 'Submit Event';
+  };
+
+  const getSubmitModalMessage = () => {
+    if (!eventDetail) return 'Are you sure you want to submit this event?';
+    if (eventDetail.eventStatus === 'approved') {
+      return `Are you sure you want to submit the changes for "${eventDetail.name}"?`;
+    }
+    if (eventDetail.eventStatus === 'on_going') {
+      return `Are you sure you want to submit the changes for "${eventDetail.name}"?`;
+    }
+    if (eventDetail.eventStatus === 'rejected') {
+      return `Are you sure you want to resubmit the event "${eventDetail.name}"?`;
+    }
+    return `Are you sure you want to submit the event "${eventDetail.name}"?`;
   };
 
   if (loading) {
@@ -486,20 +560,14 @@ function EventDetail() {
                     <>
                       <Button
                         variant="primary"
-                        onClick={handleSubmitEvent}
+                        onClick={() => setIsSubmitConfirmOpen(true)}
                         disabled={
                           submitLoading ||
                           !isSubmitButtonEnabled() ||
                           eventDetail.eventUpdateRequestStatus === 'pending'
                         }
                       >
-                        {eventDetail.eventStatus === 'approved'
-                          ? 'Submit Changes'
-                          : eventDetail.eventStatus === 'on_going'
-                            ? 'Submit Changes'
-                            : eventDetail.eventStatus === 'rejected'
-                              ? 'Resubmit Event'
-                              : 'Submit Event'}
+                        {getSubmitButtonText()}
                       </Button>
                       {errorMessage && (
                         <Overline color="error" sx={{ mt: 1 }}>
@@ -569,13 +637,36 @@ function EventDetail() {
           <EventDetailAssets
             eventDetail={eventDetail}
             eventAssetChanges={eventDetail?.eventAssetChanges}
-            showStatus={showStatusIndicators}
+            showStatus={
+              showStatusIndicators &&
+              !(
+                (eventDetail.eventStatus === 'on_going' ||
+                  eventDetail.eventStatus === 'approved') &&
+                (!eventDetail.eventAssetChanges ||
+                  eventDetail.eventAssetChanges.length === 0)
+              )
+            }
           />
         )}
         {activeTab === 'tickets' && (
-          <EventDetailTicket eventDetail={eventDetail} showStatus={true} />
+          <EventDetailTicket eventDetail={eventDetail} showStatus={true}           />
         )}
       </Card>
+
+      {/* Submit Confirmation Modal */}
+      <ApprovalModal
+        error={errorMessage}
+        eventName={eventDetail?.name}
+        loading={submitLoading}
+        message={getSubmitModalMessage()}
+        open={isSubmitConfirmOpen}
+        title={getSubmitModalTitle()}
+        onClose={() => {
+          setIsSubmitConfirmOpen(false);
+          setErrorMessage(null);
+        }}
+        onConfirm={handleSubmitEvent}
+      />
     </DashboardLayout>
   );
 }

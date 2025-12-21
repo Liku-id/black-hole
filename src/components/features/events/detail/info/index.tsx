@@ -252,7 +252,7 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                     variant="primary"
                     onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
                   >
-                    Edit Detail Event
+                    Edit Event Details
                   </Button>
                 </Box>
               );
@@ -285,7 +285,7 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                 variant="primary"
                 onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
               >
-                Edit Detail Event
+                Edit Event Details
               </Button>
             </Box>
           );

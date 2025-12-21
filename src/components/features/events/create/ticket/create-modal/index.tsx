@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import { Button, Modal, TextField, TextArea, Body2 } from '@/components/common';
+import { dateUtils } from '@/utils';
 
 import { TicketDateModal } from '../date-modal';
 import { SalesModal } from '../sales-modal';
@@ -47,6 +48,11 @@ interface TicketCategory {
   status?: string;
   rejectedFields?: string[];
   rejectedReason?: string;
+  // Original ISO dates for validation
+  originalSalesStartDate?: string;
+  originalSalesEndDate?: string;
+  originalTicketStartDate?: string;
+  originalTicketEndDate?: string;
 }
 
 interface TicketCreateModalProps {
@@ -107,9 +113,9 @@ export const TicketCreateModal = ({
     return editingTicket.rejectedFields.includes(fieldName);
   };
 
-  // Show rejection info if event status is rejected or draft AND ticket status is rejected
+  // Show rejection info if event status is rejected, draft, or on_going AND ticket status is rejected
   const shouldShowRejectionInfo = 
-    (eventStatus === 'rejected' || eventStatus === 'draft') && 
+    (eventStatus === 'rejected' || eventStatus === 'draft' || eventStatus === 'on_going') && 
     editingTicket?.status === 'rejected';
 
   const methods = useForm<TicketFormData>({
@@ -177,6 +183,115 @@ export const TicketCreateModal = ({
   const ticketEndDate = watch('ticketEndDate');
 
   const handleSubmit = async (data: any) => {
+    // Validate rejected fields for on_going or rejected events when editing a rejected ticket
+    const isOnGoingOrRejected =
+      eventStatus === 'on_going' || eventStatus === 'rejected';
+
+    if (
+      isOnGoingOrRejected &&
+      editingTicket &&
+      editingTicket.status === 'rejected' &&
+      editingTicket.rejectedFields &&
+      editingTicket.rejectedFields.length > 0
+    ) {
+      // Check if any rejected field has been changed
+      let hasFixedRejections = false;
+
+      for (const rejectedField of editingTicket.rejectedFields) {
+        let fieldChanged = false;
+
+        switch (rejectedField) {
+          case 'name':
+            fieldChanged = data.name !== editingTicket.name;
+            break;
+          case 'description':
+            fieldChanged = data.description !== editingTicket.description;
+            break;
+          case 'price':
+            fieldChanged = parseInt(data.price) !== editingTicket.price;
+            break;
+          case 'quantity':
+            fieldChanged = parseInt(data.quantity) !== editingTicket.quantity;
+            break;
+          case 'max_order_quantity':
+            fieldChanged =
+              parseInt(data.maxPerUser) !== editingTicket.maxPerUser;
+            break;
+          case 'sales_start_date':
+            // Compare ISO dates - use original ISO date if available
+            const currentSalesStartISO =
+              data.salesStartRawDate &&
+              data.salesStartTime &&
+              data.salesStartTimeZone
+                ? dateUtils.formatDateISO({
+                    date: data.salesStartRawDate,
+                    time: data.salesStartTime,
+                    timeZone: data.salesStartTimeZone
+                  })
+                : dateUtils.toIso(data.salesStartDate);
+            const originalSalesStartISO = editingTicket.originalSalesStartDate
+              ? dateUtils.toIso(editingTicket.originalSalesStartDate)
+              : dateUtils.toIso(editingTicket.salesStartDate);
+            fieldChanged = currentSalesStartISO !== originalSalesStartISO;
+            break;
+          case 'sales_end_date':
+            const currentSalesEndISO =
+              data.salesEndRawDate &&
+              data.salesEndTime &&
+              data.salesEndTimeZone
+                ? dateUtils.formatDateISO({
+                    date: data.salesEndRawDate,
+                    time: data.salesEndTime,
+                    timeZone: data.salesEndTimeZone
+                  })
+                : dateUtils.toIso(data.salesEndDate);
+            const originalSalesEndISO = editingTicket.originalSalesEndDate
+              ? dateUtils.toIso(editingTicket.originalSalesEndDate)
+              : dateUtils.toIso(editingTicket.salesEndDate);
+            fieldChanged = currentSalesEndISO !== originalSalesEndISO;
+            break;
+          case 'ticketStartDate':
+            const currentTicketStartISO = data.ticketStartRawDate
+              ? dateUtils.formatDateISO({
+                  date: data.ticketStartRawDate,
+                  timeZone: '+07:00'
+                })
+              : dateUtils.toIso(data.ticketStartDate);
+            const originalTicketStartISO = editingTicket.originalTicketStartDate
+              ? dateUtils.toIso(editingTicket.originalTicketStartDate)
+              : dateUtils.toIso(editingTicket.ticketStartDate);
+            fieldChanged = currentTicketStartISO !== originalTicketStartISO;
+            break;
+          case 'ticketEndDate':
+            const currentTicketEndISO = data.ticketEndRawDate
+              ? dateUtils.formatDateISO({
+                  date: data.ticketEndRawDate,
+                  timeZone: '+07:00'
+                })
+              : dateUtils.toIso(data.ticketEndDate);
+            const originalTicketEndISO = editingTicket.originalTicketEndDate
+              ? dateUtils.toIso(editingTicket.originalTicketEndDate)
+              : dateUtils.toIso(editingTicket.ticketEndDate);
+            fieldChanged = currentTicketEndISO !== originalTicketEndISO;
+            break;
+        }
+
+        if (fieldChanged) {
+          hasFixedRejections = true;
+          break; // At least one rejected field has been fixed
+        }
+      }
+
+      // If no rejected fields have been fixed, show error
+      if (!hasFixedRejections) {
+        alert(
+          'Please fix all rejected fields before saving. Rejected fields must be changed.'
+        );
+        setLoading(false);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       await onSubmit(data);

@@ -33,6 +33,15 @@ export const EventDetailTicket = ({
     router.push(`/events/edit/${eventDetail.metaUrl}/tickets`);
   };
 
+  // Check if there are any pending tickets
+  const hasPendingTicket = eventDetail.ticketTypes?.some(
+    (tt: any) => !tt.status || tt.status === 'pending'
+  );
+
+  // Hide Edit button if event is on_going and has pending tickets
+  const shouldHideEditButton =
+    eventDetail.eventStatus === 'on_going' && hasPendingTicket;
+
   return (
     <Box>
       {!hideHeader && (
@@ -49,9 +58,10 @@ export const EventDetailTicket = ({
 
             {eventDetail.eventStatus !== 'done' &&
               eventDetail.eventStatus !== 'on_review' &&
-              !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) && (
+              !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) &&
+              !shouldHideEditButton && (
                 <Button variant="primary" onClick={handleEditTickets}>
-                  Edit Ticket Detail
+                  Edit Tickets
                 </Button>
               )}
           </Box>

@@ -245,8 +245,8 @@ function EditEvent() {
         return;
       }
 
-      const result = await eventsService.updateEvent({
-        metaUrl: eventDetail?.id || '',
+      const result = await eventsService.updateEventDetails({
+        eventId: eventDetail?.id || '',
         data: payload
       });
 
@@ -322,8 +322,8 @@ function EditEvent() {
       <H2 color="text.primary" fontWeight={700} mb="21px">
         {eventDetail.eventStatus === 'on_going' ||
         eventDetail.eventStatus === 'approved'
-          ? 'Edit Event Request Detail'
-          : 'Edit Event Detail'}
+          ? 'Edit Request Event Details'
+          : 'Edit Event Details'}
       </H2>
 
       {/* Main Card */}

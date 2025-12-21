@@ -10,7 +10,7 @@ import {
   TableRow,
   Tooltip
 } from '@mui/material';
-import { InfoOutlined, Circle, Info } from '@mui/icons-material';
+import { Info } from '@mui/icons-material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';

@@ -204,12 +204,18 @@ const EditTicketsPage = () => {
 
   const handleEditTicket = (ticket: TicketCategory) => {
     // Format the ticket data for the modal to display properly
+    // Preserve original ISO dates for validation
     const formattedTicket = {
       ...ticket,
       salesStartDate: dateUtils.formatDateTimeWIB(ticket.salesStartDate),
       salesEndDate: dateUtils.formatDateTimeWIB(ticket.salesEndDate),
       ticketStartDate: dateUtils.formatDateDDMMYYYY(ticket.ticketStartDate),
-      ticketEndDate: dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate)
+      ticketEndDate: dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate),
+      // Store original ISO dates for validation
+      originalSalesStartDate: ticket.salesStartDate,
+      originalSalesEndDate: ticket.salesEndDate,
+      originalTicketStartDate: ticket.ticketStartDate,
+      originalTicketEndDate: ticket.ticketEndDate
     };
     setEditingTicket(formattedTicket);
     setModalOpen(true);

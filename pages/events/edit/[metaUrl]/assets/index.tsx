@@ -76,6 +76,118 @@ const EditAssetsPage = () => {
       return;
     }
 
+    // Validate rejected assets for on_going events with rejected Updated Assets or rejected events
+    const isOnGoingWithRejectedAssets =
+      eventDetail.eventStatus === 'on_going' &&
+      eventDetail.eventAssetChanges &&
+      eventDetail.eventAssetChanges.length > 0 &&
+      eventDetail.eventAssetChanges[0].status === 'rejected';
+    
+    const isRejectedEvent = eventDetail.eventStatus === 'rejected';
+    
+    if (isOnGoingWithRejectedAssets || isRejectedEvent) {
+      let firstAssetChange;
+      let rejectedAssetIds: string[] = [];
+      
+      if (isRejectedEvent) {
+        // For rejected events, get rejected info from eventAssetChanges[0]
+        firstAssetChange = eventDetail.eventAssetChanges?.[0];
+        rejectedAssetIds = firstAssetChange?.rejectedFields || [];
+      } else {
+        // For on_going events with rejected Updated Assets
+        firstAssetChange = eventDetail.eventAssetChanges[0];
+        rejectedAssetIds = firstAssetChange.rejectedFields || [];
+      }
+      
+      if (rejectedAssetIds.length > 0) {
+        // Map rejected assetIds to their order positions
+        const rejectedAssetPositions = new Map<number, string>(); // order -> assetId
+        
+        // Try to map from eventAssetChanges.items first
+        if (firstAssetChange && firstAssetChange.items) {
+          firstAssetChange.items.forEach((item: any) => {
+            const itemAssetId = item.assetId || item.id;
+            if (rejectedAssetIds.includes(itemAssetId)) {
+              rejectedAssetPositions.set(Number(item.order), itemAssetId);
+            }
+          });
+        }
+        // Fallback to eventAssets if eventAssetChanges.items is not available
+        else if (eventDetail.eventAssets) {
+          eventDetail.eventAssets.forEach((ea: any) => {
+            const assetId = ea.asset?.id || ea.assetId;
+            if (assetId && rejectedAssetIds.includes(assetId)) {
+              rejectedAssetPositions.set(Number(ea.order), assetId);
+            }
+          });
+        }
+
+        // Check if all rejected assets have been changed
+        const unchangedRejectedAssets: number[] = [];
+        
+        rejectedAssetPositions.forEach((rejectedAssetId, order) => {
+          let hasChanged = false;
+          
+          if (order === 1) {
+            // Thumbnail position
+            // Check if new thumbnail was uploaded (replacing the rejected asset)
+            if (assetChangeInfo.files.thumbnail) {
+              hasChanged = true;
+            }
+            // Check if existing thumbnail was deleted
+            else if (
+              assetChangeInfo.existingAssets.thumbnail &&
+              assetChangeInfo.existingAssets.thumbnail.id === rejectedAssetId &&
+              assetChangeInfo.deletedAssetIds.includes(
+                assetChangeInfo.existingAssets.thumbnail.eventAssetId
+              )
+            ) {
+              hasChanged = true;
+            }
+          } else {
+            // Supporting image position (order 2-5)
+            const supportingImageIndex = order - 2;
+            
+            // Check if new supporting image was uploaded at this position (replacing the rejected asset)
+            if (
+              supportingImageIndex >= 0 &&
+              supportingImageIndex < assetChangeInfo.files.supportingImages.length &&
+              assetChangeInfo.files.supportingImages[supportingImageIndex]
+            ) {
+              hasChanged = true;
+            }
+            // Check if existing supporting image was deleted
+            else if (
+              supportingImageIndex >= 0 &&
+              supportingImageIndex < assetChangeInfo.existingAssets.supportingImages.length &&
+              assetChangeInfo.existingAssets.supportingImages[supportingImageIndex] &&
+              assetChangeInfo.existingAssets.supportingImages[supportingImageIndex]!.id ===
+                rejectedAssetId &&
+              assetChangeInfo.deletedAssetIds.includes(
+                assetChangeInfo.existingAssets.supportingImages[supportingImageIndex]!
+                  .eventAssetId
+              )
+            ) {
+              hasChanged = true;
+            }
+          }
+          
+          if (!hasChanged) {
+            unchangedRejectedAssets.push(order);
+          }
+        });
+
+        // If there are unchanged rejected assets, show error
+        if (unchangedRejectedAssets.length > 0) {
+          setShowError(true);
+          setErrorMessage(
+            'Please fix all rejected assets before updating. Rejected assets must be replaced or removed.'
+          );
+          return;
+        }
+      }
+    }
+
     // Check if thumbnail is required (either existing or new)
     const hasThumbnail =
       assetChangeInfo.files.thumbnail ||

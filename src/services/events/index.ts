@@ -92,16 +92,16 @@ class EventsService {
     }
   }
 
-  async updateEvent({
-    metaUrl,
+  async updateEventDetails({
+    eventId,
     data
   }: {
-    metaUrl: string;
+    eventId: string;
     data: CreateEventRequest;
   }): Promise<EventDetailResponse> {
     try {
       return await apiUtils.put<EventDetailResponse>(
-        `/api/events/${metaUrl}/edit`,
+        `/api/events/${eventId}/edit`,
         { ...data },
         'Failed to update event'
       );

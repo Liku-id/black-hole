@@ -454,8 +454,8 @@ export const EventEditInfo = ({
               <Button type="submit" variant="primary">
                 {eventDetail.eventStatus === 'approved' ||
                 eventDetail.eventStatus === 'on_going'
-                  ? 'Request Update Event'
-                  : 'Update Event'}
+                  ? 'Request Update Event Details'
+                  : 'Update Event Details'}
               </Button>
             </Box>
           </Box>

@@ -445,7 +445,7 @@ export const EventDetailAssets = ({
                 (shouldShowForOnGoingOrApproved ||
                   shouldShowForRejectedOrDraft) && (
                   <Button variant="primary" onClick={handleEditAssets}>
-                    Edit Thumbnail
+                    Edit Assets
                   </Button>
                 )
               );
@@ -517,6 +517,24 @@ export const EventDetailAssets = ({
               changedSideAssets,
               assetChangeStatus === 'rejected'
             )}
+            {/* Show Original Assets below Updated Assets for on_going events in approval mode */}
+            {eventDetail.eventStatus === 'on_going' &&
+              eventDetail.eventAssets &&
+              eventDetail.eventAssets.length > 0 && (
+                <>
+                  <Box alignItems="center" display="flex" gap={1} mb={2} mt={4}>
+                    <H3 color="text.primary" fontWeight={700}>
+                      Original Assets
+                    </H3>
+                  </Box>
+                  {renderAssetGrid(
+                    eventDetail.eventAssets.slice(0, 5),
+                    eventDetail.eventAssets[0],
+                    eventDetail.eventAssets.slice(1, 5),
+                    false // Don't show status badges on original assets
+                  )}
+                </>
+              )}
           </>
         ) : (
           <Box

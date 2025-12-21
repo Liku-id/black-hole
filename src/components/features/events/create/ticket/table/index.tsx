@@ -1,7 +1,6 @@
 import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { FC } from 'react';
-import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import {
   Body2,

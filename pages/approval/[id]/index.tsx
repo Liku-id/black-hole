@@ -108,7 +108,25 @@ function ApprovalDetail() {
     // Read from eventAssetChanges[0].status (firstChange) if available, otherwise fall back to eventAssets
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
 
-    if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
+    // For on_going events, if eventAssetChanges is empty, don't show tab status
+    if (event.eventStatus === 'on_going') {
+      if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
+        // Read status directly from firstChange
+        const firstChange = event.eventAssetChanges[0];
+        const firstChangeStatus = firstChange.status;
+
+        if (firstChangeStatus === 'rejected') {
+          assetStatus = 'rejected';
+        } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
+          assetStatus = 'pending';
+        } else if (firstChangeStatus === 'approved') {
+          assetStatus = 'approved';
+        }
+      } else {
+        // If eventAssetChanges is empty for on_going events, show as approved
+        assetStatus = 'approved';
+      }
+    } else if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
       // Read status directly from firstChange
       const firstChange = event.eventAssetChanges[0];
       const firstChangeStatus = firstChange.status;
@@ -180,7 +198,10 @@ function ApprovalDetail() {
       tabStatuses.detail,
       tabStatuses.assets,
       tabStatuses.tickets
-    ];
+    ].filter((status) => status !== undefined); // Filter out undefined (unrequested sections)
+
+    // If no sections need review, return true
+    if (statuses.length === 0) return true;
 
     // All sections must be either approved or rejected (no pending)
     return statuses.every(
@@ -194,7 +215,7 @@ function ApprovalDetail() {
       tabStatuses.detail,
       tabStatuses.assets,
       tabStatuses.tickets
-    ];
+    ].filter((status) => status !== undefined); // Filter out undefined (unrequested sections)
 
     // If any section is rejected, the final action is reject
     if (statuses.some((status) => status === 'rejected')) {
@@ -503,17 +524,22 @@ function ApprovalDetail() {
         </Box>
 
         {/* Global Submit Review Button */}
-        <Button
-          variant="primary"
-          onClick={() => setIsSubmitReviewConfirmOpen(true)}
-          disabled={
-            !allSectionsReviewed ||
-            globalApprovalLoading ||
-            submission.eventUpdateRequest?.status === 'rejected'
-          }
-        >
-          Submit Review
-        </Button>
+        {!(
+          submission.event?.eventStatus === 'on_going' &&
+          submission.eventUpdateRequest?.status === 'rejected'
+        ) && (
+          <Button
+            variant="primary"
+            onClick={() => setIsSubmitReviewConfirmOpen(true)}
+            disabled={
+              !allSectionsReviewed ||
+              globalApprovalLoading ||
+              submission.eventUpdateRequest?.status === 'rejected'
+            }
+          >
+            Submit Review
+          </Button>
+        )}
       </Box>
 
       {/* Tabs */}
@@ -632,6 +658,15 @@ function ApprovalDetail() {
                 Event Assets
               </H3>
               {(() => {
+                // For on_going events, if eventAssetChanges is empty, don't show buttons
+                if (
+                  submission.event?.eventStatus === 'on_going' &&
+                  (!submission.event?.eventAssetChanges ||
+                    submission.event.eventAssetChanges.length === 0)
+                ) {
+                  return null;
+                }
+
                 // If eventAssetChanges is null, fall back to eventAssets
                 const hasAssetChanges =
                   submission.event?.eventAssetChanges &&
