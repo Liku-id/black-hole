@@ -118,12 +118,12 @@ function EditEvent() {
 
       // Use eventUpdateRequest data if available for comparison, otherwise use eventDetail
       const comparisonSource = eventDetail?.eventUpdateRequest || eventDetail;
-      const comparisonCityId = eventDetail?.eventUpdateRequest 
-        ? eventDetail.eventUpdateRequest.cityId 
-        : (eventDetail?.city?.id);
+      const comparisonCityId = eventDetail?.eventUpdateRequest
+        ? eventDetail.eventUpdateRequest.cityId
+        : eventDetail?.city?.id;
       const comparisonPaymentMethodIds = eventDetail?.eventUpdateRequest
-        ? (eventDetail.eventUpdateRequest.paymentMethodIds || [])
-        : (eventDetail?.paymentMethods?.map((pm: any) => pm.id) || []);
+        ? eventDetail.eventUpdateRequest.paymentMethodIds || []
+        : eventDetail?.paymentMethods?.map((pm: any) => pm.id) || [];
 
       // Check each field for changes and only add to payload if changed
       if (hasChanged(formData.city, comparisonCityId)) {
@@ -142,7 +142,9 @@ function EditEvent() {
         payload.eventType = formData.eventType;
       }
 
-      if (hasChanged(formData.eventDescription, comparisonSource?.description)) {
+      if (
+        hasChanged(formData.eventDescription, comparisonSource?.description)
+      ) {
         payload.description = formData.eventDescription;
       }
 
@@ -150,21 +152,31 @@ function EditEvent() {
         payload.address = formData.address;
       }
 
-      if (hasChanged(processedGoogleMapsUrl, comparisonSource?.mapLocationUrl)) {
+      if (
+        hasChanged(processedGoogleMapsUrl, comparisonSource?.mapLocationUrl)
+      ) {
         payload.mapLocationUrl = processedGoogleMapsUrl;
       }
 
       // Only include dates if they actually changed
       // Check if user actually modified the date/time fields
-      const comparisonDateRange = comparisonSource.startDate && comparisonSource.endDate
-        ? `${dateUtils.formatDateMMMDYYYY(comparisonSource.startDate)} - ${dateUtils.formatDateMMMDYYYY(comparisonSource.endDate)}`
-        : '';
-      const comparisonTimeRange = comparisonSource.startDate && comparisonSource.endDate
-        ? `${dateUtils.formatTime(comparisonSource.startDate)} - ${dateUtils.formatTime(comparisonSource.endDate)} WIB`
-        : '';
+      const comparisonDateRange =
+        comparisonSource.startDate && comparisonSource.endDate
+          ? `${dateUtils.formatDateMMMDYYYY(comparisonSource.startDate)} - ${dateUtils.formatDateMMMDYYYY(comparisonSource.endDate)}`
+          : '';
+      const comparisonTimeRange =
+        comparisonSource.startDate && comparisonSource.endDate
+          ? `${dateUtils.formatTime(comparisonSource.startDate)} - ${dateUtils.formatTime(comparisonSource.endDate)} WIB`
+          : '';
 
-      const hasDateRangeChanged = hasChanged(formData.dateRange, comparisonDateRange);
-      const hasTimeRangeChanged = hasChanged(formData.timeRange, comparisonTimeRange);
+      const hasDateRangeChanged = hasChanged(
+        formData.dateRange,
+        comparisonDateRange
+      );
+      const hasTimeRangeChanged = hasChanged(
+        formData.timeRange,
+        comparisonTimeRange
+      );
 
       // Only include dates if user actually changed them
       if (hasDateRangeChanged || hasTimeRangeChanged) {
@@ -177,7 +189,12 @@ function EditEvent() {
         }
       }
 
-      if (hasChanged(formData.termsAndConditions, comparisonSource?.termAndConditions)) {
+      if (
+        hasChanged(
+          formData.termsAndConditions,
+          comparisonSource?.termAndConditions
+        )
+      ) {
         payload.termAndConditions = formData.termsAndConditions;
       }
 
@@ -193,9 +210,14 @@ function EditEvent() {
         payload.tax = calculatedTax;
       }
 
-      const comparisonLoginRequired = (comparisonSource as any).login_required !== undefined
-        ? ((comparisonSource as any).login_required ? 1 : 2)
-        : (eventDetail?.login_required ? 1 : 2);
+      const comparisonLoginRequired =
+        (comparisonSource as any).login_required !== undefined
+          ? (comparisonSource as any).login_required
+            ? 1
+            : 2
+          : eventDetail?.login_required
+            ? 1
+            : 2;
       if (hasChanged(formData.loginRequired, comparisonLoginRequired)) {
         payload.login_required = formData.loginRequired === 1;
       }
@@ -207,6 +229,18 @@ function EditEvent() {
       );
 
       if (changedFields.length === 0) {
+        // Check if there are rejected fields that need to be fixed
+        const rejectedFields = eventDetail?.eventUpdateRequest?.rejectedFields || 
+                              eventDetail?.rejectedFields || [];
+        
+        if (rejectedFields.length > 0) {
+          setUpdateError(
+            'Please fix the rejected fields before submitting. Review the fields marked with error indicators and make necessary corrections.'
+          );
+          setIsUpdating(false);
+          return;
+        }
+        
         setIsUpdating(false);
         return;
       }
@@ -217,7 +251,7 @@ function EditEvent() {
       });
 
       if (result && result.body && result.body.id) {
-        router.push(`/events/${metaUrl}`);
+        router.push(`/events/${result.body.metaUrl}`);
       }
     } catch (error) {
       setUpdateError(
@@ -286,7 +320,10 @@ function EditEvent() {
 
       {/* Title */}
       <H2 color="text.primary" fontWeight={700} mb="21px">
-        Edit Event Detail
+        {eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved'
+          ? 'Edit Event Request Detail'
+          : 'Edit Event Detail'}
       </H2>
 
       {/* Main Card */}

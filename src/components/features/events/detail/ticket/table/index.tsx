@@ -1,7 +1,6 @@
 import { Box, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { FC, useState } from 'react';
-import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import {
   Body2,
@@ -14,6 +13,7 @@ import { dateUtils, formatPrice } from '@/utils';
 
 import { TicketDetailModal } from './modal';
 import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
+import { StatusBadge } from '../../../status-badge';
 
 interface EventDetailTicketTableProps {
   ticketTypes: TicketType[];
@@ -37,50 +37,23 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const statusMap = {
+    approved: 'on_going',
+    rejected: 'rejected',
+    pending: 'pending'
+  };
+
   const handleViewDetail = (ticket: TicketType) => {
     setSelectedTicket(ticket);
     setModalOpen(true);
   };
 
-  const getStatusChip = (status?: string) => {
-    if (status === 'rejected') {
-      return (
-        <ErrorOutline 
-          sx={{ 
-            color: 'error.main',
-            fontSize: '24px'
-          }} 
-        />
-      );
-    }
-    if (status === 'approved') {
-      return (
-        <CheckCircleOutline 
-          sx={{ 
-            color: 'success.main',
-            fontSize: '24px'
-          }} 
-        />
-      );
-    }
-    if (status === 'pending') {
-      return (
-        <ErrorOutline 
-          sx={{ 
-            color: 'grey.500',
-            fontSize: '24px'
-          }} 
-        />
-      );
-    }
-    return null;
-  };
-
   // Determine which modal to show based on approval mode and ticket status
   // Show review modal only for tickets that haven't been reviewed yet (no status or pending)
   // Show regular modal for approved or rejected tickets (read-only view)
-  const shouldShowReviewModal = approvalMode && 
-    selectedTicket?.status !== 'approved' && 
+  const shouldShowReviewModal =
+    approvalMode &&
+    selectedTicket?.status !== 'approved' &&
     selectedTicket?.status !== 'rejected';
 
   const handleCloseModal = () => {
@@ -131,12 +104,12 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
         <Table>
           <StyledTableHead>
             <TableRow>
-              <TableCell sx={{ width: '5%' }}>
+              <TableCell sx={{ width: '3%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   No.
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '15%' }}>
+              <TableCell sx={{ width: '23%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Name
                 </Body2>
@@ -151,23 +124,23 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                   Quantity
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '10%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Max. Per User
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '15%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Sale Start Date
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '15%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Sale End Date
                 </Body2>
               </TableCell>
               {showStatus && (
-                <TableCell sx={{ width: '12%' }}>
+                <TableCell sx={{ width: '8%' }}>
                   <Body2 color="text.secondary" fontSize="14px">
                     Status
                   </Body2>
@@ -217,7 +190,16 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                     </TableCell>
                     {showStatus && (
                       <TableCell>
-                        {getStatusChip(ticket.status)}
+                        {ticket?.status ? (
+                          <StatusBadge
+                            status={statusMap[ticket.status]}
+                            displayName={ticket.status}
+                          />
+                        ) : (
+                          <Body2 color="text.primary" fontSize="14px">
+                            -
+                          </Body2>
+                        )}
                       </TableCell>
                     )}
                     <TableCell>

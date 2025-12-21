@@ -362,7 +362,7 @@ const EditTicketsPage = () => {
   };
 
   const handleCancel = () => {
-    router.push(`/events/${metaUrl}`);
+    router.push(`/events/${metaUrl}?tab=tickets`);
   };
 
   return (

@@ -68,7 +68,7 @@ export const EventEditInfo = ({
 
   // Use eventUpdateRequest data if available, otherwise use eventDetail
   const dataSource = eventDetail.eventUpdateRequest || eventDetail;
-  
+
   // Prepare date range and time range strings from existing data
   const dateRange =
     dataSource.startDate && dataSource.endDate
@@ -108,14 +108,14 @@ export const EventEditInfo = ({
   );
 
   // Get city ID - handle both eventDetail.city (object) and eventUpdateRequest.cityId (string)
-  const cityId = eventDetail.eventUpdateRequest 
-    ? eventDetail.eventUpdateRequest.cityId 
-    : (eventDetail.city?.id || '');
+  const cityId = eventDetail.eventUpdateRequest
+    ? eventDetail.eventUpdateRequest.cityId
+    : eventDetail.city?.id || '';
 
   // Get payment method IDs - handle both eventDetail.paymentMethods (array) and eventUpdateRequest.paymentMethodIds (array)
-  const paymentMethodIds = eventDetail.eventUpdateRequest 
-    ? (eventDetail.eventUpdateRequest.paymentMethodIds || [])
-    : (eventDetail.paymentMethods?.map((pm) => pm.id) || []);
+  const paymentMethodIds = eventDetail.eventUpdateRequest
+    ? eventDetail.eventUpdateRequest.paymentMethodIds || []
+    : eventDetail.paymentMethods?.map((pm) => pm.id) || [];
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -143,9 +143,14 @@ export const EventEditInfo = ({
       taxNominal: dataSource.tax?.toString() || '',
       eventDescription: dataSource.description || '',
       termsAndConditions: dataSource.termAndConditions || '',
-      loginRequired: (dataSource as any).login_required !== undefined 
-        ? ((dataSource as any).login_required ? 1 : 2)
-        : (eventDetail.login_required ? 1 : 2)
+      loginRequired:
+        (dataSource as any).login_required !== undefined
+          ? (dataSource as any).login_required
+            ? 1
+            : 2
+          : eventDetail.login_required
+            ? 1
+            : 2
     }
   });
 
@@ -181,16 +186,13 @@ export const EventEditInfo = ({
   };
 
   const isFieldRejected = (field: string) => {
-    return (
-      eventDetail.eventStatus === 'rejected' &&
-      eventDetail.rejectedFields?.includes(field)
-    );
+    return dataSource.rejectedFields?.includes(field);
   };
 
   return (
     <>
       {/* Rejected Reason */}
-      <RejectedReason reason={eventDetail.rejectedReason} />
+      <RejectedReason reason={dataSource.rejectedReason} />
 
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(handleFormSubmit)}>

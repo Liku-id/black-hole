@@ -129,6 +129,7 @@ export interface Event {
   eventCountByStatus: EventCountByStatus;
   soldTickets: string;
   totalRevenue: string;
+  eventUpdateRequestStatus: string;
 }
 
 // Event Detail specific interfaces

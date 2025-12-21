@@ -5,6 +5,7 @@ import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import { Button, H3, Body2 } from '@/components/common';
 import { EventDetail, EventAssetChange } from '@/types/event';
+import { RejectedReason } from '../info';
 
 interface EventDetailAssetsProps {
   eventDetail: EventDetail;
@@ -17,7 +18,7 @@ interface EventDetailAssetsProps {
   hideOriginalAssets?: boolean; // If true, only show updated assets (for approval page)
 }
 
-export const EventDetailAssets = ({ 
+export const EventDetailAssets = ({
   eventDetail,
   eventAssetChanges,
   rejectMode = false,
@@ -31,78 +32,70 @@ export const EventDetailAssets = ({
 
   // For on_going events with eventAssetChanges, we'll render two separate sections
   // For other cases, use the appropriate asset source
-  const isOnGoingWithChanges = eventDetail.eventStatus === 'on_going' && eventAssetChanges && eventAssetChanges.length > 0;
-  const firstChange = eventAssetChanges && eventAssetChanges.length > 0 ? eventAssetChanges[0] : null;
+  const isOnGoingWithChanges =
+    eventDetail.eventStatus === 'on_going' &&
+    eventAssetChanges &&
+    eventAssetChanges.length > 0;
+  const firstChange =
+    eventAssetChanges && eventAssetChanges.length > 0
+      ? eventAssetChanges[0]
+      : null;
   const assetChangeStatus = firstChange?.status; // pending, rejected, approved
-  
-  let assetsSource;
+
+  // Map eventAssets with status based on rejectedFields
+  const rejectedAssetIds = new Set(
+    eventAssetChanges && eventAssetChanges.length > 0
+      ? eventAssetChanges[0]?.rejectedFields || []
+      : []
+  );
+
+  // Prepare changedItemsSource for approval mode (hideOriginalAssets) or on_going with changes
   let changedItemsSource: any[] = [];
 
-  if (eventAssetChanges && eventAssetChanges.length > 0) {
-    const rejectedAssetIds = new Set(firstChange.rejectedFields || []);
-
-    // Extract items from eventAssetChanges
-    // For on_going events, apply rejection mapping only if status is "rejected"
-    if (isOnGoingWithChanges && assetChangeStatus === 'rejected') {
-      // Map rejectedFields IDs to assets and mark them as rejected
-      changedItemsSource = firstChange.items?.map((item: any) => {
-        return {
-          ...item,
-          status: rejectedAssetIds.has(item.assetId) ? 'rejected' : undefined,
-          rejectedReason: firstChange.rejectedReason,
-          rejectedFields: firstChange.rejectedFields
-        };
-      }) || [];
-    } else if (isOnGoingWithChanges && assetChangeStatus === 'pending') {
-      // For pending status, don't mark individual assets, just keep the items
-      changedItemsSource = firstChange.items || [];
+  if (eventAssetChanges && eventAssetChanges.length > 0 && firstChange) {
+    if (assetChangeStatus === 'pending') {
+      // For pending status, all items are pending
+      changedItemsSource = (firstChange.items || []).map((item: any) => ({
+        ...item,
+        status: 'pending'
+      }));
     } else {
-      // For rejected/on_review events (non on_going), use existing logic
-      const hasRejectedFields = rejectedAssetIds.size > 0;
-      changedItemsSource = firstChange.items?.map((item: any) => {
-        if (item.status) {
-          return {
-            ...item,
-            status: item.status,
-            rejectedReason: item.rejectedReason ?? firstChange.rejectedReason,
-            rejectedFields: item.rejectedFields ?? firstChange.rejectedFields
-          };
-        }
-
-        if (hasRejectedFields) {
-          return {
-            ...item,
-            status: rejectedAssetIds.has(item.assetId) ? 'rejected' : undefined,
-            rejectedReason: firstChange.rejectedReason,
-            rejectedFields: firstChange.rejectedFields
-          };
-        }
-
+      // For rejected/approved status, map based on rejectedFields
+      changedItemsSource = (firstChange.items || []).map((item: any) => {
+        // If assetId is in rejectedFields, mark as rejected, otherwise approved
+        const status = rejectedAssetIds.has(item.assetId || item.id)
+          ? 'rejected'
+          : 'approved';
         return {
           ...item,
-          status: firstChange.status,
+          status,
           rejectedReason: firstChange.rejectedReason,
           rejectedFields: firstChange.rejectedFields
         };
-      }) || [];
-    }
-
-    if (!isOnGoingWithChanges) {
-      // For rejected/on_review, just use eventAssetChanges items
-      assetsSource = changedItemsSource;
+      });
     }
   }
 
-  // For on_going with changes, original assets will be rendered separately
-  if (!isOnGoingWithChanges) {
-    if (!assetsSource) {
-      assetsSource = eventDetail.eventAssets;
-    }
-  }
-
-  // Sort original assets by order (for consistency)
-  const eventAssets = (assetsSource || [])
+  // Sort original assets by order and add status based on rejectedFields
+  const eventAssets = (eventDetail.eventAssets || [])
     .slice(0, 5)
+    .map((asset: any) => {
+      // If status is pending, all assets should be pending
+      if (assetChangeStatus === 'pending') {
+        return {
+          ...asset,
+          status: 'pending'
+        };
+      }
+      // If assetId is in rejectedFields, mark as rejected, otherwise approved
+      const status = rejectedAssetIds.has(asset.assetId || asset.id)
+        ? 'rejected'
+        : 'approved';
+      return {
+        ...asset,
+        status
+      };
+    })
     .sort((a: any, b: any) => Number(a.order) - Number(b.order));
   const mainAsset = eventAssets[0];
   const sideAssets = eventAssets.slice(1, 5);
@@ -136,12 +129,13 @@ export const EventDetailAssets = ({
   };
 
   // Check if assets are from eventAssets (not eventAssetChanges) and event is ongoing
-  const isOnGoingWithEventAssets = eventDetail.eventStatus === 'on_going' && 
+  const isOnGoingWithEventAssets =
+    eventDetail.eventStatus === 'on_going' &&
     (!eventAssetChanges || eventAssetChanges.length === 0);
 
   const getAssetStatusChip = (asset: any) => {
     if (!showStatus) return null;
-    
+
     if (asset.status === 'rejected') {
       return (
         <Chip
@@ -180,8 +174,55 @@ export const EventDetailAssets = ({
     return null;
   };
 
+  // Get status chip for section header (Updated Assets)
+  const getSectionStatusChip = (status?: string) => {
+    if (!showStatus || !status) return null;
+
+    switch (status) {
+      case 'pending':
+        return (
+          <Chip
+            icon={<ErrorOutline />}
+            label="Pending"
+            size="small"
+            sx={{
+              color: 'grey.600',
+              '& .MuiChip-icon': {
+                color: 'grey.500'
+              }
+            }}
+          />
+        );
+      case 'rejected':
+        return (
+          <Chip
+            icon={<ErrorOutline />}
+            label="Rejected"
+            size="small"
+            color="error"
+          />
+        );
+      case 'approved':
+        return (
+          <Chip
+            icon={<CheckCircleOutline />}
+            label="Approved"
+            size="small"
+            color="success"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   // Helper function to render asset grid
-  const renderAssetGrid = (assets: any[], mainAsset: any, sideAssets: any[], showStatusBadges: boolean = true) => {
+  const renderAssetGrid = (
+    assets: any[],
+    mainAsset: any,
+    sideAssets: any[],
+    showStatusBadges: boolean = true
+  ) => {
     if (assets.length === 0) return null;
 
     return (
@@ -205,7 +246,10 @@ export const EventDetailAssets = ({
                     onChange={(e) =>
                       onToggleAsset?.(mainAsset.assetId, e.target.checked)
                     }
-                    disabled={mainAsset.status === 'approved' || mainAsset.status === 'rejected'}
+                    disabled={
+                      mainAsset.status === 'approved' ||
+                      mainAsset.status === 'rejected'
+                    }
                     sx={{
                       '& .MuiSvgIcon-root': { fontSize: 28 }
                     }}
@@ -217,22 +261,34 @@ export const EventDetailAssets = ({
                 bgcolor="grey.100"
                 overflow="hidden"
                 position="relative"
-                sx={{ 
+                sx={{
                   aspectRatio: '16 / 9',
-                  border: rejectMode && isAssetSelected(mainAsset.assetId) 
-                    ? '3px solid' 
-                    : showStatusBadges && showStatus && mainAsset.status === 'rejected' 
-                    ? '2px solid'
-                    : showStatusBadges && showStatus && mainAsset.status === 'approved' && !isOnGoingWithEventAssets
-                    ? '2px solid'
-                    : 'none',
-                  borderColor: rejectMode && isAssetSelected(mainAsset.assetId)
-                    ? 'error.main'
-                    : showStatusBadges && showStatus && mainAsset.status === 'rejected'
-                    ? 'error.main'
-                    : showStatusBadges && showStatus && mainAsset.status === 'approved' && !isOnGoingWithEventAssets
-                    ? 'success.main'
-                    : 'transparent'
+                  border:
+                    rejectMode && isAssetSelected(mainAsset.assetId)
+                      ? '3px solid'
+                      : showStatusBadges &&
+                          showStatus &&
+                          mainAsset.status === 'rejected'
+                        ? '2px solid'
+                        : showStatusBadges &&
+                            showStatus &&
+                            mainAsset.status === 'approved' &&
+                            !isOnGoingWithEventAssets
+                          ? '2px solid'
+                          : 'none',
+                  borderColor:
+                    rejectMode && isAssetSelected(mainAsset.assetId)
+                      ? 'error.main'
+                      : showStatusBadges &&
+                          showStatus &&
+                          mainAsset.status === 'rejected'
+                        ? 'error.main'
+                        : showStatusBadges &&
+                            showStatus &&
+                            mainAsset.status === 'approved' &&
+                            !isOnGoingWithEventAssets
+                          ? 'success.main'
+                          : 'transparent'
                 }}
                 width="100%"
               >
@@ -256,7 +312,11 @@ export const EventDetailAssets = ({
           <Grid item md={6} xs={12}>
             <Grid container spacing={2}>
               {sideAssets.map((eventAsset, index) => (
-                <Grid key={eventAsset.id || eventAsset.assetId || index} item xs={6}>
+                <Grid
+                  key={eventAsset.id || eventAsset.assetId || index}
+                  item
+                  xs={6}
+                >
                   <Box position="relative">
                     {rejectMode && (
                       <Box
@@ -271,43 +331,65 @@ export const EventDetailAssets = ({
                         <Checkbox
                           checked={isAssetSelected(eventAsset.assetId)}
                           onChange={(e) =>
-                            onToggleAsset?.(eventAsset.assetId, e.target.checked)
+                            onToggleAsset?.(
+                              eventAsset.assetId,
+                              e.target.checked
+                            )
                           }
-                          disabled={eventAsset.status === 'approved' || eventAsset.status === 'rejected'}
+                          disabled={
+                            eventAsset.status === 'approved' ||
+                            eventAsset.status === 'rejected'
+                          }
                           sx={{
                             '& .MuiSvgIcon-root': { fontSize: 28 }
                           }}
                         />
                       </Box>
                     )}
-                      {!rejectMode && showStatusBadges && getAssetStatusChip(eventAsset)}
-                      <Box
-                        bgcolor="grey.100"
-                        overflow="hidden"
-                        position="relative"
-                        sx={{ 
-                          aspectRatio: '16 / 9',
-                          border: rejectMode && isAssetSelected(eventAsset.assetId)
+                    {!rejectMode &&
+                      showStatusBadges &&
+                      getAssetStatusChip(eventAsset)}
+                    <Box
+                      bgcolor="grey.100"
+                      overflow="hidden"
+                      position="relative"
+                      sx={{
+                        aspectRatio: '16 / 9',
+                        border:
+                          rejectMode && isAssetSelected(eventAsset.assetId)
                             ? '3px solid'
-                            : showStatusBadges && showStatus && eventAsset.status === 'rejected'
-                            ? '2px solid'
-                            : showStatusBadges && showStatus && eventAsset.status === 'approved' && !isOnGoingWithEventAssets
-                            ? '2px solid'
-                            : 'none',
-                          borderColor: rejectMode && isAssetSelected(eventAsset.assetId)
+                            : showStatusBadges &&
+                                showStatus &&
+                                eventAsset.status === 'rejected'
+                              ? '2px solid'
+                              : showStatusBadges &&
+                                  showStatus &&
+                                  eventAsset.status === 'approved' &&
+                                  !isOnGoingWithEventAssets
+                                ? '2px solid'
+                                : 'none',
+                        borderColor:
+                          rejectMode && isAssetSelected(eventAsset.assetId)
                             ? 'error.main'
-                            : showStatusBadges && showStatus && eventAsset.status === 'rejected'
-                            ? 'error.main'
-                            : showStatusBadges && showStatus && eventAsset.status === 'approved' && !isOnGoingWithEventAssets
-                            ? 'success.main'
-                            : 'transparent'
-                        }}
-                        width="100%"
-                      >
+                            : showStatusBadges &&
+                                showStatus &&
+                                eventAsset.status === 'rejected'
+                              ? 'error.main'
+                              : showStatusBadges &&
+                                  showStatus &&
+                                  eventAsset.status === 'approved' &&
+                                  !isOnGoingWithEventAssets
+                                ? 'success.main'
+                                : 'transparent'
+                      }}
+                      width="100%"
+                    >
                       <Image
                         fill
                         unoptimized
-                        alt={eventAsset.asset?.key || `Event asset ${index + 2}`}
+                        alt={
+                          eventAsset.asset?.key || `Event asset ${index + 2}`
+                        }
                         src={eventAsset.asset?.url}
                         style={{ objectFit: 'cover' }}
                       />
@@ -325,43 +407,58 @@ export const EventDetailAssets = ({
     );
   };
 
-  // For rejected events with no eventAssetChanges, determine if all original assets are approved
-  const isRejectedWithoutChanges =
-    eventDetail.eventStatus === 'rejected' &&
-    (!eventAssetChanges || eventAssetChanges.length === 0);
+  const isOnGoingOrApproved =
+    eventDetail.eventStatus === 'on_going' ||
+    eventDetail.eventStatus === 'approved';
+  const isRejectedOrDraft =
+    eventDetail.eventStatus === 'rejected' ||
+    eventDetail.eventStatus === 'draft';
 
-  const originalAssets = eventDetail.eventAssets || [];
-  const allOriginalAssetsApproved =
-    isRejectedWithoutChanges &&
-    originalAssets.length > 0 &&
-    originalAssets.every((ea: any) => ea.status === 'approved');
+  // Get rejected reason for rejected events (only if status is not pending)
+  const rejectedReason =
+    assetChangeStatus !== 'pending' &&
+    eventAssetChanges &&
+    eventAssetChanges[0]?.rejectedReason
+      ? eventAssetChanges[0].rejectedReason
+      : null;
 
   return (
     <Box>
       {!hideHeader && (
-        <Box
-          alignItems="center"
-          display="flex"
-          justifyContent="space-between"
-          mb={2}
-        >
-          <H3 color="text.primary" fontWeight={700}>
-            Event Assets
-          </H3>
-          {/* Hide Edit Thumbnail button if:
-              - on_going with pending asset changes, or
-              - on_going and is_requested is true, or
-              - event is rejected, eventAssetChanges is empty, and all original assets are approved */}
-          {eventDetail.eventStatus !== 'done' &&
-            eventDetail.eventStatus !== 'on_review' &&
-            !(isOnGoingWithChanges && assetChangeStatus === 'pending') &&
-            !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) &&
-            !allOriginalAssetsApproved && (
-              <Button variant="primary" onClick={handleEditAssets}>
-                Edit Thumbnail
-              </Button>
-            )}
-        </Box>
+        <>
+          <Box
+            alignItems="center"
+            display="flex"
+            justifyContent="space-between"
+            mb={2}
+          >
+            <H3 color="text.primary" fontWeight={700}>
+              Event Assets
+            </H3>
+
+            {(() => {
+              const shouldShowForOnGoingOrApproved =
+                isOnGoingOrApproved && assetChangeStatus !== 'pending';
+              const shouldShowForRejectedOrDraft = isRejectedOrDraft;
+
+              return (
+                (shouldShowForOnGoingOrApproved ||
+                  shouldShowForRejectedOrDraft) && (
+                  <Button variant="primary" onClick={handleEditAssets}>
+                    Edit Thumbnail
+                  </Button>
+                )
+              );
+            })()}
+          </Box>
+
+          {/* Show rejected reason if event is rejected */}
+          {rejectedReason && (
+            <Box mb={2}>
+              <RejectedReason reason={rejectedReason} />
+            </Box>
+          )}
+        </>
       )}
 
       {/* Original Assets Section */}
@@ -389,56 +486,36 @@ export const EventDetailAssets = ({
                 <H3 color="text.primary" fontWeight={700}>
                   Updated Assets
                 </H3>
-                {assetChangeStatus === 'pending' && (
-                  <Chip
-                    icon={<ErrorOutline />}
-                    label="Pending"
-                    size="small"
-                    sx={{
-                      color: 'grey.600',
-                      '& .MuiChip-icon': {
-                        color: 'grey.500'
-                      }
-                    }}
-                  />
-                )}
+                {getSectionStatusChip(assetChangeStatus)}
               </Box>
               {renderAssetGrid(
-                changedAssets, 
-                changedMainAsset, 
-                changedSideAssets, 
-                assetChangeStatus === 'rejected' // Only show status badges if status is rejected
+                changedAssets,
+                changedMainAsset,
+                changedSideAssets,
+                assetChangeStatus === 'rejected'
               )}
             </>
           )}
         </>
-      ) : hideOriginalAssets && eventAssetChanges && eventAssetChanges.length > 0 ? (
-        /* Only show Updated Assets when hideOriginalAssets is true (for approval page) */
+      ) : hideOriginalAssets &&
+        eventAssetChanges &&
+        eventAssetChanges.length > 0 ? (
         changedAssets.length > 0 ? (
           <>
-            <Box alignItems="center" display="flex" gap={1} mb={2}>
-              <H3 color="text.primary" fontWeight={700}>
-                Updated Assets
-              </H3>
-              {assetChangeStatus === 'pending' && (
-                <Chip
-                  icon={<ErrorOutline />}
-                  label="Pending"
-                  size="small"
-                  sx={{
-                    color: 'grey.600',
-                    '& .MuiChip-icon': {
-                      color: 'grey.500'
-                    }
-                  }}
-                />
-              )}
-            </Box>
+            {(eventDetail.eventStatus === 'on_going' ||
+              eventDetail.eventStatus === 'approved') && (
+              <Box alignItems="center" display="flex" gap={1} mb={2}>
+                <H3 color="text.primary" fontWeight={700}>
+                  Updated Assets
+                </H3>
+                {getSectionStatusChip(assetChangeStatus)}
+              </Box>
+            )}
             {renderAssetGrid(
-              changedAssets, 
-              changedMainAsset, 
-              changedSideAssets, 
-              assetChangeStatus === 'rejected' // Only show status badges if status is rejected
+              changedAssets,
+              changedMainAsset,
+              changedSideAssets,
+              assetChangeStatus === 'rejected'
             )}
           </>
         ) : (
@@ -454,23 +531,23 @@ export const EventDetailAssets = ({
             <H3 color="text.secondary">No assets available</H3>
           </Box>
         )
+      ) : /* Regular Assets Grid */
+      eventAssets.length > 0 ? (
+        <Box paddingTop="12px">
+          {renderAssetGrid(eventAssets, mainAsset, sideAssets)}
+        </Box>
       ) : (
-        /* Regular Assets Grid */
-        eventAssets.length > 0 ? (
-          renderAssetGrid(eventAssets, mainAsset, sideAssets)
-        ) : (
-          <Box
-            alignItems="center"
-            bgcolor="background.paper"
-            border="2px dashed"
-            borderColor="grey.100"
-            display="flex"
-            height="380px"
-            justifyContent="center"
-          >
-            <H3 color="text.secondary">No assets available</H3>
-          </Box>
-        )
+        <Box
+          alignItems="center"
+          bgcolor="background.paper"
+          border="2px dashed"
+          borderColor="grey.100"
+          display="flex"
+          height="380px"
+          justifyContent="center"
+        >
+          <H3 color="text.secondary">No assets available</H3>
+        </Box>
       )}
     </Box>
   );

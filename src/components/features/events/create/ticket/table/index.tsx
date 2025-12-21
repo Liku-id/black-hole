@@ -10,6 +10,7 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { formatPrice, dateUtils } from '@/utils';
+import { StatusBadge } from '../../../status-badge';
 
 interface TicketCategory {
   id: string;
@@ -43,47 +44,22 @@ const TicketTable: FC<TicketTableProps> = ({
   onEdit,
   onDelete
 }) => {
+  const statusMap = {
+    approved: 'on_going',
+    rejected: 'rejected',
+    pending: 'pending'
+  };
+
   // Check if action buttons should be shown for a ticket
   const shouldShowActions = (ticket: TicketCategory) => {
     // For upcoming (approved) or ongoing events, hide actions for approved tickets
-    if ((eventStatus === 'approved' || eventStatus === 'on_going') && ticket.status === 'approved') {
+    if (
+      (eventStatus === 'approved' || eventStatus === 'on_going') &&
+      ticket.status === 'approved'
+    ) {
       return false;
     }
     return true;
-  };
-
-  const getStatusChip = (status?: string) => {
-    if (status === 'rejected') {
-      return (
-        <ErrorOutline 
-          sx={{ 
-            color: 'error.main',
-            fontSize: '24px'
-          }} 
-        />
-      );
-    }
-    if (status === 'approved') {
-      return (
-        <CheckCircleOutline 
-          sx={{ 
-            color: 'success.main',
-            fontSize: '24px'
-          }} 
-        />
-      );
-    }
-    if (status === 'pending') {
-      return (
-        <ErrorOutline 
-          sx={{ 
-            color: 'grey.500',
-            fontSize: '24px'
-          }} 
-        />
-      );
-    }
-    return null;
   };
 
   if (loading) {
@@ -99,47 +75,47 @@ const TicketTable: FC<TicketTableProps> = ({
       <Table>
         <StyledTableHead>
           <TableRow>
-            <TableCell sx={{ width: '5%' }}>
+            <TableCell sx={{ width: '4%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 No.
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '15%' }}>
+            <TableCell sx={{ width: '20%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Ticket Name
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '12.5%' }}>
+            <TableCell sx={{ width: '12%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Ticket Price
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '10%' }}>
+            <TableCell sx={{ width: '8%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Quantity
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '12.5%' }}>
+            <TableCell sx={{ width: '12%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Max. Per User
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '13%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Sale Start Date
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '13%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Sale End Date
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '12%' }}>
+            <TableCell sx={{ width: '9%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Status
               </Body2>
             </TableCell>
-            <TableCell align="right" sx={{ width: '5%' }}>
+            <TableCell align="left" sx={{ width: '8%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Action
               </Body2>
@@ -196,7 +172,16 @@ const TicketTable: FC<TicketTableProps> = ({
                   </Body2>
                 </TableCell>
                 <TableCell>
-                  {getStatusChip(ticket.status)}
+                  {ticket?.status ? (
+                    <StatusBadge
+                      status={statusMap[ticket.status]}
+                      displayName={ticket.status}
+                    />
+                  ) : (
+                    <Body2 color="text.primary" fontSize="14px">
+                      -
+                    </Body2>
+                  )}
                 </TableCell>
                 <TableCell align="right">
                   {shouldShowActions(ticket) ? (

@@ -2,10 +2,19 @@ import { Box } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Button, Card, Caption, H2, H3, Overline, Tabs, Body2 } from '@/components/common';
+import {
+  Button,
+  Card,
+  Caption,
+  H2,
+  H3,
+  Overline,
+  Tabs,
+  Body2
+} from '@/components/common';
 import { eventsService } from '@/services';
 import { useToast } from '@/contexts/ToastContext';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
@@ -17,17 +26,30 @@ import DashboardLayout from '@/layouts/dashboard';
 
 function EventDetail() {
   const router = useRouter();
-  const { metaUrl } = router.query;
+  const { metaUrl, tab } = router.query;
   const [submitLoading, setSubmitLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('detail');
   const { showSuccess } = useToast();
 
-  const { eventDetail, loading, error, mutate } = useEventDetail(metaUrl as string);
+  // Set active tab from query params on mount and when query changes
+  useEffect(() => {
+    if (router.isReady && tab) {
+      const validTabs = ['detail', 'assets', 'tickets'];
+      if (validTabs.includes(tab as string)) {
+        setActiveTab(tab as string);
+      }
+    }
+  }, [router.isReady, tab]);
+
+  const { eventDetail, loading, error, mutate } = useEventDetail(
+    metaUrl as string
+  );
 
   // Calculate tab statuses
   const getTabStatus = () => {
-    if (!eventDetail) return { detail: undefined, assets: undefined, tickets: undefined };
+    if (!eventDetail)
+      return { detail: undefined, assets: undefined, tickets: undefined };
 
     // Event Detail Status
     // If event status is rejected, eventUpdateRequest is always empty, so use eventDetailStatus directly
@@ -37,7 +59,7 @@ function EventDetail() {
     //   - If status is approved: check if any updated fields exist, if yes show approved icon, if no don't show icon
     //   - If eventUpdateRequest empty → don't show tab status icon
     let detailStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    
+
     if (eventDetail.eventStatus === 'rejected') {
       // For rejected events, eventUpdateRequest is always empty, use eventDetailStatus directly
       if (eventDetail.eventDetailStatus === 'rejected') {
@@ -47,76 +69,101 @@ function EventDetail() {
       } else if (eventDetail.eventDetailStatus === 'pending') {
         detailStatus = 'pending';
       }
-    } else if (eventDetail.eventStatus === 'on_going' || eventDetail.eventStatus === 'approved') {
+    } else if (
+      eventDetail.eventStatus === 'on_going' ||
+      eventDetail.eventStatus === 'approved'
+    ) {
       // For on_going or approved events, check eventUpdateRequest
       if (eventDetail.eventUpdateRequest) {
         const updateRequest = eventDetail.eventUpdateRequest;
         // Use eventDetailStatus for event detail tab, not the main status
         const eventDetailStatus = updateRequest.eventDetailStatus;
-        
+
         if (eventDetailStatus === 'rejected') {
           detailStatus = 'rejected';
-        } else if (eventDetailStatus === 'pending' || eventDetailStatus === 'draft') {
+        } else if (
+          eventDetailStatus === 'pending' ||
+          eventDetailStatus === 'draft'
+        ) {
           detailStatus = 'pending';
         } else if (eventDetailStatus === 'approved') {
           // Check if any fields have been updated
           const hasUpdatedFields = (() => {
             // Check name
             if (eventDetail.name !== updateRequest.name) return true;
-            
+
             // Check eventType
             if (eventDetail.eventType !== updateRequest.eventType) return true;
-            
+
             // Check description
-            if (eventDetail.description !== updateRequest.description) return true;
-            
+            if (eventDetail.description !== updateRequest.description)
+              return true;
+
             // Check address
             if (eventDetail.address !== updateRequest.address) return true;
-            
+
             // Check mapLocationUrl
-            if (eventDetail.mapLocationUrl !== updateRequest.mapLocationUrl) return true;
-            
+            if (eventDetail.mapLocationUrl !== updateRequest.mapLocationUrl)
+              return true;
+
             // Check termAndConditions
-            if (eventDetail.termAndConditions !== updateRequest.termAndConditions) return true;
-            
+            if (
+              eventDetail.termAndConditions !== updateRequest.termAndConditions
+            )
+              return true;
+
             // Check websiteUrl
-            if (eventDetail.websiteUrl !== updateRequest.websiteUrl) return true;
-            
+            if (eventDetail.websiteUrl !== updateRequest.websiteUrl)
+              return true;
+
             // Check startDate/endDate
-            if (eventDetail.startDate !== updateRequest.startDate || eventDetail.endDate !== updateRequest.endDate) {
+            if (
+              eventDetail.startDate !== updateRequest.startDate ||
+              eventDetail.endDate !== updateRequest.endDate
+            ) {
               return true;
             }
-            
+
             // Check cityId
             if (eventDetail.city?.id !== updateRequest.cityId) return true;
-            
+
             // Check paymentMethodIds
             const eventPaymentMethodIds = (eventDetail.paymentMethods ?? [])
               .map((pm) => pm.id)
               .filter(Boolean)
               .slice()
               .sort();
-            const updatePaymentMethodIds = (updateRequest.paymentMethodIds ?? []).slice().sort();
-            if (JSON.stringify(eventPaymentMethodIds) !== JSON.stringify(updatePaymentMethodIds)) {
+            const updatePaymentMethodIds = (
+              updateRequest.paymentMethodIds ?? []
+            )
+              .slice()
+              .sort();
+            if (
+              JSON.stringify(eventPaymentMethodIds) !==
+              JSON.stringify(updatePaymentMethodIds)
+            ) {
               return true;
             }
-            
+
             // Check adminFee
             if (eventDetail.adminFee !== updateRequest.adminFee) return true;
-            
+
             // Check tax
             if (eventDetail.tax !== updateRequest.tax) return true;
-            
+
             // Check login_required
             const eventLoginRequired = eventDetail.login_required ? 1 : 2;
-            const updateLoginRequired = (updateRequest as any).login_required !== undefined
-              ? ((updateRequest as any).login_required ? 1 : 2)
-              : eventLoginRequired;
+            const updateLoginRequired =
+              (updateRequest as any).login_required !== undefined
+                ? (updateRequest as any).login_required
+                  ? 1
+                  : 2
+                : eventLoginRequired;
             if (eventLoginRequired !== updateLoginRequired) return true;
-            
+
             return false;
           })();
-          
+
           // Only show approved icon if there are updated fields
           if (hasUpdatedFields) {
             detailStatus = 'approved';
@@ -132,24 +179,15 @@ function EventDetail() {
 
     // For rejected events, always use eventAssets (not eventAssetChanges)
     if (eventDetail.eventStatus === 'rejected') {
-      const assetsToCheck = eventDetail.eventAssets || [];
-
-      const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
-      const hasPendingAsset = assetsToCheck.some(
-        (ea: any) => !ea.status || ea.status === 'pending'
-      );
-      const allAssetsApproved =
-        assetsToCheck.length > 0 &&
-        assetsToCheck.every((ea: any) => ea.status === 'approved');
-
-      if (hasRejectedAsset) {
-        assetStatus = 'rejected';
-      } else if (allAssetsApproved) {
-        assetStatus = 'approved';
-      } else if (hasPendingAsset) {
-        assetStatus = 'pending';
-      }
-    } else if (eventDetail.eventStatus === 'on_review' || eventDetail.eventStatus === 'on_going') {
+      assetStatus = eventDetail.eventAssetChanges[0].status as
+        | 'rejected'
+        | 'approved'
+        | 'pending'
+        | undefined;
+    } else if (
+      eventDetail.eventStatus === 'on_review' ||
+      eventDetail.eventStatus === 'on_going'
+    ) {
       // For on_review / on_going events, read status from firstChange.status if eventAssetChanges exists
       const assetChanges = eventDetail.eventAssetChanges || [];
 
@@ -167,7 +205,9 @@ function EventDetail() {
         // No eventAssetChanges - fall back to eventAssets statuses
         const assetsToCheck = eventDetail.eventAssets || [];
 
-        const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+        const hasRejectedAsset = assetsToCheck.some(
+          (ea: any) => ea.status === 'rejected'
+        );
         const hasPendingAsset = assetsToCheck.some(
           (ea: any) => !ea.status || ea.status === 'pending'
         );
@@ -187,7 +227,9 @@ function EventDetail() {
       // For other statuses, fall back to eventAssets status fields
       const assetsToCheck = eventDetail.eventAssets || [];
 
-      const hasRejectedAsset = assetsToCheck.some((ea: any) => ea.status === 'rejected');
+      const hasRejectedAsset = assetsToCheck.some(
+        (ea: any) => ea.status === 'rejected'
+      );
       const hasPendingAsset = assetsToCheck.some(
         (ea: any) => !ea.status || ea.status === 'pending'
       );
@@ -207,13 +249,14 @@ function EventDetail() {
     // Ticket Status - Priority: pending > rejected > approved
     // Don't show approved status when event status is ongoing
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    const hasPendingTicket = eventDetail.ticketTypes?.some((tt: any) => 
-      !tt.status || tt.status === 'pending'
+    const hasPendingTicket = eventDetail.ticketTypes?.some(
+      (tt: any) => !tt.status || tt.status === 'pending'
     );
-    const hasRejectedTicket = eventDetail.ticketTypes?.some((tt: any) => 
-      tt.status === 'rejected'
+    const hasRejectedTicket = eventDetail.ticketTypes?.some(
+      (tt: any) => tt.status === 'rejected'
     );
-    const allApproved = eventDetail.ticketTypes?.length > 0 && 
+    const allApproved =
+      eventDetail.ticketTypes?.length > 0 &&
       eventDetail.ticketTypes?.every((tt: any) => tt.status === 'approved');
 
     if (hasPendingTicket) {
@@ -232,72 +275,80 @@ function EventDetail() {
   };
 
   const tabStatuses = getTabStatus();
-  
+
   // Show status indicators when event status is "rejected" or when eventUpdateRequest exists (for on_going events)
-  const showStatusIndicators = eventDetail?.eventStatus === 'rejected' || !!eventDetail?.eventUpdateRequest;
+  const showStatusIndicators =
+    eventDetail?.eventStatus === 'rejected' ||
+    !!eventDetail?.eventUpdateRequest;
 
   // Check if no section is rejected (EO has fixed all rejected sections)
   const canResubmitRejectedEvent = () => {
     if (eventDetail?.eventStatus !== 'rejected') return false;
-    
+
     const statuses = [
       tabStatuses.detail,
       tabStatuses.assets,
       tabStatuses.tickets
     ];
-    
+
     // No section should be rejected
-    return statuses.every(status => status !== 'rejected');
+    return statuses.every((status) => status !== 'rejected');
   };
 
   // Check if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes
   const hasAnyPendingStatus = () => {
     if (!eventDetail) return false;
-    
+
     // Check eventUpdateRequest.eventDetailStatus
-    const hasPendingEventDetailStatus = 
+    const hasPendingEventDetailStatus =
       eventDetail.eventUpdateRequest?.eventDetailStatus === 'pending';
-    
+
     // Check eventAssetChanges firstChange status
-    const hasPendingAssetStatus = 
-      eventDetail.eventAssetChanges && 
+    const hasPendingAssetStatus =
+      eventDetail.eventAssetChanges &&
       eventDetail.eventAssetChanges.length > 0 &&
       eventDetail.eventAssetChanges[0]?.status === 'pending';
-    
+
     // Check if any ticket has pending status
-    const hasPendingTicket = eventDetail.ticketTypes?.some((tt: any) => 
-      tt.status === 'pending'
+    const hasPendingTicket = eventDetail.ticketTypes?.some(
+      (tt: any) => tt.status === 'pending'
     );
-    
-    return hasPendingEventDetailStatus || hasPendingAssetStatus || hasPendingTicket;
+
+    return (
+      hasPendingEventDetailStatus || hasPendingAssetStatus || hasPendingTicket
+    );
   };
 
   // Determine if submit/resubmit button should be enabled
   const isSubmitButtonEnabled = () => {
     if (!eventDetail) return false;
     if (eventDetail.eventStatus === 'draft') return true;
-    if (eventDetail.eventStatus === 'rejected') return canResubmitRejectedEvent();
-    
+    if (eventDetail.eventStatus === 'rejected')
+      return canResubmitRejectedEvent();
+
     // For approved or on_going events, enable if there are pending changes
-    if (eventDetail.eventStatus === 'approved' || eventDetail.eventStatus === 'on_going') {
+    if (
+      eventDetail.eventStatus === 'approved' ||
+      eventDetail.eventStatus === 'on_going'
+    ) {
       // Check if eventUpdateRequestStatus is draft or pending
-      const hasPendingUpdateRequest = 
-        eventDetail.eventUpdateRequestStatus === 'draft' || 
+      const hasPendingUpdateRequest =
+        eventDetail.eventUpdateRequestStatus === 'draft' ||
         eventDetail.eventUpdateRequestStatus === 'pending';
-      
+
       // Check if eventAssetChanges is not empty
-      const hasAssetChanges = 
-        eventDetail.eventAssetChanges && 
+      const hasAssetChanges =
+        eventDetail.eventAssetChanges &&
         eventDetail.eventAssetChanges.length > 0;
-      
+
       // Check if any ticket has pending status
-      const hasPendingTicket = eventDetail.ticketTypes?.some((tt: any) => 
-        tt.status === 'pending'
+      const hasPendingTicket = eventDetail.ticketTypes?.some(
+        (tt: any) => tt.status === 'pending'
       );
-      
+
       return hasPendingUpdateRequest || hasAssetChanges || hasPendingTicket;
     }
-    
+
     return false;
   };
 
@@ -319,7 +370,7 @@ function EventDetail() {
         return;
       }
     }
-    
+
     // Validasi for rejected events
     if (eventDetail.eventStatus === 'rejected') {
       if (!canResubmitRejectedEvent()) {
@@ -336,15 +387,17 @@ function EventDetail() {
       await mutate();
 
       // Show success toast
-      const message = eventDetail.eventStatus === 'rejected' 
-        ? 'Event resubmitted successfully!' 
-        : 'Event submitted successfully!';
+      const message =
+        eventDetail.eventStatus === 'rejected'
+          ? 'Event resubmitted successfully!'
+          : 'Event submitted successfully!';
       showSuccess(message);
     } catch (error) {
       console.error('Error submitting event:', error);
-      const errorMsg = (error as any)?.response?.data?.message || 
-                      (error as Error)?.message || 
-                      'Failed to submit event';
+      const errorMsg =
+        (error as any)?.response?.data?.message ||
+        (error as Error)?.message ||
+        'Failed to submit event';
       setErrorMessage(errorMsg);
     } finally {
       setSubmitLoading(false);
@@ -395,59 +448,70 @@ function EventDetail() {
       </Box>
 
       {/* Title and Submit Button */}
-      <Box alignItems="center" display="flex" justifyContent="space-between" mb="21px">
+      <Box
+        alignItems="center"
+        display="flex"
+        justifyContent="space-between"
+        mb="21px"
+      >
         <H2 color="text.primary" fontWeight={700}>
           Event Detail
         </H2>
-        {eventDetail.eventStatus !== 'on_review' && eventDetail.eventStatus !== 'done' && (
-          <Box display="flex" flexDirection="column" alignItems="flex-end">
-            {eventDetail.is_requested ? (
-              <Box
-                border="1px solid"
-                borderColor="warning.main"
-                borderRadius={1}
-                p="12px 16px"
-                sx={{
-                  backgroundColor: 'warning.light',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-              >
-                <Body2 color="warning.dark" fontWeight={500}>
-                  Event update request is on review
-                </Body2>
-              </Box>
-            ) : (
-              <>
-                {/* For rejected events, always show Resubmit Event button */}
-                {/* For other events, show button if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes */}
-                {(eventDetail.eventStatus === 'rejected' || hasAnyPendingStatus()) && (
-                  <>
-                    <Button
-                      variant="primary"
-                      onClick={handleSubmitEvent}
-                      disabled={submitLoading || !isSubmitButtonEnabled() || eventDetail.eventUpdateRequestStatus === 'pending'}
-                    >
-                      {eventDetail.eventStatus === 'approved'
-                        ? 'Submit Changes'
-                        : eventDetail.eventStatus === 'on_going'
-                        ? 'Submit Changes'
-                        : eventDetail.eventStatus === 'rejected'
-                        ? 'Resubmit Event'
-                        : 'Submit Event'}
-                    </Button>
-                    {errorMessage && (
-                      <Overline color="error" sx={{ mt: 1 }}>
-                        {errorMessage}
-                      </Overline>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </Box>
-        )}
+        {eventDetail.eventStatus !== 'on_review' &&
+          eventDetail.eventStatus !== 'done' && (
+            <Box display="flex" flexDirection="column" alignItems="flex-end">
+              {eventDetail.is_requested ? (
+                <Box
+                  border="1px solid"
+                  borderColor="warning.main"
+                  borderRadius={1}
+                  p="12px 16px"
+                  sx={{
+                    backgroundColor: 'warning.light',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                  }}
+                >
+                  <Body2 color="warning.dark" fontWeight={500}>
+                    Event update request is on review
+                  </Body2>
+                </Box>
+              ) : (
+                <>
+                  {/* For rejected events, always show Resubmit Event button */}
+                  {/* For other events, show button if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes */}
+                  {(eventDetail.eventStatus === 'rejected' ||
+                    hasAnyPendingStatus()) && (
+                    <>
+                      <Button
+                        variant="primary"
+                        onClick={handleSubmitEvent}
+                        disabled={
+                          submitLoading ||
+                          !isSubmitButtonEnabled() ||
+                          eventDetail.eventUpdateRequestStatus === 'pending'
+                        }
+                      >
+                        {eventDetail.eventStatus === 'approved'
+                          ? 'Submit Changes'
+                          : eventDetail.eventStatus === 'on_going'
+                            ? 'Submit Changes'
+                            : eventDetail.eventStatus === 'rejected'
+                              ? 'Resubmit Event'
+                              : 'Submit Event'}
+                      </Button>
+                      {errorMessage && (
+                        <Overline color="error" sx={{ mt: 1 }}>
+                          {errorMessage}
+                        </Overline>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </Box>
+          )}
       </Box>
 
       {/* Event Name */}
@@ -463,44 +527,55 @@ function EventDetail() {
         <Tabs
           activeTab={activeTab}
           tabs={[
-            { 
-              id: 'detail', 
+            {
+              id: 'detail',
               title: 'Event Detail',
               status: showStatusIndicators ? tabStatuses.detail : undefined
             },
-            { 
-              id: 'assets', 
+            {
+              id: 'assets',
               title: 'Event Assets',
               status: showStatusIndicators ? tabStatuses.assets : undefined
             },
-            { 
-              id: 'tickets', 
+            {
+              id: 'tickets',
               title: 'Event Tickets',
               status: showStatusIndicators ? tabStatuses.tickets : undefined
             }
           ]}
-          onTabChange={setActiveTab}
+          onTabChange={(tabId) => {
+            setActiveTab(tabId);
+            router.push(
+              {
+                pathname: router.pathname,
+                query: { ...router.query, tab: tabId }
+              },
+              undefined,
+              { shallow: true }
+            );
+          }}
         />
       </Box>
 
       {/* Tab Content Card */}
       <Card sx={{ mb: 3 }}>
         {activeTab === 'detail' && (
-          <EventDetailInfo 
-            eventDetail={eventDetail} 
+          <EventDetailInfo
+            eventDetail={eventDetail}
             showRejectionInfo={showStatusIndicators}
           />
         )}
         {activeTab === 'assets' && (
-          <EventDetailAssets 
-            eventDetail={eventDetail} 
-            eventAssetChanges={(eventDetail?.eventStatus === 'on_review' || eventDetail?.eventStatus === 'on_going') ? eventDetail?.eventAssetChanges : undefined}
-            showStatus={showStatusIndicators} 
+          <EventDetailAssets
+            eventDetail={eventDetail}
+            eventAssetChanges={eventDetail?.eventAssetChanges}
+            showStatus={showStatusIndicators}
           />
         )}
-        {activeTab === 'tickets' && <EventDetailTicket eventDetail={eventDetail} showStatus={true} />}
+        {activeTab === 'tickets' && (
+          <EventDetailTicket eventDetail={eventDetail} showStatus={true} />
+        )}
       </Card>
-
     </DashboardLayout>
   );
 }
