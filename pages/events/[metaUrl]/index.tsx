@@ -181,7 +181,7 @@ function EventDetail() {
 
     // For rejected events, always use eventAssets (not eventAssetChanges)
     if (eventDetail.eventStatus === 'rejected') {
-      assetStatus = eventDetail.eventAssetChanges[0].status as
+      assetStatus = eventDetail.eventAssetChanges[0]?.status as
         | 'rejected'
         | 'approved'
         | 'pending'

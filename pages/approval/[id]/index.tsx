@@ -108,25 +108,8 @@ function ApprovalDetail() {
     // Read from eventAssetChanges[0].status (firstChange) if available, otherwise fall back to eventAssets
     let assetStatus: 'rejected' | 'approved' | 'pending' | undefined;
 
-    // For on_going events, if eventAssetChanges is empty, don't show tab status
-    if (event.eventStatus === 'on_going') {
-      if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
-        // Read status directly from firstChange
-        const firstChange = event.eventAssetChanges[0];
-        const firstChangeStatus = firstChange.status;
-
-        if (firstChangeStatus === 'rejected') {
-          assetStatus = 'rejected';
-        } else if (firstChangeStatus === 'pending' || !firstChangeStatus) {
-          assetStatus = 'pending';
-        } else if (firstChangeStatus === 'approved') {
-          assetStatus = 'approved';
-        }
-      } else {
-        // If eventAssetChanges is empty for on_going events, show as approved
-        assetStatus = 'approved';
-      }
-    } else if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
+    // For approved or on_going events, if eventAssetChanges is empty, check eventAssets statuses
+    if (event.eventAssetChanges && event.eventAssetChanges.length > 0) {
       // Read status directly from firstChange
       const firstChange = event.eventAssetChanges[0];
       const firstChangeStatus = firstChange.status;
@@ -139,26 +122,8 @@ function ApprovalDetail() {
         assetStatus = 'approved';
       }
     } else {
-      // Fall back to eventAssets when eventAssetChanges is null
-      const assetsToCheck = event.eventAssets || [];
-
-      const hasRejectedAsset = assetsToCheck.some(
-        (ea: any) => ea.status === 'rejected'
-      );
-      const hasPendingAsset = assetsToCheck.some(
-        (ea: any) => !ea.status || ea.status === 'pending'
-      );
-      const allAssetsApproved =
-        assetsToCheck.length > 0 &&
-        assetsToCheck.every((ea: any) => ea.status === 'approved');
-
-      if (hasRejectedAsset) {
-        assetStatus = 'rejected';
-      } else if (hasPendingAsset) {
-        assetStatus = 'pending';
-      } else if (allAssetsApproved) {
-        assetStatus = 'approved';
-      }
+      // Check eventAssets statuses when eventAssetChanges is empty
+      assetStatus = 'approved';
     }
 
     // Ticket Status - Priority: pending > rejected > approved
