@@ -43,6 +43,9 @@ export interface TicketType {
   deleted_at: string;
   ticketStartDate: string;
   ticketEndDate: string;
+  status?: string;
+  rejected_fields?: string[];
+  rejected_reason?: string;
   additional_forms?: Array<{
     id: string;
     field: string;
@@ -64,11 +67,33 @@ export interface Asset {
   updatedAt: string;
 }
 
+export interface EventAssetChangeItem {
+  id: string;
+  eventAssetChangeId: string;
+  assetId: string;
+  order: number;
+  eventAssetId: string;
+  asset: Asset;
+  status?: string;
+  rejectedReason?: string;
+  rejectedFields?: string[];
+}
+
+export interface EventAssetChange {
+  id: string;
+  eventId: string;
+  status: string;
+  rejectedFields: string[];
+  rejectedReason: string;
+  items: EventAssetChangeItem[];
+}
+
 export interface EventAsset {
   id: string;
   eventId: string;
   assetId: string;
   order: string;
+  status?: string;
   asset: Asset;
 }
 
@@ -104,6 +129,7 @@ export interface Event {
   eventCountByStatus: EventCountByStatus;
   soldTickets: string;
   totalRevenue: string;
+  eventUpdateRequestStatus: string;
 }
 
 // Event Detail specific interfaces
@@ -157,6 +183,32 @@ export interface FeeThreshold {
   platformFee: string;
 }
 
+export interface EventUpdateRequest {
+  id: string;
+  eventId: string;
+  status: string;
+  eventDetailStatus?: string;
+  rejectedReason?: string;
+  rejectedFields?: string[];
+  updatedFields?: string[];
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  eventType: string;
+  description: string;
+  address: string;
+  mapLocationUrl: string;
+  termAndConditions: string;
+  websiteUrl: string;
+  adminFee: number;
+  tax: number;
+  startDate: string;
+  endDate: string;
+  cityId: string;
+  eventOrganizerId: string;
+  paymentMethodIds: string[];
+}
+
 export interface EventDetail {
   id: string;
   name: string;
@@ -168,6 +220,7 @@ export interface EventDetail {
   startDate: string;
   endDate: string;
   eventStatus: string;
+  eventDetailStatus?: string;
   termAndConditions: string;
   websiteUrl: string;
   createdAt: string;
@@ -182,11 +235,14 @@ export interface EventDetail {
   tax: number;
   feeThresholds: FeeThreshold[];
   eventAssets: EventAsset[];
+  eventAssetChanges?: EventAssetChange[];
   is_requested: boolean;
+  eventUpdateRequestStatus?: string;
   rejectedReason: string | null;
   rejectedFields: string[] | null;
   withdrawalFee: string;
   login_required: boolean;
+  eventUpdateRequest?: EventUpdateRequest | null;
 }
 
 export interface EventDetailResponse {

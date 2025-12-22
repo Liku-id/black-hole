@@ -19,8 +19,12 @@ interface AssetChangeInfo {
   files: AssetFiles;
   deletedAssetIds: string[];
   existingAssets: {
-    thumbnail?: { id: string; order: number };
-    supportingImages: Array<{ id: string; order: number } | null>;
+    thumbnail?: { id: string; eventAssetId: string; order: number };
+    supportingImages: Array<{
+      id: string;
+      eventAssetId: string;
+      order: number;
+    } | null>;
   };
 }
 
@@ -70,6 +74,118 @@ const EditAssetsPage = () => {
   const handleSubmitEvent = async () => {
     if (!metaUrl || !eventDetail || !assetChangeInfo) {
       return;
+    }
+
+    // Validate rejected assets for on_going events with rejected Updated Assets or rejected events
+    const isOnGoingWithRejectedAssets =
+      eventDetail.eventStatus === 'on_going' &&
+      eventDetail.eventAssetChanges &&
+      eventDetail.eventAssetChanges.length > 0 &&
+      eventDetail.eventAssetChanges[0].status === 'rejected';
+    
+    const isRejectedEvent = eventDetail.eventStatus === 'rejected';
+    
+    if (isOnGoingWithRejectedAssets || isRejectedEvent) {
+      let firstAssetChange;
+      let rejectedAssetIds: string[] = [];
+      
+      if (isRejectedEvent) {
+        // For rejected events, get rejected info from eventAssetChanges[0]
+        firstAssetChange = eventDetail.eventAssetChanges?.[0];
+        rejectedAssetIds = firstAssetChange?.rejectedFields || [];
+      } else {
+        // For on_going events with rejected Updated Assets
+        firstAssetChange = eventDetail.eventAssetChanges[0];
+        rejectedAssetIds = firstAssetChange.rejectedFields || [];
+      }
+      
+      if (rejectedAssetIds.length > 0) {
+        // Map rejected assetIds to their order positions
+        const rejectedAssetPositions = new Map<number, string>(); // order -> assetId
+        
+        // Try to map from eventAssetChanges.items first
+        if (firstAssetChange && firstAssetChange.items) {
+          firstAssetChange.items.forEach((item: any) => {
+            const itemAssetId = item.assetId || item.id;
+            if (rejectedAssetIds.includes(itemAssetId)) {
+              rejectedAssetPositions.set(Number(item.order), itemAssetId);
+            }
+          });
+        }
+        // Fallback to eventAssets if eventAssetChanges.items is not available
+        else if (eventDetail.eventAssets) {
+          eventDetail.eventAssets.forEach((ea: any) => {
+            const assetId = ea.asset?.id || ea.assetId;
+            if (assetId && rejectedAssetIds.includes(assetId)) {
+              rejectedAssetPositions.set(Number(ea.order), assetId);
+            }
+          });
+        }
+
+        // Check if all rejected assets have been changed
+        const unchangedRejectedAssets: number[] = [];
+        
+        rejectedAssetPositions.forEach((rejectedAssetId, order) => {
+          let hasChanged = false;
+          
+          if (order === 1) {
+            // Thumbnail position
+            // Check if new thumbnail was uploaded (replacing the rejected asset)
+            if (assetChangeInfo.files.thumbnail) {
+              hasChanged = true;
+            }
+            // Check if existing thumbnail was deleted
+            else if (
+              assetChangeInfo.existingAssets.thumbnail &&
+              assetChangeInfo.existingAssets.thumbnail.id === rejectedAssetId &&
+              assetChangeInfo.deletedAssetIds.includes(
+                assetChangeInfo.existingAssets.thumbnail.eventAssetId
+              )
+            ) {
+              hasChanged = true;
+            }
+          } else {
+            // Supporting image position (order 2-5)
+            const supportingImageIndex = order - 2;
+            
+            // Check if new supporting image was uploaded at this position (replacing the rejected asset)
+            if (
+              supportingImageIndex >= 0 &&
+              supportingImageIndex < assetChangeInfo.files.supportingImages.length &&
+              assetChangeInfo.files.supportingImages[supportingImageIndex]
+            ) {
+              hasChanged = true;
+            }
+            // Check if existing supporting image was deleted
+            else if (
+              supportingImageIndex >= 0 &&
+              supportingImageIndex < assetChangeInfo.existingAssets.supportingImages.length &&
+              assetChangeInfo.existingAssets.supportingImages[supportingImageIndex] &&
+              assetChangeInfo.existingAssets.supportingImages[supportingImageIndex]!.id ===
+                rejectedAssetId &&
+              assetChangeInfo.deletedAssetIds.includes(
+                assetChangeInfo.existingAssets.supportingImages[supportingImageIndex]!
+                  .eventAssetId
+              )
+            ) {
+              hasChanged = true;
+            }
+          }
+          
+          if (!hasChanged) {
+            unchangedRejectedAssets.push(order);
+          }
+        });
+
+        // If there are unchanged rejected assets, show error
+        if (unchangedRejectedAssets.length > 0) {
+          setShowError(true);
+          setErrorMessage(
+            'Please fix all rejected assets before updating. Rejected assets must be replaced or removed.'
+          );
+          return;
+        }
+      }
     }
 
     // Check if thumbnail is required (either existing or new)
@@ -155,17 +271,66 @@ const EditAssetsPage = () => {
         })
       );
 
-      // Step 4: Create new event assets for uploaded files
+      // Step 4: Create or update event assets for uploaded files
+      // Logic:
+      // 1. If there's an existing asset at the same order position that wasn't deleted, UPDATE it (PUT)
+      // 2. If there's no existing asset at that order position (empty slot), CREATE it (POST)
+
       for (const { assetId, order } of newAssetIds) {
-        await eventsService.createEventAsset({
-          eventId: eventDetail.id,
-          assetId,
-          order
-        });
+        // Find if there's an existing asset at this order position that wasn't deleted
+        let existingEventAssetId: string | undefined;
+
+        if (order === 1) {
+          // Thumbnail (order 1)
+          const existingThumbnail = assetChangeInfo.existingAssets.thumbnail;
+          if (existingThumbnail && existingThumbnail.eventAssetId) {
+            // Check if this asset was deleted - compare eventAssetId (not id/assetId)
+            const wasDeleted = assetChangeInfo.deletedAssetIds.includes(
+              existingThumbnail.eventAssetId
+            );
+            if (!wasDeleted) {
+              // Asset exists and wasn't deleted, so UPDATE it (PUT)
+              existingEventAssetId = existingThumbnail.eventAssetId;
+            }
+          }
+        } else {
+          // Supporting images (order 2-5)
+          const supportingImageIndex = order - 2;
+          const existingSupporting =
+            assetChangeInfo.existingAssets.supportingImages[
+              supportingImageIndex
+            ];
+          if (existingSupporting && existingSupporting.eventAssetId) {
+            // Check if this asset was deleted - compare eventAssetId (not id/assetId)
+            const wasDeleted = assetChangeInfo.deletedAssetIds.includes(
+              existingSupporting.eventAssetId
+            );
+            if (!wasDeleted) {
+              // Asset exists and wasn't deleted, so UPDATE it (PUT)
+              existingEventAssetId = existingSupporting.eventAssetId;
+            }
+          }
+        }
+
+        if (existingEventAssetId) {
+          // Update existing event asset with new assetId (PUT)
+          await eventsService.updateEventAsset(existingEventAssetId, {
+            eventId: eventDetail.id,
+            assetId,
+            order
+          });
+        } else {
+          // Create new event asset (POST) - no existing asset at this order position
+          await eventsService.createEventAsset({
+            eventId: eventDetail.id,
+            assetId,
+            order
+          });
+        }
       }
 
       // Navigate back to event detail page
-      router.push(`/events/${metaUrl}`);
+      router.push(`/events/${metaUrl}?tab=assets`);
     } catch (error: any) {
       const errorMsg =
         error?.response?.data?.message ||
@@ -178,8 +343,44 @@ const EditAssetsPage = () => {
   };
 
   const handleCancel = () => {
-    router.push(`/events/${metaUrl}`);
+    router.push(`/events/${metaUrl}?tab=assets`);
   };
+
+  // Derive rejected assets info from eventAssetChanges for on_review/on_going (with changes) events
+  // For rejected events, use eventAssets instead of eventAssetChanges
+  const firstAssetChange =
+    eventDetail &&
+    (eventDetail.eventStatus === 'on_review' ||
+      (eventDetail.eventStatus === 'on_going' &&
+        eventDetail.eventAssetChanges &&
+        eventDetail.eventAssetChanges.length > 0)) &&
+    eventDetail.eventAssetChanges &&
+    eventDetail.eventAssetChanges.length > 0
+      ? eventDetail.eventAssetChanges[0]
+      : undefined;
+
+  // For rejected events, read rejected info from eventAssets
+  // For on_review/on_going events, read from eventAssetChanges
+  let rejectedAssetIds: string[] = [];
+  let rejectionReason: string | undefined = undefined;
+
+  if (eventDetail?.eventStatus === 'rejected') {
+    const rejectedAssets = eventDetail.eventAssetChanges?.[0];
+    rejectedAssetIds = rejectedAssets?.rejectedFields || [];
+    rejectionReason = rejectedAssets?.rejectedReason || undefined;
+  } else if (firstAssetChange && firstAssetChange.status === 'rejected') {
+    // For on_review/on_going events, read from eventAssetChanges
+    rejectedAssetIds = firstAssetChange.rejectedFields ?? [];
+    rejectionReason = firstAssetChange.rejectedReason || undefined;
+  }
+
+  // Determine if we should use eventAssetChanges for populating data
+  // If eventStatus is 'on_going' and eventAssetChanges[0].status is 'rejected', use eventAssetChanges
+  const shouldUseEventAssetChanges =
+    eventDetail?.eventStatus === 'on_going' &&
+    eventDetail?.eventAssetChanges &&
+    eventDetail.eventAssetChanges.length > 0 &&
+    eventDetail.eventAssetChanges[0].status === 'rejected';
 
   return (
     <DashboardLayout>
@@ -207,8 +408,17 @@ const EditAssetsPage = () => {
         <Card>
           <EventAssetsEditForm
             eventDetail={eventDetail}
+            eventAssetChanges={
+              eventDetail?.eventAssetChanges &&
+              (eventDetail.eventStatus === 'on_review' ||
+                shouldUseEventAssetChanges)
+                ? eventDetail.eventAssetChanges
+                : undefined
+            }
             showError={showError}
             onFilesChange={handleFilesChange}
+            rejectedAssetIds={rejectedAssetIds}
+            rejectionReason={rejectionReason}
           />
 
           <Box

@@ -60,6 +60,22 @@ class EventSubmissionsService {
       throw error;
     }
   }
+
+  async approveOrRejectEvent(
+    submissionId: string,
+    status: 'approved' | 'rejected'
+  ): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/events-submissions/${submissionId}/approval`,
+        { status },
+        'Failed to submit approval decision'
+      );
+    } catch (error) {
+      console.error('Error submitting approval decision:', error);
+      throw error;
+    }
+  }
 }
 
 const eventSubmissionsService = new EventSubmissionsService();

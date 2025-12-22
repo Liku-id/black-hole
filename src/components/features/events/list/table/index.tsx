@@ -7,8 +7,10 @@ import {
   ListItemText,
   Table,
   TableCell,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@mui/material';
+import { Info } from '@mui/icons-material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';
@@ -130,6 +132,76 @@ const EventsTable: FC<EventsTableProps> = ({
     setDuplicateError(null);
   };
 
+  const getUpdateRequestStatusIcon = (status?: string) => {
+    if (!status || !['draft', 'pending', 'rejected'].includes(status)) {
+      return null;
+    }
+
+    const getStatusConfig = (status: string) => {
+      switch (status) {
+        case 'draft':
+          return {
+            iconColor: 'grey.600',
+            tooltip: 'Continue your update process',
+            tooltipBg: 'grey.800',
+            tooltipText: 'common.white'
+          };
+        case 'pending':
+          return {
+            iconColor: 'warning.main',
+            tooltip: 'Your update request is currently under review',
+            tooltipBg: 'warning.dark',
+            tooltipText: 'common.white'
+          };
+        case 'rejected':
+          return {
+            iconColor: 'error.main',
+            tooltip:
+              'Your update has been rejected. Please review and make necessary corrections',
+            tooltipBg: 'error.dark',
+            tooltipText: 'common.white'
+          };
+        default:
+          return null;
+      }
+    };
+
+    const config = getStatusConfig(status);
+    if (!config) return null;
+
+    return (
+      <Tooltip
+        title={config.tooltip}
+        arrow
+        slotProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: config.tooltipBg,
+              color: config.tooltipText,
+              fontSize: '12px',
+              padding: '8px 12px'
+            }
+          },
+          arrow: {
+            sx: {
+              color: config.tooltipBg
+            }
+          }
+        }}
+      >
+        <Box component="span" display="inline-flex" alignItems="center">
+          <Info
+            fontSize="small"
+            sx={{
+              color: config.iconColor,
+              fontSize: '14px'
+            }}
+          />
+        </Box>
+      </Tooltip>
+    );
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" padding="40px">
@@ -148,7 +220,7 @@ const EventsTable: FC<EventsTableProps> = ({
                 No.
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '24%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Event Name
               </Body2>
@@ -183,7 +255,7 @@ const EventsTable: FC<EventsTableProps> = ({
               </Body2>
             </TableCell>
             {showAction && (
-              <TableCell align={'left'} sx={{ width: '9%' }}>
+              <TableCell align={'left'} sx={{ width: '5%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Action
                 </Body2>
@@ -211,9 +283,21 @@ const EventsTable: FC<EventsTableProps> = ({
                   </Body2>
                 </TableCell>
                 <TableCell>
-                  <Body2 color="text.primary" fontSize="14px">
-                    {event.name}
-                  </Body2>
+                  <Tooltip title={event.name} arrow>
+                    <Body2
+                      color="text.primary"
+                      fontSize="14px"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        flex: 1,
+                        minWidth: 0
+                      }}
+                    >
+                      {event.name}
+                    </Body2>
+                  </Tooltip>
                 </TableCell>
                 {!isCompact && (
                   <TableCell>
@@ -251,19 +335,27 @@ const EventsTable: FC<EventsTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Box>
-                    <IconButton
-                      size="small"
-                      id="hamburger_icon_button"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                      onClick={(e) => handleMenuOpen(e, event.id)}
-                    >
-                      <Image
-                        alt="Options"
-                        height={24}
-                        src="/icon/options.svg"
-                        width={24}
-                      />
-                    </IconButton>
+                    <Box position="relative" maxWidth="34px">
+                      <IconButton
+                        size="small"
+                        id="hamburger_icon_button"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={(e) => handleMenuOpen(e, event.id)}
+                      >
+                        <Image
+                          alt="Options"
+                          height={24}
+                          src="/icon/options.svg"
+                          width={24}
+                        />
+                      </IconButton>
+
+                      <Box position="absolute" top={0} right={-5}>
+                        {getUpdateRequestStatusIcon(
+                          event.eventUpdateRequestStatus
+                        )}
+                      </Box>
+                    </Box>
                     <Menu
                       anchorEl={anchorEl[event.id]}
                       open={Boolean(anchorEl[event.id])}

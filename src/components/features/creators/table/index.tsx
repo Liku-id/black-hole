@@ -111,7 +111,10 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {creator.pic_name || creator.event_organizer_pic?.name || creator.full_name || '-'}
+                    {creator.pic_name ||
+                      creator.event_organizer_pic?.name ||
+                      creator.full_name ||
+                      '-'}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -172,4 +175,3 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
 };
 
 export default CreatorsTable;
-

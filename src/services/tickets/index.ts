@@ -303,6 +303,39 @@ class TicketsService {
       throw error;
     }
   }
+
+  // Ticket Type Approval/Rejection
+  async approveTicketType(ticketTypeId: string): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/tickets/ticket-types/${ticketTypeId}/approve`,
+        {},
+        'Failed to approve ticket type'
+      );
+    } catch (error) {
+      console.error('Error approving ticket type:', error);
+      throw error;
+    }
+  }
+
+  async rejectTicketType(
+    ticketTypeId: string,
+    payload: {
+      rejected_fields: string[];
+      rejected_reason: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/tickets/ticket-types/${ticketTypeId}/reject`,
+        payload,
+        'Failed to reject ticket type'
+      );
+    } catch (error) {
+      console.error('Error rejecting ticket type:', error);
+      throw error;
+    }
+  }
 }
 
 const ticketsService = new TicketsService();

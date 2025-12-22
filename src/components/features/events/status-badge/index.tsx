@@ -80,7 +80,9 @@ export const StatusBadge = ({ status, displayName }: StatusBadgeProps) => {
       display="inline-flex"
       padding="3px 7px"
     >
-      <Overline>{displayName || statusConfig.displayName}</Overline>
+      <Overline sx={{ textTransform: 'capitalize' }}>
+        {displayName || statusConfig.displayName}
+      </Overline>
     </Box>
   );
 };
