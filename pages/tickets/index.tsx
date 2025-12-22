@@ -6,9 +6,9 @@ import { useSearchParams } from 'next/navigation';
 import { withAuth } from '@/components/Auth/withAuth';
 import { Body1, Body2, H3 } from '@/components/common';
 import { AttendeeTable, SearchField } from '@/components/features/ticket-list';
-import { useEvents, useTickets } from '@/hooks';
+import { useEvents, useTickets, useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
-import { Ticket, AttendeeAdditionalData } from '@/types/ticket';
+import { Ticket, AttendeeAdditionalData, TicketStatus } from '@/types/ticket';
 
 // Transform ticket data to match UI expectations
 const transformTicketData = (tickets: Ticket[]) => {
@@ -36,11 +36,20 @@ function Tickets() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get('event');
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    eventId: string;
+    page: number;
+    show: number;
+    search: string;
+    ticketTypeIds?: string;
+    ticketStatus?: TicketStatus;
+  }>({
     eventId: eventId,
     page: 0,
     show: 10,
-    search: ''
+    search: '',
+    ticketTypeIds: undefined,
+    ticketStatus: undefined
   });
 
   // Get events list for dropdown
@@ -70,11 +79,22 @@ function Tickets() {
     return events.find((event) => event.id === filters.eventId) || null;
   }, [filters.eventId, events]);
 
+  // Get event detail to fetch ticket types
+  const { eventDetail } = useEventDetail(selectedEventData?.metaUrl || '');
+
+  // Get ticket types from event detail
+  const ticketTypeOptions = useMemo(() => {
+    if (!eventDetail?.ticketTypes) return [];
+    return eventDetail.ticketTypes.map((type) => ({
+      value: type.id,
+      label: type.name
+    }));
+  }, [eventDetail]);
+
   // Transform tickets for table
   const attendeeData = transformTicketData(tickets);
 
   const handleScanTicket = () => {
-    // Open scan ticket page in new tab - use different URLs based on environment
     const scanTicketUrl =
       process.env.NODE_ENV === 'production'
         ? 'https://wukong.co.id/ticket/auth'
@@ -95,9 +115,23 @@ function Tickets() {
     setFilters((prev) => ({ ...prev, page }));
   };
 
+  const handleTicketTypeChange = (ticketTypeIds: string) => {
+    setFilters((prev) => ({ 
+      ...prev, 
+      ticketTypeIds: ticketTypeIds === '' ? undefined : ticketTypeIds, 
+      page: 0 
+    }));
+  };
+  
+  const handleTicketStatusChange = (ticketStatus: TicketStatus | '') => {
+    setFilters((prev) => ({ 
+      ...prev, 
+      ticketStatus: ticketStatus !== '' ? ticketStatus : undefined, 
+      page: 0 
+    }));
+  };
+
   const handleRedeemTicket = (_ticketId: string) => {
-    // The actual redeem API call is handled in the AttendeeTable component
-    // This function is called after successful redeem to refresh the data
     mutateTickets();
   };
 
@@ -174,9 +208,14 @@ function Tickets() {
             searchQuery={filters.search}
             selectedEventData={selectedEventData}
             total={pagination?.totalRecords}
+            ticketTypeOptions={ticketTypeOptions}
+            selectedTicketTypeIds={filters.ticketTypeIds}
+            selectedTicketStatus={filters.ticketStatus}
             onPageChange={handlePageChange}
             onRedeemTicket={handleRedeemTicket}
             onSearchChange={handleSearchChange}
+            onTicketTypeChange={handleTicketTypeChange}
+            onTicketStatusChange={handleTicketStatusChange}
           />
         )}
 
