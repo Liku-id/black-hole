@@ -37,16 +37,16 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def GIT_SHOW = sh(returnStdout: true, script: 'git show').trim()
-                    def escapedGitShow = JsonOutput.toJson(GIT_SHOW).replaceAll(/^"|"$|'/, "")
-                    echo escapedGitShow
+                    def commit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    def commitMsg = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
+                    def author = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+                    def buildMsg = "[BLACK HOLE BUILD STARTED]\\nCommit: ${commit}\\nAuthor: ${author}\\nMessage: ${commitMsg}"
                     sh"""
                     curl -X POST -H "Content-Type: application/json" \
-                    -d '{"msg_type":"text","content":{"text":"[BLACK HOLE BUILD STARTED] - ${escapedGitShow}"}}' \
+                    -d '{"msg_type":"text","content":{"text":"${buildMsg}"}}' \
                     https://open.larksuite.com/open-apis/bot/v2/hook/${LARK_ID}
                     """
                     sh "ls -l"
-                    def commit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     def tag = "${REGISTRY}/${DOCKER_IMAGE}:${commit}"
                     echo "Building Docker image with tag: ${tag}"
                     sh "docker build --no-cache -f ./staging.dockerfile -t ${tag} ."
