@@ -63,5 +63,6 @@ export interface TicketsFilters {
   page?: number;
   show?: number;
   search?: string;
-  ticketTypeIds?: string[];
+  ticketTypeIds?: string;
+  ticketStatus?: TicketStatus;
 }
