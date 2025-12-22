@@ -12,27 +12,66 @@ import { TicketType } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
 import { TicketDetailModal } from './modal';
+import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
+import { StatusBadge } from '../../../status-badge';
 
 interface EventDetailTicketTableProps {
   ticketTypes: TicketType[];
   loading?: boolean;
+  approvalMode?: boolean;
+  onApproveTicket?: (ticketId: string) => void;
+  onRejectTicket?: (ticketId: string, rejectedFields: string[]) => void;
+  error?: string | null;
+  showStatus?: boolean;
 }
 
 export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   ticketTypes,
-  loading = false
+  loading = false,
+  approvalMode = false,
+  onApproveTicket,
+  onRejectTicket,
+  error = null,
+  showStatus = false
 }) => {
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const statusMap = {
+    approved: 'on_going',
+    rejected: 'rejected',
+    pending: 'pending'
+  };
 
   const handleViewDetail = (ticket: TicketType) => {
     setSelectedTicket(ticket);
     setModalOpen(true);
   };
 
+  // Determine which modal to show based on approval mode and ticket status
+  // Show review modal only for tickets that haven't been reviewed yet (no status or pending)
+  // Show regular modal for approved or rejected tickets (read-only view)
+  const shouldShowReviewModal =
+    approvalMode &&
+    selectedTicket?.status !== 'approved' &&
+    selectedTicket?.status !== 'rejected';
+
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedTicket(null);
+  };
+
+  const handleApprove = (ticketId: string) => {
+    if (onApproveTicket) {
+      onApproveTicket(ticketId);
+      handleCloseModal();
+    }
+  };
+
+  const handleReject = (ticketId: string, rejectedFields: string[]) => {
+    if (onRejectTicket) {
+      onRejectTicket(ticketId, rejectedFields);
+    }
   };
 
   if (loading) {
@@ -65,41 +104,48 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
         <Table>
           <StyledTableHead>
             <TableRow>
-              <TableCell sx={{ width: '5%' }}>
+              <TableCell sx={{ width: '3%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   No.
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '15%' }}>
+              <TableCell sx={{ width: '23%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Name
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '15%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Price
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '10%' }}>
+              <TableCell sx={{ width: '8%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Quantity
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12.5%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Max. Per User
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '17.5%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Sale Start Date
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '17.5%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Sale End Date
                 </Body2>
               </TableCell>
+              {showStatus && (
+                <TableCell sx={{ width: '8%' }}>
+                  <Body2 color="text.secondary" fontSize="14px">
+                    Status
+                  </Body2>
+                </TableCell>
+              )}
               <TableCell sx={{ width: '5%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Action
@@ -110,7 +156,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
           <StyledTableBody>
             {ticketTypes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={showStatus ? 9 : 8}>
                   <Box display="flex" justifyContent="center" padding="40px">
                     <Body2 color="text.secondary">No tickets found.</Body2>
                   </Box>
@@ -142,6 +188,20 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                     <TableCell>
                       <Body2>{formattedTicket.salesEndDate}</Body2>
                     </TableCell>
+                    {showStatus && (
+                      <TableCell>
+                        {ticket?.status ? (
+                          <StatusBadge
+                            status={statusMap[ticket.status]}
+                            displayName={ticket.status}
+                          />
+                        ) : (
+                          <Body2 color="text.primary" fontSize="14px">
+                            -
+                          </Body2>
+                        )}
+                      </TableCell>
+                    )}
                     <TableCell>
                       <Box
                         sx={{ cursor: 'pointer' }}
@@ -163,12 +223,24 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
         </Table>
       </StyledTableContainer>
 
-      {/* Ticket Detail Modal */}
-      <TicketDetailModal
-        open={modalOpen}
-        ticket={selectedTicket}
-        onClose={handleCloseModal}
-      />
+      {/* Ticket Detail Modal - Show Review Modal only if not approved */}
+      {shouldShowReviewModal ? (
+        <TicketReviewModal
+          open={modalOpen}
+          ticket={selectedTicket}
+          onClose={handleCloseModal}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          loading={loading}
+          error={error}
+        />
+      ) : (
+        <TicketDetailModal
+          open={modalOpen}
+          ticket={selectedTicket}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 };

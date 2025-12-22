@@ -1,6 +1,7 @@
 import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import {
   Body2,
@@ -69,6 +70,40 @@ export const EventTicketsEditForm = ({
     onAddTicket?.();
   };
 
+  const getStatusChip = (status?: string) => {
+    if (status === 'rejected') {
+      return (
+        <ErrorOutline 
+          sx={{ 
+            color: 'error.main',
+            fontSize: '24px'
+          }} 
+        />
+      );
+    }
+    if (status === 'approved') {
+      return (
+        <CheckCircleOutline 
+          sx={{ 
+            color: 'success.main',
+            fontSize: '24px'
+          }} 
+        />
+      );
+    }
+    if (status === 'pending') {
+      return (
+        <ErrorOutline 
+          sx={{ 
+            color: 'grey.500',
+            fontSize: '24px'
+          }} 
+        />
+      );
+    }
+    return null;
+  };
+
   // Initialize form
   useEffect(() => {
     if (eventDetail) {
@@ -121,6 +156,11 @@ export const EventTicketsEditForm = ({
                     Sale End Date
                   </Body2>
                 </TableCell>
+                <TableCell sx={{ width: '8%' }}>
+                  <Body2 color="text.secondary" fontSize="14px">
+                    Status
+                  </Body2>
+                </TableCell>
                 <TableCell align="right" sx={{ width: '5%' }}>
                   <Body2 color="text.secondary" fontSize="14px">
                     Action
@@ -169,6 +209,9 @@ export const EventTicketsEditForm = ({
                     <Body2 color="text.primary" fontSize="14px">
                       {ticket.sales_end_date}
                     </Body2>
+                  </TableCell>
+                  <TableCell>
+                    {getStatusChip(ticket.status)}
                   </TableCell>
                   <TableCell align="right">
                     <Box display="flex" gap={1} justifyContent="flex-end">

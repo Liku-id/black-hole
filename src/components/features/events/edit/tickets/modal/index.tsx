@@ -16,7 +16,7 @@ export default function TicketAdditionalFormModal({
   const { metaUrl } = router.query;
 
   const handleNoAdditionalForm = () => {
-    router.push(`/events/${metaUrl}`);
+    router.push(`/events/${metaUrl}?tab=tickets`);
   };
 
   const handleAddAdditionalForm = () => {
