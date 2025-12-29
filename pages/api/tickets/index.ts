@@ -4,7 +4,14 @@ import { apiRouteUtils } from '@/utils/apiRouteUtils';
 
 // Transform query parameters for the backend API
 const transformQuery = (query: any) => {
-  const { eventId, page = '0', show = '10', search, ticketTypeIds } = query;
+  const {
+    eventId,
+    page = '0',
+    limit = '10',
+    search,
+    ticketTypeIds,
+    ticketStatus
+  } = query;
 
   // Validate required parameters
   if (!eventId || typeof eventId !== 'string') {
@@ -12,22 +19,21 @@ const transformQuery = (query: any) => {
   }
 
   const transformedQuery: any = {
-    eventId,
+    event_id: eventId,
     page: page.toString(),
-    show: show.toString()
+    limit: limit.toString()
   };
 
-  if (search && typeof search === 'string') {
-    transformedQuery.search = search;
+  if (search && typeof search === 'string' && search.trim() !== '') {
+    transformedQuery.search = search.trim();
   }
 
-  if (ticketTypeIds) {
-    const typeIds = Array.isArray(ticketTypeIds)
-      ? ticketTypeIds
-      : [ticketTypeIds];
-    typeIds.forEach((id, index) => {
-      transformedQuery[`ticketTypeIds[${index}]`] = id.toString();
-    });
+  if (ticketTypeIds && typeof ticketTypeIds === 'string' && ticketTypeIds.trim() !== '') {
+    transformedQuery.ticketTypeIds = ticketTypeIds.trim();
+  }
+
+  if (ticketStatus && typeof ticketStatus === 'string' && ticketStatus.trim() !== '') {
+    transformedQuery.status = ticketStatus.trim();
   }
 
   return transformedQuery;
