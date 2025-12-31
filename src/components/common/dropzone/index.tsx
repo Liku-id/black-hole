@@ -26,7 +26,7 @@ const Dropzone = ({
   height = '200px',
   onFileSelect,
   onFileRemove,
-  accept = { 'image/*': ['.png', '.jpg', '.jpeg'] },
+  accept = { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'] },
   maxSize,
   order,
   error = false,
