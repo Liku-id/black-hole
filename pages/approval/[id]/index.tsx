@@ -343,7 +343,8 @@ function ApprovalDetail() {
 
       // Use submission.event.id when event status is on_going, otherwise use event-submission id from router
       const eventIdToUse =
-        submission.event.eventStatus === 'on_going'
+        submission.event.eventStatus === 'on_going' ||
+        submission.event.eventStatus === 'approved'
           ? submission.event.id
           : (id as string);
 

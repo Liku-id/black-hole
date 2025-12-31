@@ -33,7 +33,8 @@ export const EventDetailAssets = ({
   // For on_going events with eventAssetChanges, we'll render two separate sections
   // For other cases, use the appropriate asset source
   const isOnGoingWithChanges =
-    eventDetail.eventStatus === 'on_going' &&
+    (eventDetail.eventStatus === 'on_going' ||
+      eventDetail.eventStatus === 'approved') &&
     eventAssetChanges &&
     eventAssetChanges.length > 0;
   const firstChange =

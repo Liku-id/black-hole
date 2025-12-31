@@ -61,6 +61,8 @@ const EventField = ({
 
           return JSON.stringify(a) !== JSON.stringify(b);
         }
+        case 'login_required':
+          return eventDetail?.login_required !== Boolean(updateRequest[fieldKey]);
         default:
           return eventDetail?.[fieldKey] !== updateRequest[fieldKey];
       }
@@ -83,7 +85,7 @@ const EventField = ({
         }
         return '';
       case 'cityId':
-        return `City ID: ${updateRequest?.city?.name || updateRequest[fieldKey]}`;
+        return `${updateRequest?.city?.name || updateRequest[fieldKey]}`;
       case 'paymentMethodIds':
         return `Payment Method IDs: ${updateRequest[fieldKey]?.join(', ') || ''}`;
       case 'adminFee':
@@ -91,6 +93,8 @@ const EventField = ({
         return adminFee < 100 ? `${adminFee}%` : `Rp ${adminFee}`;
       case 'tax':
         return `${updateRequest.tax ?? eventDetail?.tax ?? 0}%`;
+        case 'login_required':
+        return updateRequest[fieldKey] ? 'Yes' : 'No';
       default:
         return updateRequest[fieldKey] || '';
     }

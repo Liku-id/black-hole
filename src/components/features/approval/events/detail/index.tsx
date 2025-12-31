@@ -98,9 +98,11 @@ const Field = ({
         }
         return '';
       case 'cityId':
-        return `City ID: ${eventUpdateRequest?.city?.name}`;
+        return `${eventUpdateRequest?.city?.name}`;
       case 'paymentMethodIds':
         return `Payment Method IDs: ${eventUpdateRequest[fieldKey]?.join(', ') || ''}`;
+      case 'login_required':
+        return eventUpdateRequest[fieldKey] ? 'Yes' : 'No';
       default:
         return eventUpdateRequest[fieldKey] || '';
     }
@@ -153,9 +155,10 @@ export const EventsSubmissionsInfo = ({
   onToggleField
 }: EventsSubmissionsInfoProps) => {
   // Check if we should use eventUpdateRequest rejection info
-  const useUpdateRequestRejection = 
-    (eventDetail.eventStatus === 'on_going' || eventDetail.eventStatus === 'approved') && 
-    eventUpdateRequest !== null && 
+  const useUpdateRequestRejection =
+    (eventDetail.eventStatus === 'on_going' ||
+      eventDetail.eventStatus === 'approved') &&
+    eventUpdateRequest !== null &&
     eventUpdateRequest !== undefined;
 
   const isFieldRejected = (fieldName: string) => {
@@ -164,7 +167,7 @@ export const EventsSubmissionsInfo = ({
       if (!eventUpdateRequest?.rejectedFields) return false;
       return eventUpdateRequest.rejectedFields.includes(fieldName);
     }
-    
+
     // Otherwise use eventDetail rejectedFields
     if (!eventDetail.rejectedFields) return false;
     return eventDetail.rejectedFields.includes(fieldName);
@@ -198,8 +201,8 @@ export const EventsSubmissionsInfo = ({
   };
 
   // Determine which rejection reason to display
-  const rejectionReason = useUpdateRequestRejection 
-    ? eventUpdateRequest?.rejectedReason 
+  const rejectionReason = useUpdateRequestRejection
+    ? eventUpdateRequest?.rejectedReason
     : eventDetail.rejectedReason;
 
   return (
@@ -207,158 +210,161 @@ export const EventsSubmissionsInfo = ({
       {/* Rejected Reason */}
       <RejectedReason reason={rejectionReason} />
 
-    <Grid container spacing={2}>
-      <Grid item md={6} xs={12}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="name"
-              label={renderLabel('Event Name*', 'name')}
-              value={eventDetail.name}
-              isRejected={isFieldRejected('name')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="eventType"
-              label={renderLabel('Event Type*', 'event_type')}
-              value={eventDetail.eventType}
-              isRejected={isFieldRejected('event_type')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="startDate"
-              label={renderLabel('Start & End Date*, Time*', ['start_date'])}
-              value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`}
-              isRejected={isFieldRejected('start_date') || isFieldRejected('end_date')}
-            />
-          </Grid>
+      <Grid container spacing={2}>
+        <Grid item md={6} xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="name"
+                label={renderLabel('Event Name*', 'name')}
+                value={eventDetail.name}
+                isRejected={isFieldRejected('name')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="eventType"
+                label={renderLabel('Event Type*', 'event_type')}
+                value={eventDetail.eventType}
+                isRejected={isFieldRejected('event_type')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="startDate"
+                label={renderLabel('Start & End Date*, Time*', ['start_date'])}
+                value={`${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)} (${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB)`}
+                isRejected={
+                  isFieldRejected('start_date') || isFieldRejected('end_date')
+                }
+              />
+            </Grid>
 
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="address"
-              label={renderLabel('Address*', 'address')}
-              value={eventDetail.address}
-              isRejected={isFieldRejected('address')}
-            />
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="address"
+                label={renderLabel('Address*', 'address')}
+                value={eventDetail.address}
+                isRejected={isFieldRejected('address')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="mapLocationUrl"
+                label={renderLabel('Google Maps Link*', 'map_location_url')}
+                value={eventDetail.mapLocationUrl}
+                isRejected={isFieldRejected('map_location_url')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="cityId"
+                label={renderLabel('City*', 'city')}
+                value={eventDetail.city?.name || '-'}
+                isRejected={isFieldRejected('city')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                isTextArea
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="description"
+                label={renderLabel('Event Description*', 'description')}
+                value={eventDetail.description}
+                isRejected={isFieldRejected('description')}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="mapLocationUrl"
-              label={renderLabel('Google Maps Link*', 'map_location_url')}
-              value={eventDetail.mapLocationUrl}
-              isRejected={isFieldRejected('map_location_url')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="cityId"
-              label={renderLabel('City*', 'city')}
-              value={eventDetail.city?.name || '-'}
-              isRejected={isFieldRejected('city')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              isTextArea
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="description"
-              label={renderLabel('Event Description*', 'description')}
-              value={eventDetail.description}
-              isRejected={isFieldRejected('description')}
-            />
+        </Grid>
+        <Grid item md={6} xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Field
+                isTextArea
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="termAndConditions"
+                label={renderLabel('Terms & Condition*', 'term_and_conditions')}
+                value={eventDetail.termAndConditions}
+                isRejected={isFieldRejected('term_and_conditions')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="adminFee"
+                label={renderLabel('Admin Fee*', 'admin_fee')}
+                value={
+                  eventDetail.adminFee < 100
+                    ? `${eventDetail.adminFee}%`
+                    : `Rp ${eventDetail.adminFee}`
+                }
+                isRejected={isFieldRejected('admin_fee')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="paymentMethodIds"
+                label={renderLabel('Payment Method*', 'payment_methods')}
+                value={
+                  eventDetail.paymentMethods
+                    ?.map((pm) => pm.name)
+                    .join(' / ') || ''
+                }
+                isRejected={isFieldRejected('payment_methods')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="websiteUrl"
+                label={renderLabel('Website URL*', 'website_url')}
+                value={eventDetail.websiteUrl || '-'}
+                isRejected={isFieldRejected('website_url')}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="tax"
+                label={renderLabel('Tax Nominal*', 'tax')}
+                value={`${eventDetail.tax}%`}
+                isRejected={isFieldRejected('tax')}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Field
+                eventDetail={eventDetail}
+                eventUpdateRequest={eventUpdateRequest}
+                fieldKey="login_required"
+                label={renderLabel('User Must Login*', 'login_required')}
+                value={eventDetail.login_required ? 'Yes' : 'No'}
+                isRejected={isFieldRejected('login_required')}
+              />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
-      <Grid item md={6} xs={12}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Field
-              isTextArea
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="termAndConditions"
-              label={renderLabel('Terms & Condition*', 'term_and_conditions')}
-              value={eventDetail.termAndConditions}
-              isRejected={isFieldRejected('term_and_conditions')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="adminFee"
-              label={renderLabel('Admin Fee*', 'admin_fee')}
-              value={
-                eventDetail.adminFee < 100
-                  ? `${eventDetail.adminFee}%`
-                  : `Rp ${eventDetail.adminFee}`
-              }
-              isRejected={isFieldRejected('admin_fee')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="paymentMethodIds"
-              label={renderLabel('Payment Method*', 'payment_methods')}
-              value={
-                eventDetail.paymentMethods?.map((pm) => pm.name).join(' / ') ||
-                ''
-              }
-              isRejected={isFieldRejected('payment_methods')}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="websiteUrl"
-              label={renderLabel('Website URL*', 'website_url')}
-              value={eventDetail.websiteUrl || '-'}
-              isRejected={isFieldRejected('website_url')}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="tax"
-              label={renderLabel('Tax Nominal*', 'tax')}
-              value={`${eventDetail.tax}%`}
-              isRejected={isFieldRejected('tax')}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <Field
-              eventDetail={eventDetail}
-              eventUpdateRequest={eventUpdateRequest}
-              fieldKey="login_required"
-              label={renderLabel('User Must Login*', 'login_required')}
-              value={eventDetail.login_required ? 'Yes' : 'No'}
-              isRejected={isFieldRejected('login_required')}
-            />
-          </Grid>
-        </Grid>
-      </Grid>
-    </Grid>
     </>
   );
 };
