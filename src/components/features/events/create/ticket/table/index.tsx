@@ -39,7 +39,6 @@ interface TicketTableProps {
 const TicketTable: FC<TicketTableProps> = ({
   tickets,
   loading = false,
-  eventStatus,
   onEdit,
   onDelete
 }) => {
@@ -52,10 +51,7 @@ const TicketTable: FC<TicketTableProps> = ({
   // Check if action buttons should be shown for a ticket
   const shouldShowActions = (ticket: TicketCategory) => {
     // For upcoming (approved) or ongoing events, hide actions for approved tickets
-    if (
-      (eventStatus === 'approved' || eventStatus === 'on_going') &&
-      ticket.status === 'approved'
-    ) {
+    if (ticket.status === 'approved') {
       return false;
     }
     return true;
