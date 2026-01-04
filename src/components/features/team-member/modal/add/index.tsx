@@ -1,6 +1,7 @@
-import { Box } from '@mui/material';
 import React from 'react';
-
+// Third Party
+import { Box } from '@mui/material';
+// Components & Layouts
 import { Body2, Button, Modal } from '@/components/common';
 
 interface AddTeamMemberModalProps {
@@ -22,6 +23,7 @@ export const AddTeamMemberModal: React.FC<AddTeamMemberModalProps> = ({
   error,
   success = false
 }) => {
+  // Handle modal close preventing close during loading
   const handleClose = () => {
     if (!loading) {
       onClose();

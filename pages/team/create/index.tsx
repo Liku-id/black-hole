@@ -1,22 +1,24 @@
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { Box, Divider } from '@mui/material';
-import Image from 'next/image';
+// Third Party
+import { useAtom } from 'jotai';
 import { useForm, FormProvider } from 'react-hook-form';
-
-import { withAuth } from '@/components/Auth/withAuth';
-import { useToast } from '@/contexts/ToastContext';
-import {
-  H2,
-  Button,
-  Card,
-  TextField,
-  Select,
-  Caption
-} from '@/components/common';
-import { AddTeamMemberModal } from '@/components/features/team-member/modal/add';
+import { Box, Divider } from '@mui/material';
+// Components & Layouts
 import DashboardLayout from '@/layouts/dashboard';
+import { H2, Button, Card, TextField, Select, Caption } from '@/components/common';
+import { withAuth } from '@/components/Auth/withAuth';
+import { AddTeamMemberModal } from '@/components/features/team-member/modal/add';
+// Contexts & Hooks
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+// Services & Utils
+import { staffService } from '@/services/staff';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
+// Types
+import { isEventOrganizer } from '@/types/auth';
 
 interface TeamMemberFormData {
   name: string;
@@ -31,6 +33,8 @@ function CreateTeamMember() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { user } = useAuth();
+  const [selectedEOId] = useAtom(selectedEOIdAtom);
 
   const methods = useForm<TeamMemberFormData>({
     defaultValues: {
@@ -43,17 +47,21 @@ function CreateTeamMember() {
   const { handleSubmit, reset } = methods;
 
   const roleOptions = [
-    { value: 'check-in-crew', label: 'Check-in Crew' }
+    { value: 'ground_staff', label: 'Check-in Crew' },
+    { value: 'finance', label: 'Finance' }
   ];
 
+  // Navigate back to team list
   const handleBack = () => {
     router.push('/team');
   };
 
+  // Open confirmation modal
   const handleFormSubmit = () => {
     setModalOpen(true);
   };
 
+  // Close modal if not loading
   const handleModalClose = () => {
     if (!loading) {
       setModalOpen(false);
@@ -61,34 +69,41 @@ function CreateTeamMember() {
     }
   };
 
+  // Execute create team member
   const handleModalConfirm = async () => {
     setLoading(true);
     setError(null);
 
     const formData = methods.getValues();
-    console.log('Team member data:', {
-      name: formData.name,
-      email: formData.email,
-      role: formData.role
-    });
+    const eoId = user && isEventOrganizer(user) ? user.id : selectedEOId;
+
+    if (!eoId) {
+      setError('Event Organizer ID not found');
+      setLoading(false);
+      return;
+    }
 
     try {
-      // TODO: Implement actual API call to create team member
-      console.log('Creating team member...');
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await staffService.createStaff({
+        event_organizer_id: eoId,
+        full_name: formData.name,
+        email: formData.email,
+        role: formData.role
+      });
 
       setSuccess(true);
       showInfo('Team Member Created Successfully');
     } catch (err) {
-      setError('Failed to create team member');
-      showError('Failed to create team member');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to create team member';
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  // Close modal and reset form after success
   const handleModalBack = () => {
     setModalOpen(false);
     setSuccess(false);
@@ -127,7 +142,7 @@ function CreateTeamMember() {
         </Box>
 
         {/* Card */}
-        <Card sx={{ backgroundColor: 'common.white'}}>
+        <Card sx={{ backgroundColor: 'common.white' }}>
           <FormProvider {...methods}>
             <form onSubmit={handleSubmit(handleFormSubmit)}>
               {/* Form Fields */}

@@ -1,6 +1,7 @@
-import { Box } from '@mui/material';
 import React from 'react';
-
+// Third Party
+import { Box } from '@mui/material';
+// Components & Layouts
 import { Body2, Button, Modal, Overline } from '@/components/common';
 
 interface DeleteTeamMemberModalProps {
