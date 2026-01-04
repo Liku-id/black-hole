@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { staffService } from '@/services/event-organizer/staff'; // Import directly for now
+import { staffService } from '@/services/staff'; // Updated import path
 import { ListStaffRequest, ListStaffResponse } from '@/types/staff';
 
 export const useStaff = (
@@ -8,18 +8,18 @@ export const useStaff = (
 ) => {
   const { data, error, isLoading, mutate } = useSWR<ListStaffResponse>(
     eventOrganizerId
-      ? [`/api/event-organizers/${eventOrganizerId}/staff`, params]
+      ? [`/api/event-organizers/staff/${eventOrganizerId}`, params]
       : null,
     () => staffService.getStaffList(eventOrganizerId, params)
   );
 
   return {
-    staffList: data?.body?.staffs || [],
+    staffList: data?.body?.staff || [],
     pagination: {
-      page: data?.body?.page || 0,
-      show: data?.body?.show || 10,
-      total: data?.body?.total || 0,
-      totalPage: data?.body?.totalPage || 0
+      page: data?.body?.pagination?.page || 0,
+      show: data?.body?.pagination?.limit || 10,
+      total: data?.body?.pagination?.totalRecords || 0,
+      totalPage: data?.body?.pagination?.totalPages || 0
     },
     isLoading,
     isError: error,

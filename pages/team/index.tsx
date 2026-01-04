@@ -1,37 +1,40 @@
+// Core
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+// Third Party
+import { useAtom } from 'jotai';
 import { Box, Divider } from '@mui/material';
-import Image from 'next/image';
-
-import { withAuth } from '@/components/Auth/withAuth';
-import { useToast } from '@/contexts/ToastContext';
+// Components & Layouts
+import DashboardLayout from '@/layouts/dashboard';
 import { H2, Button, Card, Body1, TextField } from '@/components/common';
+import { withAuth } from '@/components/Auth/withAuth';
 import { TeamMemberTable } from '@/components/features/team-member/table';
 import { DeleteTeamMemberModal } from '@/components/features/team-member/modal/delete';
-import DashboardLayout from '@/layouts/dashboard';
-import { useAtom } from 'jotai';
-import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
-import { useStaff } from '@/hooks/useStaff';
+// Contexts & Hooks
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { useStaff } from '@/hooks/features/staff/useStaff';
+import { useDebouncedCallback } from '@/utils';
+// Services & Utils
+import { staffService } from '@/services/staff';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
+// Types
 import { isEventOrganizer } from '@/types/auth';
+import { Staff } from '@/types/staff';
 
 function TeamMember() {
   const router = useRouter();
   const { showInfo } = useToast();
-  const [searchName, setSearchName] = useState('');
+  const [queryName, setQueryName] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [selectedMember, setSelectedMember] = useState<{
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  } | null>(null);
+  const [selectedMember, setSelectedMember] = useState<Staff | null>(null);
 
   const { user } = useAuth();
   const [selectedEOId] = useAtom(selectedEOIdAtom);
@@ -39,37 +42,42 @@ function TeamMember() {
   // Determine Event Organizer ID based on user role
   const eoId = user && isEventOrganizer(user) ? user.id : selectedEOId;
 
-  const { staffList, pagination, isLoading } = useStaff(eoId, {
-    page: currentPage + 1, // API is 1-based
-    show: pageSize,
-    name: searchName
+  const { staffList, pagination, isLoading, mutate } = useStaff(eoId, {
+    page: currentPage, // API is 0-based
+    limit: pageSize,
+    search: queryName
   });
 
+  // Handle search input with debounce
+  const handleSearchChange = useDebouncedCallback((value: string) => {
+    setQueryName(value);
+  }, 500);
+
+  // Navigate to create page
   const handleAddTeamMember = () => {
     router.push('/team/create');
   };
 
+  // Handle pagination change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const handleOpenDeleteModal = (member: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  }) => {
+  // Open delete confirmation modal
+  const handleOpenDeleteModal = (member: Staff) => {
     setSelectedMember(member);
     setDeleteModalOpen(true);
     setDeleteError(null);
   };
 
+  // Close delete modal and reset state
   const handleCloseDeleteModal = () => {
     setDeleteModalOpen(false);
     setSelectedMember(null);
     setDeleteError(null);
   };
 
+  // Execute staff deletion
   const handleDeleteConfirm = async () => {
     if (!selectedMember) return;
 
@@ -77,14 +85,14 @@ function TeamMember() {
     setDeleteError(null);
 
     try {
-      // TODO: Implement actual delete API call
-      console.log('Deleting team member:', selectedMember.id);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await staffService.deleteStaff({
+        user_id: selectedMember.user_id,
+        reason: ''
+      });
 
       showInfo('Team Member Deleted');
       handleCloseDeleteModal();
+      mutate();
     } catch (error) {
       setDeleteError('Failed to delete team member');
     } finally {
@@ -128,8 +136,7 @@ function TeamMember() {
               <TextField
                 fullWidth
                 placeholder="Name"
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 startComponent={
                   <Image
                     alt="Search"

@@ -1,7 +1,18 @@
-// Team member table component - displays team member list with pagination
-import { Table, TableCell, TableRow, Menu, MenuItem, ListItemIcon, ListItemText, Box, IconButton } from '@mui/material';
 import { FC, useState } from 'react';
 import Image from 'next/image';
+// Third Party
+import {
+  Table,
+  TableCell,
+  TableRow,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  IconButton
+} from '@mui/material';
+// Components & Layouts
 import {
   Body2,
   StyledTableContainer,
@@ -9,22 +20,17 @@ import {
   StyledTableBody,
   Pagination
 } from '@/components/common';
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+// Types
+import { Staff } from '@/types/staff';
 
 interface TeamMemberTableProps {
-  teamMembers: TeamMember[];
+  teamMembers: Staff[];
   loading?: boolean;
   currentPage: number;
   pageSize: number;
   total: number;
   onPageChange: (page: number) => void;
-  onOpenDeleteModal?: (member: TeamMember) => void;
+  onOpenDeleteModal?: (member: Staff) => void;
 }
 
 export const TeamMemberTable: FC<TeamMemberTableProps> = ({
@@ -38,6 +44,7 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
 
+  // Open options menu
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
     memberId: string
@@ -45,11 +52,13 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
     setAnchorEl((prev) => ({ ...prev, [memberId]: event.currentTarget }));
   };
 
+  // Close options menu
   const handleMenuClose = (memberId: string) => {
     setAnchorEl((prev) => ({ ...prev, [memberId]: null }));
   };
 
-  const handleDeleteClick = (member: TeamMember) => {
+  // Trigger delete action
+  const handleDeleteClick = (member: Staff) => {
     if (onOpenDeleteModal) {
       onOpenDeleteModal(member);
     }
@@ -63,29 +72,19 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
           <StyledTableHead>
             <TableRow>
               <TableCell sx={{ width: '60px', minWidth: '60px' }}>
-                <Body2 color="text.secondary">
-                  No.
-                </Body2>
+                <Body2 color="text.secondary">No.</Body2>
               </TableCell>
               <TableCell sx={{ minWidth: '200px' }}>
-                <Body2 color="text.secondary">
-                  Name
-                </Body2>
+                <Body2 color="text.secondary">Name</Body2>
               </TableCell>
               <TableCell sx={{ minWidth: '250px' }}>
-                <Body2 color="text.secondary">
-                  Email
-                </Body2>
+                <Body2 color="text.secondary">Email</Body2>
               </TableCell>
               <TableCell sx={{ minWidth: '150px' }}>
-                <Body2 color="text.secondary">
-                  User Role
-                </Body2>
+                <Body2 color="text.secondary">User Role</Body2>
               </TableCell>
               <TableCell sx={{ width: '80px', minWidth: '80px' }}>
-                <Body2 color="text.secondary">
-                  Action
-                </Body2>
+                <Body2 color="text.secondary">Action</Body2>
               </TableCell>
             </TableRow>
           </StyledTableHead>
@@ -111,18 +110,14 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
                     </Body2>
                   </TableCell>
                   <TableCell sx={{ minWidth: '200px' }}>
-                    <Body2 color="text.primary">
-                      {member.name}
-                    </Body2>
+                    <Body2 color="text.primary">{member.full_name}</Body2>
                   </TableCell>
                   <TableCell sx={{ minWidth: '250px' }}>
-                    <Body2 color="text.primary">
-                      {member.email}
-                    </Body2>
+                    <Body2 color="text.primary">{member.email}</Body2>
                   </TableCell>
                   <TableCell sx={{ minWidth: '150px' }}>
                     <Body2 color="text.primary">
-                      {member.role}
+                      {member.role_name || 'Ground Staff'}
                     </Body2>
                   </TableCell>
                   <TableCell sx={{ width: '80px', minWidth: '80px' }}>
@@ -183,10 +178,7 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
                           </ListItemIcon>
                           <ListItemText
                             primary={
-                              <Body2
-                                color="text.primary"
-                                fontWeight="400"
-                              >
+                              <Body2 color="text.primary" fontWeight="400">
                                 Delete Team Member
                               </Body2>
                             }
@@ -213,4 +205,3 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
     </>
   );
 };
-
