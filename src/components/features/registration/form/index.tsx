@@ -1,7 +1,7 @@
 import { alpha, Box, Card, CardContent, styled } from '@mui/material';
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Image from 'next/image';
 
 import {
   TextField,
@@ -11,8 +11,8 @@ import {
   Caption,
   PhoneField
 } from '@/components/common';
-import { registerService } from '@/services/auth/register';
 import { useToast } from '@/contexts/ToastContext';
+import { registerService } from '@/services/auth/register';
 import { validationUtils } from '@/utils/validationUtils';
 
 const RegisterCard = styled(Card)(

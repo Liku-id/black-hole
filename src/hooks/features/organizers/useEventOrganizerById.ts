@@ -1,5 +1,6 @@
 import { eventOrganizerService } from '@/services/event-organizer';
 import { EventOrganizer } from '@/types/organizer';
+
 import { useApi } from '../../useApi';
 
 interface EOType extends EventOrganizer {

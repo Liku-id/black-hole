@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
-
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
 
 import { Box, Card, CardContent } from '@mui/material';
+import Head from 'next/head';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, Button, H2, Body2, Caption, H4 } from '@/components/common';
 import BankForm from '@/components/features/account/bank-form';
 import { CreatorTypeModal } from '@/components/features/account/creator-type-modal';
-import { UnverifiedModal } from '@/components/features/account/unverified-modal';
 import GeneralForm from '@/components/features/account/general-form';
 import LegalForm from '@/components/features/account/legal-form';
+import { UnverifiedModal } from '@/components/features/account/unverified-modal';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useEventOrganizerById,

@@ -1,5 +1,5 @@
-import { useForm, FormProvider } from 'react-hook-form';
 import { Box, Grid } from '@mui/material';
+import { useForm, FormProvider } from 'react-hook-form';
 
 import {
   TextField,
@@ -9,8 +9,8 @@ import {
   Overline,
   Body2
 } from '@/components/common';
-import { EventOrganizer } from '@/types/organizer';
 import { useBanks } from '@/hooks/features/organizers/useBanks';
+import { EventOrganizer } from '@/types/organizer';
 
 interface BankEditFormProps {
   eventOrganizer: EventOrganizer;

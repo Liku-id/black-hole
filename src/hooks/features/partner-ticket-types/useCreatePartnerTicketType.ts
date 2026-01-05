@@ -1,9 +1,10 @@
 import { useState } from 'react';
+
+import { useToast } from '@/contexts/ToastContext';
 import {
   partnerTicketTypesService,
   CreatePartnerTicketTypeRequest
 } from '@/services/partner-ticket-types';
-import { useToast } from '@/contexts/ToastContext';
 
 interface UseCreatePartnerTicketTypeReturn {
   createPartnerTicketType: (

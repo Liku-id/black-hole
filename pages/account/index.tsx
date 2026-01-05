@@ -1,10 +1,9 @@
+import { Box, Card, CardContent } from '@mui/material';
+import Head from 'next/head';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
-
-import { Box, Card, CardContent } from '@mui/material';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, Button, H2, Body2, Caption, H4 } from '@/components/common';

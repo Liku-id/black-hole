@@ -9,6 +9,7 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { formatPrice, dateUtils } from '@/utils';
+
 import { StatusBadge } from '../../../status-badge';
 
 interface TicketCategory {
@@ -34,13 +35,16 @@ interface TicketTableProps {
   eventStatus?: string;
   onEdit?: (ticket: TicketCategory) => void;
   onDelete?: (ticketId: string) => void;
+  onEditAdditionalForm?: (ticket: TicketCategory) => void;
 }
 
 const TicketTable: FC<TicketTableProps> = ({
   tickets,
   loading = false,
+  eventStatus,
   onEdit,
-  onDelete
+  onDelete,
+  onEditAdditionalForm
 }) => {
   const statusMap = {
     approved: 'on_going',
@@ -51,7 +55,10 @@ const TicketTable: FC<TicketTableProps> = ({
   // Check if action buttons should be shown for a ticket
   const shouldShowActions = (ticket: TicketCategory) => {
     // For upcoming (approved) or ongoing events, hide actions for approved tickets
-    if (ticket.status === 'approved') {
+    if (
+      (eventStatus === 'approved' || eventStatus === 'on_going') &&
+      ticket.status === 'approved'
+    ) {
       return false;
     }
     return true;
@@ -202,6 +209,19 @@ const TicketTable: FC<TicketTableProps> = ({
                           alt="Delete"
                           height={24}
                           src="/icon/trash.svg"
+                          width={24}
+                        />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={() => onEditAdditionalForm?.(ticket)}
+                        title="Edit Additional Form"
+                      >
+                        <Image
+                          alt="Edit Additional Form"
+                          height={24}
+                          src="/icon/file.svg"
                           width={24}
                         />
                       </IconButton>

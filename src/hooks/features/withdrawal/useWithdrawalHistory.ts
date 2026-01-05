@@ -1,12 +1,12 @@
+import { useAuth } from '@/contexts/AuthContext';
 import {
   withdrawalService,
   WithdrawalHistoryItem,
   PaginationFilters
 } from '@/services/withdrawal';
+import { Pagination } from '@/types/event';
 
 import { useApi } from '../../useApi';
-import { Pagination } from '@/types/event';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface UseWithdrawalHistoryReturn {
   withdrawals: WithdrawalHistoryItem[];

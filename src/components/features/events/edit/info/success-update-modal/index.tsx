@@ -1,5 +1,6 @@
 import { Box, Modal, IconButton } from '@mui/material';
 import Image from 'next/image';
+
 import { Button, H3, Body2 } from '@/components/common';
 
 interface SuccessUpdateModalProps {

@@ -1,9 +1,10 @@
-import Head from 'next/head';
-import dynamic from 'next/dynamic';
 import { useAtom } from 'jotai';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import DashboardLayout from '@/layouts/dashboard';
-import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 
 const EventStatistic = dynamic(
   () => import('@/components/features/dashboard/event-stat')

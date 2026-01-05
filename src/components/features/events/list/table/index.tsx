@@ -1,3 +1,4 @@
+import { Info } from '@mui/icons-material';
 import {
   Box,
   IconButton,
@@ -10,7 +11,6 @@ import {
   TableRow,
   Tooltip
 } from '@mui/material';
-import { Info } from '@mui/icons-material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';

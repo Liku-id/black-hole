@@ -1,10 +1,10 @@
-import { apiRouteUtils } from '@/utils/apiRouteUtils';
-import { stringUtils } from '@/utils/stringUtils';
 import {
   EventOrganizer,
   EventOrganizersResponse,
   ListEventOrganizersResponse
 } from '@/types/organizer';
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
+import { stringUtils } from '@/utils/stringUtils';
 
 /**
  * Only returns fields necessary for UI display (principle of least privilege)

@@ -1,8 +1,8 @@
+import ArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import ArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { Box, IconButton } from '@mui/material';
 
 import { Body2, Caption } from '@/components/common/typography';
-import ArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import ArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 interface PaginationProps {
   total: number;

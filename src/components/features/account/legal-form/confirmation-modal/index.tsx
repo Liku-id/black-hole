@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { Box, Modal, IconButton, Checkbox } from '@mui/material';
 import Image from 'next/image';
+import { useState } from 'react';
 
 import { Button, H3, Body2 } from '@/components/common';
 

@@ -1,6 +1,7 @@
 import { partnersService, GetPartnersFilters } from '@/services/partners';
-import { useApi } from '../../useApi';
 import { Pagination } from '@/types/event';
+
+import { useApi } from '../../useApi';
 
 interface UsePartnersReturn {
   partners: any[];

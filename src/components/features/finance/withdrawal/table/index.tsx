@@ -9,9 +9,10 @@ import {
   StyledTableHead
 } from '@/components/common/table';
 import { StatusBadge } from '@/components/features/events/status-badge';
+import { WithdrawalHistoryItem } from '@/services/withdrawal';
 import { dateUtils } from '@/utils/dateUtils';
 import { formatUtils } from '@/utils/formatUtils';
-import { WithdrawalHistoryItem } from '@/services/withdrawal';
+
 import WithdrawalDetailModal from '../modal/detail';
 
 interface WithdrawalHistoryTableProps {

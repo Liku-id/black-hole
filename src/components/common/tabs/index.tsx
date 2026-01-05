@@ -1,6 +1,6 @@
+import { ErrorOutline, CheckCircleOutline } from '@mui/icons-material';
 import { Box, styled, Tooltip } from '@mui/material';
 import { useRef, useState } from 'react';
-import { ErrorOutline, CheckCircleOutline } from '@mui/icons-material';
 
 import { Body2 } from '@/components/common';
 

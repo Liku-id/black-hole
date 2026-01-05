@@ -1,5 +1,5 @@
-import { Box, Chip, Grid } from '@mui/material';
 import { ErrorOutline } from '@mui/icons-material';
+import { Box, Chip, Grid } from '@mui/material';
 import { useState, useEffect } from 'react';
 
 import { Body2, Dropzone } from '@/components/common';

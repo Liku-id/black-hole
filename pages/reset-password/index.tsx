@@ -1,13 +1,13 @@
 import { Box, Container, Typography } from '@mui/material';
 import Head from 'next/head';
-import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useCallback, useMemo, useState } from 'react';
 
+import { withAuth } from '@/components/Auth/withAuth';
 import ResetPasswordForm, {
   ResetPasswordFormData
 } from '@/components/features/reset-password/form';
 import ResetPasswordModal from '@/components/features/reset-password/modal';
-import { withAuth } from '@/components/Auth/withAuth';
 import { useToast } from '@/contexts/ToastContext';
 import { forgotPasswordService } from '@/services';
 
