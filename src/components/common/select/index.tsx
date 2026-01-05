@@ -1,3 +1,4 @@
+import { ErrorOutline } from '@mui/icons-material';
 import {
   TextFieldProps,
   InputAdornment,
@@ -12,7 +13,6 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 import { Body2 } from '@/components/common';
 
 import { StyledTextField } from '../text-field/StyledTextField';
-import { ErrorOutline } from '@mui/icons-material';
 
 interface SelectOption {
   value: any;

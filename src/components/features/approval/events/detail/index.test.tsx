@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EventsSubmissionsInfo } from './index';
+
 import { EventDetail } from '@/types/event';
+
+import { EventsSubmissionsInfo } from './index';
 
 describe('EventsSubmissionsInfo', () => {
   const mockEventDetail: EventDetail = {

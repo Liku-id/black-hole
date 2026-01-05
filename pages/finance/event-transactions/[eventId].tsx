@@ -8,8 +8,8 @@ import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2, Card, Body2 } from '@/components/common';
 import { EventTransactionTable } from '@/components/features/finance/transaction/event-table';
 import { useTransactions } from '@/hooks';
-import { TransactionsFilters } from '@/types/transaction';
 import DashboardLayout from '@/layouts/dashboard';
+import { TransactionsFilters } from '@/types/transaction';
 
 function EventTransactions() {
   const router = useRouter();

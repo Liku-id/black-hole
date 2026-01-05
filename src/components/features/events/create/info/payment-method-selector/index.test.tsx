@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
+
 import { PaymentMethodSelector } from './index';
 
 const TestWrapper = ({ children, defaultValues }: any) => {

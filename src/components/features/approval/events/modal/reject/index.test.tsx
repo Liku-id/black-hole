@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
 import { RejectModal } from './index';
 
 describe('RejectModal', () => {

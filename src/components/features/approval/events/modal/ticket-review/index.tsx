@@ -1,6 +1,6 @@
+import { Close, ErrorOutline } from '@mui/icons-material';
 import { Box, Checkbox, Grid, IconButton, Modal } from '@mui/material';
 import { useState } from 'react';
-import { Close, ErrorOutline } from '@mui/icons-material';
 
 import { Body1, Body2, Button, H3, Overline } from '@/components/common';
 import { TicketType } from '@/types/event';

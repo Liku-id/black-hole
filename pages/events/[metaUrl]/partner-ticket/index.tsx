@@ -1,14 +1,15 @@
 import { Box, Card, CardContent } from '@mui/material';
+import { useSetAtom } from 'jotai';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useSetAtom } from 'jotai';
 
+import { pendingPartnerAtom } from '@/atoms/pendingPartnerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import { Button, Caption, H2, H4 } from '@/components/common';
-import { CreatePartnerModal } from '@/components/features/events/partner-ticket/create-modal';
 import { ChoosePartnerModal } from '@/components/features/events/partner-ticket/choose-partner-modal';
+import { CreatePartnerModal } from '@/components/features/events/partner-ticket/create-modal';
 import { EditPartnerModal } from '@/components/features/events/partner-ticket/edit-modal';
 import PartnerEventTable from '@/components/features/events/partner-ticket/table';
 import {
@@ -17,7 +18,6 @@ import {
   useUpdatePartner
 } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
-import { pendingPartnerAtom } from '@/atoms/pendingPartnerAtom';
 
 interface PartnerFormData {
   partnerName: string;

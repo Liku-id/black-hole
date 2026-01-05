@@ -1,5 +1,6 @@
 import { Box, styled } from '@mui/material';
 import React from 'react';
+
 import { H2, Body2, H3 } from '@/components/common';
 
 const StepBoxWrapper = styled(Box)(({ theme }) => ({

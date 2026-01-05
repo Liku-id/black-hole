@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { EventAssetsEditForm } from './index';
+
 import { EventDetail } from '@/types/event';
+
+import { EventAssetsEditForm } from './index';
 
 describe('EventAssetsEditForm', () => {
   const mockOnFilesChange = jest.fn();

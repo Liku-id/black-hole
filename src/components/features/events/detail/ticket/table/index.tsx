@@ -8,12 +8,13 @@ import {
   StyledTableHead,
   StyledTableBody
 } from '@/components/common';
+import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
 import { TicketType } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
-import { TicketDetailModal } from './modal';
-import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
 import { StatusBadge } from '../../../status-badge';
+
+import { TicketDetailModal } from './modal';
 
 interface EventDetailTicketTableProps {
   ticketTypes: TicketType[];
@@ -23,6 +24,7 @@ interface EventDetailTicketTableProps {
   onRejectTicket?: (ticketId: string, rejectedFields: string[]) => void;
   error?: string | null;
   showStatus?: boolean;
+  onEditAdditionalForm?: (ticketId: string) => void;
 }
 
 export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
@@ -32,7 +34,8 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   onApproveTicket,
   onRejectTicket,
   error = null,
-  showStatus = false
+  showStatus = false,
+  onEditAdditionalForm
 }) => {
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -203,16 +206,32 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                       </TableCell>
                     )}
                     <TableCell>
-                      <Box
-                        sx={{ cursor: 'pointer' }}
-                        onClick={() => handleViewDetail(ticket)}
-                      >
-                        <Image
-                          alt="View detail"
-                          height={20}
-                          src="/icon/eye.svg"
-                          width={20}
-                        />
+                      <Box display="flex" gap={1} alignItems="center">
+                        <Box
+                          sx={{ cursor: 'pointer' }}
+                          onClick={() => handleViewDetail(ticket)}
+                        >
+                          <Image
+                            alt="View detail"
+                            height={20}
+                            src="/icon/eye.svg"
+                            width={20}
+                          />
+                        </Box>
+                        {!approvalMode && onEditAdditionalForm && (
+                          <Box
+                            sx={{ cursor: 'pointer' }}
+                            onClick={() => onEditAdditionalForm(ticket.id)}
+                            title="Edit Additional Form"
+                          >
+                            <Image
+                              alt="Edit Additional Form"
+                              height={20}
+                              src="/icon/file.svg"
+                              width={20}
+                            />
+                          </Box>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>

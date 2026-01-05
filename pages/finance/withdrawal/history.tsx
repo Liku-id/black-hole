@@ -1,17 +1,17 @@
 import { Box, Card, CardContent } from '@mui/material';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import { Caption, H2 } from '@/components/common';
 import WithdrawalHistoryTable from '@/components/features/finance/withdrawal/table';
 import { useEventOrganizerMe } from '@/hooks';
 import { useWithdrawalHistory } from '@/hooks/features/withdrawal/useWithdrawalHistory';
 import DashboardLayout from '@/layouts/dashboard';
-import { useAtom } from 'jotai';
-import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 
 function GeneralWithdrawalHistory() {
   const router = useRouter();

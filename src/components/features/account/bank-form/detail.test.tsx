@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { BankFormDetailInfo } from './detail';
+
 import { EventOrganizer } from '@/types/organizer';
+
+import { BankFormDetailInfo } from './detail';
 
 describe('BankFormDetailInfo', () => {
   const mockEventOrganizer: EventOrganizer = {

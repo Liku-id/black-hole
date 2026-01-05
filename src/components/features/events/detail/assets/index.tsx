@@ -1,10 +1,11 @@
+import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 import { Box, Grid, Checkbox, Chip } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import { Button, H3, Body2 } from '@/components/common';
 import { EventDetail, EventAssetChange } from '@/types/event';
+
 import { RejectedReason } from '../info';
 
 interface EventDetailAssetsProps {
@@ -33,8 +34,7 @@ export const EventDetailAssets = ({
   // For on_going events with eventAssetChanges, we'll render two separate sections
   // For other cases, use the appropriate asset source
   const isOnGoingWithChanges =
-    (eventDetail.eventStatus === 'on_going' ||
-      eventDetail.eventStatus === 'approved') &&
+    eventDetail.eventStatus === 'on_going' &&
     eventAssetChanges &&
     eventAssetChanges.length > 0;
   const firstChange =

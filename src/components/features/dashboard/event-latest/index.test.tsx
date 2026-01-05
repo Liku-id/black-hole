@@ -1,8 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import EventLatestView from './index';
-import { useFilteredEvents } from '@/hooks';
+
 import { useAuth } from '@/contexts/AuthContext';
+import { useFilteredEvents } from '@/hooks';
+
+import EventLatestView from './index';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({

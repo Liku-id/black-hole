@@ -11,9 +11,10 @@ import {
   Overline
 } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
-import { EventOrganizer } from '@/types/organizer';
 import { assetsService } from '@/services';
+import { EventOrganizer } from '@/types/organizer';
 import { stringUtils } from '@/utils';
+
 import { ConfirmationModal } from './confirmation-modal';
 
 interface LegalEditFormProps {

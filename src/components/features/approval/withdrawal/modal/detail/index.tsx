@@ -3,8 +3,8 @@ import { FC } from 'react';
 
 import { Modal, Body2, Caption } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import { formatUtils, dateUtils, truncate } from '@/utils';
 import { WithdrawalListItem } from '@/services/withdrawal';
+import { formatUtils, dateUtils, truncate } from '@/utils';
 
 interface WithdrawalDetailModalProps {
   open: boolean;

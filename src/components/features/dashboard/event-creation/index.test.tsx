@@ -1,8 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
-import EventCreation from './index';
-import { useEvents } from '@/hooks/features/events/useEvents';
+
 import { useAuth } from '@/contexts/AuthContext';
+import { useEvents } from '@/hooks/features/events/useEvents';
+
+import EventCreation from './index';
 
 // Mock next/router
 jest.mock('next/router', () => ({

@@ -1,7 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useRouter } from 'next/router';
-import { EventDetailInfo, RejectedReason } from './index';
+
 import { EventDetail } from '@/types/event';
+
+import { EventDetailInfo, RejectedReason } from './index';
 
 // Mock next/router
 jest.mock('next/router', () => ({

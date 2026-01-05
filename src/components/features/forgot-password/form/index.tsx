@@ -1,7 +1,7 @@
 import { alpha, Box, Card, CardContent, styled } from '@mui/material';
+import Image from 'next/image';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Image from 'next/image';
 
 import {
   TextField,

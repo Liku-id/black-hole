@@ -1,6 +1,7 @@
 import { Box, Grid, styled } from '@mui/material';
-import React from 'react';
 import Image from 'next/image';
+import React from 'react';
+
 import { Body2 } from '@/components/common';
 
 const FeatureBox = styled(Box)({

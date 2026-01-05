@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import LegalForm from './index';
-import { EventOrganizer } from '@/types/organizer';
+
 import { useUpdateEventOrganizerLegal } from '@/hooks/features/organizers/useUpdateEventOrganizerLegal';
+import { EventOrganizer } from '@/types/organizer';
+
+import LegalForm from './index';
 
 // Mock the hook
 jest.mock('@/hooks/features/organizers/useUpdateEventOrganizerLegal');

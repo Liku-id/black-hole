@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { partnersService, UpdatePartnerRequest } from '@/services/partners';
+
 import { useToast } from '@/contexts/ToastContext';
+import { partnersService, UpdatePartnerRequest } from '@/services/partners';
 
 interface UseUpdatePartnerReturn {
   updatePartner: (id: string, data: UpdatePartnerRequest) => Promise<void>;
