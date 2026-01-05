@@ -1,5 +1,6 @@
-import { apiRouteUtils } from '@/utils/apiRouteUtils';
 import type { NextApiRequest, NextApiResponse } from 'next/types';
+
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 
 export default async function handler(
   req: NextApiRequest,

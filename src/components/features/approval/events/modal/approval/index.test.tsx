@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+
 import { ApprovalModal } from './index';
 
 describe('ApprovalModal', () => {

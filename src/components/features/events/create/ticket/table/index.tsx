@@ -9,6 +9,7 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { formatPrice, dateUtils } from '@/utils';
+
 import { StatusBadge } from '../../../status-badge';
 
 interface TicketCategory {

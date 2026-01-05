@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
 import { Box, styled, keyframes } from '@mui/material';
+import React from 'react';
+
 import { H1 } from '@/components/common';
 
 interface StripeTextProps {

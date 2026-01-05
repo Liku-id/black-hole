@@ -1,5 +1,5 @@
-import { Box, Grid } from '@mui/material';
 import { ErrorOutline } from '@mui/icons-material';
+import { Box, Grid } from '@mui/material';
 
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';

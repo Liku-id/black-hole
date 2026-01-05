@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EventTicketsEditForm } from './index';
+
 import { EventDetail } from '@/types/event';
+
+import { EventTicketsEditForm } from './index';
 
 describe('EventTicketsEditForm', () => {
   const mockOnTicketsChange = jest.fn();

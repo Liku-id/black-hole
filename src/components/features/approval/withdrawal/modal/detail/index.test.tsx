@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import WithdrawalDetailModal from './index';
+
 import { WithdrawalListItem } from '@/services/withdrawal';
+
+import WithdrawalDetailModal from './index';
 
 describe('WithdrawalDetailModal', () => {
   const mockOnClose = jest.fn();

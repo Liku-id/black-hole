@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
-import EventStatistic from './index';
+
 import { useEventOrganizerStatistics } from '@/hooks';
+
+import EventStatistic from './index';
 
 // Mock next/router
 jest.mock('next/router', () => ({

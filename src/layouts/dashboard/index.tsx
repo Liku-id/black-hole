@@ -14,20 +14,20 @@ import {
   MenuItem,
   Toolbar
 } from '@mui/material';
+import { useAtom } from 'jotai';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import { useAtom } from 'jotai';
 
-import { Body1, Body2, TextField } from '@/components/common';
-import { useAuth } from '@/contexts/AuthContext';
-import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
-import { EventOrganizer } from '@/types/organizer';
 import {
   selectedEOIdAtom,
   selectedEONameAtom
 } from '@/atoms/eventOrganizerAtom';
+import { Body1, Body2, TextField } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
 import { eventOrganizerService } from '@/services/event-organizer';
+import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
+import { EventOrganizer } from '@/types/organizer';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

@@ -1,22 +1,22 @@
 import { Box, Container, Grid, styled } from '@mui/material';
-import type { NextPage } from 'next';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
-import RegisterForm from '@/components/features/registration/form';
-import RegisterProfileForm from '@/components/features/registration/profile-form';
-import OTPVerificationForm from '@/components/features/registration/otp-verification';
-import RegistrationContent from '@/components/features/registration/registration-content';
-import FeaturesSection from '@/components/features/registration/features-section';
-import StripeText from '@/components/common/stripe-text';
-import Footer from '@/components/common/footer';
-import { RegisterRequest, RegisterProfileRequest } from '@/types/register';
-import { registerService } from '@/services/auth/register';
-import { useToast } from '@/contexts/ToastContext';
 import { withAuth } from '@/components/Auth/withAuth';
+import Footer from '@/components/common/footer';
+import StripeText from '@/components/common/stripe-text';
+import FeaturesSection from '@/components/features/registration/features-section';
+import RegisterForm from '@/components/features/registration/form';
+import OTPVerificationForm from '@/components/features/registration/otp-verification';
+import RegisterProfileForm from '@/components/features/registration/profile-form';
+import RegistrationContent from '@/components/features/registration/registration-content';
+import { useToast } from '@/contexts/ToastContext';
+import { registerService } from '@/services/auth/register';
 import { utmService } from '@/services/utm';
+import { RegisterRequest, RegisterProfileRequest } from '@/types/register';
 import { dateUtils, deviceUtils } from '@/utils';
+import type { NextPage } from 'next';
 
 const LogoWrapper = styled(Box)(
   ({ theme }) => `

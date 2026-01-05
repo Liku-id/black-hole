@@ -1,11 +1,11 @@
+import { Box } from '@mui/material';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import DashboardLayout from '@/layouts/dashboard';
-import { Box } from '@mui/material';
 import { Caption, H2, Body2, H4, Body1 } from '@/components/common';
+import DashboardLayout from '@/layouts/dashboard';
 
 function TermsAndCondition() {
   const router = useRouter();

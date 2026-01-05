@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EventDetailTicketTable } from './index';
+
 import { TicketType } from '@/types/event';
+
+import { EventDetailTicketTable } from './index';
 
 describe('EventDetailTicketTable', () => {
   const mockTickets: TicketType[] = [

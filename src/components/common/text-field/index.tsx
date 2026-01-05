@@ -1,5 +1,6 @@
 'use client';
 
+import { ErrorOutline } from '@mui/icons-material';
 import { TextFieldProps, InputAdornment, Box } from '@mui/material';
 import { ReactNode } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
@@ -7,7 +8,6 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 import { Body2 } from '@/components/common';
 
 import { StyledTextField } from './StyledTextField';
-import { ErrorOutline } from '@mui/icons-material';
 
 interface CustomTextFieldProps extends Omit<TextFieldProps, 'variant'> {
   label?: string;

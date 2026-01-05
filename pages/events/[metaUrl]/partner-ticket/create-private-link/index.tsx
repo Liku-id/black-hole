@@ -6,13 +6,14 @@ import {
   IconButton,
   InputAdornment
 } from '@mui/material';
+import { useAtom, useSetAtom } from 'jotai';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm, useFieldArray } from 'react-hook-form';
-import { useAtom, useSetAtom } from 'jotai';
 
+import { pendingPartnerAtom } from '@/atoms/pendingPartnerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import {
   Button,
@@ -30,7 +31,6 @@ import {
   useCreatePartnerTicketType
 } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
-import { pendingPartnerAtom } from '@/atoms/pendingPartnerAtom';
 import { partnersService } from '@/services/partners';
 import { formatUtils } from '@/utils';
 

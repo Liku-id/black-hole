@@ -1,10 +1,11 @@
+import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 import { Box, Grid, Checkbox, Chip } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import { Button, H3, Body2 } from '@/components/common';
 import { EventDetail, EventAssetChange } from '@/types/event';
+
 import { RejectedReason } from '../info';
 
 interface EventDetailAssetsProps {

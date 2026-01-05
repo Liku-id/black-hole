@@ -12,8 +12,8 @@ import {
   useEventDetail,
   usePartnerTicketTypes
 } from '@/hooks';
-import { TransactionsFilters } from '@/types/transaction';
 import DashboardLayout from '@/layouts/dashboard';
+import { TransactionsFilters } from '@/types/transaction';
 import { useDebouncedCallback } from '@/utils/debounceUtils';
 
 function PartnerTransactions() {

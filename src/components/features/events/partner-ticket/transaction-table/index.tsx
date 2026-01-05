@@ -10,8 +10,8 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import { formatUtils } from '@/utils';
 import { TransactionDetailModal } from '@/components/features/finance/transaction/detail-modal';
+import { formatUtils } from '@/utils';
 
 interface PartnerTransactionTableProps {
   transactions: any[];

@@ -1,7 +1,7 @@
 import { Box, CircularProgress } from '@mui/material';
 import Head from 'next/head';
-import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Body1, Body2, H3 } from '@/components/common';

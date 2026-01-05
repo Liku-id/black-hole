@@ -1,6 +1,3 @@
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useState, useMemo } from 'react';
 import {
   Box,
   Grid,
@@ -12,12 +9,18 @@ import {
   Skeleton,
   Alert
 } from '@mui/material';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState, useMemo } from 'react';
+
 import { Body1, Caption, H4 } from '@/components/common';
-import OrganizerRegStatus from '../organizer-status';
-import { useFilteredEvents } from '@/hooks';
-import { dateUtils, formatUtils } from '@/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFilteredEvents } from '@/hooks';
 import { isEventOrganizer, User } from '@/types/auth';
+import { dateUtils, formatUtils } from '@/utils';
+
+import OrganizerRegStatus from '../organizer-status';
+
 
 interface EventLatestViewProps {
   eventOrganizerId?: string;

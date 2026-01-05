@@ -1,12 +1,12 @@
 import { Box, Container } from '@mui/material';
-import { useCallback, useState } from 'react';
 import Head from 'next/head';
+import { useCallback, useState } from 'react';
 
+import { withAuth } from '@/components/Auth/withAuth';
 import ForgotPasswordForm, {
   ForgotPasswordFormData
 } from '@/components/features/forgot-password/form';
 import ForgotPasswordModal from '@/components/features/forgot-password/modal';
-import { withAuth } from '@/components/Auth/withAuth';
 import { useToast } from '@/contexts/ToastContext';
 import { forgotPasswordService } from '@/services';
 import { registerService } from '@/services/auth/register';

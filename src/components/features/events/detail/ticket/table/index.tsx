@@ -8,12 +8,13 @@ import {
   StyledTableHead,
   StyledTableBody
 } from '@/components/common';
+import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
 import { TicketType } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
-import { TicketDetailModal } from './modal';
-import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
 import { StatusBadge } from '../../../status-badge';
+
+import { TicketDetailModal } from './modal';
 
 interface EventDetailTicketTableProps {
   ticketTypes: TicketType[];

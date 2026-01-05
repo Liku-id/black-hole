@@ -1,3 +1,4 @@
+import { ErrorOutline } from '@mui/icons-material';
 import { Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -5,7 +6,7 @@ import { useState } from 'react';
 import { Body2, Button, H3 } from '@/components/common';
 import { EventDetail } from '@/types/event';
 import { dateUtils, apiUtils } from '@/utils';
-import { ErrorOutline } from '@mui/icons-material';
+
 import { PreviewEventModal } from './preview-modal';
 
 interface EventDetailInfoProps {

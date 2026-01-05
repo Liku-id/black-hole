@@ -1,8 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { LegalEditForm } from './edit';
-import { EventOrganizer } from '@/types/organizer';
-import { assetsService } from '@/services';
+
 import { useAuth } from '@/contexts/AuthContext';
+import { assetsService } from '@/services';
+import { EventOrganizer } from '@/types/organizer';
+
+import { LegalEditForm } from './edit';
 
 // Mock AuthContext
 jest.mock('@/contexts/AuthContext', () => ({
