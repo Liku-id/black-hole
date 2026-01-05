@@ -34,6 +34,7 @@ interface TicketTableProps {
   eventStatus?: string;
   onEdit?: (ticket: TicketCategory) => void;
   onDelete?: (ticketId: string) => void;
+  onEditAdditionalForm?: (ticket: TicketCategory) => void;
 }
 
 const TicketTable: FC<TicketTableProps> = ({
@@ -41,7 +42,8 @@ const TicketTable: FC<TicketTableProps> = ({
   loading = false,
   eventStatus,
   onEdit,
-  onDelete
+  onDelete,
+  onEditAdditionalForm
 }) => {
   const statusMap = {
     approved: 'on_going',
@@ -206,6 +208,19 @@ const TicketTable: FC<TicketTableProps> = ({
                           alt="Delete"
                           height={24}
                           src="/icon/trash.svg"
+                          width={24}
+                        />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={() => onEditAdditionalForm?.(ticket)}
+                        title="Edit Additional Form"
+                      >
+                        <Image
+                          alt="Edit Additional Form"
+                          height={24}
+                          src="/icon/file.svg"
                           width={24}
                         />
                       </IconButton>
