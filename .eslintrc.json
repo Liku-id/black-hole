@@ -21,24 +21,24 @@
         "when": "multiline"
       }
     ],
-    "import/order": [
-      "error",
-      {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
-      }
-    ],
+    // "import/order": [
+    //   "error",
+    //   {
+    //     "groups": [
+    //       "builtin",
+    //       "external",
+    //       "internal",
+    //       "parent",
+    //       "sibling",
+    //       "index"
+    //     ],
+    //     "newlines-between": "always",
+    //     "alphabetize": {
+    //       "order": "asc",
+    //       "caseInsensitive": true
+    //     }
+    //   }
+    // ],
     "react/jsx-sort-props": "off",
     "import/order": "off",
     "react-hooks/rules-of-hooks": "error"

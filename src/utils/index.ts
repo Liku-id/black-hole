@@ -32,7 +32,9 @@ export const {
   getInitials,
   formatPhoneNumber,
   isEmpty,
-  toSlug
+  toSlug,
+  mask,
+  unmask
 } = stringUtils;
 
 export const {
