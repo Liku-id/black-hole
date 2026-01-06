@@ -21,6 +21,20 @@ export default async function handler(
       });
     }
 
+    // Security Check: Block SVG uploads to prevent Stored XSS
+    const isSvg =
+      filename.toLowerCase().endsWith('.svg') ||
+      type === 'image/svg+xml' ||
+      (typeof file === 'string' && file.includes('image/svg+xml'));
+
+    if (isSvg) {
+      return res.status(400).json({
+        code: 400,
+        message: 'SVG files are not allowed for security reasons.',
+        details: []
+      });
+    }
+
     // Use apiRouteUtils
     const postHandler = apiRouteUtils.createPostHandler({
       endpoint: '/upload-asset',

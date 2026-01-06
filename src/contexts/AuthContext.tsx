@@ -17,6 +17,7 @@ import {
   ALLOWED_ROLES
 } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
+import { validateRedirectUrl } from '@/utils/security';
 
 interface AuthContextType extends AuthState {
   login: (data: LoginRequest) => Promise<void>;
@@ -28,19 +29,13 @@ interface AuthContextType extends AuthState {
 
 type AuthAction =
   | { type: 'LOGIN_START' }
-  | {
-      type: 'LOGIN_SUCCESS';
-      payload: { user: AuthUser };
-    }
+  | { type: 'LOGIN_SUCCESS'; payload: { user: AuthUser } }
   | { type: 'LOGIN_ERROR'; payload: string }
   | { type: 'LOGOUT_START' }
   | { type: 'LOGOUT_SUCCESS' }
   | { type: 'LOGOUT_ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' }
-  | {
-      type: 'RESTORE_SESSION';
-      payload: { user: AuthUser };
-    }
+  | { type: 'RESTORE_SESSION'; payload: { user: AuthUser } }
   | { type: 'SESSION_RESTORED' };
 
 const initialState: AuthState = {
@@ -320,7 +315,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
 
         // Redirect to intended route or dashboard
-        const redirectTo = (router.query.redirect as string) || '/dashboard';
+        const rawRedirect = router.query.redirect as string;
+        const redirectTo = validateRedirectUrl(rawRedirect, [
+          'https://bo-staging-aws.wukong.co.id'
+        ]);
         router.replace(redirectTo);
       } else {
         throw new Error('Failed to authenticate user');
