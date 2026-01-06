@@ -99,7 +99,17 @@ function AdditionalFormPage() {
       {/* Additional Form Card */}
       <Card sx={{ py: 1 }}>
         <AdditionalForm
-          ticketTypes={eventDetail?.ticketTypes || []}
+          ticketTypes={
+            eventDetail?.ticketTypes?.filter((t) => {
+              const isEventLocked =
+                eventDetail?.eventStatus === 'approved' ||
+                eventDetail?.eventStatus === 'on_going';
+              if (isEventLocked && t.status === 'approved') {
+                return false;
+              }
+              return true;
+            }) || []
+          }
           selectedTicketType={selectedTicketType}
           onTicketTypeChange={handleTicketTypeChange}
         />
