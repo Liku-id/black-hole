@@ -391,6 +391,13 @@ const EditTicketsPage = () => {
     }
   };
 
+  const isEventApprovedOrOngoing =
+    eventDetail?.eventStatus === 'approved' ||
+    eventDetail?.eventStatus === 'on_going';
+  const allTicketsApproved = tickets.every((t) => t.status === 'approved');
+  const isUpdateDisabled =
+    isLoading || (isEventApprovedOrOngoing && allTicketsApproved);
+
   return (
     <DashboardLayout>
       <Box>
@@ -454,7 +461,7 @@ const EditTicketsPage = () => {
               Cancel
             </Button>
             <Button
-              disabled={isLoading}
+              disabled={isUpdateDisabled}
               variant="primary"
               onClick={handleSubmitEvent}
             >
