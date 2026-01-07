@@ -21,12 +21,13 @@ import EventsTable from '@/components/features/events/list/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks/features/events/useEvents';
 import DashboardLayout from '@/layouts/dashboard';
-import { isEventOrganizer } from '@/types/auth';
 import { EventsFilters } from '@/types/event';
+import { isEventOrganizer, UserRole, User } from '@/types/auth'; // Import UserRole and User
 import { useDebouncedCallback } from '@/utils';
 
 function Events() {
   const router = useRouter();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const status = searchParams.get('status');
 
@@ -47,8 +48,8 @@ function Events() {
 
   const { events, eventCountByStatus, loading, error, mutate, pagination } =
     useEvents(filters);
-
-  const { user } = useAuth();
+  const userRole =
+    user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
 
   // Computed value to check if organizer data is complete - reactive to user changes
   const isOrganizerDataComplete = useMemo(() => {
@@ -140,7 +141,7 @@ function Events() {
     });
   }, [selectedEventOrganizerId]);
 
-  const tabs = [
+  const allTabs = [
     {
       id: 'EVENT_STATUS_ON_GOING',
       title: 'Ongoing',
@@ -173,6 +174,16 @@ function Events() {
     }
   ];
 
+  const allowedTabsForRestrictedRoles = [
+    'EVENT_STATUS_ON_GOING',
+    'EVENT_STATUS_APPROVED'
+  ];
+
+  const tabs =
+    userRole === UserRole.GROUND_STAFF || userRole === UserRole.FINANCE
+      ? allTabs.filter((tab) => allowedTabsForRestrictedRoles.includes(tab.id))
+      : allTabs;
+
   return (
     <DashboardLayout>
       <Head>
@@ -190,13 +201,16 @@ function Events() {
           <H2 color="text.primary" fontWeight={700}>
             Events
           </H2>
-          <Button
-            id="create_event_button"
-            onClick={() => router.push('/events/create')}
-            disabled={!isOrganizerDataComplete}
-          >
-            Create New Event
-          </Button>
+          {userRole !== UserRole.GROUND_STAFF &&
+            userRole !== UserRole.FINANCE && (
+              <Button
+                id="create_event_button"
+                onClick={() => router.push('/events/create')}
+                disabled={!isOrganizerDataComplete}
+              >
+                Create New Event
+              </Button>
+            )}
         </Box>
 
         {/* Tabs Card */}
