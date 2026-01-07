@@ -6,18 +6,18 @@ import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Card, Caption, H3, Button, Tabs, Body2 } from '@/components/common';
+import { EventsSubmissionsInfo } from '@/components/features/approval/events/detail';
+import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
+import { RejectModal } from '@/components/features/approval/events/modal/reject';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
-import { EventsSubmissionsInfo } from '@/components/features/approval/events/detail';
-import { RejectModal } from '@/components/features/approval/events/modal/reject';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEventsSubmissionDetail } from '@/hooks';
 import { useToast } from '@/contexts/ToastContext';
+import { useEventsSubmissionDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
-import { eventSubmissionsService } from '@/services/events-submissions';
 import { eventsService } from '@/services/events';
+import { eventSubmissionsService } from '@/services/events-submissions';
 import { ticketsService } from '@/services/tickets';
 import { User } from '@/types/auth';
 

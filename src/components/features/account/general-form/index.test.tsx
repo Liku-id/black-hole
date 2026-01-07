@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import GeneralForm from './index';
-import { EventOrganizer } from '@/types/organizer';
+
 import { useUpdateEventOrganizerGeneral } from '@/hooks/features/organizers/useUpdateEventOrganizerGeneral';
+import { EventOrganizer } from '@/types/organizer';
+
+import GeneralForm from './index';
 
 // Mock the hook
 jest.mock('@/hooks/features/organizers/useUpdateEventOrganizerGeneral');

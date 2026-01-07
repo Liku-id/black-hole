@@ -1,17 +1,17 @@
 // Main dashboard layout component - provides header bar, sidebar menu, and main content area
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { Box, Container, IconButton } from '@mui/material';
+import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import { useAtom } from 'jotai';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { isEventOrganizer, User } from '@/types/auth';
 import { EventOrganizer } from '@/types/organizer';
 import {
   selectedEOIdAtom,
   selectedEONameAtom
 } from '@/atoms/eventOrganizerAtom';
+import { useAuth } from '@/contexts/AuthContext';
 import { eventOrganizerService } from '@/services/event-organizer';
 import {
   drawerWidth,

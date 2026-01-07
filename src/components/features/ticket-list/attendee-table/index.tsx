@@ -33,6 +33,7 @@ import { ticketsService } from '@/services';
 import { User, isEventOrganizer, UserRole } from '@/types/auth';
 import { TicketStatus } from '@/types/ticket';
 import { dateUtils } from '@/utils';
+
 import { TicketDetailModal } from '../modal';
 
 interface AttendeeData {

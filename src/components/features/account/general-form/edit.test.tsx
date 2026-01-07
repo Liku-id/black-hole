@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { OrganizerEditForm } from './edit';
-import { EventOrganizer } from '@/types/organizer';
+
 import { assetsService } from '@/services';
+import { EventOrganizer } from '@/types/organizer';
+
+import { OrganizerEditForm } from './edit';
 
 // Mock assetsService
 jest.mock('@/services', () => ({

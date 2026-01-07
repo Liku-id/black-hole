@@ -371,6 +371,28 @@ const EditTicketsPage = () => {
     router.push(`/events/${metaUrl}?tab=tickets`);
   };
 
+  const handleEditAdditionalForm = (ticket: TicketCategory) => {
+    // Check if ticket is new (not yet saved to backend) by checking if it exists in original eventDetail
+    const isSaved = eventDetail?.ticketTypes?.some((t) => t.id === ticket.id);
+
+    if (isSaved) {
+      router.push(
+        `/events/edit/${metaUrl}/tickets/additional-form?ticketId=${ticket.id}`
+      );
+    } else {
+      alert(
+        'Please save the new ticket first before adding additional forms.'
+      );
+    }
+  };
+
+  const isEventApprovedOrOngoing =
+    eventDetail?.eventStatus === 'approved' ||
+    eventDetail?.eventStatus === 'on_going';
+  const allTicketsApproved = tickets.every((t) => t.status === 'approved');
+  const isUpdateDisabled =
+    isLoading || (isEventApprovedOrOngoing && allTicketsApproved);
+
   return (
     <DashboardLayout>
       <Box>
@@ -408,6 +430,7 @@ const EditTicketsPage = () => {
               eventStatus={eventDetail?.eventStatus}
               onDelete={handleDeleteTicket}
               onEdit={handleEditTicket}
+              onEditAdditionalForm={handleEditAdditionalForm}
             />
           </Box>
 
@@ -433,7 +456,7 @@ const EditTicketsPage = () => {
               Cancel
             </Button>
             <Button
-              disabled={isLoading}
+              disabled={isUpdateDisabled}
               variant="primary"
               onClick={handleSubmitEvent}
             >

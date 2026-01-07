@@ -1,4 +1,5 @@
 import { Box, Grid, IconButton } from '@mui/material';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
@@ -9,9 +10,8 @@ import {
   Overline,
   Body2
 } from '@/components/common';
-import { EventOrganizer } from '@/types/organizer';
 import { assetsService } from '@/services';
-import Image from 'next/image';
+import { EventOrganizer } from '@/types/organizer';
 
 interface FormData {
   name: string;

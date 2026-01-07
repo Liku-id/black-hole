@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BankEditForm } from './edit';
-import { EventOrganizer } from '@/types/organizer';
+
 import { useBanks } from '@/hooks/features/organizers/useBanks';
+import { EventOrganizer } from '@/types/organizer';
+
+import { BankEditForm } from './edit';
 
 // Mock the hook
 jest.mock('@/hooks/features/organizers/useBanks');

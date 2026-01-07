@@ -1,6 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { CreateEventForm } from './index';
+
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
+
+import { CreateEventForm } from './index';
 
 // Mock hooks
 jest.mock('@/hooks', () => ({

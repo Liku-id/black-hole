@@ -1,3 +1,4 @@
+import { Info } from '@mui/icons-material';
 import {
   Box,
   IconButton,
@@ -10,7 +11,6 @@ import {
   TableRow,
   Tooltip
 } from '@mui/material';
-import { Info } from '@mui/icons-material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC, useState } from 'react';
@@ -26,10 +26,11 @@ import {
 import { eventsService } from '@/services/events';
 import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
-import { DuplicateEventModal } from './modal/duplicate';
+
 import { DeleteEventModal } from './modal/delete';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, isEventOrganizer, User } from '@/types/auth';
+import { DuplicateEventModal } from './modal/duplicate';
 
 interface EventsTableProps {
   events: Event[];

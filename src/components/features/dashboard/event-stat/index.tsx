@@ -1,6 +1,7 @@
+import { Box, Grid, Alert, Skeleton } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { Box, Grid, Alert, Skeleton } from '@mui/material';
+
 import { Body1, Body2, H2, Button } from '@/components/common';
 import { useEventOrganizerStatistics } from '@/hooks';
 import { formatUtils } from '@/utils/formatUtils';

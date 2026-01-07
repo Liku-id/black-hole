@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import BankForm from './index';
-import { EventOrganizer } from '@/types/organizer';
+
 import { useUpdateEventOrganizerBank } from '@/hooks/features/organizers/useUpdateEventOrganizerBank';
+import { EventOrganizer } from '@/types/organizer';
+
+import BankForm from './index';
 
 // Mock the hook
 jest.mock('@/hooks/features/organizers/useUpdateEventOrganizerBank');

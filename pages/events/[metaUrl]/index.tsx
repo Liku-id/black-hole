@@ -15,17 +15,17 @@ import {
   Tabs,
   Body2
 } from '@/components/common';
-import { eventsService } from '@/services';
-import { useToast } from '@/contexts/ToastContext';
+import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
 import { EventDetailAssets } from '@/components/features/events/detail/assets';
 import { EventDetailInfo } from '@/components/features/events/detail/info';
 import { EventDetailTicket } from '@/components/features/events/detail/ticket';
 import { StatusBadge } from '@/components/features/events/status-badge';
-import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
+import { useToast } from '@/contexts/ToastContext';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, isEventOrganizer, User } from '@/types/auth';
+import { eventsService } from '@/services';
 
 function EventDetail() {
   const router = useRouter();

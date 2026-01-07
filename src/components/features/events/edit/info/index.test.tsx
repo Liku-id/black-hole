@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { EventEditInfo } from './index';
+
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
 import { EventDetail } from '@/types/event';
+
+import { EventEditInfo } from './index';
 
 // Mock hooks
 jest.mock('@/hooks', () => ({

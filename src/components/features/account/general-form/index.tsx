@@ -1,10 +1,14 @@
-import { OrganizerDetailInfo } from './detail';
-import { OrganizerEditForm } from './edit';
-import { EventOrganizer } from '@/types/organizer';
 import { Box } from '@mui/material';
+import { useState } from 'react';
+
 import { Body2 } from '@/components/common';
 import { useUpdateEventOrganizerGeneral } from '@/hooks/features/organizers/useUpdateEventOrganizerGeneral';
-import { useState } from 'react';
+import { EventOrganizer } from '@/types/organizer';
+
+import { OrganizerDetailInfo } from './detail';
+import { OrganizerEditForm } from './edit';
+
+
 
 interface SocialMedia {
   platform: string;

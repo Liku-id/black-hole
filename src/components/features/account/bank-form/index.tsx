@@ -1,12 +1,12 @@
 import { Box } from '@mui/material';
 
 import { Body2 } from '@/components/common';
-
+import { useUpdateEventOrganizerBank } from '@/hooks/features/organizers/useUpdateEventOrganizerBank';
 import { EventOrganizer } from '@/types/organizer';
 
 import { BankFormDetailInfo } from './detail';
 import { BankEditForm } from './edit';
-import { useUpdateEventOrganizerBank } from '@/hooks/features/organizers/useUpdateEventOrganizerBank';
+
 
 interface BankFormProps {
   eventOrganizer?: EventOrganizer | null;

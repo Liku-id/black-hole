@@ -1,5 +1,6 @@
-import { apiRouteUtils } from '@/utils/apiRouteUtils';
 import type { NextApiRequest, NextApiResponse } from 'next/types';
+
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,6 +17,20 @@ export default async function handler(
       return res.status(400).json({
         code: 400,
         message: 'All fields are required',
+        details: []
+      });
+    }
+
+    // Security Check: Block SVG uploads to prevent Stored XSS
+    const isSvg =
+      filename.toLowerCase().endsWith('.svg') ||
+      type === 'image/svg+xml' ||
+      (typeof file === 'string' && file.includes('image/svg+xml'));
+
+    if (isSvg) {
+      return res.status(400).json({
+        code: 400,
+        message: 'SVG files are not allowed for security reasons.',
         details: []
       });
     }

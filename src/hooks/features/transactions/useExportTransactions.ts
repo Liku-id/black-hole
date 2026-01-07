@@ -1,6 +1,7 @@
+import { useState } from 'react';
+
 import { transactionsService } from '@/services/transactions';
 import { ExportTransactionsRequest } from '@/types/transaction';
-import { useState } from 'react';
 
 interface UseExportTransactionsReturn {
   exportData: (request: ExportTransactionsRequest, eventName?: string) => Promise<void>;

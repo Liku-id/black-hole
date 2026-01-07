@@ -1,5 +1,5 @@
-import { Box, Grid } from '@mui/material';
 import { ErrorOutline } from '@mui/icons-material';
+import { Box, Grid } from '@mui/material';
 
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
@@ -167,7 +167,7 @@ export const EventsSubmissionsInfo = ({
       if (!eventUpdateRequest?.rejectedFields) return false;
       return eventUpdateRequest.rejectedFields.includes(fieldName);
     }
-
+    
     // Otherwise use eventDetail rejectedFields
     if (!eventDetail.rejectedFields) return false;
     return eventDetail.rejectedFields.includes(fieldName);
@@ -201,8 +201,8 @@ export const EventsSubmissionsInfo = ({
   };
 
   // Determine which rejection reason to display
-  const rejectionReason = useUpdateRequestRejection
-    ? eventUpdateRequest?.rejectedReason
+  const rejectionReason = useUpdateRequestRejection 
+    ? eventUpdateRequest?.rejectedReason 
     : eventDetail.rejectedReason;
 
   return (

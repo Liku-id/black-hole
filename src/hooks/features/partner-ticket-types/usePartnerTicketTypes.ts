@@ -1,6 +1,7 @@
 import { partnerTicketTypesService, GetPartnerTicketTypesFilters } from '@/services/partner-ticket-types';
-import { useApi } from '../../useApi';
 import { Pagination } from '@/types/event';
+
+import { useApi } from '../../useApi';
 
 interface UsePartnerTicketTypesReturn {
   partnerTicketTypes: any[];

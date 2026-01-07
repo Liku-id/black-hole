@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
+
 import { EventTimeModal } from './index';
 
 const TestWrapper = ({ children, defaultValues }: any) => {

@@ -4,9 +4,9 @@ import { FC } from 'react';
 import { Modal, Body2 } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { WithdrawalHistoryItem } from '@/services/withdrawal';
-import { formatUtils } from '@/utils/formatUtils';
-import { dateUtils } from '@/utils/dateUtils';
 import { truncate } from '@/utils';
+import { dateUtils } from '@/utils/dateUtils';
+import { formatUtils } from '@/utils/formatUtils';
 
 interface WithdrawalDetailModalProps {
   open: boolean;

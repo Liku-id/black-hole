@@ -1,19 +1,19 @@
 import { Box } from '@mui/material';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useAtom } from 'jotai';
 
+import {
+  selectedEOIdAtom,
+  selectedEONameAtom
+} from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import { H4 } from '@/components/common';
 import { CreateEventForm } from '@/components/features/events/create/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
 import { CreateEventRequest } from '@/types/event';
-import {
-  selectedEOIdAtom,
-  selectedEONameAtom
-} from '@/atoms/eventOrganizerAtom';
 
 interface FormData {
   eventName: string;

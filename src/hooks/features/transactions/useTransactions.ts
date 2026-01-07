@@ -1,6 +1,6 @@
 import useSWR from 'swr';
-import { transactionsService } from '@/services';
 
+import { transactionsService } from '@/services';
 import { TransactionsResponse, TransactionsFilters } from '@/types/transaction';
 
 interface UseEventTransactionsReturn {

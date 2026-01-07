@@ -40,7 +40,6 @@
       }
     ],
     "react/jsx-sort-props": "off",
-    "import/order": "off",
     "react-hooks/rules-of-hooks": "error"
   },
   "settings": {

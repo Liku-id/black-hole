@@ -1,10 +1,11 @@
+import axios from 'axios';
+
 import {
   TransactionsResponse,
   TransactionsFilters,
   ExportTransactionsRequest
 } from '@/types/transaction';
 import { apiUtils } from '@/utils/apiUtils';
-import axios from 'axios';
 
 class TransactionsService {
   async getEventTransactions(

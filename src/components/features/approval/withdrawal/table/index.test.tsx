@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import WithdrawalTable from './index';
-import { withdrawalService } from '@/services/withdrawal';
+
 import { useToast } from '@/contexts/ToastContext';
+import { withdrawalService } from '@/services/withdrawal';
+
+import WithdrawalTable from './index';
 
 // Mock services
 jest.mock('@/services/withdrawal', () => ({

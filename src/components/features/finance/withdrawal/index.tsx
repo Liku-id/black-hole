@@ -9,8 +9,8 @@ import { useEvents } from '@/hooks';
 import { withdrawalService } from '@/services';
 import { WithdrawalSummary } from '@/services/withdrawal';
 import { Event } from '@/types/event';
-import { formatUtils } from '@/utils/formatUtils';
 import { useDebouncedCallback } from '@/utils/debounceUtils';
+import { formatUtils } from '@/utils/formatUtils';
 
 interface FinanceWithdrawalProps {
   onEventOrganizerSelect?: (eventOrganizerId: string) => void;

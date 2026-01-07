@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+
 import { SuccessUpdateModal } from './index';
 
 describe('SuccessUpdateModal', () => {

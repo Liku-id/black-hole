@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { TicketDetailModal } from './index';
+
 import { TicketType } from '@/types/event';
+
+import { TicketDetailModal } from './index';
 
 describe('TicketDetailModal', () => {
   const mockOnClose = jest.fn();

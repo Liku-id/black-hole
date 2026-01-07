@@ -16,6 +16,7 @@ interface EventDetailTicketProps {
   hideHeader?: boolean;
   showStatus?: boolean;
   readOnly?: boolean;
+  onEditAdditionalForm?: (ticketId: string) => void;
 }
 
 export const EventDetailTicket = ({
@@ -27,7 +28,8 @@ export const EventDetailTicket = ({
   ticketApprovalError = null,
   hideHeader = false,
   showStatus = false,
-  readOnly = false
+  readOnly = false,
+  onEditAdditionalForm
 }: EventDetailTicketProps) => {
   const router = useRouter();
 
@@ -85,6 +87,7 @@ export const EventDetailTicket = ({
         loading={ticketApprovalLoading}
         error={ticketApprovalError}
         showStatus={showStatus}
+        onEditAdditionalForm={onEditAdditionalForm}
       />
     </Box>
   );

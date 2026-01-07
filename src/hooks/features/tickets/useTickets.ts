@@ -1,8 +1,8 @@
 import { ticketsService } from '@/services';
+import { Pagination } from '@/types/event';
 import { Ticket, TicketsFilters } from '@/types/ticket';
 
 import { useApi } from '../../useApi';
-import { Pagination } from '@/types/event';
 
 interface UseTicketsReturn {
   tickets: Ticket[];

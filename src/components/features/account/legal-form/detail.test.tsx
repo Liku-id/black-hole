@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { LegalFormDetailInfo } from './detail';
+
 import { EventOrganizer } from '@/types/organizer';
+
+import { LegalFormDetailInfo } from './detail';
 
 describe('LegalFormDetailInfo', () => {
   const mockEventOrganizerIndividual: EventOrganizer = {

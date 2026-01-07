@@ -1,11 +1,12 @@
 import { Box, Card, CardContent } from '@mui/material';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useAtom } from 'jotai';
 
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import {
   Tabs,
@@ -23,7 +24,6 @@ import DashboardLayout from '@/layouts/dashboard';
 import { EventsFilters } from '@/types/event';
 import { isEventOrganizer, UserRole, User } from '@/types/auth'; // Import UserRole and User
 import { useDebouncedCallback } from '@/utils';
-import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 
 function Events() {
   const router = useRouter();

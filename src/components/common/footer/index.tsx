@@ -1,8 +1,10 @@
-import React from 'react';
+import { Box, Container, styled, useTheme } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Box, Container, styled, useTheme } from '@mui/material';
+import React from 'react';
+
 import { H3, Body1, Body2, H4 } from '@/components/common/typography';
+
 import packageJson from '../../../../package.json';
 
 const StyledLink = styled(Link)(({ theme }) => ({

@@ -1,6 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import EventsFilter from './index';
+
 import { useCities } from '@/hooks/list/useCities';
+
+import EventsFilter from './index';
 
 // Mock hooks
 jest.mock('@/hooks/list/useCities', () => ({

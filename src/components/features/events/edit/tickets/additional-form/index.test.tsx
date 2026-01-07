@@ -1,8 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AdditionalForm } from './index';
-import { useTicketType } from '@/hooks';
+
 import { useToast } from '@/contexts/ToastContext';
+import { useTicketType } from '@/hooks';
 import { ticketsService } from '@/services/tickets';
+
+import { AdditionalForm } from './index';
 
 // Mock hooks and services
 jest.mock('@/hooks', () => ({

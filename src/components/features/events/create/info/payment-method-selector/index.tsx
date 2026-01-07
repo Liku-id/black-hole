@@ -1,3 +1,4 @@
+import { ErrorOutline } from '@mui/icons-material';
 import { Box, Grid, InputAdornment } from '@mui/material';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
@@ -5,7 +6,6 @@ import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
 import { Body2, Accordion, Checkbox } from '@/components/common';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
-import { ErrorOutline } from '@mui/icons-material';
 
 interface PaymentMethod {
   id: string;
