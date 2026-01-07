@@ -34,23 +34,9 @@ interface MenuListProps {
   isSubMenuItemActive: (path: string) => boolean;
 }
 
-const shouldShowMenuItem = (item: MenuItem, sessionRole?: string): boolean => {
-  if (item.text === 'Approval' || item.text === 'Creator') {
-    return (
-      sessionRole === 'admin' || sessionRole === 'business_development'
-    );
-  }
-
-  if (item.text === 'Account') {
-    return sessionRole === 'event_organizer_pic';
-  }
-
-  return true;
-};
 
 export const MenuList = ({
   menuItems,
-  sessionRole,
   accountMenuOpen,
   onAccountMenuToggle,
   isMenuItemActive,
@@ -59,9 +45,6 @@ export const MenuList = ({
   const router = useRouter();
 
   const renderMenuItem = (item: MenuItem) => {
-    if (!shouldShowMenuItem(item, sessionRole)) {
-      return null;
-    }
 
     const isActive = isMenuItemActive(item.path);
 

@@ -14,6 +14,7 @@ import { PreviewEventModal } from './preview-modal';
 interface EventDetailInfoProps {
   eventDetail: EventDetail;
   showRejectionInfo?: boolean;
+  readOnly?: boolean;
 }
 
 // EventField component
@@ -104,7 +105,7 @@ const EventField = ({
         return adminFee < 100 ? `${adminFee}%` : `Rp ${adminFee}`;
       case 'tax':
         return `${updateRequest.tax ?? eventDetail?.tax ?? 0}%`;
-        case 'login_required':
+      case 'login_required':
         return updateRequest[fieldKey] ? 'Yes' : 'No';
       default:
         return updateRequest[fieldKey] || '';
@@ -174,7 +175,7 @@ export const RejectedReason = ({ reason }: { reason: string }) => {
   );
 };
 
-export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: EventDetailInfoProps) => {
+export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOnly = false }: EventDetailInfoProps) => {
   const router = useRouter();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const { paymentMethods } = usePaymentMethods();
@@ -190,19 +191,19 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
   }, [paymentMethods]);
 
   // Check if we should show event update request rejection info
-  const isEventApprovedOrOngoing = 
+  const isEventApprovedOrOngoing =
     eventDetail.eventStatus === 'approved' || eventDetail.eventStatus === 'on_going';
-  const hasRejectedUpdateRequest = 
-    eventDetail.eventUpdateRequest && 
+  const hasRejectedUpdateRequest =
+    eventDetail.eventUpdateRequest &&
     eventDetail.eventUpdateRequest.status === 'rejected';
   const showUpdateRequestRejection = isEventApprovedOrOngoing && hasRejectedUpdateRequest;
 
   // Determine which rejection info to show
-  const rejectionReason = showUpdateRequestRejection 
-    ? eventDetail.eventUpdateRequest?.rejectedReason 
+  const rejectionReason = showUpdateRequestRejection
+    ? eventDetail.eventUpdateRequest?.rejectedReason
     : eventDetail.rejectedReason;
-  const rejectedFieldsArray = showUpdateRequestRejection 
-    ? eventDetail.eventUpdateRequest?.rejectedFields 
+  const rejectedFieldsArray = showUpdateRequestRejection
+    ? eventDetail.eventUpdateRequest?.rejectedFields
     : eventDetail.rejectedFields;
 
   const isFieldRejected = (fieldName: string) => {
@@ -224,21 +225,21 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
         accessToken: string;
         refreshToken: string;
       }>('/api/auth/tokens');
-      
+
       // Encrypt token via API route (server-side encryption with key)
       const encryptResponse = await apiUtils.post<{
         encryptedToken: string;
       }>('/api/preview-token/encrypt', {
         token: response.accessToken
       });
-      
+
       // Build URL dengan preview_token (encode untuk URL safety)
       const wukongUrl = process.env.NEXT_PUBLIC_WUKONG_URL || 'https://wukong.co.id';
       const previewUrl = `${wukongUrl}/event/${eventDetail.metaUrl}?preview_token=${encodeURIComponent(encryptResponse.encryptedToken)}`;
-      
+
       // Redirect ke black-void dengan preview_token
       window.open(previewUrl, '_blank', 'noopener,noreferrer');
-      
+
       setIsPreviewModalOpen(false);
     } catch (error) {
       console.error('Error fetching or encrypting token:', error);
@@ -281,6 +282,8 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
                   <Button
                     variant="primary"
                     onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+                    disabled={readOnly}
+                    sx={{ display: readOnly ? 'none' : 'flex' }}
                   >
                     Edit Event Details
                   </Button>
@@ -317,6 +320,8 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false }: Even
               <Button
                 variant="primary"
                 onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+                disabled={readOnly}
+                sx={{ display: readOnly ? 'none' : 'flex' }}
               >
                 Edit Event Details
               </Button>
