@@ -237,6 +237,7 @@ export const apiRouteUtils = {
 
         // Check user role authorization
         const userRole = response.data.body.user?.role;
+        console.log(userRole)
         if (!userRole || !ALLOWED_ROLES.includes(userRole)) {
           return res.status(403).json({
             message:

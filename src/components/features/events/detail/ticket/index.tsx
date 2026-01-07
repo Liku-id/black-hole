@@ -15,9 +15,10 @@ interface EventDetailTicketProps {
   ticketApprovalError?: string | null;
   hideHeader?: boolean;
   showStatus?: boolean;
+  readOnly?: boolean;
 }
 
-export const EventDetailTicket = ({ 
+export const EventDetailTicket = ({
   eventDetail,
   approvalMode = false,
   onApproveTicket,
@@ -25,7 +26,8 @@ export const EventDetailTicket = ({
   ticketApprovalLoading = false,
   ticketApprovalError = null,
   hideHeader = false,
-  showStatus = false
+  showStatus = false,
+  readOnly = false
 }: EventDetailTicketProps) => {
   const router = useRouter();
 
@@ -59,7 +61,8 @@ export const EventDetailTicket = ({
             {eventDetail.eventStatus !== 'done' &&
               eventDetail.eventStatus !== 'on_review' &&
               !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) &&
-              !shouldHideEditButton && (
+              !shouldHideEditButton &&
+              !readOnly && (
                 <Button variant="primary" onClick={handleEditTickets}>
                   Edit Tickets
                 </Button>
@@ -74,8 +77,8 @@ export const EventDetailTicket = ({
       )}
 
       {/* Ticket Table */}
-      <EventDetailTicketTable 
-        ticketTypes={eventDetail.ticketTypes || []} 
+      <EventDetailTicketTable
+        ticketTypes={eventDetail.ticketTypes || []}
         approvalMode={approvalMode}
         onApproveTicket={onApproveTicket}
         onRejectTicket={onRejectTicket}

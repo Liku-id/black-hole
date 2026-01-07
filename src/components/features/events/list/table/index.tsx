@@ -28,6 +28,8 @@ import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
 import { DuplicateEventModal } from './modal/duplicate';
 import { DeleteEventModal } from './modal/delete';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserRole, isEventOrganizer, User } from '@/types/auth';
 
 interface EventsTableProps {
   events: Event[];
@@ -65,6 +67,10 @@ const EventsTable: FC<EventsTableProps> = ({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const { user } = useAuth();
+  const userRole =
+    user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -362,8 +368,8 @@ const EventsTable: FC<EventsTableProps> = ({
                     <Body2 color="text.primary" fontSize="14px">
                       {event.lowestPriceTicketType?.sales_start_date
                         ? dateUtils.formatDateDDMMYYYY(
-                            event.lowestPriceTicketType.sales_start_date
-                          )
+                          event.lowestPriceTicketType.sales_start_date
+                        )
                         : '-'}
                     </Body2>
                   </TableCell>
@@ -396,9 +402,11 @@ const EventsTable: FC<EventsTableProps> = ({
                       </IconButton>
 
                       <Box position="absolute" top={0} right={-5}>
-                        {getUpdateRequestStatusIcon(
-                          event.eventUpdateRequestStatus
-                        )}
+                        {userRole !== UserRole.GROUND_STAFF &&
+                          userRole !== UserRole.FINANCE &&
+                          getUpdateRequestStatusIcon(
+                            event.eventUpdateRequestStatus
+                          )}
                       </Box>
                     </Box>
                     <Menu
@@ -454,93 +462,26 @@ const EventsTable: FC<EventsTableProps> = ({
                           }
                         />
                       </MenuItem>
-                      <MenuItem
-                        onClick={() => handleAttendeeClick(event)}
-                        disabled={
-                          !['on_going', 'done'].includes(event.eventStatus)
-                        }
-                        sx={{
-                          padding: '12px 16px',
-                          '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                          },
-                          '&.Mui-disabled': {
-                            opacity: 0.5
-                          }
-                        }}
-                      >
-                        <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-                          <Image
-                            alt="Attendee Tickets"
-                            src="/icon/voucher.svg"
-                            height={18}
-                            width={18}
-                          />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            <Body2
-                              color="text.primary"
-                              fontSize="14px"
-                              fontWeight="400"
-                            >
-                              Attendee Tickets
-                            </Body2>
-                          }
-                        />
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => handleTransactionClick(event)}
-                        disabled={
-                          !['on_going', 'done'].includes(event.eventStatus)
-                        }
-                        sx={{
-                          padding: '12px 16px',
-                          '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                          },
-                          '&.Mui-disabled': {
-                            opacity: 0.5
-                          }
-                        }}
-                      >
-                        <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-                          <Image
-                            alt="Event Transaction"
-                            src="/icon/money.svg"
-                            height={18}
-                            width={18}
-                          />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            <Body2
-                              color="text.primary"
-                              fontSize="14px"
-                              fontWeight="400"
-                            >
-                              Event Transaction
-                            </Body2>
-                          }
-                        />
-                      </MenuItem>
-                      {['on_going', 'approved', 'done'].includes(
-                        event.eventStatus
-                      ) && (
+                      {userRole !== UserRole.FINANCE && (
                         <MenuItem
-                          id="partner_ticket"
-                          onClick={() => handlePartnerTicketClick(event)}
+                          onClick={() => handleAttendeeClick(event)}
+                          disabled={
+                            !['on_going', 'done'].includes(event.eventStatus)
+                          }
                           sx={{
                             padding: '12px 16px',
                             '&:hover': {
                               backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            },
+                            '&.Mui-disabled': {
+                              opacity: 0.5
                             }
                           }}
                         >
                           <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
                             <Image
-                              alt="Partner Ticket"
-                              src="/icon/partner-ticket.svg"
+                              alt="Attendee Tickets"
+                              src="/icon/voucher.svg"
                               height={18}
                               width={18}
                             />
@@ -552,26 +493,32 @@ const EventsTable: FC<EventsTableProps> = ({
                                 fontSize="14px"
                                 fontWeight="400"
                               >
-                                Partner Ticket
+                                Attendee Tickets
                               </Body2>
                             }
                           />
                         </MenuItem>
                       )}
-                      {event.eventStatus !== 'draft' && (
+                      {userRole !== UserRole.GROUND_STAFF && (
                         <MenuItem
-                          onClick={() => handleDuplicateClick(event)}
+                          onClick={() => handleTransactionClick(event)}
+                          disabled={
+                            !['on_going', 'done'].includes(event.eventStatus)
+                          }
                           sx={{
                             padding: '12px 16px',
                             '&:hover': {
                               backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            },
+                            '&.Mui-disabled': {
+                              opacity: 0.5
                             }
                           }}
                         >
                           <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
                             <Image
-                              alt="Duplicate Event"
-                              src="/icon/copy.svg"
+                              alt="Event Transaction"
+                              src="/icon/money.svg"
                               height={18}
                               width={18}
                             />
@@ -583,44 +530,115 @@ const EventsTable: FC<EventsTableProps> = ({
                                 fontSize="14px"
                                 fontWeight="400"
                               >
-                                Duplicate Event
+                                Event Transaction
                               </Body2>
                             }
                           />
                         </MenuItem>
                       )}
-                      {(event.eventStatus === 'draft' ||
-                        event.eventStatus === 'rejected') && (
-                        <MenuItem
-                          onClick={() => handleDeleteClick(event)}
-                          sx={{
-                            padding: '12px 16px',
-                            '&:hover': {
-                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                            }
-                          }}
-                        >
-                          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-                            <Image
-                              alt="Delete Event"
-                              src="/icon/trash.svg"
-                              height={18}
-                              width={18}
+                      {userRole !== UserRole.GROUND_STAFF &&
+                        userRole !== UserRole.FINANCE &&
+                        ['on_going', 'approved', 'done'].includes(
+                          event.eventStatus
+                        ) && (
+                          <MenuItem
+                            id="partner_ticket"
+                            onClick={() => handlePartnerTicketClick(event)}
+                            sx={{
+                              padding: '12px 16px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                              }
+                            }}
+                          >
+                            <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                              <Image
+                                alt="Partner Ticket"
+                                src="/icon/partner-ticket.svg"
+                                height={18}
+                                width={18}
+                              />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Body2
+                                  color="text.primary"
+                                  fontSize="14px"
+                                  fontWeight="400"
+                                >
+                                  Partner Ticket
+                                </Body2>
+                              }
                             />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={
-                              <Body2
-                                color="text.primary"
-                                fontSize="14px"
-                                fontWeight="400"
-                              >
-                                Delete Event
-                              </Body2>
-                            }
-                          />
-                        </MenuItem>
-                      )}
+                          </MenuItem>
+                        )}
+                      {userRole !== UserRole.GROUND_STAFF &&
+                        userRole !== UserRole.FINANCE &&
+                        event.eventStatus !== 'draft' && (
+                          <MenuItem
+                            onClick={() => handleDuplicateClick(event)}
+                            sx={{
+                              padding: '12px 16px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                              }
+                            }}
+                          >
+                            <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                              <Image
+                                alt="Duplicate Event"
+                                src="/icon/copy.svg"
+                                height={18}
+                                width={18}
+                              />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Body2
+                                  color="text.primary"
+                                  fontSize="14px"
+                                  fontWeight="400"
+                                >
+                                  Duplicate Event
+                                </Body2>
+                              }
+                            />
+                          </MenuItem>
+                        )}
+                      {userRole !== UserRole.GROUND_STAFF &&
+                        userRole !== UserRole.FINANCE &&
+                        (event.eventStatus === 'draft' ||
+                          event.eventStatus === 'rejected') && (
+                          <MenuItem
+                            onClick={() => handleDeleteClick(event)}
+                            sx={{
+                              padding: '12px 16px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                              }
+                            }}
+                          >
+                            <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                              <Image
+                                alt="Delete Event"
+                                src="/icon/trash.svg"
+                                height={18}
+                                width={18}
+                              />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Body2
+                                  color="text.primary"
+                                  fontSize="14px"
+                                  fontWeight="400"
+                                >
+                                  Delete Event
+                                </Body2>
+                              }
+                            />
+                          </MenuItem>
+                        )}
                     </Menu>
                   </Box>
                 </TableCell>
@@ -659,7 +677,7 @@ const EventsTable: FC<EventsTableProps> = ({
         error={deleteError}
         eventName={selectedEvent?.name || ''}
       />
-    </StyledTableContainer>
+    </StyledTableContainer >
   );
 };
 

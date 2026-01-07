@@ -4,6 +4,8 @@ export enum UserRole {
   ADMIN = 'admin',
   BUSINESS_DEVELOPMENT = 'business_development',
   EVENT_ORGANIZER_PIC = 'event_organizer_pic',
+  GROUND_STAFF = 'ground_staff',
+  FINANCE = 'finance',
   BUYER = 'buyer',
   GUEST = 'guest'
 }
@@ -11,14 +13,18 @@ export enum UserRole {
 export const ALLOWED_ROLES = [
   UserRole.ADMIN,
   UserRole.BUSINESS_DEVELOPMENT,
-  UserRole.EVENT_ORGANIZER_PIC
+  UserRole.EVENT_ORGANIZER_PIC,
+  UserRole.GROUND_STAFF,
+  UserRole.FINANCE
 ];
 
 export const formatRoleName = (roleName: string): string => {
   const roleMap: Record<string, string> = {
     admin: 'Admin',
     business_development: 'Business Development',
-    event_organizer_pic: 'Event Organizer PIC'
+    event_organizer_pic: 'Event Organizer PIC',
+    ground_staff: 'Ground Staff',
+    finance: 'Finance'
   };
 
   return (

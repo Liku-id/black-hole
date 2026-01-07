@@ -1,10 +1,12 @@
 // Drawer content component - wrapper for sidebar content including logo, menu list, and user profile
-import Image from 'next/image';
 import { Box } from '@mui/material';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { Body1 } from '@/components/common';
+import { UserRole } from '@/types/auth';
+
 import { LogoContainer, UserMenuContainer } from '../styles';
 import { MenuList } from './menu';
 import { ProfileContent } from './profile-content';
@@ -74,6 +76,36 @@ const menuItems: MenuItem[] = [
   }
 ];
 
+// Configuration for allowed menus per role
+const roleMenuConfig: Record<string, string[]> = {
+  [UserRole.GROUND_STAFF]: ['event_menu', 'ticket_menu'],
+  [UserRole.FINANCE]: ['event_menu', 'finance_menu'],
+
+  [UserRole.ADMIN]: [
+    'dashboard_menu',
+    'event_menu',
+    'approval_menu',
+    'finance_menu',
+    'ticket_menu',
+    'creator_menu'
+  ],
+  [UserRole.BUSINESS_DEVELOPMENT]: [
+    'dashboard_menu',
+    'event_menu',
+    'approval_menu',
+    'finance_menu',
+    'ticket_menu',
+    'creator_menu'
+  ],
+  [UserRole.EVENT_ORGANIZER_PIC]: [
+    'dashboard_menu',
+    'event_menu',
+    'finance_menu',
+    'ticket_menu',
+    'account_menu'
+  ]
+};
+
 interface DrawerContentProps {
   sessionRole?: string;
   user: any;
@@ -93,6 +125,14 @@ export const DrawerContent = ({
 }: DrawerContentProps) => {
   const router = useRouter();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+
+  // Filter menu items based on role
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (!sessionRole) return false;
+    const allowedMenus = roleMenuConfig[sessionRole];
+    if (!allowedMenus) return false;
+    return allowedMenus.includes(item.id);
+  });
 
   const isMenuItemActive = (itemPath: string) => {
     if (router.pathname === itemPath) {
@@ -146,7 +186,7 @@ export const DrawerContent = ({
       </Body1>
 
       <MenuList
-        menuItems={menuItems}
+        menuItems={filteredMenuItems}
         sessionRole={sessionRole}
         accountMenuOpen={accountMenuOpen}
         onAccountMenuToggle={() => setAccountMenuOpen(!accountMenuOpen)}

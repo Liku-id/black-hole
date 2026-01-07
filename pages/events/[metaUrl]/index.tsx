@@ -24,6 +24,8 @@ import { StatusBadge } from '@/components/features/events/status-badge';
 import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserRole, isEventOrganizer, User } from '@/types/auth';
 
 function EventDetail() {
   const router = useRouter();
@@ -33,6 +35,11 @@ function EventDetail() {
   const [activeTab, setActiveTab] = useState('detail');
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const { showSuccess } = useToast();
+  const { user } = useAuth();
+  const userRole =
+    user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
+  const isReadOnly =
+    userRole === UserRole.GROUND_STAFF || userRole === UserRole.FINANCE;
 
   // Set active tab from query params on mount and when query changes
   useEffect(() => {
@@ -556,26 +563,27 @@ function EventDetail() {
                   {/* For rejected events, always show Resubmit Event button */}
                   {/* For other events, show button if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes */}
                   {(eventDetail.eventStatus === 'rejected' ||
-                    hasAnyPendingStatus()) && (
-                    <>
-                      <Button
-                        variant="primary"
-                        onClick={() => setIsSubmitConfirmOpen(true)}
-                        disabled={
-                          submitLoading ||
-                          !isSubmitButtonEnabled() ||
-                          eventDetail.eventUpdateRequestStatus === 'pending'
-                        }
-                      >
-                        {getSubmitButtonText()}
-                      </Button>
-                      {errorMessage && (
-                        <Overline color="error" sx={{ mt: 1 }}>
-                          {errorMessage}
-                        </Overline>
-                      )}
-                    </>
-                  )}
+                    hasAnyPendingStatus()) &&
+                    !isReadOnly && (
+                      <>
+                        <Button
+                          variant="primary"
+                          onClick={() => setIsSubmitConfirmOpen(true)}
+                          disabled={
+                            submitLoading ||
+                            !isSubmitButtonEnabled() ||
+                            eventDetail.eventUpdateRequestStatus === 'pending'
+                          }
+                        >
+                          {getSubmitButtonText()}
+                        </Button>
+                        {errorMessage && (
+                          <Overline color="error" sx={{ mt: 1 }}>
+                            {errorMessage}
+                          </Overline>
+                        )}
+                      </>
+                    )}
                 </>
               )}
             </Box>
@@ -631,6 +639,7 @@ function EventDetail() {
           <EventDetailInfo
             eventDetail={eventDetail}
             showRejectionInfo={showStatusIndicators}
+            readOnly={isReadOnly}
           />
         )}
         {activeTab === 'assets' && (
@@ -646,10 +655,15 @@ function EventDetail() {
                   eventDetail.eventAssetChanges.length === 0)
               )
             }
+            readOnly={isReadOnly}
           />
         )}
         {activeTab === 'tickets' && (
-          <EventDetailTicket eventDetail={eventDetail} showStatus={true}           />
+          <EventDetailTicket
+            eventDetail={eventDetail}
+            showStatus={true}
+            readOnly={isReadOnly}
+          />
         )}
       </Card>
 
