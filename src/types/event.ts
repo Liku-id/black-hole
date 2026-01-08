@@ -300,6 +300,7 @@ export interface CreateEventRequest {
   metaUrl: string;
   adminFee: number;
   tax: number;
+  login_required?: boolean;
 }
 
 export interface CreateEventResponse {

@@ -327,7 +327,9 @@ function EventDetail() {
   // Show status indicators when event status is "rejected" or when eventUpdateRequest exists (for on_going events)
   const showStatusIndicators =
     eventDetail?.eventStatus === 'rejected' ||
-    !!eventDetail?.eventUpdateRequest;
+    !!eventDetail?.eventUpdateRequest ||
+    (!!eventDetail?.eventAssetChanges &&
+      eventDetail.eventAssetChanges.length > 0);
 
   // Check if no section is rejected (EO has fixed all rejected sections)
   const canResubmitRejectedEvent = () => {

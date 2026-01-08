@@ -1,9 +1,10 @@
 import { ErrorOutline } from '@mui/icons-material';
 import { Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { Body2, Button, H3 } from '@/components/common';
+import { usePaymentMethods } from '@/hooks';
 import { EventDetail } from '@/types/event';
 import { dateUtils, apiUtils } from '@/utils';
 
@@ -23,7 +24,8 @@ const EventField = ({
   isRejected,
   eventDetail,
   eventUpdateRequest,
-  fieldKey
+  fieldKey,
+  paymentMethodMap
 }: {
   label: string;
   value: string;
@@ -32,6 +34,7 @@ const EventField = ({
   eventDetail?: EventDetail;
   eventUpdateRequest?: EventDetail['eventUpdateRequest'];
   fieldKey?: string;
+  paymentMethodMap?: Record<string, string>;
 }) => {
   // Check if field has changes
   const hasChanges =
@@ -89,7 +92,10 @@ const EventField = ({
       case 'cityId':
         return `${updateRequest?.city?.name || updateRequest[fieldKey]}`;
       case 'paymentMethodIds':
-        return `Payment Method IDs: ${updateRequest[fieldKey]?.join(', ') || ''}`;
+        const names = (updateRequest[fieldKey] || [])
+          .map((id: string) => paymentMethodMap?.[id] || id)
+          .join(', ');
+        return names;
       case 'adminFee':
         const adminFee = updateRequest.adminFee ?? eventDetail?.adminFee ?? 0;
         return adminFee < 100 ? `${adminFee}%` : `Rp ${adminFee}`;
@@ -168,6 +174,17 @@ export const RejectedReason = ({ reason }: { reason: string }) => {
 export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOnly = false }: EventDetailInfoProps) => {
   const router = useRouter();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const { paymentMethods } = usePaymentMethods();
+
+  const paymentMethodMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    Object.values(paymentMethods).forEach((methods) => {
+      methods.forEach((pm: any) => {
+        map[pm.id] = pm.name;
+      });
+    });
+    return map;
+  }, [paymentMethods]);
 
   // Check if we should show event update request rejection info
   const isEventApprovedOrOngoing =
@@ -436,6 +453,7 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
                 isRejected={isFieldRejected('payment_methods')}
                 eventDetail={eventDetail}
                 eventUpdateRequest={eventDetail.eventUpdateRequest}
+                paymentMethodMap={paymentMethodMap}
                 fieldKey="paymentMethodIds"
               />
             </Grid>
