@@ -659,7 +659,12 @@ function ApprovalDetail() {
                     eventAssets.every((ea: any) => ea.status === 'approved');
                 }
 
-                // Hide buttons if any rejected assets OR all assets approved
+                // Hide buttons if tab status is already 'approved' or 'rejected'
+                if (tabStatuses.assets === 'approved' || tabStatuses.assets === 'rejected') {
+                  return null;
+                }
+
+                // Or if any specific asset checks (legacy fallback)
                 if (hasRejectedAsset || allAssetsApproved) {
                   return null;
                 }

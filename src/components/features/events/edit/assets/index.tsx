@@ -108,7 +108,8 @@ export const EventAssetsEditForm = ({
   // Check if we should use .id instead of .eventAssetId
   // If eventStatus is 'on_going' and eventAssetChanges[0].status is 'rejected', use .id
   const shouldUseIdForOperations =
-    eventDetail?.eventStatus === 'on_going' &&
+    (eventDetail?.eventStatus === 'on_going' ||
+      eventDetail?.eventStatus === 'approved') &&
     eventAssetChanges &&
     eventAssetChanges.length > 0 &&
     eventAssetChanges[0].status === 'rejected';

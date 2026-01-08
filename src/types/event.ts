@@ -207,6 +207,7 @@ export interface EventUpdateRequest {
   cityId: string;
   eventOrganizerId: string;
   paymentMethodIds: string[];
+  login_required?: boolean;
 }
 
 export interface EventDetail {

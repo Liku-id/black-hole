@@ -78,16 +78,17 @@ const EditAssetsPage = () => {
       return;
     }
 
-    // Validate rejected assets for on_going events with rejected Updated Assets or rejected events
-    const isOnGoingWithRejectedAssets =
-      eventDetail.eventStatus === 'on_going' &&
+    // Validate rejected assets for on_going/approved events with rejected Updated Assets or rejected events
+    const hasRejectedUpdates =
+      (eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved') &&
       eventDetail.eventAssetChanges &&
       eventDetail.eventAssetChanges.length > 0 &&
       eventDetail.eventAssetChanges[0].status === 'rejected';
     
     const isRejectedEvent = eventDetail.eventStatus === 'rejected';
     
-    if (isOnGoingWithRejectedAssets || isRejectedEvent) {
+    if (hasRejectedUpdates || isRejectedEvent) {
       let firstAssetChange;
       let rejectedAssetIds: string[] = [];
       
@@ -382,7 +383,8 @@ const EditAssetsPage = () => {
   // Determine if we should use eventAssetChanges for populating data
   // If eventStatus is 'on_going' and eventAssetChanges[0].status is 'rejected', use eventAssetChanges
   const shouldUseEventAssetChanges =
-    eventDetail?.eventStatus === 'on_going' &&
+    (eventDetail?.eventStatus === 'on_going' ||
+      eventDetail?.eventStatus === 'approved') &&
     eventDetail?.eventAssetChanges &&
     eventDetail.eventAssetChanges.length > 0 &&
     eventDetail.eventAssetChanges[0].status === 'rejected';
