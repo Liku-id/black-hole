@@ -1,10 +1,11 @@
 // Profile content - displays user avatar, name, and role in sidebar footer (clickable to open menu)
-import Image from 'next/image';
 import { Box } from '@mui/material';
+import Image from 'next/image';
 
 import { Body2 } from '@/components/common';
 import { formatRoleName, isEventOrganizer, User } from '@/types/auth';
 import { EventOrganizer } from '@/types/organizer';
+
 import { AvatarBox, ProfileMenuBox } from '../styles';
 
 interface ProfileContentProps {
