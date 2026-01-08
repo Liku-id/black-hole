@@ -23,13 +23,13 @@ import {
   StyledTableContainer,
   StyledTableHead
 } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
 import { eventsService } from '@/services/events';
+import { UserRole, isEventOrganizer, User } from '@/types/auth';
 import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
 
 import { DeleteEventModal } from './modal/delete';
-import { useAuth } from '@/contexts/AuthContext';
-import { UserRole, isEventOrganizer, User } from '@/types/auth';
 import { DuplicateEventModal } from './modal/duplicate';
 
 interface EventsTableProps {

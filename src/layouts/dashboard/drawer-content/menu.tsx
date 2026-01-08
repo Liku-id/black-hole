@@ -1,9 +1,10 @@
 // Menu list component - renders sidebar menu items with role-based visibility and active state
+import { Box, ListItemText } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { Box, ListItemText } from '@mui/material';
 
 import { Body2 } from '@/components/common';
+
 import {
   StyledList,
   StyledMenuItem,

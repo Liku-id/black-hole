@@ -5,14 +5,17 @@ import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
-import { isEventOrganizer, User } from '@/types/auth';
-import { EventOrganizer } from '@/types/organizer';
 import {
   selectedEOIdAtom,
   selectedEONameAtom
 } from '@/atoms/eventOrganizerAtom';
 import { useAuth } from '@/contexts/AuthContext';
 import { eventOrganizerService } from '@/services/event-organizer';
+import { isEventOrganizer, User } from '@/types/auth';
+import { EventOrganizer } from '@/types/organizer';
+
+import { DrawerContent } from './drawer-content';
+import { EventOrganizerDropdown } from './event-organizer-dropdown';
 import {
   drawerWidth,
   StyledAppBar,
@@ -21,8 +24,6 @@ import {
   StyledPermanentDrawer,
   StyledMainBox
 } from './styles';
-import { DrawerContent } from './drawer-content';
-import { EventOrganizerDropdown } from './event-organizer-dropdown';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

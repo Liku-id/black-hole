@@ -1,28 +1,29 @@
 // Core
+import { Box, Divider } from '@mui/material';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 // Third Party
-import { useAtom } from 'jotai';
-import { Box, Divider } from '@mui/material';
+
 // Components & Layouts
-import DashboardLayout from '@/layouts/dashboard';
-import { H2, Button, Card, Body1, TextField } from '@/components/common';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
-import { TeamMemberTable } from '@/components/features/team-member/table';
+import { H2, Button, Card, Body1, TextField } from '@/components/common';
 import { DeleteTeamMemberModal } from '@/components/features/team-member/modal/delete';
+import { TeamMemberTable } from '@/components/features/team-member/table';
 // Contexts & Hooks
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useStaff } from '@/hooks/features/staff/useStaff';
-import { useDebouncedCallback } from '@/utils';
-// Services & Utils
+import DashboardLayout from '@/layouts/dashboard';
 import { staffService } from '@/services/staff';
-import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
-// Types
 import { isEventOrganizer } from '@/types/auth';
+// Services & Utils
+// Types
 import { Staff } from '@/types/staff';
+import { useDebouncedCallback } from '@/utils';
 
 function TeamMember() {
   const router = useRouter();

@@ -21,8 +21,8 @@ import EventsTable from '@/components/features/events/list/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks/features/events/useEvents';
 import DashboardLayout from '@/layouts/dashboard';
-import { EventsFilters } from '@/types/event';
 import { isEventOrganizer, UserRole, User } from '@/types/auth'; // Import UserRole and User
+import { EventsFilters } from '@/types/event';
 import { useDebouncedCallback } from '@/utils';
 
 function Events() {

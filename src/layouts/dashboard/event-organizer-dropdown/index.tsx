@@ -4,6 +4,7 @@ import Image from 'next/image';
 
 import { Body2, TextField } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
+
 import {
   DropdownContainer,
   DropdownBox,
