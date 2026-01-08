@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
+import { usePaymentMethods } from '@/hooks';
 import { EventDetail } from '@/types/event';
 import { dateUtils } from '@/utils';
 import { usePaymentMethods } from '@/hooks';

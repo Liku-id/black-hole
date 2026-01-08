@@ -14,7 +14,8 @@ import {
   AuthUser,
   LoginRequest,
   UserRole,
-  ALLOWED_ROLES
+  ALLOWED_ROLES,
+  isEventOrganizer
 } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 import { validateRedirectUrl } from '@/utils/security';
@@ -315,8 +316,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
 
         // Redirect to intended route or dashboard
+        let defaultRedirect = '/dashboard';
+        const userRoleName =
+          !isEventOrganizer(userData) && (userData as any).role?.name;
+
+        if (
+          userRoleName === UserRole.GROUND_STAFF ||
+          userRoleName === UserRole.FINANCE
+        ) {
+          defaultRedirect = '/events';
+        }
+
         const rawRedirect = router.query.redirect as string;
-        const redirectTo = validateRedirectUrl(rawRedirect, [
+        const candidateRedirect = rawRedirect || defaultRedirect;
+        const redirectTo = validateRedirectUrl(candidateRedirect, [
           'https://bo-staging-aws.wukong.co.id'
         ]);
         router.replace(redirectTo);
