@@ -44,7 +44,7 @@ interface FormData {
   taxNominal: string;
   eventDescription: string;
   termsAndConditions: string;
-  loginRequired: number;
+  loginRequired: string;
 }
 
 interface CreateEventFormProps {
@@ -86,7 +86,7 @@ export const CreateEventForm = ({
       taxNominal: '',
       eventDescription: '',
       termsAndConditions: '',
-      loginRequired: 1
+      loginRequired: ''
     }
   });
 
@@ -321,10 +321,10 @@ export const CreateEventForm = ({
                 fullWidth
                 label="User Must Login*"
                 name="loginRequired"
-                options={[
-                  { value: 1, label: 'Yes' },
-                  { value: 2, label: 'No' }
-                ]}
+                  options={[
+                    { value: 'true', label: 'Yes' },
+                    { value: 'false', label: 'No' }
+                  ]}
                 placeholder="Select Yes or No"
                 rules={{
                   required: 'Login requirement is required'

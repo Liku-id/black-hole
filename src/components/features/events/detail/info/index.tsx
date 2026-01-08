@@ -7,7 +7,7 @@ import { Body2, Button, H3 } from '@/components/common';
 import { usePaymentMethods } from '@/hooks';
 import { EventDetail } from '@/types/event';
 import { dateUtils, apiUtils } from '@/utils';
-import { usePaymentMethods } from '@/hooks';
+
 
 import { PreviewEventModal } from './preview-modal';
 
@@ -68,7 +68,10 @@ const EventField = ({
           return JSON.stringify(a) !== JSON.stringify(b);
         }
         case 'login_required':
-          return eventDetail?.login_required !== Boolean(updateRequest[fieldKey]);
+          return (
+            updateRequest[fieldKey] !== undefined &&
+            eventDetail?.login_required !== updateRequest[fieldKey]
+          );
         default:
           return eventDetail?.[fieldKey] !== updateRequest[fieldKey];
       }

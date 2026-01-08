@@ -47,7 +47,7 @@ interface FormData {
   taxNominal: string;
   eventDescription: string;
   termsAndConditions: string;
-  loginRequired: number;
+  loginRequired: string;
 }
 
 interface EventEditInfoProps {
@@ -147,11 +147,11 @@ export const EventEditInfo = ({
       loginRequired:
         (dataSource as any).login_required !== undefined
           ? (dataSource as any).login_required
-            ? 1
-            : 2
+            ? 'true'
+            : 'false'
           : eventDetail.login_required
-            ? 1
-            : 2
+            ? 'true'
+            : 'false'
     }
   });
 
@@ -402,8 +402,8 @@ export const EventEditInfo = ({
                 label="User Must Login*"
                 name="loginRequired"
                 options={[
-                  { value: 1, label: 'Yes' },
-                  { value: 2, label: 'No' }
+                  { value: 'true', label: 'Yes' },
+                  { value: 'false', label: 'No' }
                 ]}
                 placeholder="Select Yes or No"
                 rules={{
