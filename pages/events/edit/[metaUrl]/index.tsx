@@ -213,13 +213,13 @@ function EditEvent() {
       const comparisonLoginRequired =
         (comparisonSource as any).login_required !== undefined
           ? (comparisonSource as any).login_required
-            ? 1
-            : 2
+            ? 'true'
+            : 'false'
           : eventDetail?.login_required
-            ? 1
-            : 2;
+            ? 'true'
+            : 'false';
       if (hasChanged(formData.loginRequired, comparisonLoginRequired)) {
-        payload.login_required = formData.loginRequired === 1;
+        payload.login_required = formData.loginRequired === 'true';
       }
 
       // Check if there are any actual changes (excluding required fields)
