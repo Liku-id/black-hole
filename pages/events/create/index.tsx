@@ -36,6 +36,7 @@ interface FormData {
   eventDescription: string;
   termsAndConditions: string;
   websiteUrl: string;
+  loginRequired: number;
 }
 
 function CreateEvent() {
@@ -72,7 +73,8 @@ function CreateEvent() {
           .replace(/\s+/g, '-')
           .replace(/[^a-z0-9-]/g, ''),
         adminFee: parseInt(data.adminFee) || 0,
-        tax: parseInt(data.taxNominal) || 0
+        tax: parseInt(data.taxNominal) || 0,
+        login_required: data.loginRequired === 1
       };
       const response = await eventsService.createEvent(payload);
 

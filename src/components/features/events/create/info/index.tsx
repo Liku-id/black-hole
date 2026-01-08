@@ -44,6 +44,7 @@ interface FormData {
   taxNominal: string;
   eventDescription: string;
   termsAndConditions: string;
+  loginRequired: number;
 }
 
 interface CreateEventFormProps {
@@ -84,7 +85,8 @@ export const CreateEventForm = ({
       tax: '',
       taxNominal: '',
       eventDescription: '',
-      termsAndConditions: ''
+      termsAndConditions: '',
+      loginRequired: 1
     }
   });
 

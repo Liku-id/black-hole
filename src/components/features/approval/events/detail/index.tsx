@@ -1,10 +1,12 @@
 import { ErrorOutline } from '@mui/icons-material';
 import { Box, Grid } from '@mui/material';
+import { useMemo } from 'react';
 
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
 import { EventDetail } from '@/types/event';
 import { dateUtils } from '@/utils';
+import { usePaymentMethods } from '@/hooks';
 
 // Rejected Reason Component
 const RejectedReason = ({ reason }: { reason: string | null }) => {
@@ -42,7 +44,8 @@ const Field = ({
   eventDetail,
   eventUpdateRequest,
   fieldKey,
-  isRejected = false
+  isRejected = false,
+  paymentMethodMap
 }: {
   label: React.ReactNode;
   value: string;
@@ -51,6 +54,7 @@ const Field = ({
   eventUpdateRequest?: any;
   fieldKey?: string;
   isRejected?: boolean;
+  paymentMethodMap?: Record<string, string>;
 }) => {
   // Check if field has changes
   const hasChanges =
@@ -100,7 +104,10 @@ const Field = ({
       case 'cityId':
         return `${eventUpdateRequest?.city?.name}`;
       case 'paymentMethodIds':
-        return `Payment Method IDs: ${eventUpdateRequest[fieldKey]?.join(', ') || ''}`;
+        const names = (eventUpdateRequest[fieldKey] || [])
+          .map((id: string) => paymentMethodMap?.[id] || id)
+          .join(', ');
+        return names;
       case 'login_required':
         return eventUpdateRequest[fieldKey] ? 'Yes' : 'No';
       default:
@@ -154,6 +161,18 @@ export const EventsSubmissionsInfo = ({
   selectedFields = [],
   onToggleField
 }: EventsSubmissionsInfoProps) => {
+  const { paymentMethods } = usePaymentMethods();
+
+  const paymentMethodMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    Object.values(paymentMethods).forEach((methods) => {
+      methods.forEach((pm: any) => {
+        map[pm.id] = pm.name;
+      });
+    });
+    return map;
+  }, [paymentMethods]);
+
   // Check if we should use eventUpdateRequest rejection info
   const useUpdateRequestRejection =
     (eventDetail.eventStatus === 'on_going' ||
@@ -320,6 +339,7 @@ export const EventsSubmissionsInfo = ({
               <Field
                 eventDetail={eventDetail}
                 eventUpdateRequest={eventUpdateRequest}
+                paymentMethodMap={paymentMethodMap}
                 fieldKey="paymentMethodIds"
                 label={renderLabel('Payment Method*', 'payment_methods')}
                 value={
