@@ -8,6 +8,7 @@ import { Body1 } from '@/components/common';
 import { UserRole } from '@/types/auth';
 
 import { LogoContainer, UserMenuContainer } from '../styles';
+
 import { MenuList } from './menu';
 import { ProfileContent } from './profile-content';
 import { ProfileMenu } from './profile-menu';

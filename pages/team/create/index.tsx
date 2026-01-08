@@ -1,22 +1,23 @@
+import { Box, Divider } from '@mui/material';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 // Third Party
-import { useAtom } from 'jotai';
 import { useForm, FormProvider } from 'react-hook-form';
-import { Box, Divider } from '@mui/material';
+
 // Components & Layouts
-import DashboardLayout from '@/layouts/dashboard';
-import { H2, Button, Card, TextField, Select, Caption } from '@/components/common';
+import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
+import { H2, Button, Card, TextField, Select, Caption } from '@/components/common';
 import { AddTeamMemberModal } from '@/components/features/team-member/modal/add';
 // Contexts & Hooks
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import DashboardLayout from '@/layouts/dashboard';
 // Services & Utils
 import { staffService } from '@/services/staff';
-import { selectedEOIdAtom } from '@/atoms/eventOrganizerAtom';
 // Types
 import { isEventOrganizer } from '@/types/auth';
 

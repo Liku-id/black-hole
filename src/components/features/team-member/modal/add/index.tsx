@@ -1,6 +1,7 @@
-import React from 'react';
-// Third Party
 import { Box } from '@mui/material';
+import React from 'react';
+
+// Third Party
 // Components & Layouts
 import { Body2, Button, Modal } from '@/components/common';
 

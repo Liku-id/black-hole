@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 import { Body2 } from '@/components/common';
+
 import {
   StyledMenu,
   StyledMenuItemOption,

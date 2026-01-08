@@ -1,4 +1,3 @@
-import { apiUtils } from '@/utils/apiUtils';
 import {
   ListStaffRequest,
   ListStaffResponse,
@@ -7,6 +6,7 @@ import {
   DeleteStaffRequest,
   DeleteStaffResponse
 } from '@/types/staff';
+import { apiUtils } from '@/utils/apiUtils';
 
 export class StaffService {
   async getStaffList(
