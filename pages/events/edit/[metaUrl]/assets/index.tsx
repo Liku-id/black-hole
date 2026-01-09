@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
@@ -39,6 +39,7 @@ const EditAssetsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [progress, setProgress] = useState<string>('');
+  const [progressValue, setProgressValue] = useState<number>(0);
 
   // Ensure hooks are not called conditionally; redirect when ready
   useEffect(() => {
@@ -223,10 +224,28 @@ const EditAssetsPage = () => {
       }
     }
 
+    // Calculate total operations for progress bar
+    const filesToUploadCount = [
+      assetChangeInfo.files.thumbnail,
+      ...assetChangeInfo.files.supportingImages
+    ].filter(Boolean).length;
+    const totalOperations =
+      assetChangeInfo.deletedAssetIds.length +
+      filesToUploadCount + // Upload step
+      filesToUploadCount; // Update/Create step
+
+    let completedOperations = 0;
+    const updateProgress = () => {
+      completedOperations++;
+      const percentage = Math.round((completedOperations / totalOperations) * 100);
+      setProgressValue(percentage);
+    };
+
     setIsLoading(true);
     setShowError(false);
     setErrorMessage('');
     setProgress('Preparing updates...');
+    setProgressValue(0);
 
     try {
       // Step 1: Delete removed event assets
@@ -236,6 +255,7 @@ const EditAssetsPage = () => {
         );
         for (const eventAssetId of assetChangeInfo.deletedAssetIds) {
           await eventsService.deleteEventAsset(eventAssetId);
+          updateProgress();
         }
       }
 
@@ -272,6 +292,7 @@ const EditAssetsPage = () => {
             setProgress(
               `Uploading ${uploadedCount}/${filesToUpload.length} new assets...`
             );
+            updateProgress();
           }
         }
       }
@@ -330,10 +351,12 @@ const EditAssetsPage = () => {
               order
             });
           }
+          updateProgress();
         }
       }
 
       setProgress('Completed!');
+      setProgressValue(100);
       // Navigate back to event detail page
       router.push(`/events/${metaUrl}?tab=assets`);
     } catch (error: any) {
@@ -345,6 +368,7 @@ const EditAssetsPage = () => {
       setShowError(true);
       setIsLoading(false);
       setProgress('');
+      setProgressValue(0);
     }
   };
 
@@ -357,7 +381,8 @@ const EditAssetsPage = () => {
   const firstAssetChange =
     eventDetail &&
     (eventDetail.eventStatus === 'on_review' ||
-      (eventDetail.eventStatus === 'on_going' &&
+      ((eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved') &&
         eventDetail.eventAssetChanges &&
         eventDetail.eventAssetChanges.length > 0)) &&
     eventDetail.eventAssetChanges &&
@@ -440,10 +465,27 @@ const EditAssetsPage = () => {
                 {errorMessage}
               </Overline>
             )}
-            {isLoading && progress && (
-              <Body2 color="primary.main" fontWeight={500} mb={1}>
-                {progress}
-              </Body2>
+            {isLoading && (
+              <Box width="100%">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={0.5}
+                >
+                  <Body2 color="primary.main" fontWeight={500}>
+                    {progress}
+                  </Body2>
+                  <Body2 color="primary.main" fontWeight={500}>
+                    {progressValue}%
+                  </Body2>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={progressValue}
+                  sx={{ width: '100%', mb: 1, height: 6, borderRadius: 3 }}
+                />
+              </Box>
             )}
             <Box display="flex" gap="24px">
               <Button
