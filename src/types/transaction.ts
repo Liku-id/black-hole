@@ -262,3 +262,13 @@ export interface ExportTransactionsRequest {
   payment_status?: string; // Filter by payment status (optional)
   event_id?: string; // Filter by event_id (optional)
 }
+
+export interface TransactionSummary {
+  ticketSales: {
+    total: number;
+    amount: number;
+  };
+  payment: number;
+  withdrawal: number;
+  balance: number;
+}
