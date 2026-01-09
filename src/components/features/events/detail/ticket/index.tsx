@@ -42,9 +42,11 @@ export const EventDetailTicket = ({
     (tt: any) => !tt.status || tt.status === 'pending'
   );
 
-  // Hide Edit button if event is on_going and has pending tickets
+  // Hide Edit button if event is on_going or approved and has pending tickets
   const shouldHideEditButton =
-    eventDetail.eventStatus === 'on_going' && hasPendingTicket;
+    (eventDetail.eventStatus === 'on_going' ||
+      eventDetail.eventStatus === 'approved') &&
+    hasPendingTicket;
 
   return (
     <Box>
@@ -62,7 +64,10 @@ export const EventDetailTicket = ({
 
             {eventDetail.eventStatus !== 'done' &&
               eventDetail.eventStatus !== 'on_review' &&
-              !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) &&
+              !(
+                eventDetail.eventStatus === 'on_going' &&
+                eventDetail.is_requested
+              ) &&
               !shouldHideEditButton &&
               !readOnly && (
                 <Button variant="primary" onClick={handleEditTickets}>
