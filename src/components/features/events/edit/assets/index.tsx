@@ -1,5 +1,4 @@
-import { ErrorOutline } from '@mui/icons-material';
-import { Box, Chip, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { useState, useEffect } from 'react';
 
 import { Body2, Dropzone } from '@/components/common';
@@ -84,25 +83,18 @@ export const EventAssetsEditForm = ({
     sideEventAssetsArray.push(supportingImagesFromAssets[i] || null);
   }
 
-  // Helper to check if a given asset (by assetId) was rejected
-  const isAssetRejected = (assetId?: string) =>
-    !!assetId && rejectedAssetIds.includes(assetId);
-
-  const getSectionStatusChip = () => {
-    return (
-      <Chip
-        icon={<ErrorOutline />}
-        label="Rejected"
-        size="small"
-        color="error"
-      />
-    );
+  // Helper to extract assetId from either eventAssets or eventAssetChanges.items
+  // Match the logic from detail page (line 70): item.assetId || item.id
+  const getAssetId = (asset: any): string | undefined => {
+    if (!asset) return undefined;
+    // For eventAssetChanges.items, use assetId field directly
+    // For eventAssets, use asset.assetId (which is the ID of the asset itself)
+    return asset.assetId || asset.asset?.id || asset.id;
   };
 
-  // Get status chip for individual assets based on assetId
-  const getAssetStatusChip = (assetId?: string) => {
-    if (!assetId || !isAssetRejected(assetId)) return null;
-    return getSectionStatusChip();
+  // Helper to check if a given asset (by assetId) was rejected
+  const isAssetRejected = (assetId?: string) => {
+    return !!assetId && rejectedAssetIds.includes(assetId);
   };
 
   // Check if we should use .id instead of .eventAssetId
@@ -125,7 +117,7 @@ export const EventAssetsEditForm = ({
   const existingAssets = {
     thumbnail: mainEventAsset
       ? {
-          id: mainEventAsset.assetId, // Keep assetId for comparison purposes
+          id: getAssetId(mainEventAsset), // Keep assetId for comparison purposes
           eventAssetId: shouldUseIdForOperations
             ? (mainEventAsset as any).id // Use .id for on_going + rejected
             : eventAssetChanges && eventAssetChanges.length > 0
@@ -137,7 +129,7 @@ export const EventAssetsEditForm = ({
     supportingImages: sideEventAssetsArray.map((ea, index) =>
       ea
         ? {
-            id: ea.assetId, // Keep assetId for comparison purposes
+            id: getAssetId(ea), // Keep assetId for comparison purposes
             eventAssetId: shouldUseIdForOperations
               ? (ea as any).id // Use .id for on_going + rejected
               : eventAssetChanges && eventAssetChanges.length > 0
@@ -283,22 +275,33 @@ export const EventAssetsEditForm = ({
       <Grid container marginBottom="24px" spacing="16px">
         {/* Large Dropzone - Left Side */}
         <Grid item md={6} xs={12}>
-          <Dropzone
-            accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
-            error={showError}
-            existingFileUrl={
-              !thumbnail && !removedFromDisplay.thumbnail
-                ? mainEventAsset?.asset.url
-                : undefined
-            }
-            height="354px"
-            order={1}
-            width="100%"
-            onFileRemove={handleThumbnailRemove}
-            onFileSelect={handleThumbnailSelect}
-          />
-          <Box marginBottom="8px">
-            {getAssetStatusChip(mainEventAsset?.assetId)}
+          <Box
+            sx={{
+              border: isAssetRejected(getAssetId(mainEventAsset))
+                ? '2px solid'
+                : 'none',
+              borderColor: 'error.main',
+              borderRadius: 1,
+              padding: isAssetRejected(getAssetId(mainEventAsset)) ? '8px' : 0,
+              backgroundColor: isAssetRejected(getAssetId(mainEventAsset))
+                ? 'error.light'
+                : 'transparent'
+            }}
+          >
+            <Dropzone
+              accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
+              error={showError}
+              existingFileUrl={
+                !thumbnail && !removedFromDisplay.thumbnail
+                  ? mainEventAsset?.asset.url
+                  : undefined
+              }
+              height="354px"
+              order={1}
+              width="100%"
+              onFileRemove={handleThumbnailRemove}
+              onFileSelect={handleThumbnailSelect}
+            />
           </Box>
         </Grid>
 
@@ -308,26 +311,37 @@ export const EventAssetsEditForm = ({
             {Array.from({ length: 4 }).map((_, index) => {
               const existingEventAsset = sideEventAssetsArray[index];
               const hasNewFile = supportingImages[index];
+              const assetId = getAssetId(existingEventAsset);
+              const isRejected = isAssetRejected(assetId);
 
               return (
                 <Grid key={index} item xs={6}>
-                  <Dropzone
-                    accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
-                    existingFileUrl={
-                      !hasNewFile && !removedFromDisplay.supportingImages[index]
-                        ? existingEventAsset?.asset.url
-                        : undefined
-                    }
-                    height="169px"
-                    order={index + 2}
-                    width="100%"
-                    onFileRemove={() => handleSupportingImageRemove(index)}
-                    onFileSelect={(file) =>
-                      handleSupportingImageSelect(index, file)
-                    }
-                  />
-                  <Box marginTop="4px">
-                    {getAssetStatusChip(existingEventAsset?.assetId)}
+                  <Box
+                    sx={{
+                      border: isRejected ? '2px solid' : 'none',
+                      borderColor: 'error.main',
+                      borderRadius: 1,
+                      padding: isRejected ? '8px' : 0,
+                      backgroundColor: isRejected
+                        ? 'error.light'
+                        : 'transparent'
+                    }}
+                  >
+                    <Dropzone
+                      accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
+                      existingFileUrl={
+                        !hasNewFile && !removedFromDisplay.supportingImages[index]
+                          ? existingEventAsset?.asset.url
+                          : undefined
+                      }
+                      height="169px"
+                      order={index + 2}
+                      width="100%"
+                      onFileRemove={() => handleSupportingImageRemove(index)}
+                      onFileSelect={(file) =>
+                        handleSupportingImageSelect(index, file)
+                      }
+                    />
                   </Box>
                 </Grid>
               );
