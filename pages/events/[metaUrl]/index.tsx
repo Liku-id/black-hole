@@ -237,9 +237,7 @@ function EventDetail() {
           }
         }
       }
-    } else if (
-      eventDetail.eventStatus === 'approved'
-    ) {
+    } else if (eventDetail.eventStatus === 'approved') {
       // For approved events, only show status if eventAssetChanges exists
       const assetChanges = eventDetail.eventAssetChanges || [];
 
@@ -326,10 +324,12 @@ function EventDetail() {
 
   // Show status indicators when event status is "rejected" or when eventUpdateRequest exists (for on_going events)
   const showStatusIndicators =
-    eventDetail?.eventStatus === 'rejected' ||
-    !!eventDetail?.eventUpdateRequest ||
-    (!!eventDetail?.eventAssetChanges &&
-      eventDetail.eventAssetChanges.length > 0);
+    eventDetail?.eventStatus !== 'draft' &&
+    eventDetail?.eventStatus !== 'on_review' &&
+    (eventDetail?.eventStatus === 'rejected' ||
+      !!eventDetail?.eventUpdateRequest ||
+      (!!eventDetail?.eventAssetChanges &&
+        eventDetail.eventAssetChanges.length > 0));
 
   // Check if no section is rejected (EO has fixed all rejected sections)
   const canResubmitRejectedEvent = () => {
