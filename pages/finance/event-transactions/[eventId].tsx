@@ -1,13 +1,15 @@
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, Divider } from '@mui/material';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Caption, H2, Card, Body2 } from '@/components/common';
+import { Caption, H2, Card, Body2, Tabs } from '@/components/common';
 import { EventTransactionTable } from '@/components/features/finance/transaction/event-table';
+import { TransactionSummary } from '@/components/features/finance/transaction/summary';
 import { useTransactions } from '@/hooks';
+import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
 import { TransactionsFilters } from '@/types/transaction';
 
@@ -15,6 +17,10 @@ function EventTransactions() {
   const router = useRouter();
   const theme = useTheme();
   const { eventId } = router.query as { eventId: string };
+  const [activeTab, setActiveTab] = useState('payment');
+
+  // Data fetching
+  const { eventDetail } = useEventDetail(eventId);
 
   // Pagination state
   const [filters, setFilters] = useState<TransactionsFilters>({
@@ -34,6 +40,15 @@ function EventTransactions() {
       page
     }));
   };
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
+  const tabs = [
+    { id: 'payment', title: 'Payment' },
+    { id: 'withdrawal', title: 'Withdrawal' }
+  ];
 
   return (
     <DashboardLayout>
@@ -57,31 +72,47 @@ function EventTransactions() {
       </Box>
 
       {/* Title */}
-      <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="24px">
-        {eventName ? `${eventName}'s Transactions` : 'Event Transactions'}
+      <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="16px">
+        Event Transactions{eventDetail?.name ? `: ${eventDetail.name}` : ''}
       </H2>
 
-      {/* Main Card */}
+      {/* Main Card Content */}
       <Card>
-        <Box
-          borderBottom={`1px solid ${theme.palette.grey[100]}`}
-          paddingBottom="24px"
-        >
+        {/* Header: Transaction Details */}
+        <Box mb="16px">
           <Body2 color="text.primary" fontSize="16px" fontWeight={600}>
             Transaction Details
           </Body2>
         </Box>
-        <EventTransactionTable
-          error={error}
-          loading={loading}
-          transactions={transactions}
-          total={pagination?.totalRecords || 0}
-          currentPage={filters.page}
-          pageSize={filters.show}
-          onPageChange={handlePageChange}
-        />
-      </Card>
-    </DashboardLayout>
+
+        <Divider sx={{ borderColor: theme.palette.grey[100], mb: '16px' }} />
+
+        {/* Summary Cards */}
+        <TransactionSummary />
+
+        {/* Tabs */}
+        <Tabs activeTab={activeTab} tabs={tabs} onTabChange={handleTabChange} />
+
+        {/* Tab Panels */}
+        {activeTab === 'payment' && (
+          <EventTransactionTable
+            currentPage={filters.page}
+            error={error}
+            loading={loading}
+            pageSize={filters.show}
+            total={pagination?.totalRecords}
+            transactions={transactions}
+            onPageChange={handlePageChange}
+          />
+        )}
+
+        {activeTab === 'withdrawal' && (
+          <Box>
+            {/* Withdrawal content placeholder */}
+          </Box>
+        )}
+      </Card >
+    </DashboardLayout >
   );
 }
 

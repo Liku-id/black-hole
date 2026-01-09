@@ -3,7 +3,8 @@ import axios from 'axios';
 import {
   TransactionsResponse,
   TransactionsFilters,
-  ExportTransactionsRequest
+  ExportTransactionsRequest,
+  TransactionSummary
 } from '@/types/transaction';
 import { apiUtils } from '@/utils/apiUtils';
 
@@ -94,6 +95,19 @@ class TransactionsService {
       if (axios.isAxiosError(error)) {
         throw apiUtils.handleAxiosError(error, 'Failed to export transactions');
       }
+      throw error;
+    }
+  }
+
+  async getTransactionSummary(eventId: string): Promise<TransactionSummary> {
+    try {
+      return await apiUtils.get<TransactionSummary>(
+        `/api/transactions/${eventId}/summary`,
+        {},
+        'Failed to fetch transaction summary'
+      );
+    } catch (error) {
+      console.error('Error fetching transaction summary:', error);
       throw error;
     }
   }
