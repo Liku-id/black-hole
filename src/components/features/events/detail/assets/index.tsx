@@ -223,7 +223,8 @@ export const EventDetailAssets = ({
     assets: any[],
     mainAsset: any,
     sideAssets: any[],
-    showStatusBadges: boolean = true
+    showStatusBadges: boolean = true,
+    hideRejectMode: boolean = false
   ) => {
     if (assets.length === 0) return null;
 
@@ -233,7 +234,7 @@ export const EventDetailAssets = ({
         {mainAsset && (
           <Grid item md={6} xs={12}>
             <Box position="relative">
-              {rejectMode && (
+              {rejectMode && !hideRejectMode && (
                 <Box
                   position="absolute"
                   top={8}
@@ -320,7 +321,7 @@ export const EventDetailAssets = ({
                   xs={6}
                 >
                   <Box position="relative">
-                    {rejectMode && (
+                    {rejectMode && !hideRejectMode && (
                       <Box
                         position="absolute"
                         top={8}
@@ -533,7 +534,8 @@ export const EventDetailAssets = ({
                     eventDetail.eventAssets.slice(0, 5),
                     eventDetail.eventAssets[0],
                     eventDetail.eventAssets.slice(1, 5),
-                    false // Don't show status badges on original assets
+                    false, // Don't show status badges on original assets
+                    true // Hide reject mode checkboxes
                   )}
                 </>
               )}
