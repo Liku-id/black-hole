@@ -1,17 +1,18 @@
 import { Box, useTheme, Skeleton } from '@mui/material';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 
 import { H2, Body2 } from '@/components/common';
 import { useTransactionSummary } from '@/hooks';
 import { formatUtils } from '@/utils/formatUtils';
 
-export function TransactionSummary() {
-  const theme = useTheme();
-  const router = useRouter();
-  const { eventId } = router.query as { eventId: string };
+interface TransactionSummaryProps {
+  eventId?: string;
+}
 
-  const { summary, loading } = useTransactionSummary(eventId);
+export function TransactionSummary({ eventId }: TransactionSummaryProps) {
+  const theme = useTheme();
+
+  const { summary, loading } = useTransactionSummary(eventId || '');
 
   const cards = [
     {
@@ -41,7 +42,6 @@ export function TransactionSummary() {
       display="grid"
       gap="16px"
       gridTemplateColumns="repeat(4, 1fr)"
-      mb="16px"
     >
       {cards.map((card, index) => (
         <Box

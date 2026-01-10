@@ -96,7 +96,7 @@ const EventsTable: FC<EventsTableProps> = ({
   };
 
   const handleTransactionClick = (event: Event) => {
-    router.push(`/finance/event-transactions/${event.id}`);
+    router.push(`/finance/event-transactions/${event.metaUrl}`);
     handleMenuClose(event.id);
   };
 
