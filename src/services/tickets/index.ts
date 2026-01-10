@@ -1,6 +1,7 @@
+import axios from 'axios';
+
 import { TicketsFilters, TicketsResponse, TicketStatus } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
-import axios from 'axios';
 
 // Additional Forms interfaces
 export interface AdditionalForm {
@@ -105,19 +106,26 @@ interface RedeemTicketResponse {
 class TicketsService {
   async getTickets(filters: TicketsFilters): Promise<TicketsResponse> {
     try {
-      const params: Record<string, any> = {};
-
-      // Required parameters
-      params.eventId = filters.eventId;
-
-      // Optional parameters
-      if (filters.page !== undefined) params.page = filters.page.toString();
-      if (filters.show !== undefined) params.show = filters.show.toString();
-      if (filters.search) params.search = filters.search;
-
+      const params = new URLSearchParams();
+  
+      params.append('eventId', filters.eventId);
+      if (filters.page !== undefined) params.append('page', String(filters.page));
+      if (filters.show !== undefined) params.append('show', String(filters.show));
+      if (filters.search && filters.search.trim() !== '') {
+        params.append('search', filters.search.trim());
+      }
+  
+      if (filters.ticketTypeIds && typeof filters.ticketTypeIds === 'string' && filters.ticketTypeIds.trim() !== '') {
+        params.append('ticketTypeIds', filters.ticketTypeIds);
+      }
+  
+      if (filters.ticketStatus) {
+        params.append('ticketStatus', filters.ticketStatus);
+      }
+  
       return await apiUtils.get<TicketsResponse>(
-        '/api/tickets',
-        params,
+        `/api/tickets?${params.toString()}`,
+        undefined,
         'Failed to fetch tickets'
       );
     } catch (error) {
@@ -196,16 +204,29 @@ class TicketsService {
     }
   }
 
-  async exportTickets(eventId: string, eventName?: string): Promise<void> {
+  async exportTickets(
+    eventId: string,
+    eventName?: string,
+    ticketTypeIds?: string,
+    ticketStatus?: TicketStatus | ''
+  ): Promise<void> {
     try {
       if (!eventId) {
         throw new Error('Event ID is required for ticket export');
       }
 
       const url = '/api/tickets-export';
-      const params = { event_id: eventId };
-
-      // Make request using axios with blob responseType
+      const params: Record<string, any> = { event_id: eventId };
+  
+      // Directly append ticketTypeIds as a string if it's valid
+      if (ticketTypeIds && typeof ticketTypeIds === 'string' && ticketTypeIds.trim() !== '') {
+        params.ticket_type_ids = ticketTypeIds.trim(); // Append as string
+      }
+  
+      if (ticketStatus) {
+        params.ticket_status = ticketStatus;
+      }
+  
       const response = await axios({
         method: 'GET',
         url,
@@ -280,6 +301,39 @@ class TicketsService {
       await apiUtils.delete(`/api/tickets/ticket-types/additional-forms/${formId}`);
     } catch (error) {
       console.error('Error deleting additional form:', error);
+      throw error;
+    }
+  }
+
+  // Ticket Type Approval/Rejection
+  async approveTicketType(ticketTypeId: string): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/tickets/ticket-types/${ticketTypeId}/approve`,
+        {},
+        'Failed to approve ticket type'
+      );
+    } catch (error) {
+      console.error('Error approving ticket type:', error);
+      throw error;
+    }
+  }
+
+  async rejectTicketType(
+    ticketTypeId: string,
+    payload: {
+      rejected_fields: string[];
+      rejected_reason: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.post(
+        `/api/tickets/ticket-types/${ticketTypeId}/reject`,
+        payload,
+        'Failed to reject ticket type'
+      );
+    } catch (error) {
+      console.error('Error rejecting ticket type:', error);
       throw error;
     }
   }

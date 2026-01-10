@@ -1,19 +1,19 @@
 import { Box } from '@mui/material';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useAtom } from 'jotai';
 
+import {
+  selectedEOIdAtom,
+  selectedEONameAtom
+} from '@/atoms/eventOrganizerAtom';
 import { withAuth } from '@/components/Auth/withAuth';
 import { H4 } from '@/components/common';
 import { CreateEventForm } from '@/components/features/events/create/info';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services/events';
 import { CreateEventRequest } from '@/types/event';
-import {
-  selectedEOIdAtom,
-  selectedEONameAtom
-} from '@/atoms/eventOrganizerAtom';
 
 interface FormData {
   eventName: string;
@@ -36,6 +36,7 @@ interface FormData {
   eventDescription: string;
   termsAndConditions: string;
   websiteUrl: string;
+  loginRequired: string;
 }
 
 function CreateEvent() {
@@ -72,7 +73,8 @@ function CreateEvent() {
           .replace(/\s+/g, '-')
           .replace(/[^a-z0-9-]/g, ''),
         adminFee: parseInt(data.adminFee) || 0,
-        tax: parseInt(data.taxNominal) || 0
+        tax: parseInt(data.taxNominal) || 0,
+        login_required: data.loginRequired === 'true'
       };
       const response = await eventsService.createEvent(payload);
 

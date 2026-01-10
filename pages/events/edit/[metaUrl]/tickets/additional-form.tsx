@@ -12,7 +12,7 @@ import DashboardLayout from '@/layouts/dashboard';
 
 function AdditionalFormPage() {
   const router = useRouter();
-  const { metaUrl } = router.query;
+  const { metaUrl, ticketId } = router.query;
   const [selectedTicketType, setSelectedTicketType] = useState<string>('');
 
   const { eventDetail, loading: eventLoading, error: eventError } = useEventDetail(metaUrl as string);
@@ -24,6 +24,16 @@ function AdditionalFormPage() {
   const handleTicketTypeChange = (value: string) => {
     setSelectedTicketType(value);
   };
+  
+  // Set selected ticket from query param once event detail is loaded
+  useEffect(() => {
+    if (ticketId && eventDetail?.ticketTypes) {
+      const ticketExists = eventDetail.ticketTypes.some(t => t.id === ticketId);
+      if (ticketExists) {
+        setSelectedTicketType(ticketId as string);
+      }
+    }
+  }, [ticketId, eventDetail]);
 
   const selectedTicket = eventDetail?.ticketTypes?.find(ticket => ticket.id === selectedTicketType);
 
@@ -32,7 +42,6 @@ function AdditionalFormPage() {
     if (!router.isReady) return;
     if (
       eventDetail?.eventStatus === 'on_review' ||
-      eventDetail?.eventStatus === 'on_going' ||
       eventDetail?.eventStatus === 'done'
     ) {
       router.replace('/events');
@@ -90,7 +99,17 @@ function AdditionalFormPage() {
       {/* Additional Form Card */}
       <Card sx={{ py: 1 }}>
         <AdditionalForm
-          ticketTypes={eventDetail?.ticketTypes || []}
+          ticketTypes={
+            eventDetail?.ticketTypes?.filter((t) => {
+              const isEventLocked =
+                eventDetail?.eventStatus === 'approved' ||
+                eventDetail?.eventStatus === 'on_going';
+              if (isEventLocked && t.status === 'approved') {
+                return false;
+              }
+              return true;
+            }) || []
+          }
           selectedTicketType={selectedTicketType}
           onTicketTypeChange={handleTicketTypeChange}
         />

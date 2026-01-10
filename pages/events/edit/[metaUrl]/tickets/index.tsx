@@ -25,6 +25,9 @@ interface TicketCategory {
   salesEndDate: string;
   ticketStartDate: string;
   ticketEndDate: string;
+  status?: string;
+  rejectedFields?: string[];
+  rejectedReason?: string;
   salesStartRawDate?: string;
   salesStartTime?: string;
   salesStartTimeZone?: string;
@@ -49,6 +52,7 @@ const EditTicketsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showAdditionalFormModal, setShowAdditionalFormModal] = useState(false);
+  const [editedTicketIds, setEditedTicketIds] = useState<Set<string>>(new Set());
 
   // Initialize tickets from eventDetail
   useEffect(() => {
@@ -67,10 +71,14 @@ const EditTicketsPage = () => {
           salesStartDate: ticket.sales_start_date,
           salesEndDate: ticket.sales_end_date,
           ticketStartDate: ticket.ticketStartDate,
-          ticketEndDate: ticket.ticketEndDate
+          ticketEndDate: ticket.ticketEndDate,
+          status: ticket.status,
+          rejectedFields: ticket.rejected_fields,
+          rejectedReason: ticket.rejected_reason
         })
       );
       setTickets(initialTickets);
+      setEditedTicketIds(new Set()); // Clear edited tracking on fresh load
       setIsInitialized(true);
     }
   }, [eventDetail, isInitialized]);
@@ -80,7 +88,6 @@ const EditTicketsPage = () => {
     if (!router.isReady) return;
     if (
       eventDetail?.eventStatus === 'on_review' ||
-      eventDetail?.eventStatus === 'on_going' ||
       eventDetail?.eventStatus === 'done'
     ) {
       router.replace('/events');
@@ -163,6 +170,8 @@ const EditTicketsPage = () => {
         };
       });
       setTickets(updatedTickets);
+      // Mark this ticket as edited
+      setEditedTicketIds((prev) => new Set(prev).add(editingTicket.id));
       setEditingTicket(undefined);
     } else {
       // Create new ticket
@@ -195,12 +204,18 @@ const EditTicketsPage = () => {
 
   const handleEditTicket = (ticket: TicketCategory) => {
     // Format the ticket data for the modal to display properly
+    // Preserve original ISO dates for validation
     const formattedTicket = {
       ...ticket,
       salesStartDate: dateUtils.formatDateTimeWIB(ticket.salesStartDate),
       salesEndDate: dateUtils.formatDateTimeWIB(ticket.salesEndDate),
       ticketStartDate: dateUtils.formatDateDDMMYYYY(ticket.ticketStartDate),
-      ticketEndDate: dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate)
+      ticketEndDate: dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate),
+      // Store original ISO dates for validation
+      originalSalesStartDate: ticket.salesStartDate,
+      originalSalesEndDate: ticket.salesEndDate,
+      originalTicketStartDate: ticket.ticketStartDate,
+      originalTicketEndDate: ticket.ticketEndDate
     };
     setEditingTicket(formattedTicket);
     setModalOpen(true);
@@ -213,11 +228,6 @@ const EditTicketsPage = () => {
   const handleSubmitEvent = async () => {
     if (!metaUrl || !eventDetail) {
       alert('Required data not found');
-      return;
-    }
-
-    if (tickets.length === 0) {
-      alert('At least one ticket is required');
       return;
     }
 
@@ -237,9 +247,9 @@ const EditTicketsPage = () => {
       const newTickets = tickets.filter(
         (t) => !originalTicketIds.includes(t.id)
       );
-      // Find updated tickets
+      // Find updated tickets - only tickets that were actually edited
       const updatedTickets = tickets.filter((t) =>
-        originalTicketIds.includes(t.id)
+        originalTicketIds.includes(t.id) && editedTicketIds.has(t.id)
       );
 
       // Step 1: Delete removed tickets
@@ -341,11 +351,13 @@ const EditTicketsPage = () => {
             ticketTypeId: createdTicket.body.id,
             field: 'Visitor Name',
             type: 'TEXT',
-            isRequired: true,
+            isRequired: true
           });
         }
       }
       await mutateEventDetail();
+      // Reset edited tickets tracking after successful submission
+      setEditedTicketIds(new Set());
       setShowAdditionalFormModal(true);
     } catch (error: any) {
       console.error('Failed to update event tickets:', error);
@@ -356,8 +368,30 @@ const EditTicketsPage = () => {
   };
 
   const handleCancel = () => {
-    router.push(`/events/${metaUrl}`);
+    router.push(`/events/${metaUrl}?tab=tickets`);
   };
+
+  const handleEditAdditionalForm = (ticket: TicketCategory) => {
+    // Check if ticket is new (not yet saved to backend) by checking if it exists in original eventDetail
+    const isSaved = eventDetail?.ticketTypes?.some((t) => t.id === ticket.id);
+
+    if (isSaved) {
+      router.push(
+        `/events/edit/${metaUrl}/tickets/additional-form?ticketId=${ticket.id}`
+      );
+    } else {
+      alert(
+        'Please save the new ticket first before adding additional forms.'
+      );
+    }
+  };
+
+  const isEventApprovedOrOngoing =
+    eventDetail?.eventStatus === 'approved' ||
+    eventDetail?.eventStatus === 'on_going';
+  const allTicketsApproved = tickets.every((t) => t.status === 'approved');
+  const isUpdateDisabled =
+    isLoading || (isEventApprovedOrOngoing && allTicketsApproved);
 
   return (
     <DashboardLayout>
@@ -393,8 +427,10 @@ const EditTicketsPage = () => {
           <Box marginBottom="24px">
             <TicketTable
               tickets={tickets}
+              eventStatus={eventDetail?.eventStatus}
               onDelete={handleDeleteTicket}
               onEdit={handleEditTicket}
+              onEditAdditionalForm={handleEditAdditionalForm}
             />
           </Box>
 
@@ -420,7 +456,7 @@ const EditTicketsPage = () => {
               Cancel
             </Button>
             <Button
-              disabled={isLoading}
+              disabled={isUpdateDisabled}
               variant="primary"
               onClick={handleSubmitEvent}
             >
@@ -436,6 +472,7 @@ const EditTicketsPage = () => {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreateTicket}
+        eventStatus={eventDetail?.eventStatus}
       />
 
       {/* Additional Form Modal */}
@@ -444,7 +481,7 @@ const EditTicketsPage = () => {
         onClose={() => {
           mutateEventDetail();
           setIsInitialized(false);
-          setShowAdditionalFormModal(false)
+          setShowAdditionalFormModal(false);
         }}
       />
     </DashboardLayout>

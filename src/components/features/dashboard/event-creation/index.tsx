@@ -15,8 +15,8 @@ import {
 import EventsTable from '@/components/features/events/list/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/hooks/features/events/useEvents';
-import { EventsFilters } from '@/types/event';
 import { isEventOrganizer } from '@/types/auth';
+import { EventsFilters } from '@/types/event';
 import { useDebouncedCallback } from '@/utils';
 
 interface EventCreationProps {

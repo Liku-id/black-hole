@@ -6,9 +6,9 @@ import Script from 'next/script';
 import { SWRConfig } from 'swr';
 
 import { AuthProvider } from '@/contexts/AuthContext';
-import { PostHogProvider } from '@/lib/posthog';
 import { ToastProvider } from '@/contexts/ToastContext';
 import createEmotionCache from '@/createEmotionCache';
+import { PostHogProvider } from '@/lib/posthog';
 import ThemeProvider from '@/theme/ThemeProvider';
 
 // Client-side cache, shared for the whole session of the user in the browser.

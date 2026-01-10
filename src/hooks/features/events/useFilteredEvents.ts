@@ -1,5 +1,6 @@
 import { eventsService } from '@/services';
 import { EventsFilters } from '@/types/event';
+
 import { useApi } from '../../useApi';
 
 interface MappedEvent {

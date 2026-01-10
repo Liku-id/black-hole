@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import posthog from 'posthog-js';
+import React, { useEffect, useState } from 'react';
 
 // Initialize PostHog
 export const initPostHog = () => {

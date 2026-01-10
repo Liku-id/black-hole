@@ -1,4 +1,3 @@
-import { apiUtils } from '@/utils/apiUtils';
 import { 
   EventOrganizer, 
   EventOrganizerMeResponse, 
@@ -6,6 +5,7 @@ import {
   ListEventOrganizersRequest,
   ListEventOrganizersResponse 
 } from '@/types/organizer';
+import { apiUtils } from '@/utils/apiUtils';
 
 export interface Bank {
   id: string;

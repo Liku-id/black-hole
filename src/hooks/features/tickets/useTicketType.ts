@@ -1,4 +1,5 @@
 import { ticketsService } from '@/services/tickets';
+
 import { useApi } from '../../useApi';
 
 interface TicketType {

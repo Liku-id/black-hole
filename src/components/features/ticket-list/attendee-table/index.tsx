@@ -18,7 +18,7 @@ import {
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Pagination, Button as ButtonExport } from '@/components/common';
+import { Pagination, Button as ButtonExport, Select } from '@/components/common';
 import {
   StyledTableBody,
   StyledTableContainer,
@@ -31,6 +31,7 @@ import { useExportTickets } from '@/hooks';
 import { ticketsService } from '@/services';
 import { TicketStatus } from '@/types/ticket';
 import { dateUtils } from '@/utils';
+
 import { TicketDetailModal } from '../modal';
 
 interface AttendeeData {
@@ -72,6 +73,11 @@ interface AttendeeTableProps {
     startDate?: string;
     endDate?: string;
   } | null;
+  ticketTypeOptions?: Array<{ value: string; label: string }>;
+  selectedTicketTypeIds?: string | undefined;
+  selectedTicketStatus?: TicketStatus | '';
+  onTicketTypeChange?: (ticketTypeIds: string) => void;
+  onTicketStatusChange?: (ticketStatus: TicketStatus | '') => void;
 }
 
 export const AttendeeTable = ({
@@ -84,7 +90,12 @@ export const AttendeeTable = ({
   currentPage = 0,
   pageSize = 10,
   onPageChange,
-  selectedEventData
+  selectedEventData,
+  ticketTypeOptions = [],
+  selectedTicketTypeIds,
+  selectedTicketStatus = '',
+  onTicketTypeChange,
+  onTicketStatusChange
   // onPageSizeChange // Not implemented in current design
 }: AttendeeTableProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -145,12 +156,6 @@ export const AttendeeTable = ({
         return { text: 'Unredeemed', color: '#E7031E' }; // Red
       case 'redeemed':
         return { text: 'Redeemed', color: '#38D200' }; // Green
-      case 'pending':
-      case 'cancelled':
-        return {
-          text: status.charAt(0).toUpperCase() + status.slice(1),
-          color: '#6B7280'
-        }; // Grey
       default:
         return { text: 'Unknown', color: '#6B7280' }; // Grey fallback
     }
@@ -204,12 +209,28 @@ export const AttendeeTable = ({
     }
 
     try {
-      await exportTickets(selectedEventData.id, selectedEventData.name);
+      await exportTickets(
+        selectedEventData.id,
+        selectedEventData.name,
+        selectedTicketTypeIds,
+        selectedTicketStatus
+      );
       showInfo('Tickets exported successfully!');
     } catch (error: any) {
       showError(error?.message || 'Failed to export tickets');
     }
   };
+
+  const ticketStatusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'issued', label: 'Unredeemed' },
+    { value: 'redeemed', label: 'Redeemed' },
+  ];
+
+  const allTicketTypeOptions = [
+    { value: '', label: 'All Ticket Types' },
+    ...ticketTypeOptions
+  ];
 
   return (
     <>
@@ -230,6 +251,30 @@ export const AttendeeTable = ({
             </H4>
 
             <Box display="flex" alignItems="center" gap={2}>
+              <Select
+                options={allTicketTypeOptions}
+                value={selectedTicketTypeIds || ''}
+                onChange={(value) => onTicketTypeChange?.(value || '')}
+                placeholder="Select Ticket Type"
+                sx={{
+                  minWidth: '200px',
+                  '& .MuiOutlinedInput-root': {
+                    height: '40px'
+                  }
+                }}
+              />
+              <Select
+                options={ticketStatusOptions}
+                value={selectedTicketStatus || ''}
+                onChange={(value) => onTicketStatusChange(value as TicketStatus | '')}
+                placeholder="Select Status"
+                sx={{
+                  minWidth: '100px',
+                  '& .MuiOutlinedInput-root': {
+                    height: '40px'
+                  }
+                }}
+              />
               <StyledTextField
                 InputProps={{
                   startAdornment: (

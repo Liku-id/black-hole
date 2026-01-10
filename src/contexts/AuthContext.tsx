@@ -8,6 +8,7 @@ import React, {
   useState
 } from 'react';
 
+import { trackLogin, resetUser } from '@/lib/posthog';
 import { authService } from '@/services';
 import {
   AuthState,
@@ -17,7 +18,6 @@ import {
   ALLOWED_ROLES
 } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
-import { trackLogin, resetUser } from '@/lib/posthog';
 
 interface AuthContextType extends AuthState {
   login: (data: LoginRequest) => Promise<void>;

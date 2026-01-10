@@ -116,89 +116,110 @@ function EditEvent() {
       // Always include required fields
       payload.eventOrganizerId = eventDetail?.eventOrganizer?.id || '';
 
+      // Use eventUpdateRequest data if available for comparison, otherwise use eventDetail
+      const comparisonSource = eventDetail?.eventUpdateRequest || eventDetail;
+      const comparisonCityId = eventDetail?.eventUpdateRequest
+        ? eventDetail.eventUpdateRequest.cityId
+        : eventDetail?.city?.id;
+      const comparisonPaymentMethodIds = eventDetail?.eventUpdateRequest
+        ? eventDetail.eventUpdateRequest.paymentMethodIds || []
+        : eventDetail?.paymentMethods?.map((pm: any) => pm.id) || [];
+
       // Check each field for changes and only add to payload if changed
-      if (hasChanged(formData.city, eventDetail?.city?.id)) {
+      if (hasChanged(formData.city, comparisonCityId)) {
         payload.cityId = formData.city;
       }
 
-      if (
-        hasChanged(
-          formData.paymentMethod,
-          eventDetail?.paymentMethods.map((pm: any) => pm.id)
-        )
-      ) {
+      if (hasChanged(formData.paymentMethod, comparisonPaymentMethodIds)) {
         payload.paymentMethodIds = formData.paymentMethod;
       }
 
-      if (hasChanged(formData.eventName, eventDetail?.name)) {
+      if (hasChanged(formData.eventName, comparisonSource?.name)) {
         payload.name = formData.eventName;
       }
 
-      if (hasChanged(formData.eventType, eventDetail?.eventType)) {
+      if (hasChanged(formData.eventType, comparisonSource?.eventType)) {
         payload.eventType = formData.eventType;
       }
 
-      if (hasChanged(formData.eventDescription, eventDetail?.description)) {
+      if (
+        hasChanged(formData.eventDescription, comparisonSource?.description)
+      ) {
         payload.description = formData.eventDescription;
       }
 
-      if (hasChanged(formData.address, eventDetail?.address)) {
+      if (hasChanged(formData.address, comparisonSource?.address)) {
         payload.address = formData.address;
       }
 
-      if (hasChanged(processedGoogleMapsUrl, eventDetail?.mapLocationUrl)) {
+      if (
+        hasChanged(processedGoogleMapsUrl, comparisonSource?.mapLocationUrl)
+      ) {
         payload.mapLocationUrl = processedGoogleMapsUrl;
       }
 
       // Only include dates if they actually changed
       // Check if user actually modified the date/time fields
+      const comparisonDateRange =
+        comparisonSource.startDate && comparisonSource.endDate
+          ? `${dateUtils.formatDateMMMDYYYY(comparisonSource.startDate)} - ${dateUtils.formatDateMMMDYYYY(comparisonSource.endDate)}`
+          : '';
+      const comparisonTimeRange =
+        comparisonSource.startDate && comparisonSource.endDate
+          ? `${dateUtils.formatTime(comparisonSource.startDate)} - ${dateUtils.formatTime(comparisonSource.endDate)} WIB`
+          : '';
+
       const hasDateRangeChanged = hasChanged(
         formData.dateRange,
-        eventDetail.startDate && eventDetail.endDate
-          ? `${dateUtils.formatDateMMMDYYYY(eventDetail.startDate)} - ${dateUtils.formatDateMMMDYYYY(eventDetail.endDate)}`
-          : ''
+        comparisonDateRange
       );
-
       const hasTimeRangeChanged = hasChanged(
         formData.timeRange,
-        eventDetail.startDate && eventDetail.endDate
-          ? `${dateUtils.formatTime(eventDetail.startDate)} - ${dateUtils.formatTime(eventDetail.endDate)} WIB`
-          : ''
+        comparisonTimeRange
       );
 
       // Only include dates if user actually changed them
       if (hasDateRangeChanged || hasTimeRangeChanged) {
-        if (hasDateChanged(startDateISO, eventDetail?.startDate || '')) {
+        if (hasDateChanged(startDateISO, comparisonSource?.startDate || '')) {
           payload.startDate = startDateISO;
         }
 
-        if (hasDateChanged(endDateISO, eventDetail?.endDate || '')) {
+        if (hasDateChanged(endDateISO, comparisonSource?.endDate || '')) {
           payload.endDate = endDateISO;
         }
       }
 
       if (
-        hasChanged(formData.termsAndConditions, eventDetail?.termAndConditions)
+        hasChanged(
+          formData.termsAndConditions,
+          comparisonSource?.termAndConditions
+        )
       ) {
         payload.termAndConditions = formData.termsAndConditions;
       }
 
-      if (hasChanged(formData.websiteUrl, eventDetail?.websiteUrl)) {
+      if (hasChanged(formData.websiteUrl, comparisonSource?.websiteUrl)) {
         payload.websiteUrl = formData.websiteUrl;
       }
 
-      if (hasChanged(calculatedAdminFee, eventDetail?.adminFee)) {
+      if (hasChanged(calculatedAdminFee, comparisonSource?.adminFee)) {
         payload.adminFee = calculatedAdminFee;
       }
 
-      if (hasChanged(calculatedTax, eventDetail?.tax)) {
+      if (hasChanged(calculatedTax, comparisonSource?.tax)) {
         payload.tax = calculatedTax;
       }
 
-      if (
-        hasChanged(formData.loginRequired, eventDetail?.login_required ? 1 : 2)
-      ) {
-        payload.login_required = formData.loginRequired === 1;
+      const comparisonLoginRequired =
+        (comparisonSource as any).login_required !== undefined
+          ? (comparisonSource as any).login_required
+            ? 'true'
+            : 'false'
+          : eventDetail?.login_required
+            ? 'true'
+            : 'false';
+      if (hasChanged(formData.loginRequired, comparisonLoginRequired)) {
+        payload.login_required = formData.loginRequired === 'true';
       }
 
       // Check if there are any actual changes (excluding required fields)
@@ -208,17 +229,29 @@ function EditEvent() {
       );
 
       if (changedFields.length === 0) {
+        // Check if there are rejected fields that need to be fixed
+        const rejectedFields = eventDetail?.eventUpdateRequest?.rejectedFields || 
+                              eventDetail?.rejectedFields || [];
+        
+        if (rejectedFields.length > 0) {
+          setUpdateError(
+            'Please fix the rejected fields before submitting. Review the fields marked with error indicators and make necessary corrections.'
+          );
+          setIsUpdating(false);
+          return;
+        }
+        
         setIsUpdating(false);
         return;
       }
 
-      const result = await eventsService.updateEvent({
-        metaUrl: eventDetail?.id || '',
+      const result = await eventsService.updateEventDetails({
+        eventId: eventDetail?.id || '',
         data: payload
       });
 
       if (result && result.body && result.body.id) {
-        router.push(`/events`);
+        router.push(`/events/${result.body.metaUrl}`);
       }
     } catch (error) {
       setUpdateError(
@@ -287,7 +320,10 @@ function EditEvent() {
 
       {/* Title */}
       <H2 color="text.primary" fontWeight={700} mb="21px">
-        Edit Event Detail
+        {eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved'
+          ? 'Edit Request Event Details'
+          : 'Edit Event Details'}
       </H2>
 
       {/* Main Card */}

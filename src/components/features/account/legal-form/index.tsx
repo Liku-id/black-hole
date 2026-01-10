@@ -1,12 +1,10 @@
+import { Box } from '@mui/material';
 import { useState } from 'react';
 
-import { Box } from '@mui/material';
 
 import { Body2 } from '@/components/common';
-
-import { EventOrganizer } from '@/types/organizer';
-
 import { useUpdateEventOrganizerLegal } from '@/hooks/features/organizers/useUpdateEventOrganizerLegal';
+import { EventOrganizer } from '@/types/organizer';
 
 import { LegalFormDetailInfo } from './detail';
 import { LegalEditForm } from './edit';

@@ -1,3 +1,4 @@
+import { Info } from '@mui/icons-material';
 import {
   Box,
   IconButton,
@@ -7,7 +8,8 @@ import {
   ListItemText,
   Table,
   TableCell,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -24,7 +26,9 @@ import {
 import { eventsService } from '@/services/events';
 import { Event } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
+
 import { DuplicateEventModal } from './modal/duplicate';
+import { DeleteEventModal } from './modal/delete';
 
 interface EventsTableProps {
   events: Event[];
@@ -58,6 +62,10 @@ const EventsTable: FC<EventsTableProps> = ({
   const [duplicateLoading, setDuplicateLoading] = useState(false);
   const [duplicateSuccess, setDuplicateSuccess] = useState(false);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -130,6 +138,116 @@ const EventsTable: FC<EventsTableProps> = ({
     setDuplicateError(null);
   };
 
+  const handleDeleteClick = (event: Event) => {
+    setSelectedEvent(event);
+    setDeleteModalOpen(true);
+    setDeleteError(null);
+    setDeleteSuccess(false);
+    handleMenuClose(event.id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError(null);
+      await eventsService.deleteEvent(selectedEvent.id);
+      setDeleteSuccess(true);
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error: any) {
+      console.error('Failed to delete event:', error);
+      let errorMessage = 'Failed to delete event. Please try again.';
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      setDeleteError(errorMessage);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteModalClose = () => {
+    setDeleteModalOpen(false);
+    setSelectedEvent(null);
+    setDeleteSuccess(false);
+    setDeleteError(null);
+  };
+
+  const getUpdateRequestStatusIcon = (status?: string) => {
+    if (!status || !['draft', 'pending', 'rejected'].includes(status)) {
+      return null;
+    }
+
+    const getStatusConfig = (status: string) => {
+      switch (status) {
+        case 'draft':
+          return {
+            iconColor: 'grey.600',
+            tooltip: 'Continue your update process',
+            tooltipBg: 'grey.800',
+            tooltipText: 'common.white'
+          };
+        case 'pending':
+          return {
+            iconColor: 'warning.main',
+            tooltip: 'Your update request is currently under review',
+            tooltipBg: 'warning.dark',
+            tooltipText: 'common.white'
+          };
+        case 'rejected':
+          return {
+            iconColor: 'error.main',
+            tooltip:
+              'Your update has been rejected. Please review and make necessary corrections',
+            tooltipBg: 'error.dark',
+            tooltipText: 'common.white'
+          };
+        default:
+          return null;
+      }
+    };
+
+    const config = getStatusConfig(status);
+    if (!config) return null;
+
+    return (
+      <Tooltip
+        title={config.tooltip}
+        arrow
+        slotProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: config.tooltipBg,
+              color: config.tooltipText,
+              fontSize: '12px',
+              padding: '8px 12px'
+            }
+          },
+          arrow: {
+            sx: {
+              color: config.tooltipBg
+            }
+          }
+        }}
+      >
+        <Box component="span" display="inline-flex" alignItems="center">
+          <Info
+            fontSize="small"
+            sx={{
+              color: config.iconColor,
+              fontSize: '14px'
+            }}
+          />
+        </Box>
+      </Tooltip>
+    );
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" padding="40px">
@@ -148,7 +266,7 @@ const EventsTable: FC<EventsTableProps> = ({
                 No.
               </Body2>
             </TableCell>
-            <TableCell sx={{ width: '20%' }}>
+            <TableCell sx={{ width: '24%' }}>
               <Body2 color="text.secondary" fontSize="14px">
                 Event Name
               </Body2>
@@ -183,7 +301,7 @@ const EventsTable: FC<EventsTableProps> = ({
               </Body2>
             </TableCell>
             {showAction && (
-              <TableCell align={'left'} sx={{ width: '9%' }}>
+              <TableCell align={'left'} sx={{ width: '5%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Action
                 </Body2>
@@ -211,9 +329,21 @@ const EventsTable: FC<EventsTableProps> = ({
                   </Body2>
                 </TableCell>
                 <TableCell>
-                  <Body2 color="text.primary" fontSize="14px">
-                    {event.name}
-                  </Body2>
+                  <Tooltip title={event.name} arrow>
+                    <Body2
+                      color="text.primary"
+                      fontSize="14px"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        flex: 1,
+                        minWidth: 0
+                      }}
+                    >
+                      {event.name}
+                    </Body2>
+                  </Tooltip>
                 </TableCell>
                 {!isCompact && (
                   <TableCell>
@@ -251,19 +381,27 @@ const EventsTable: FC<EventsTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Box>
-                    <IconButton
-                      size="small"
-                      id="hamburger_icon_button"
-                      sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                      onClick={(e) => handleMenuOpen(e, event.id)}
-                    >
-                      <Image
-                        alt="Options"
-                        height={24}
-                        src="/icon/options.svg"
-                        width={24}
-                      />
-                    </IconButton>
+                    <Box position="relative" maxWidth="34px">
+                      <IconButton
+                        size="small"
+                        id="hamburger_icon_button"
+                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
+                        onClick={(e) => handleMenuOpen(e, event.id)}
+                      >
+                        <Image
+                          alt="Options"
+                          height={24}
+                          src="/icon/options.svg"
+                          width={24}
+                        />
+                      </IconButton>
+
+                      <Box position="absolute" top={0} right={-5}>
+                        {getUpdateRequestStatusIcon(
+                          event.eventUpdateRequestStatus
+                        )}
+                      </Box>
+                    </Box>
                     <Menu
                       anchorEl={anchorEl[event.id]}
                       open={Boolean(anchorEl[event.id])}
@@ -452,6 +590,38 @@ const EventsTable: FC<EventsTableProps> = ({
                           />
                         </MenuItem>
                       )}
+                      {(event.eventStatus === 'draft' ||
+                        event.eventStatus === 'rejected') && (
+                        <MenuItem
+                          onClick={() => handleDeleteClick(event)}
+                          sx={{
+                            padding: '12px 16px',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                            <Image
+                              alt="Delete Event"
+                              src="/icon/trash.svg"
+                              height={18}
+                              width={18}
+                            />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              <Body2
+                                color="text.primary"
+                                fontSize="14px"
+                                fontWeight="400"
+                              >
+                                Delete Event
+                              </Body2>
+                            }
+                          />
+                        </MenuItem>
+                      )}
                     </Menu>
                   </Box>
                 </TableCell>
@@ -478,6 +648,17 @@ const EventsTable: FC<EventsTableProps> = ({
         loading={duplicateLoading}
         isSuccess={duplicateSuccess}
         error={duplicateError}
+      />
+
+      {/* Delete Event Modal */}
+      <DeleteEventModal
+        open={deleteModalOpen}
+        onClose={handleDeleteModalClose}
+        onConfirm={handleDeleteConfirm}
+        loading={deleteLoading}
+        isSuccess={deleteSuccess}
+        error={deleteError}
+        eventName={selectedEvent?.name || ''}
       />
     </StyledTableContainer>
   );

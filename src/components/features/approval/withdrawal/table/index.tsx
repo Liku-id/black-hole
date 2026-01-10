@@ -3,18 +3,18 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import { Body2, Pagination } from '@/components/common';
-import { useToast } from '@/contexts/ToastContext';
 import {
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody
 } from '@/components/common/table';
-import { StatusBadge } from '@/components/features/events/status-badge';
 import WithdrawalApprovalModal from '@/components/features/approval/withdrawal/modal';
 import WithdrawalDetailModal from '@/components/features/approval/withdrawal/modal/detail';
+import { StatusBadge } from '@/components/features/events/status-badge';
+import { useToast } from '@/contexts/ToastContext';
 import { WithdrawalListItem, withdrawalService } from '@/services/withdrawal';
-import { formatUtils } from '@/utils/formatUtils';
 import { truncate } from '@/utils';
+import { formatUtils } from '@/utils/formatUtils';
 
 interface WithdrawalTableProps {
   withdrawals: WithdrawalListItem[];

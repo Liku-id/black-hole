@@ -92,16 +92,16 @@ class EventsService {
     }
   }
 
-  async updateEvent({
-    metaUrl,
+  async updateEventDetails({
+    eventId,
     data
   }: {
-    metaUrl: string;
+    eventId: string;
     data: CreateEventRequest;
   }): Promise<EventDetailResponse> {
     try {
       return await apiUtils.put<EventDetailResponse>(
-        `/api/events/${metaUrl}/edit`,
+        `/api/events/${eventId}/edit`,
         { ...data },
         'Failed to update event'
       );
@@ -177,6 +177,80 @@ class EventsService {
       );
     } catch (error) {
       console.error('Error duplicating event:', error);
+      throw error;
+    }
+  }
+
+  async deleteEvent(id: string): Promise<void> {
+    try {
+      await apiUtils.delete(
+        `/api/events/${id}/delete`,
+        'Failed to delete event'
+      );
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      throw error;
+    }
+  }
+
+  // Event Detail Approval/Rejection
+  async approveOrRejectEventDetail(
+    eventId: string,
+    payload: {
+      rejectedFields?: string[];
+      rejectedReason?: string;
+      status: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        `/api/events/event-detail-approval/${eventId}`,
+        payload,
+        'Failed to process event detail'
+      );
+    } catch (error) {
+      console.error('Error processing event detail:', error);
+      throw error;
+    }
+  }
+
+  // Event Asset Approval/Rejection
+  async batchApproveAssets(eventId: string): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        '/api/events/event-asset/approval',
+        {
+          eventId,
+          status: 'approved',
+          rejectedFields: [],
+          rejectedReason: ''
+        },
+        'Failed to approve assets'
+      );
+    } catch (error) {
+      console.error('Error approving assets:', error);
+      throw error;
+    }
+  }
+
+  async batchRejectAssets(
+    eventId: string,
+    ids: string[],
+    rejectedReason: string
+  ): Promise<any> {
+    try {
+      return await apiUtils.post<any>(
+        '/api/events/event-asset/approval',
+        {
+          eventId,
+          status: 'rejected',
+          rejectedFields: ids,
+          rejectedReason
+        },
+        'Failed to reject assets'
+      );
+    } catch (error) {
+      console.error('Error rejecting assets:', error);
       throw error;
     }
   }
