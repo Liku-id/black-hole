@@ -22,14 +22,14 @@ const useTransactions = (
   filters: TransactionsFilters
 ): UseEventTransactionsReturn => {
   const { data, isLoading, error, mutate } = useSWR<TransactionsResponse>(
-    ['/api/transactions', filters],
+    filters.eventId ? ['/api/transactions', filters] : null,
     () => transactionsService.getEventTransactions(filters)
   );
 
   return {
     transactions: data?.transactions || [],
     loading: isLoading,
-    error: error,
+    error: error instanceof Error ? error.message : typeof error === 'string' ? error : null,
     mutate,
     pagination: data?.pagination
   };
