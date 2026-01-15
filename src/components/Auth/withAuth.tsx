@@ -16,7 +16,7 @@ export function withAuth<P extends object>(
   const { requireAuth = true, redirectTo = '/login' } = options;
 
   const WithAuthComponent = (props: P) => {
-    const { isAuthenticated, isLoading, error } = useAuth();
+    const { isAuthenticated, isLoading, error, user } = useAuth();
     const router = useRouter();
     const [hasRedirected, setHasRedirected] = useState(false);
 
@@ -41,13 +41,54 @@ export function withAuth<P extends object>(
       ) {
         setHasRedirected(true);
         router.replace('/dashboard');
+        return;
+      }
+
+      // Role-based Access Control
+      if (!isLoading && isAuthenticated && user && !error && !hasRedirected && requireAuth) {
+        // Use type assertion carefully, assume check logic handles structure
+        const userWithRole = user as any;
+        // Check if user has role property (EventOrganizer might behave differently, usually they are admins/owners)
+        // Adjust logic based on exact type structure if needed, but 'role' usually exists on User type
+        // For EventOrganizer, checks might be different, but here we target GROUND_STAFF/FINANCE which are typically Users
+        const userRole = userWithRole.role?.name;
+
+        if (userRole === 'ground_staff') {
+          const path = router.pathname;
+          // Allowed: /events (but not create), /tickets, /account
+          const isAllowedBase =
+            path.startsWith('/events') ||
+            path.startsWith('/tickets')
+          const isExplicitlyBlocked = path === '/events/create';
+
+          if (!isAllowedBase || isExplicitlyBlocked) {
+            setHasRedirected(true);
+            router.replace('/events');
+            return;
+          }
+        }
+
+        if (userRole === 'finance') {
+          const path = router.pathname;
+          // Allowed: /events (but not create), /finance, /account
+          const isAllowedBase =
+            path.startsWith('/events') ||
+            path.startsWith('/finance')
+          const isExplicitlyBlocked = path === '/events/create';
+
+          if (!isAllowedBase || isExplicitlyBlocked) {
+            setHasRedirected(true);
+            router.replace('/events');
+            return;
+          }
+        }
       }
 
       // Reset redirect flag when error occurs
       if (error && hasRedirected) {
         setHasRedirected(false);
       }
-    }, [isAuthenticated, isLoading, requireAuth, router, redirectTo, error]);
+    }, [isAuthenticated, isLoading, requireAuth, router, redirectTo, error, user]);
 
     // Show loading while checking authentication
     if (isLoading) {

@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import Image from 'next/image';
 import { forwardRef } from 'react';
 import { DatePicker } from 'react-datepicker';
+import { createPortal } from 'react-dom';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
 import { Body2 } from '@/components/common';
@@ -73,6 +74,9 @@ const CustomInput = forwardRef<HTMLDivElement, CustomInputProps>(
 const DatePickerWrapper = styled(Box)(({ theme }) => ({
   '& .react-datepicker-wrapper': {
     width: '100%'
+  },
+  '& .react-datepicker-popper': {
+    zIndex: '2000 !important'
   },
   '& .react-datepicker': {
     fontFamily: '"Onest", sans-serif',
@@ -214,13 +218,13 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     }
   },
   '& .react-datepicker__month-read-view--down-arrow:after, & .react-datepicker__month-read-view--down-arrow:before':
-    {
-      display: 'none !important'
-    },
+  {
+    display: 'none !important'
+  },
   '& .react-datepicker__year-read-view--down-arrow:after, & .react-datepicker__year-read-view--down-arrow:before':
-    {
-      display: 'none !important'
-    },
+  {
+    display: 'none !important'
+  },
   '& .react-datepicker__month-select::-ms-expand': {
     display: 'none'
   },
@@ -228,13 +232,13 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     display: 'none'
   },
   '& .react-datepicker__month-select::-webkit-outer-spin-button, & .react-datepicker__month-select::-webkit-inner-spin-button':
-    {
-      display: 'none'
-    },
+  {
+    display: 'none'
+  },
   '& .react-datepicker__year-select::-webkit-outer-spin-button, & .react-datepicker__year-select::-webkit-inner-spin-button':
-    {
-      display: 'none'
-    },
+  {
+    display: 'none'
+  },
   '& .react-datepicker__month-select, & .react-datepicker__year-select': {
     backgroundImage: 'none !important',
     background: 'transparent !important'
@@ -312,15 +316,21 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
               selected={
                 field.value
                   ? (() => {
-                      // Parse YYYY-MM-DD as a local date to avoid timezone shifting
-                      const [y, m, d] = field.value.split('-').map(Number);
-                      if (!y || !m || !d) return null;
-                      return new Date(y, m - 1, d);
-                    })()
+                    // Parse YYYY-MM-DD as a local date to avoid timezone shifting
+                    const [y, m, d] = field.value.split('-').map(Number);
+                    if (!y || !m || !d) return null;
+                    return new Date(y, m - 1, d);
+                  })()
                   : null
               }
               yearDropdownItemNumber={10}
               minDate={minDate}
+              popperContainer={({ children }) =>
+                createPortal(
+                  <DatePickerWrapper>{children}</DatePickerWrapper>,
+                  document.body
+                )
+              }
               onChange={(date: Date | null) => {
                 if (!date) {
                   field.onChange('');

@@ -26,9 +26,11 @@ import {
 } from '@/components/common/table';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
 import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useExportTickets } from '@/hooks';
 import { ticketsService } from '@/services';
+import { User, isEventOrganizer, UserRole } from '@/types/auth';
 import { TicketStatus } from '@/types/ticket';
 import { dateUtils } from '@/utils';
 
@@ -109,6 +111,9 @@ export const AttendeeTable = ({
 
   const { showInfo, showError } = useToast();
   const { exportTickets, loading: exportLoading } = useExportTickets();
+  const { user } = useAuth();
+  const userRole =
+    user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -566,31 +571,35 @@ export const AttendeeTable = ({
           return (
             currentAttendee?.redeemStatus === 'issued' && (
               <>
-                <MenuItem
-                  sx={{
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    '&:hover': {
-                      backgroundColor: '#F8FAFC'
-                    }
-                  }}
-                  onClick={handleRedeemTicket}
-                >
-                  <Image
-                    alt="redeem"
-                    height={16}
-                    src="/icon/ticket.svg"
-                    style={{
-                      filter:
-                        'brightness(0) saturate(100%) invert(27%) sepia(78%) saturate(2476%) hue-rotate(232deg) brightness(102%) contrast(92%)'
+                {userRole !== UserRole.GROUND_STAFF && (
+                  <MenuItem
+                    sx={{
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      '&:hover': {
+                        backgroundColor: '#F8FAFC'
+                      }
                     }}
-                    width={16}
-                  />
-                  Redeem Ticket
-                </MenuItem>
-                <Divider sx={{ mx: 2 }} />
+                    onClick={handleRedeemTicket}
+                  >
+                    <Image
+                      alt="redeem"
+                      height={16}
+                      src="/icon/ticket.svg"
+                      style={{
+                        filter:
+                          'brightness(0) saturate(100%) invert(27%) sepia(78%) saturate(2476%) hue-rotate(232deg) brightness(102%) contrast(92%)'
+                      }}
+                      width={16}
+                    />
+                    Redeem Ticket
+                  </MenuItem>
+                )}
+                {userRole !== UserRole.GROUND_STAFF && (
+                  <Divider sx={{ mx: 2 }} />
+                )}
               </>
             )
           );

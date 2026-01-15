@@ -17,6 +17,7 @@ interface EventDetailAssetsProps {
   hideHeader?: boolean;
   showStatus?: boolean;
   hideOriginalAssets?: boolean; // If true, only show updated assets (for approval page)
+  readOnly?: boolean;
 }
 
 export const EventDetailAssets = ({
@@ -27,7 +28,8 @@ export const EventDetailAssets = ({
   onToggleAsset,
   hideHeader = false,
   showStatus = false,
-  hideOriginalAssets = false
+  hideOriginalAssets = false,
+  readOnly = false
 }: EventDetailAssetsProps) => {
   const router = useRouter();
 
@@ -107,13 +109,13 @@ export const EventDetailAssets = ({
   const sortedChangedItemsSource =
     changedItemsSource && changedItemsSource.length > 0
       ? [...changedItemsSource].sort(
-          (a: any, b: any) => Number(a.order) - Number(b.order)
-        )
+        (a: any, b: any) => Number(a.order) - Number(b.order)
+      )
       : [];
 
   const changedAssets =
     isOnGoingWithChanges ||
-    (hideOriginalAssets && eventAssetChanges && eventAssetChanges.length > 0)
+      (hideOriginalAssets && eventAssetChanges && eventAssetChanges.length > 0)
       ? sortedChangedItemsSource.slice(0, 5)
       : [];
   const changedMainAsset = changedAssets[0];
@@ -270,26 +272,26 @@ export const EventDetailAssets = ({
                     rejectMode && isAssetSelected(mainAsset.assetId)
                       ? '3px solid'
                       : showStatusBadges &&
-                          showStatus &&
-                          mainAsset.status === 'rejected'
+                        showStatus &&
+                        mainAsset.status === 'rejected'
                         ? '2px solid'
                         : showStatusBadges &&
-                            showStatus &&
-                            mainAsset.status === 'approved' &&
-                            !isOnGoingWithEventAssets
+                          showStatus &&
+                          mainAsset.status === 'approved' &&
+                          !isOnGoingWithEventAssets
                           ? '2px solid'
                           : 'none',
                   borderColor:
                     rejectMode && isAssetSelected(mainAsset.assetId)
                       ? 'error.main'
                       : showStatusBadges &&
-                          showStatus &&
-                          mainAsset.status === 'rejected'
+                        showStatus &&
+                        mainAsset.status === 'rejected'
                         ? 'error.main'
                         : showStatusBadges &&
-                            showStatus &&
-                            mainAsset.status === 'approved' &&
-                            !isOnGoingWithEventAssets
+                          showStatus &&
+                          mainAsset.status === 'approved' &&
+                          !isOnGoingWithEventAssets
                           ? 'success.main'
                           : 'transparent'
                 }}
@@ -362,26 +364,26 @@ export const EventDetailAssets = ({
                           rejectMode && isAssetSelected(eventAsset.assetId)
                             ? '3px solid'
                             : showStatusBadges &&
-                                showStatus &&
-                                eventAsset.status === 'rejected'
+                              showStatus &&
+                              eventAsset.status === 'rejected'
                               ? '2px solid'
                               : showStatusBadges &&
-                                  showStatus &&
-                                  eventAsset.status === 'approved' &&
-                                  !isOnGoingWithEventAssets
+                                showStatus &&
+                                eventAsset.status === 'approved' &&
+                                !isOnGoingWithEventAssets
                                 ? '2px solid'
                                 : 'none',
                         borderColor:
                           rejectMode && isAssetSelected(eventAsset.assetId)
                             ? 'error.main'
                             : showStatusBadges &&
-                                showStatus &&
-                                eventAsset.status === 'rejected'
+                              showStatus &&
+                              eventAsset.status === 'rejected'
                               ? 'error.main'
                               : showStatusBadges &&
-                                  showStatus &&
-                                  eventAsset.status === 'approved' &&
-                                  !isOnGoingWithEventAssets
+                                showStatus &&
+                                eventAsset.status === 'approved' &&
+                                !isOnGoingWithEventAssets
                                 ? 'success.main'
                                 : 'transparent'
                       }}
@@ -420,8 +422,8 @@ export const EventDetailAssets = ({
   // Get rejected reason for rejected events (only if status is not pending)
   const rejectedReason =
     assetChangeStatus !== 'pending' &&
-    eventAssetChanges &&
-    eventAssetChanges[0]?.rejectedReason
+      eventAssetChanges &&
+      eventAssetChanges[0]?.rejectedReason
       ? eventAssetChanges[0].rejectedReason
       : null;
 
@@ -447,7 +449,7 @@ export const EventDetailAssets = ({
               return (
                 (shouldShowForOnGoingOrApproved ||
                   shouldShowForRejectedOrDraft) && (
-                  <Button variant="primary" onClick={handleEditAssets}>
+                  <Button variant="primary" onClick={handleEditAssets} disabled={readOnly} sx={{ display: readOnly ? 'none' : 'flex' }}>
                     Edit Assets
                   </Button>
                 )
@@ -507,13 +509,13 @@ export const EventDetailAssets = ({
           <>
             {(eventDetail.eventStatus === 'on_going' ||
               eventDetail.eventStatus === 'approved') && (
-              <Box alignItems="center" display="flex" gap={1} mb={2}>
-                <H3 color="text.primary" fontWeight={700}>
-                  Updated Assets
-                </H3>
-                {getSectionStatusChip(assetChangeStatus)}
-              </Box>
-            )}
+                <Box alignItems="center" display="flex" gap={1} mb={2}>
+                  <H3 color="text.primary" fontWeight={700}>
+                    Updated Assets
+                  </H3>
+                  {getSectionStatusChip(assetChangeStatus)}
+                </Box>
+              )}
             {renderAssetGrid(
               changedAssets,
               changedMainAsset,
@@ -554,23 +556,23 @@ export const EventDetailAssets = ({
           </Box>
         )
       ) : /* Regular Assets Grid */
-      eventAssets.length > 0 ? (
-        <Box paddingTop="12px">
-          {renderAssetGrid(eventAssets, mainAsset, sideAssets)}
-        </Box>
-      ) : (
-        <Box
-          alignItems="center"
-          bgcolor="background.paper"
-          border="2px dashed"
-          borderColor="grey.100"
-          display="flex"
-          height="380px"
-          justifyContent="center"
-        >
-          <H3 color="text.secondary">No assets available</H3>
-        </Box>
-      )}
+        eventAssets.length > 0 ? (
+          <Box paddingTop="12px">
+            {renderAssetGrid(eventAssets, mainAsset, sideAssets)}
+          </Box>
+        ) : (
+          <Box
+            alignItems="center"
+            bgcolor="background.paper"
+            border="2px dashed"
+            borderColor="grey.100"
+            display="flex"
+            height="380px"
+            justifyContent="center"
+          >
+            <H3 color="text.secondary">No assets available</H3>
+          </Box>
+        )}
     </Box>
   );
 };

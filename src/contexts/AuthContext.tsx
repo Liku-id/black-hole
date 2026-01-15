@@ -15,7 +15,8 @@ import {
   AuthUser,
   LoginRequest,
   UserRole,
-  ALLOWED_ROLES
+  ALLOWED_ROLES,
+  isEventOrganizer
 } from '@/types/auth';
 import { apiUtils } from '@/utils/apiUtils';
 
@@ -30,18 +31,18 @@ interface AuthContextType extends AuthState {
 type AuthAction =
   | { type: 'LOGIN_START' }
   | {
-      type: 'LOGIN_SUCCESS';
-      payload: { user: AuthUser };
-    }
+    type: 'LOGIN_SUCCESS';
+    payload: { user: AuthUser };
+  }
   | { type: 'LOGIN_ERROR'; payload: string }
   | { type: 'LOGOUT_START' }
   | { type: 'LOGOUT_SUCCESS' }
   | { type: 'LOGOUT_ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' }
   | {
-      type: 'RESTORE_SESSION';
-      payload: { user: AuthUser };
-    }
+    type: 'RESTORE_SESSION';
+    payload: { user: AuthUser };
+  }
   | { type: 'SESSION_RESTORED' };
 
 const initialState: AuthState = {
@@ -324,7 +325,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         trackLogin(userData.id, userData.name, userData.email, 'email');
 
         // Redirect to intended route or dashboard
-        const redirectTo = (router.query.redirect as string) || '/dashboard';
+        let defaultRedirect = '/dashboard';
+        const userRoleName =
+          !isEventOrganizer(userData) && (userData as any).role?.name;
+
+        if (
+          userRoleName === UserRole.GROUND_STAFF ||
+          userRoleName === UserRole.FINANCE
+        ) {
+          defaultRedirect = '/events';
+        }
+
+        const redirectTo = (router.query.redirect as string) || defaultRedirect;
         router.replace(redirectTo);
       } else {
         throw new Error('Failed to authenticate user');
