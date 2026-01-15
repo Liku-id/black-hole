@@ -1,11 +1,13 @@
 import { ErrorOutline } from '@mui/icons-material';
 import { Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { Body2, Button, H3 } from '@/components/common';
+import { usePaymentMethods } from '@/hooks';
 import { EventDetail } from '@/types/event';
 import { dateUtils, apiUtils } from '@/utils';
+
 
 import { PreviewEventModal } from './preview-modal';
 
@@ -23,7 +25,8 @@ const EventField = ({
   isRejected,
   eventDetail,
   eventUpdateRequest,
-  fieldKey
+  fieldKey,
+  paymentMethodMap
 }: {
   label: string;
   value: string;
@@ -32,6 +35,7 @@ const EventField = ({
   eventDetail?: EventDetail;
   eventUpdateRequest?: EventDetail['eventUpdateRequest'];
   fieldKey?: string;
+  paymentMethodMap?: Record<string, string>;
 }) => {
   // Check if field has changes
   const hasChanges =
@@ -64,7 +68,10 @@ const EventField = ({
           return JSON.stringify(a) !== JSON.stringify(b);
         }
         case 'login_required':
-          return eventDetail?.login_required !== Boolean(updateRequest[fieldKey]);
+          return (
+            updateRequest[fieldKey] !== undefined &&
+            eventDetail?.login_required !== updateRequest[fieldKey]
+          );
         default:
           return eventDetail?.[fieldKey] !== updateRequest[fieldKey];
       }
@@ -89,7 +96,10 @@ const EventField = ({
       case 'cityId':
         return `${updateRequest?.city?.name || updateRequest[fieldKey]}`;
       case 'paymentMethodIds':
-        return `Payment Method IDs: ${updateRequest[fieldKey]?.join(', ') || ''}`;
+        const names = (updateRequest[fieldKey] || [])
+          .map((id: string) => paymentMethodMap?.[id] || id)
+          .join(', ');
+        return names;
       case 'adminFee':
         const adminFee = updateRequest.adminFee ?? eventDetail?.adminFee ?? 0;
         return adminFee < 100 ? `${adminFee}%` : `Rp ${adminFee}`;
@@ -168,6 +178,17 @@ export const RejectedReason = ({ reason }: { reason: string }) => {
 export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOnly = false }: EventDetailInfoProps) => {
   const router = useRouter();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const { paymentMethods } = usePaymentMethods();
+
+  const paymentMethodMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    Object.values(paymentMethods).forEach((methods) => {
+      methods.forEach((pm: any) => {
+        map[pm.id] = pm.name;
+      });
+    });
+    return map;
+  }, [paymentMethods]);
 
   // Check if we should show event update request rejection info
   const isEventApprovedOrOngoing =
@@ -243,8 +264,12 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
             return null;
           }
 
-          // For ongoing events with draft status, check eventDetailStatus
-          if (eventDetail.eventStatus === 'on_going' && eventDetail.eventUpdateRequestStatus === 'draft') {
+          // For ongoing or approved events with draft status, check eventDetailStatus
+          if (
+            (eventDetail.eventStatus === 'on_going' ||
+              eventDetail.eventStatus === 'approved') &&
+            eventDetail.eventUpdateRequestStatus === 'draft'
+          ) {
             const eventDetailStatus = eventDetail.eventUpdateRequest?.eventDetailStatus;
             // Show if approved or rejected, hide if pending
             if (eventDetailStatus === 'pending') {
@@ -265,11 +290,14 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
                 </Box>
               );
             }
-            // If eventDetailStatus is undefined, fall through to default logic
           }
 
-          // For ongoing events: hide if is_requested is true (unless draft with approved/rejected status handled above)
-          if (eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) {
+          // For ongoing or approved events: hide if is_requested is true (unless draft with approved/rejected status handled above)
+          if (
+            (eventDetail.eventStatus === 'on_going' ||
+              eventDetail.eventStatus === 'approved') &&
+            eventDetail.is_requested
+          ) {
             return null;
           }
 
@@ -436,6 +464,7 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
                 isRejected={isFieldRejected('payment_methods')}
                 eventDetail={eventDetail}
                 eventUpdateRequest={eventDetail.eventUpdateRequest}
+                paymentMethodMap={paymentMethodMap}
                 fieldKey="paymentMethodIds"
               />
             </Grid>

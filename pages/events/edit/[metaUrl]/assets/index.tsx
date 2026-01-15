@@ -1,10 +1,10 @@
-import { Box } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Button, Card, Caption, H2, Overline } from '@/components/common';
+import { Button, Card, Caption, H2, Overline, Body2 } from '@/components/common';
 import { EventAssetsEditForm } from '@/components/features/events/edit/assets';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
@@ -31,12 +31,15 @@ interface AssetChangeInfo {
 const EditAssetsPage = () => {
   const router = useRouter();
   const { metaUrl } = router.query;
-  const { eventDetail } = useEventDetail(metaUrl as string);
+  const { eventDetail, mutate } = useEventDetail(metaUrl as string);
   const [assetChangeInfo, setAssetChangeInfo] =
     useState<AssetChangeInfo | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const [progress, setProgress] = useState<string>('');
+  const [progressValue, setProgressValue] = useState<number>(0);
 
   // Ensure hooks are not called conditionally; redirect when ready
   useEffect(() => {
@@ -76,16 +79,17 @@ const EditAssetsPage = () => {
       return;
     }
 
-    // Validate rejected assets for on_going events with rejected Updated Assets or rejected events
-    const isOnGoingWithRejectedAssets =
-      eventDetail.eventStatus === 'on_going' &&
+    // Validate rejected assets for on_going/approved events with rejected Updated Assets or rejected events
+    const hasRejectedUpdates =
+      (eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved') &&
       eventDetail.eventAssetChanges &&
       eventDetail.eventAssetChanges.length > 0 &&
       eventDetail.eventAssetChanges[0].status === 'rejected';
     
     const isRejectedEvent = eventDetail.eventStatus === 'rejected';
     
-    if (isOnGoingWithRejectedAssets || isRejectedEvent) {
+    if (hasRejectedUpdates || isRejectedEvent) {
       let firstAssetChange;
       let rejectedAssetIds: string[] = [];
       
@@ -220,40 +224,57 @@ const EditAssetsPage = () => {
       }
     }
 
+    // Calculate total operations for progress bar
+    const filesToUploadCount = [
+      assetChangeInfo.files.thumbnail,
+      ...assetChangeInfo.files.supportingImages
+    ].filter(Boolean).length;
+    const totalOperations =
+      assetChangeInfo.deletedAssetIds.length +
+      filesToUploadCount + // Upload step
+      filesToUploadCount; // Update/Create step
+
+    let completedOperations = 0;
+    const updateProgress = () => {
+      completedOperations++;
+      const percentage = Math.round((completedOperations / totalOperations) * 100);
+      setProgressValue(percentage);
+    };
+
     setIsLoading(true);
     setShowError(false);
     setErrorMessage('');
+    setProgress('Preparing updates...');
+    setProgressValue(0);
 
     try {
       // Step 1: Delete removed event assets
-      for (const eventAssetId of assetChangeInfo.deletedAssetIds) {
-        await eventsService.deleteEventAsset(eventAssetId);
+      if (assetChangeInfo.deletedAssetIds.length > 0) {
+        setProgress(
+          `Deleting ${assetChangeInfo.deletedAssetIds.length} removed asset(s)...`
+        );
+        for (const eventAssetId of assetChangeInfo.deletedAssetIds) {
+          await eventsService.deleteEventAsset(eventAssetId);
+          updateProgress();
+        }
       }
 
       // Step 2: Upload new files and get asset IDs
       const newAssetIds: { assetId: string; order: number }[] = [];
+      const filesToUpload = [
+        ...(assetChangeInfo.files.thumbnail
+          ? [{ file: assetChangeInfo.files.thumbnail, order: 1 }]
+          : []),
+        ...assetChangeInfo.files.supportingImages
+          .map((file, index) => ({ file, order: index + 2 }))
+          .filter((item) => item.file !== null)
+      ];
 
-      // Upload new thumbnail if exists
-      if (assetChangeInfo.files.thumbnail) {
-        const base64 = await convertFileToBase64(
-          assetChangeInfo.files.thumbnail
-        );
-        const uploadResponse = await assetsService.uploadAsset({
-          type: assetChangeInfo.files.thumbnail.type,
-          file: base64,
-          filename: assetChangeInfo.files.thumbnail.name,
-          privacy: 'PUBLIC',
-          fileGroup: 'EVENT'
-        });
-        newAssetIds.push({
-          assetId: uploadResponse.body.asset.id,
-          order: 1
-        });
-      }
+      if (filesToUpload.length > 0) {
+        setProgress(`Uploading 0/${filesToUpload.length} new assets...`);
+        let uploadedCount = 0;
 
-      // Upload new supporting images
-      await Promise.all(
-        assetChangeInfo.files.supportingImages.map(async (file, index) => {
+        for (const { file, order } of filesToUpload) {
           if (file) {
             const base64 = await convertFileToBase64(file);
             const uploadResponse = await assetsService.uploadAsset({
@@ -265,69 +286,79 @@ const EditAssetsPage = () => {
             });
             newAssetIds.push({
               assetId: uploadResponse.body.asset.id,
-              order: index + 2
+              order
             });
-          }
-        })
-      );
-
-      // Step 4: Create or update event assets for uploaded files
-      // Logic:
-      // 1. If there's an existing asset at the same order position that wasn't deleted, UPDATE it (PUT)
-      // 2. If there's no existing asset at that order position (empty slot), CREATE it (POST)
-
-      for (const { assetId, order } of newAssetIds) {
-        // Find if there's an existing asset at this order position that wasn't deleted
-        let existingEventAssetId: string | undefined;
-
-        if (order === 1) {
-          // Thumbnail (order 1)
-          const existingThumbnail = assetChangeInfo.existingAssets.thumbnail;
-          if (existingThumbnail && existingThumbnail.eventAssetId) {
-            // Check if this asset was deleted - compare eventAssetId (not id/assetId)
-            const wasDeleted = assetChangeInfo.deletedAssetIds.includes(
-              existingThumbnail.eventAssetId
+            uploadedCount++;
+            setProgress(
+              `Uploading ${uploadedCount}/${filesToUpload.length} new assets...`
             );
-            if (!wasDeleted) {
-              // Asset exists and wasn't deleted, so UPDATE it (PUT)
-              existingEventAssetId = existingThumbnail.eventAssetId;
-            }
+            updateProgress();
           }
-        } else {
-          // Supporting images (order 2-5)
-          const supportingImageIndex = order - 2;
-          const existingSupporting =
-            assetChangeInfo.existingAssets.supportingImages[
-              supportingImageIndex
-            ];
-          if (existingSupporting && existingSupporting.eventAssetId) {
-            // Check if this asset was deleted - compare eventAssetId (not id/assetId)
-            const wasDeleted = assetChangeInfo.deletedAssetIds.includes(
-              existingSupporting.eventAssetId
-            );
-            if (!wasDeleted) {
-              // Asset exists and wasn't deleted, so UPDATE it (PUT)
-              existingEventAssetId = existingSupporting.eventAssetId;
-            }
-          }
-        }
-
-        if (existingEventAssetId) {
-          // Update existing event asset with new assetId (PUT)
-          await eventsService.updateEventAsset(existingEventAssetId, {
-            eventId: eventDetail.id,
-            assetId,
-            order
-          });
-        } else {
-          // Create new event asset (POST) - no existing asset at this order position
-          await eventsService.createEventAsset({
-            eventId: eventDetail.id,
-            assetId,
-            order
-          });
         }
       }
+
+      // Step 4: Create or update event assets for uploaded files
+      if (newAssetIds.length > 0) {
+        setProgress('Finalizing asset updates...');
+        for (const { assetId, order } of newAssetIds) {
+          // Find if there's an existing asset at this order position that wasn't deleted
+          let existingEventAssetId: string | undefined;
+
+          if (order === 1) {
+            // Thumbnail (order 1)
+            const existingThumbnail = assetChangeInfo.existingAssets.thumbnail;
+            if (existingThumbnail && existingThumbnail.eventAssetId) {
+              // Check if this asset was deleted - compare eventAssetId (not id/assetId)
+              const wasDeleted = assetChangeInfo.deletedAssetIds.includes(
+                existingThumbnail.eventAssetId
+              );
+              if (!wasDeleted) {
+                // Asset exists and wasn't deleted, so UPDATE it (PUT)
+                existingEventAssetId = existingThumbnail.eventAssetId;
+              }
+            }
+          } else {
+            // Supporting images (order 2-5)
+            const supportingImageIndex = order - 2;
+            const existingSupporting =
+              assetChangeInfo.existingAssets.supportingImages[
+                supportingImageIndex
+              ];
+            if (existingSupporting && existingSupporting.eventAssetId) {
+              // Check if this asset was deleted - compare eventAssetId (not id/assetId)
+              const wasDeleted = assetChangeInfo.deletedAssetIds.includes(
+                existingSupporting.eventAssetId
+              );
+              if (!wasDeleted) {
+                // Asset exists and wasn't deleted, so UPDATE it (PUT)
+                existingEventAssetId = existingSupporting.eventAssetId;
+              }
+            }
+          }
+
+          if (existingEventAssetId) {
+            // Update existing event asset with new assetId (PUT)
+            await eventsService.updateEventAsset(existingEventAssetId, {
+              eventId: eventDetail.id,
+              assetId,
+              order
+            });
+          } else {
+            // Create new event asset (POST) - no existing asset at this order position
+            await eventsService.createEventAsset({
+              eventId: eventDetail.id,
+              assetId,
+              order
+            });
+          }
+          updateProgress();
+        }
+      }
+
+      setProgress('Completed!');
+      setProgressValue(100);
+      // Refresh event detail data
+      await mutate();
 
       // Navigate back to event detail page
       router.push(`/events/${metaUrl}?tab=assets`);
@@ -339,6 +370,8 @@ const EditAssetsPage = () => {
       setErrorMessage(errorMsg);
       setShowError(true);
       setIsLoading(false);
+      setProgress('');
+      setProgressValue(0);
     }
   };
 
@@ -351,7 +384,8 @@ const EditAssetsPage = () => {
   const firstAssetChange =
     eventDetail &&
     (eventDetail.eventStatus === 'on_review' ||
-      (eventDetail.eventStatus === 'on_going' &&
+      ((eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved') &&
         eventDetail.eventAssetChanges &&
         eventDetail.eventAssetChanges.length > 0)) &&
     eventDetail.eventAssetChanges &&
@@ -377,7 +411,8 @@ const EditAssetsPage = () => {
   // Determine if we should use eventAssetChanges for populating data
   // If eventStatus is 'on_going' and eventAssetChanges[0].status is 'rejected', use eventAssetChanges
   const shouldUseEventAssetChanges =
-    eventDetail?.eventStatus === 'on_going' &&
+    (eventDetail?.eventStatus === 'on_going' ||
+      eventDetail?.eventStatus === 'approved') &&
     eventDetail?.eventAssetChanges &&
     eventDetail.eventAssetChanges.length > 0 &&
     eventDetail.eventAssetChanges[0].status === 'rejected';
@@ -432,6 +467,28 @@ const EditAssetsPage = () => {
               <Overline color="error.main" fontWeight={500}>
                 {errorMessage}
               </Overline>
+            )}
+            {isLoading && (
+              <Box width="100%">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={0.5}
+                >
+                  <Body2 color="primary.main" fontWeight={500}>
+                    {progress}
+                  </Body2>
+                  <Body2 color="primary.main" fontWeight={500}>
+                    {progressValue}%
+                  </Body2>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={progressValue}
+                  sx={{ width: '100%', mb: 1, height: 6, borderRadius: 3 }}
+                />
+              </Box>
             )}
             <Box display="flex" gap="24px">
               <Button

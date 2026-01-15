@@ -207,6 +207,7 @@ export interface EventUpdateRequest {
   cityId: string;
   eventOrganizerId: string;
   paymentMethodIds: string[];
+  login_required?: boolean;
 }
 
 export interface EventDetail {
@@ -300,6 +301,7 @@ export interface CreateEventRequest {
   metaUrl: string;
   adminFee: number;
   tax: number;
+  login_required?: boolean;
 }
 
 export interface CreateEventResponse {
