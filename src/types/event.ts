@@ -132,6 +132,25 @@ export interface Event {
   eventUpdateRequestStatus: string;
 }
 
+export interface GroupTicket {
+  id: string;
+  ticket_type_id: string;
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  bundle_quantity: number;
+  max_order_quantity: number;
+  sales_start_date: string;
+  sales_end_date: string;
+  status: string;
+  rejected_reason: string;
+  created_at: string;
+  updated_at: string;
+  ticket_type: TicketType;
+  purchased_amount: number;
+}
+
 // Event Detail specific interfaces
 export interface EventOrganizer {
   id: string;
@@ -228,6 +247,7 @@ export interface EventDetail {
   updatedAt: string;
   deletedAt: string | null;
   ticketTypes: TicketType[];
+  group_tickets: GroupTicket[];
   tickets: Ticket[];
   city: City;
   eventOrganizer: EventOrganizer;

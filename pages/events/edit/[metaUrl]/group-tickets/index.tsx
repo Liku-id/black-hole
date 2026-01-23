@@ -5,28 +5,27 @@ import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import { Button, Card, Body1, Caption, H2 } from '@/components/common';
-import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
-import TicketTable from '@/components/features/events/create/ticket/table';
-import TicketAdditionalFormModal from '@/components/features/events/edit/tickets/modal';
+import { GroupTicketCreateModal } from '@/components/features/events/edit/group-tickets/modal';
+import { GroupTicketTable } from '@/components/features/events/edit/group-tickets/table';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketsService } from '@/services';
+import { GroupTicket } from '@/types/event';
 import { dateUtils } from '@/utils';
 
-interface TicketCategory {
+
+interface GroupTicketCategory {
   id: string;
+  ticketTypeId: string;
   name: string;
   description: string;
-  colorHex: string;
   price: number;
   quantity: number;
-  maxPerUser: number;
+  bundleQuantity: number;
+  maxOrderQuantity: number;
   salesStartDate: string;
   salesEndDate: string;
-  ticketStartDate: string;
-  ticketEndDate: string;
   status?: string;
-  rejectedFields?: string[];
   rejectedReason?: string;
   salesStartRawDate?: string;
   salesStartTime?: string;
@@ -34,56 +33,49 @@ interface TicketCategory {
   salesEndRawDate?: string;
   salesEndTime?: string;
   salesEndTimeZone?: string;
-  ticketStartRawDate?: string;
-  ticketEndRawDate?: string;
 }
 
-const EditTicketsPage = () => {
+const EditGroupTicketsPage = () => {
   const router = useRouter();
   const { metaUrl } = router.query;
   const { eventDetail, mutate: mutateEventDetail } = useEventDetail(
     metaUrl as string
   );
-  const [tickets, setTickets] = useState<TicketCategory[]>([]);
+  const [groupTickets, setGroupTickets] = useState<GroupTicketCategory[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<
-    TicketCategory | undefined
+    GroupTicketCategory | undefined
   >();
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [showAdditionalFormModal, setShowAdditionalFormModal] = useState(false);
   const [editedTicketIds, setEditedTicketIds] = useState<Set<string>>(new Set());
 
-  // Initialize tickets from eventDetail
+  // Initialize group tickets from eventDetail
   useEffect(() => {
-    if (eventDetail?.ticketTypes && !isInitialized) {
-      const initialTickets: TicketCategory[] = eventDetail.ticketTypes.map(
-        (ticket) => ({
+    if (eventDetail?.group_tickets && !isInitialized) {
+      const initialTickets: GroupTicketCategory[] = eventDetail.group_tickets.map(
+        (ticket: GroupTicket) => ({
           id: ticket.id,
+          ticketTypeId: ticket.ticket_type_id,
           name: ticket.name,
           description: ticket.description,
-          colorHex: ticket.color_hex.startsWith('#')
-            ? ticket.color_hex.substring(1)
-            : ticket.color_hex,
           price: ticket.price,
           quantity: ticket.quantity,
-          maxPerUser: ticket.max_order_quantity,
+          bundleQuantity: ticket.bundle_quantity,
+          maxOrderQuantity: ticket.max_order_quantity,
           salesStartDate: ticket.sales_start_date,
           salesEndDate: ticket.sales_end_date,
-          ticketStartDate: ticket.ticketStartDate,
-          ticketEndDate: ticket.ticketEndDate,
           status: ticket.status,
-          rejectedFields: ticket.rejected_fields,
           rejectedReason: ticket.rejected_reason
         })
       );
-      setTickets(initialTickets);
-      setEditedTicketIds(new Set()); // Clear edited tracking on fresh load
+      setGroupTickets(initialTickets);
+      setEditedTicketIds(new Set());
       setIsInitialized(true);
     }
   }, [eventDetail, isInitialized]);
 
-  // Ensure hooks are not called conditionally; redirect when ready
+  // Redirect if event is on review or done
   useEffect(() => {
     if (!router.isReady) return;
     if (
@@ -94,7 +86,7 @@ const EditTicketsPage = () => {
     }
   }, [router.isReady, eventDetail]);
 
-  // Prevent hydration error by checking if router is ready
+  // Prevent hydration error
   if (!router.isReady) {
     return null;
   }
@@ -106,11 +98,10 @@ const EditTicketsPage = () => {
 
   const handleCreateTicket = async (data: any) => {
     if (editingTicket) {
-      // Update existing ticket - persist scalars and recompute ISO dates if raw parts provided
-      const updatedTickets = tickets.map((ticket) => {
+      // Update existing ticket
+      const updatedTickets = groupTickets.map((ticket) => {
         if (ticket.id !== editingTicket.id) return ticket;
 
-        // Compute new ISO values only when raw parts are provided
         const nextSalesStartISO =
           data.salesStartRawDate &&
           data.salesStartTime &&
@@ -131,98 +122,69 @@ const EditTicketsPage = () => {
               })
             : ticket.salesEndDate;
 
-        const nextTicketStartISO = data.ticketStartRawDate
-          ? dateUtils.formatDateISO({
-              date: data.ticketStartRawDate,
-              timeZone: '+07:00'
-            })
-          : ticket.ticketStartDate;
-
-        const nextTicketEndISO = data.ticketEndRawDate
-          ? dateUtils.formatDateISO({
-              date: data.ticketEndRawDate,
-              timeZone: '+07:00'
-            })
-          : ticket.ticketEndDate;
-
         return {
           ...ticket,
+          ticketTypeId: data.ticketTypeId,
           name: data.name,
           description: data.description,
-          colorHex: data.colorHex,
           price: parseInt(data.price),
           quantity: parseInt(data.quantity),
-          maxPerUser: parseInt(data.maxPerUser),
-          // store ISO so UI reflects the change immediately
+          bundleQuantity: parseInt(data.bundleQuantity),
+          maxOrderQuantity: parseInt(data.maxOrderQuantity),
           salesStartDate: nextSalesStartISO,
           salesEndDate: nextSalesEndISO,
-          ticketStartDate: nextTicketStartISO,
-          ticketEndDate: nextTicketEndISO,
-          // update raw parts from modal (used on submit)
           salesStartRawDate: data.salesStartRawDate,
           salesStartTime: data.salesStartTime,
           salesStartTimeZone: data.salesStartTimeZone,
           salesEndRawDate: data.salesEndRawDate,
           salesEndTime: data.salesEndTime,
           salesEndTimeZone: data.salesEndTimeZone,
-          ticketStartRawDate: data.ticketStartRawDate,
-          ticketEndRawDate: data.ticketEndRawDate
+          status: data.status,
+          rejectedReason: data.rejectedReason
         };
       });
-      setTickets(updatedTickets);
-      // Mark this ticket as edited
+      setGroupTickets(updatedTickets);
       setEditedTicketIds((prev) => new Set(prev).add(editingTicket.id));
       setEditingTicket(undefined);
     } else {
       // Create new ticket
-      const newTicket: TicketCategory = {
+      const newTicket: GroupTicketCategory = {
         id: Date.now().toString(),
+        ticketTypeId: data.ticketTypeId,
         name: data.name,
         description: data.description,
-        colorHex: data.colorHex,
         price: parseInt(data.price),
         quantity: parseInt(data.quantity),
-        maxPerUser: parseInt(data.maxPerUser),
+        bundleQuantity: parseInt(data.bundleQuantity),
+        maxOrderQuantity: parseInt(data.maxOrderQuantity),
         salesStartDate: data.salesStartDate,
         salesEndDate: data.salesEndDate,
-        ticketStartDate: data.ticketStartDate,
-        ticketEndDate: data.ticketEndDate,
-        // Store raw data for ISO conversion
         salesStartRawDate: data.salesStartRawDate,
         salesStartTime: data.salesStartTime,
         salesStartTimeZone: data.salesStartTimeZone,
         salesEndRawDate: data.salesEndRawDate,
         salesEndTime: data.salesEndTime,
-        salesEndTimeZone: data.salesEndTimeZone,
-        ticketStartRawDate: data.ticketStartRawDate,
-        ticketEndRawDate: data.ticketEndRawDate
+        salesEndTimeZone: data.salesEndTimeZone
       };
 
-      setTickets([...tickets, newTicket]);
+      setGroupTickets([...groupTickets, newTicket]);
     }
   };
 
-  const handleEditTicket = (ticket: TicketCategory) => {
-    // Format the ticket data for the modal to display properly
-    // Preserve original ISO dates for validation
+  const handleEditTicket = (ticket: GroupTicketCategory) => {
     const formattedTicket = {
       ...ticket,
       salesStartDate: dateUtils.formatDateTimeWIB(ticket.salesStartDate),
       salesEndDate: dateUtils.formatDateTimeWIB(ticket.salesEndDate),
-      ticketStartDate: dateUtils.formatDateDDMMYYYY(ticket.ticketStartDate),
-      ticketEndDate: dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate),
-      // Store original ISO dates for validation
       originalSalesStartDate: ticket.salesStartDate,
-      originalSalesEndDate: ticket.salesEndDate,
-      originalTicketStartDate: ticket.ticketStartDate,
-      originalTicketEndDate: ticket.ticketEndDate
+      originalSalesEndDate: ticket.salesEndDate
     };
     setEditingTicket(formattedTicket);
     setModalOpen(true);
   };
 
   const handleDeleteTicket = (ticketId: string) => {
-    setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
+    setGroupTickets(groupTickets.filter((ticket) => ticket.id !== ticketId));
   };
 
   const handleSubmitEvent = async () => {
@@ -234,27 +196,26 @@ const EditTicketsPage = () => {
     setIsLoading(true);
 
     try {
-      // Calculate changes based on original vs current tickets
-      const originalTickets = eventDetail.ticketTypes || [];
-      const originalTicketIds = originalTickets.map((t) => t.id);
-      const currentTicketIds = tickets.map((t) => t.id);
+      const originalTickets = eventDetail.group_tickets || [];
+      const originalTicketIds = originalTickets.map((t: GroupTicket) => t.id);
+      const currentTicketIds = groupTickets.map((t) => t.id);
 
       // Find deleted tickets
       const deletedTicketIds = originalTicketIds.filter(
         (id) => !currentTicketIds.includes(id)
       );
-      // Find new tickets (with generated ID from Date.now())
-      const newTickets = tickets.filter(
+      // Find new tickets
+      const newTickets = groupTickets.filter(
         (t) => !originalTicketIds.includes(t.id)
       );
-      // Find updated tickets - only tickets that were actually edited
-      const updatedTickets = tickets.filter((t) =>
+      // Find updated tickets
+      const updatedTickets = groupTickets.filter((t) =>
         originalTicketIds.includes(t.id) && editedTicketIds.has(t.id)
       );
 
       // Step 1: Delete removed tickets
       for (const ticketId of deletedTicketIds) {
-        await ticketsService.deleteTicketType(ticketId);
+        await ticketsService.deleteGroupTicket(ticketId);
       }
 
       // Step 2: Update existing tickets
@@ -279,37 +240,21 @@ const EditTicketsPage = () => {
                 timeZone: ticket.salesEndTimeZone
               })
             : dateUtils.toIso(ticket.salesEndDate);
-        const ticketStartISO = ticket.ticketStartRawDate
-          ? dateUtils.formatDateISO({
-              date: ticket.ticketStartRawDate,
-              timeZone: '+07:00'
-            })
-          : dateUtils.toIso(ticket.ticketStartDate);
-        const ticketEndISO = ticket.ticketEndRawDate
-          ? dateUtils.formatDateISO({
-              date: ticket.ticketEndRawDate,
-              timeZone: '+07:00'
-            })
-          : dateUtils.toIso(ticket.ticketEndDate);
 
         const updatePayload = {
           name: ticket.name,
-          quantity: ticket.quantity,
           description: ticket.description,
           price: ticket.price,
-          eventId: eventDetail.id,
-          maxOrderQuantity: ticket.maxPerUser,
-          colorHex: ticket.colorHex,
+          quantity: ticket.quantity,
+          bundleQuantity: ticket.bundleQuantity,
+          maxOrderQuantity: ticket.maxOrderQuantity,
           salesStartDate: salesStartISO,
-          salesEndDate: salesEndISO,
-          isPublic: true,
-          ticketStartDate: ticketStartISO,
-          ticketEndDate: ticketEndISO
+          salesEndDate: salesEndISO
         };
-        await ticketsService.updateTicketType(ticket.id, updatePayload);
+        await ticketsService.updateGroupTicket(ticket.id, updatePayload);
       }
 
-      // Step 3: Create new tickets (POST per ticket)
+      // Step 3: Create new tickets
       for (const ticket of newTickets) {
         const salesStartISO = dateUtils.formatDateISO({
           date: ticket.salesStartRawDate,
@@ -321,47 +266,27 @@ const EditTicketsPage = () => {
           time: ticket.salesEndTime,
           timeZone: ticket.salesEndTimeZone
         });
-        const ticketStartISO = dateUtils.formatDateISO({
-          date: ticket.ticketStartRawDate,
-          timeZone: '+07:00'
-        });
-        const ticketEndISO = dateUtils.formatDateISO({
-          date: ticket.ticketEndRawDate,
-          timeZone: '+07:00'
-        });
 
         const payload = {
+          ticketTypeId: ticket.ticketTypeId,
           name: ticket.name,
-          quantity: ticket.quantity,
           description: ticket.description,
           price: ticket.price,
-          eventId: eventDetail.id,
-          maxOrderQuantity: ticket.maxPerUser,
-          colorHex: ticket.colorHex,
+          quantity: ticket.quantity,
+          bundleQuantity: ticket.bundleQuantity,
+          maxOrderQuantity: ticket.maxOrderQuantity,
           salesStartDate: salesStartISO,
-          salesEndDate: salesEndISO,
-          isPublic: true,
-          ticketStartDate: ticketStartISO,
-          ticketEndDate: ticketEndISO
+          salesEndDate: salesEndISO
         };
-        const createdTicket = await ticketsService.createTicketType(payload);
-        // Create default additional form for new ticket
-        if (createdTicket?.body?.id) {
-          await ticketsService.createAdditionalForm({
-            ticketTypeId: createdTicket.body.id,
-            field: 'Visitor Name',
-            type: 'TEXT',
-            isRequired: true
-          });
-        }
+        await ticketsService.createGroupTicket(payload);
       }
+
       await mutateEventDetail();
-      // Reset edited tickets tracking after successful submission
       setEditedTicketIds(new Set());
-      setShowAdditionalFormModal(true);
+      router.push(`/events/${metaUrl}?tab=tickets`);
     } catch (error: any) {
-      console.error('Failed to update event tickets:', error);
-      alert('Failed to update tickets. Please try again.');
+      console.error('Failed to update group tickets:', error);
+      alert('Failed to update group tickets. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -371,25 +296,10 @@ const EditTicketsPage = () => {
     router.push(`/events/${metaUrl}?tab=tickets`);
   };
 
-  const handleEditAdditionalForm = (ticket: TicketCategory) => {
-    // Check if ticket is new (not yet saved to backend) by checking if it exists in original eventDetail
-    const isSaved = eventDetail?.ticketTypes?.some((t) => t.id === ticket.id);
-
-    if (isSaved) {
-      router.push(
-        `/events/edit/${metaUrl}/tickets/additional-form?ticketId=${ticket.id}`
-      );
-    } else {
-      alert(
-        'Please save the new ticket first before adding additional forms.'
-      );
-    }
-  };
-
   const isEventApprovedOrOngoing =
     eventDetail?.eventStatus === 'approved' ||
     eventDetail?.eventStatus === 'on_going';
-  const allTicketsApproved = tickets.every((t) => t.status === 'approved');
+  const allTicketsApproved = groupTickets.every((t) => t.status === 'approved');
   const isUpdateDisabled =
     isLoading || (isEventApprovedOrOngoing && allTicketsApproved);
 
@@ -413,7 +323,7 @@ const EditTicketsPage = () => {
 
         {/* Title */}
         <H2 color="text.primary" fontWeight={700} mb="21px">
-          Edit Ticket
+          Edit Group Ticket
         </H2>
 
         {/* Card with Ticket Category */}
@@ -425,19 +335,19 @@ const EditTicketsPage = () => {
 
           {/* Table */}
           <Box marginBottom="24px">
-            <TicketTable
-              tickets={tickets}
+            <GroupTicketTable
+              groupTickets={groupTickets}
               eventStatus={eventDetail?.eventStatus}
+              ticketTypes={eventDetail?.ticketTypes || []}
               onDelete={handleDeleteTicket}
               onEdit={handleEditTicket}
-              onEditAdditionalForm={handleEditAdditionalForm}
             />
           </Box>
 
           {/* Add New Ticket Button */}
           <Box display="flex" justifyContent="flex-end" marginBottom="24px">
             <Button variant="secondary" onClick={handleAddTicket}>
-              + add new ticket category
+              + add new group ticket
             </Button>
           </Box>
 
@@ -467,25 +377,16 @@ const EditTicketsPage = () => {
       </Box>
 
       {/* Modal */}
-      <TicketCreateModal
+      <GroupTicketCreateModal
         editingTicket={editingTicket}
         open={modalOpen}
+        ticketTypes={eventDetail?.ticketTypes || []}
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreateTicket}
         eventStatus={eventDetail?.eventStatus}
-      />
-
-      {/* Additional Form Modal */}
-      <TicketAdditionalFormModal
-        open={showAdditionalFormModal}
-        onClose={() => {
-          mutateEventDetail();
-          setIsInitialized(false);
-          setShowAdditionalFormModal(false);
-        }}
       />
     </DashboardLayout>
   );
 };
 
-export default withAuth(EditTicketsPage, { requireAuth: true });
+export default withAuth(EditGroupTicketsPage, { requireAuth: true });
