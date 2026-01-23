@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
 
-import { Button, H3, H4 } from '@/components/common';
+import { Button, H3, H4, Body2 } from '@/components/common';
 import { EventDetail } from '@/types/event';
 
 import { EventDetailTicketTable } from './table';
@@ -59,7 +59,7 @@ export const EventDetailTicket = ({
             mb={2}
           >
             <H3 color="text.primary" fontWeight={700}>
-              Event Tickets
+              Event Ticket
             </H3>
 
             {eventDetail.eventStatus !== 'done' &&
@@ -71,7 +71,7 @@ export const EventDetailTicket = ({
               !shouldHideEditButton &&
               !readOnly && (
                 <Button variant="primary" onClick={handleEditTickets}>
-                  Edit Tickets
+                  Edit Ticket
                 </Button>
               )}
           </Box>
@@ -94,6 +94,84 @@ export const EventDetailTicket = ({
         showStatus={showStatus}
         onEditAdditionalForm={onEditAdditionalForm}
       />
+
+      {/* Group Ticket Section */}
+       <Box mt={4}>
+         {(!hideHeader || approvalMode) && (
+          <Box
+            alignItems="center"
+            display="flex"
+            justifyContent="space-between"
+            mb={2}
+          >
+            <H3 color="text.primary" fontWeight={700}>
+              Group Ticket
+            </H3>
+
+            {!hideHeader &&
+              eventDetail.eventStatus !== 'done' &&
+              eventDetail.eventStatus !== 'on_review' &&
+              !(
+                eventDetail.eventStatus === 'on_going' &&
+                eventDetail.is_requested
+              ) &&
+              !shouldHideEditButton &&
+              !readOnly && (
+                <>
+                  {eventDetail.ticketTypes &&
+                  eventDetail.ticketTypes.length > 0 ? (
+                    <Button
+                      variant="primary"
+                      onClick={() =>
+                        router.push(
+                          `/events/edit/${eventDetail.metaUrl}/group-tickets`
+                        )
+                      }
+                    >
+                      Edit Group Ticket
+                    </Button>
+                  ) : (
+                    <Box
+                      border="1px solid"
+                      borderColor="info.main"
+                      borderRadius={1}
+                      p="8px 12px"
+                      sx={{
+                        backgroundColor: 'info.light',
+                        borderLeft: '4px solid',
+                        borderLeftColor: 'info.main'
+                      }}
+                    >
+                      <Body2
+                        color="text.primary"
+                        fontSize="13px"
+                        fontWeight={500}
+                      >
+                        Please add at least 1 event ticket first
+                      </Body2>
+                    </Box>
+                  )}
+                </>
+              )}
+          </Box>
+        )}
+
+        {!hideHeader && (
+          <H4 color="text.primary" fontWeight={700} mb="16px">
+            Ticket Category
+          </H4>
+        )}
+
+         <EventDetailTicketTable
+           ticketTypes={eventDetail.group_tickets || []}
+           approvalMode={approvalMode}
+           onApproveTicket={onApproveTicket}
+           onRejectTicket={onRejectTicket}
+           loading={ticketApprovalLoading}
+           error={ticketApprovalError}
+           showStatus={showStatus}
+         />
+       </Box>
     </Box>
   );
 };

@@ -9,7 +9,7 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
-import { TicketType } from '@/types/event';
+import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
 import { StatusBadge } from '../../../status-badge';
@@ -17,7 +17,7 @@ import { StatusBadge } from '../../../status-badge';
 import { TicketDetailModal } from './modal';
 
 interface EventDetailTicketTableProps {
-  ticketTypes: TicketType[];
+  ticketTypes: TicketType[] | GroupTicket[];
   loading?: boolean;
   approvalMode?: boolean;
   onApproveTicket?: (ticketId: string) => void;
@@ -37,7 +37,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   showStatus = false,
   onEditAdditionalForm
 }) => {
-  const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<TicketType | GroupTicket | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const statusMap = {
@@ -46,7 +46,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
     pending: 'pending'
   };
 
-  const handleViewDetail = (ticket: TicketType) => {
+  const handleViewDetail = (ticket: TicketType | GroupTicket) => {
     setSelectedTicket(ticket);
     setModalOpen(true);
   };
@@ -86,7 +86,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   }
 
   // Transform ticketTypes data to match display format
-  const formatTicketData = (ticket: TicketType) => {
+  const formatTicketData = (ticket: TicketType | GroupTicket) => {
     const salesStartDate = ticket.sales_start_date
       ? dateUtils.formatDateTimeWIB(ticket.sales_start_date)
       : '-';

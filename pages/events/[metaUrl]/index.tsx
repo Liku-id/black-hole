@@ -279,37 +279,45 @@ function EventDetail() {
     }
 
     // Ticket Status - Priority: pending > rejected > approved
+    // Check both regular tickets and group tickets (only if group tickets exist)
     // Don't show approved status when event status is ongoing
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    const hasPendingTicket = eventDetail.ticketTypes?.some(
-      (tt: any) => !tt.status || tt.status === 'pending'
-    );
-    const hasRejectedTicket = eventDetail.ticketTypes?.some(
-      (tt: any) => tt.status === 'rejected'
-    );
-    const allApproved =
-      eventDetail.ticketTypes?.length > 0 &&
-      eventDetail.ticketTypes?.every((tt: any) => tt.status === 'approved');
+    
+    const allTickets = [
+      ...(eventDetail.ticketTypes || []),
+      ...(eventDetail.group_tickets && eventDetail.group_tickets.length > 0 ? eventDetail.group_tickets : [])
+    ];
+    
+    // Only calculate status if there are tickets to check
+    if (allTickets.length > 0) {
+      const hasPendingTicket = allTickets.some(
+        (tt: any) => !tt.status || tt.status === 'pending'
+      );
+      const hasRejectedTicket = allTickets.some(
+        (tt: any) => tt.status === 'rejected'
+      );
+      const allApproved = allTickets.every((tt: any) => tt.status === 'approved');
 
-    // For on_going or approved events, only show status if there are pending tickets
-    if (
-      eventDetail.eventStatus === 'on_going' ||
-      eventDetail.eventStatus === 'approved'
-    ) {
-      if (hasPendingTicket) {
-        ticketStatus = 'pending';
+      // For on_going or approved events, only show status if there are pending tickets
+      if (
+        eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved'
+      ) {
+        if (hasPendingTicket) {
+          ticketStatus = 'pending';
+        } else {
+          // Don't show tab status if no pending tickets
+          ticketStatus = undefined;
+        }
       } else {
-        // Don't show tab status if no pending tickets
-        ticketStatus = undefined;
-      }
-    } else {
-      // For other event statuses, use the original logic
-      if (hasPendingTicket) {
-        ticketStatus = 'pending';
-      } else if (hasRejectedTicket) {
-        ticketStatus = 'rejected';
-      } else if (allApproved) {
-        ticketStatus = 'approved';
+        // For other event statuses, use the original logic
+        if (hasPendingTicket) {
+          ticketStatus = 'pending';
+        } else if (hasRejectedTicket) {
+          ticketStatus = 'rejected';
+        } else if (allApproved) {
+          ticketStatus = 'approved';
+        }
       }
     }
 
@@ -359,8 +367,12 @@ function EventDetail() {
       eventDetail.eventAssetChanges.length > 0 &&
       eventDetail.eventAssetChanges[0]?.status === 'pending';
 
-    // Check if any ticket has pending status
-    const hasPendingTicket = eventDetail.ticketTypes?.some(
+    // Check if any ticket (regular or group) has pending status
+    const allTickets = [
+      ...(eventDetail.ticketTypes || []),
+      ...(eventDetail.group_tickets || [])
+    ];
+    const hasPendingTicket = allTickets.some(
       (tt: any) => tt.status === 'pending'
     );
 
@@ -391,8 +403,12 @@ function EventDetail() {
         eventDetail.eventAssetChanges &&
         eventDetail.eventAssetChanges.length > 0;
 
-      // Check if any ticket has pending status
-      const hasPendingTicket = eventDetail.ticketTypes?.some(
+      // Check if any ticket (regular or group) has pending status
+      const allTickets = [
+        ...(eventDetail.ticketTypes || []),
+        ...(eventDetail.group_tickets || [])
+      ];
+      const hasPendingTicket = allTickets.some(
         (tt: any) => tt.status === 'pending'
       );
 
@@ -612,12 +628,12 @@ function EventDetail() {
             },
             {
               id: 'assets',
-              title: 'Event Assets',
+              title: 'Event Asset',
               status: showStatusIndicators ? tabStatuses.assets : undefined
             },
             {
               id: 'tickets',
-              title: 'Event Tickets',
+              title: 'Event Ticket',
               status: showStatusIndicators ? tabStatuses.tickets : undefined
             }
           ]}
