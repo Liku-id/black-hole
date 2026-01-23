@@ -438,7 +438,7 @@ export const EventDetailAssets = ({
             mb={2}
           >
             <H3 color="text.primary" fontWeight={700}>
-              Event Assets
+              Event Asset
             </H3>
 
             {(() => {

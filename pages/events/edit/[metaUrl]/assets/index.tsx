@@ -503,7 +503,7 @@ const EditAssetsPage = () => {
                 variant="primary"
                 onClick={handleSubmitEvent}
               >
-                {isLoading ? 'Updating...' : 'Update Assets'}
+                {isLoading ? 'Saving...' : 'Save'}
               </Button>
             </Box>
           </Box>

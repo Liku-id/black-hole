@@ -2,13 +2,13 @@ import { Box, useTheme } from '@mui/material';
 import { FC, useState } from 'react';
 
 import { Body2, Caption, Modal, Tabs } from '@/components/common';
-import { TicketType } from '@/types/event';
+import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
 interface TicketDetailModalProps {
   open: boolean;
   onClose: () => void;
-  ticket: TicketType | null;
+  ticket: TicketType | GroupTicket | null;
 }
 
 export const TicketDetailModal: FC<TicketDetailModalProps> = ({
@@ -19,12 +19,28 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState('detail');
 
+  // Type guard to check if ticket is a GroupTicket
+  const isGroupTicket = (ticket: TicketType | GroupTicket | null): ticket is GroupTicket => {
+    return ticket !== null && 'ticket_type_id' in ticket;
+  };
+
   const tabs = [
     { id: 'detail', title: 'Detail Ticket' },
     { id: 'additional', title: 'Additional Question' }
   ];
 
-  const renderDetailTicket = () => (
+  const renderDetailTicket = () => {
+    // Helper to get field from ticket or nested ticket_type (for GroupTicket)
+    const getField = (field: keyof TicketType) => {
+      // @ts-ignore
+      return ticket[field] ?? ticket.ticket_type?.[field];
+    };
+
+    const ticketStartDate = getField('ticketStartDate');
+    const ticketEndDate = getField('ticketEndDate');
+    const colorHex = getField('color_hex');
+
+    return (
     <Box display="flex" flexDirection="column" gap="12px">
           {/* Ticket Name */}
           <Box
@@ -67,6 +83,22 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
               {ticket.quantity} tickets
             </Body2>
           </Box>
+
+          {/* Bundle Quantity - Only for Group Tickets */}
+          {isGroupTicket(ticket) && 'bundle_quantity' in ticket && (
+            <Box
+              alignItems="center"
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Body2 color="text.secondary" fontSize="14px">
+                Bundle Quantity
+              </Body2>
+              <Body2 color="text.primary" fontSize="14px">
+                {ticket.bundle_quantity} tickets
+              </Body2>
+            </Box>
+          )}
 
           {/* Max Order Per User */}
           <Box
@@ -114,57 +146,63 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
             </Body2>
           </Box>
 
-          {/* Ticket Start Date */}
-          <Box
-            alignItems="center"
-            display="flex"
-            justifyContent="space-between"
-          >
-            <Body2 color="text.secondary" fontSize="14px">
-              Ticket Start Date
-            </Body2>
-            <Body2 color="text.primary" fontSize="14px">
-              {ticket.ticketStartDate
-                ? dateUtils.formatDateTimeWIB(ticket.ticketStartDate)
-                : 'Not set'}
-            </Body2>
-          </Box>
-
-          {/* Ticket End Date */}
-          <Box
-            alignItems="center"
-            display="flex"
-            justifyContent="space-between"
-          >
-            <Body2 color="text.secondary" fontSize="14px">
-              Ticket End Date
-            </Body2>
-            <Body2 color="text.primary" fontSize="14px">
-              {ticket.ticketEndDate
-                ? dateUtils.formatDateTimeWIB(ticket.ticketEndDate)
-                : 'Not set'}
-            </Body2>
-          </Box>
-
-          {/* Color */}
-          <Box
-            alignItems="center"
-            display="flex"
-            justifyContent="space-between"
-          >
-            <Body2 color="text.secondary" fontSize="14px">
-              Color
-            </Body2>
+          {/* Ticket Start Date - Only for regular tickets */}
+          {!isGroupTicket(ticket) && (
             <Box
-              border={`0.5px solid ${theme.palette.grey[100]}`}
-              padding="4px 12px"
-              sx={{
-                backgroundColor: `#${ticket.color_hex}`
-              }}
+              alignItems="center"
+              display="flex"
+              justifyContent="space-between"
             >
-              <Caption color="text.primary">#{ticket.color_hex}</Caption>
+              <Body2 color="text.secondary" fontSize="14px">
+                Ticket Start Date
+              </Body2>
+              <Body2 color="text.primary" fontSize="14px">
+                {ticketStartDate
+                  ? dateUtils.formatDateTimeWIB(ticketStartDate)
+                  : 'Not set'}
+              </Body2>
             </Box>
-          </Box>
+          )}
+
+          {/* Ticket End Date - Only for regular tickets */}
+          {!isGroupTicket(ticket) && (
+            <Box
+              alignItems="center"
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Body2 color="text.secondary" fontSize="14px">
+                Ticket End Date
+              </Body2>
+              <Body2 color="text.primary" fontSize="14px">
+                {ticketEndDate
+                  ? dateUtils.formatDateTimeWIB(ticketEndDate)
+                  : 'Not set'}
+              </Body2>
+            </Box>
+          )}
+
+          {/* Color - Only for regular tickets */}
+          {!isGroupTicket(ticket) && colorHex && (
+            <Box
+              alignItems="center"
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Body2 color="text.secondary" fontSize="14px">
+                Color
+              </Body2>
+              <Box
+                border={`0.5px solid ${theme.palette.grey[100]}`}
+                padding="4px 12px"
+                sx={{
+                  backgroundColor: `#${colorHex}`
+                }}
+              >
+                <Caption color="text.primary">#{colorHex}</Caption>
+              </Box>
+            </Box>
+          )}
 
           {/* Description - Full width at bottom */}
           <Box mt={1}>
@@ -176,10 +214,12 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
             </Body2>
           </Box>
         </Box>
-  );
+      );
+  };
 
   const renderAdditionalQuestion = () => {
-    const additionalForms = ticket?.additional_forms || [];
+    // @ts-ignore
+    const additionalForms = ticket?.additional_forms || ticket?.ticket_type?.additional_forms || [];
     
     if (additionalForms.length === 0) {
       return (
@@ -194,8 +234,8 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
     return (
       <Box display="flex" flexDirection="column" gap="16px">
         {additionalForms
-          .filter(form => !form.deletedAt)
-          .map((form, index) => (
+          .filter((form: any) => !form.deletedAt)
+          .map((form: any, index: number) => (
             <Box key={form.id} display="flex" flexDirection="column" gap="1">
               <Body2 color="text.secondary" fontSize="14px" fontWeight={600}>
                 Question {index + 1}: {form.isRequired && '*'}
@@ -210,20 +250,29 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
   };
 
   return (
-    <Modal height={500} open={open} title="Ticket Details" onClose={onClose}>
+    <Modal 
+      height={500} 
+      open={open} 
+      title={isGroupTicket(ticket) ? "Group Ticket Details" : "Ticket Details"} 
+      onClose={onClose}
+    >
       {ticket && (
-        <Box display="flex" flexDirection="column" marginTop="-12px">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            borderless={false}
-            fullWidth={true}
-          />
+        <Box display="flex" flexDirection="column" marginTop={isGroupTicket(ticket) ? 0 : "-12px"}>
+          {/* Only show tabs for regular tickets, not group tickets */}
+          {!isGroupTicket(ticket) && (
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              borderless={false}
+              fullWidth={true}
+            />
+          )}
           
-          <Box mt={2}>
-            {activeTab === 'detail' && renderDetailTicket()}
-            {activeTab === 'additional' && renderAdditionalQuestion()}
+          <Box mt={isGroupTicket(ticket) ? 0 : 2}>
+            {/* For group tickets, always show detail. For regular tickets, show based on active tab */}
+            {(isGroupTicket(ticket) || activeTab === 'detail') && renderDetailTicket()}
+            {!isGroupTicket(ticket) && activeTab === 'additional' && renderAdditionalQuestion()}
           </Box>
         </Box>
       )}

@@ -127,23 +127,31 @@ function ApprovalDetail() {
     }
 
     // Ticket Status - Priority: pending > rejected > approved
+    // Check both regular tickets and group tickets (only if group tickets exist)
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    const hasPendingTicket = event.ticketTypes?.some(
-      (tt: any) => !tt.status || tt.status === 'pending'
-    );
-    const hasRejectedTicket = event.ticketTypes?.some(
-      (tt: any) => tt.status === 'rejected'
-    );
-    const allApproved =
-      event.ticketTypes?.length > 0 &&
-      event.ticketTypes?.every((tt: any) => tt.status === 'approved');
+    
+    const allTickets = [
+      ...(event.ticketTypes || []),
+      ...(event.group_tickets && event.group_tickets.length > 0 ? event.group_tickets : [])
+    ];
+    
+    // Only calculate status if there are tickets to check
+    if (allTickets.length > 0) {
+      const hasPendingTicket = allTickets.some(
+        (tt: any) => !tt.status || tt.status === 'pending'
+      );
+      const hasRejectedTicket = allTickets.some(
+        (tt: any) => tt.status === 'rejected'
+      );
+      const allApproved = allTickets.every((tt: any) => tt.status === 'approved');
 
-    if (hasPendingTicket) {
-      ticketStatus = 'pending';
-    } else if (hasRejectedTicket) {
-      ticketStatus = 'rejected';
-    } else if (allApproved) {
-      ticketStatus = 'approved';
+      if (hasPendingTicket) {
+        ticketStatus = 'pending';
+      } else if (hasRejectedTicket) {
+        ticketStatus = 'rejected';
+      } else if (allApproved) {
+        ticketStatus = 'approved';
+      }
     }
 
     return {
@@ -373,7 +381,22 @@ function ApprovalDetail() {
     setTicketApprovalError(null);
     setTicketApprovalLoading(true);
     try {
-      await ticketsService.approveTicketType(ticketId);
+      // Check if this is a group ticket
+      const isGroupTicket = submission?.event?.group_tickets?.some(
+        (gt: any) => gt.id === ticketId
+      );
+
+      if (isGroupTicket) {
+        // Use group ticket approval service
+        await ticketsService.approveGroupTicket({
+          id: ticketId,
+          status: 'approved'
+        });
+      } else {
+        // Use regular ticket approval service
+        await ticketsService.approveTicketType(ticketId);
+      }
+      
       showSuccess('Ticket approved successfully');
       await mutate();
     } catch (e) {
@@ -403,10 +426,26 @@ function ApprovalDetail() {
     setTicketApprovalError(null);
     setTicketApprovalLoading(true);
     try {
-      await ticketsService.rejectTicketType(pendingTicketReject.ticketId, {
-        rejected_fields: pendingTicketReject.rejectedFields,
-        rejected_reason: rejectedReason
-      });
+      // Check if this is a group ticket
+      const isGroupTicket = submission?.event?.group_tickets?.some(
+        (gt: any) => gt.id === pendingTicketReject.ticketId
+      );
+
+      if (isGroupTicket) {
+        // Use group ticket rejection service
+        await ticketsService.approveGroupTicket({
+          id: pendingTicketReject.ticketId,
+          status: 'rejected',
+          rejectedReason: rejectedReason
+        });
+      } else {
+        // Use regular ticket rejection service
+        await ticketsService.rejectTicketType(pendingTicketReject.ticketId, {
+          rejected_fields: pendingTicketReject.rejectedFields,
+          rejected_reason: rejectedReason
+        });
+      }
+      
       setIsTicketRejectOpen(false);
       setPendingTicketReject(null);
       showSuccess('Ticket rejected');
@@ -520,12 +559,12 @@ function ApprovalDetail() {
             },
             {
               id: 'assets',
-              title: 'Event Assets',
+              title: 'Event Asset',
               status: tabStatuses.assets
             },
             {
               id: 'tickets',
-              title: 'Event Tickets',
+              title: 'Event Ticket',
               status: tabStatuses.tickets
             }
           ]}
@@ -621,7 +660,7 @@ function ApprovalDetail() {
               mb={3}
             >
               <H3 color="text.primary" fontWeight={700}>
-                Event Assets
+                Event Asset
               </H3>
               {(() => {
                 // For on_going events, if eventAssetChanges is empty, don't show buttons
@@ -791,7 +830,7 @@ function ApprovalDetail() {
             {/* Event Tickets Header with Title */}
             <Box mb={3}>
               <H3 color="text.primary" fontWeight={700}>
-                Event Tickets
+                Event Ticket
               </H3>
             </Box>
 
