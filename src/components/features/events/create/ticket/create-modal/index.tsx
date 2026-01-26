@@ -6,7 +6,6 @@ import { Button, Modal, TextField, TextArea, Body2 } from '@/components/common';
 import { dateUtils } from '@/utils';
 
 import { TicketDateModal } from '../date-modal';
-import { SalesModal } from '../sales-modal';
 
 interface TicketFormData {
   name: string;
@@ -107,15 +106,21 @@ export const TicketCreateModal = ({
 
   // Helper function to check if a field is rejected
   const isFieldRejected = (fieldName: string) => {
-    if (!editingTicket || editingTicket.status !== 'rejected' || !editingTicket.rejectedFields) {
+    if (
+      !editingTicket ||
+      editingTicket.status !== 'rejected' ||
+      !editingTicket.rejectedFields
+    ) {
       return false;
     }
     return editingTicket.rejectedFields.includes(fieldName);
   };
 
   // Show rejection info if event status is rejected, draft, or on_going AND ticket status is rejected
-  const shouldShowRejectionInfo = 
-    (eventStatus === 'rejected' || eventStatus === 'draft' || eventStatus === 'on_going') && 
+  const shouldShowRejectionInfo =
+    (eventStatus === 'rejected' ||
+      eventStatus === 'draft' ||
+      eventStatus === 'on_going') &&
     editingTicket?.status === 'rejected';
 
   const methods = useForm<TicketFormData>({
@@ -236,9 +241,7 @@ export const TicketCreateModal = ({
             break;
           case 'sales_end_date':
             const currentSalesEndISO =
-              data.salesEndRawDate &&
-              data.salesEndTime &&
-              data.salesEndTimeZone
+              data.salesEndRawDate && data.salesEndTime && data.salesEndTimeZone
                 ? dateUtils.formatDateISO({
                     date: data.salesEndRawDate,
                     time: data.salesEndTime,
@@ -251,24 +254,32 @@ export const TicketCreateModal = ({
             fieldChanged = currentSalesEndISO !== originalSalesEndISO;
             break;
           case 'ticketStartDate':
-            const currentTicketStartISO = data.ticketStartRawDate
-              ? dateUtils.formatDateISO({
-                  date: data.ticketStartRawDate,
-                  timeZone: '+07:00'
-                })
-              : dateUtils.toIso(data.ticketStartDate);
+            const currentTicketStartISO =
+              data.ticketStartRawDate &&
+              data.ticketStartTime &&
+              data.ticketStartTimeZone
+                ? dateUtils.formatDateISO({
+                    date: data.ticketStartRawDate,
+                    time: data.ticketStartTime,
+                    timeZone: data.ticketStartTimeZone
+                  })
+                : dateUtils.toIso(data.ticketStartDate);
             const originalTicketStartISO = editingTicket.originalTicketStartDate
               ? dateUtils.toIso(editingTicket.originalTicketStartDate)
               : dateUtils.toIso(editingTicket.ticketStartDate);
             fieldChanged = currentTicketStartISO !== originalTicketStartISO;
             break;
           case 'ticketEndDate':
-            const currentTicketEndISO = data.ticketEndRawDate
-              ? dateUtils.formatDateISO({
-                  date: data.ticketEndRawDate,
-                  timeZone: '+07:00'
-                })
-              : dateUtils.toIso(data.ticketEndDate);
+            const currentTicketEndISO =
+              data.ticketEndRawDate &&
+              data.ticketEndTime &&
+              data.ticketEndTimeZone
+                ? dateUtils.formatDateISO({
+                    date: data.ticketEndRawDate,
+                    time: data.ticketEndTime,
+                    timeZone: data.ticketEndTimeZone
+                  })
+                : dateUtils.toIso(data.ticketEndDate);
             const originalTicketEndISO = editingTicket.originalTicketEndDate
               ? dateUtils.toIso(editingTicket.originalTicketEndDate)
               : dateUtils.toIso(editingTicket.ticketEndDate);
@@ -338,19 +349,27 @@ export const TicketCreateModal = ({
 
   const handleTicketStartSave = (data: {
     date: string;
+    time: string;
+    timeZone: string;
     formattedDate: string;
   }) => {
     setValue('ticketStartDate', data.formattedDate);
     setValue('ticketStartRawDate', data.date);
+    setValue('ticketStartTime', data.time);
+    setValue('ticketStartTimeZone', data.timeZone);
     setTicketStartModalOpen(false);
   };
 
   const handleTicketEndSave = (data: {
     date: string;
+    time: string;
+    timeZone: string;
     formattedDate: string;
   }) => {
     setValue('ticketEndDate', data.formattedDate);
     setValue('ticketEndRawDate', data.date);
+    setValue('ticketEndTime', data.time);
+    setValue('ticketEndTimeZone', data.timeZone);
     setTicketEndModalOpen(false);
   };
 
@@ -564,7 +583,7 @@ export const TicketCreateModal = ({
       </Modal>
 
       {/* Sales Start Modal */}
-      <SalesModal
+      <TicketDateModal
         open={salesStartModalOpen}
         title="Sales Start Date"
         onClose={() => setSalesStartModalOpen(false)}
@@ -572,7 +591,7 @@ export const TicketCreateModal = ({
       />
 
       {/* Sales End Modal */}
-      <SalesModal
+      <TicketDateModal
         open={salesEndModalOpen}
         title="Sales End Date"
         onClose={() => setSalesEndModalOpen(false)}
