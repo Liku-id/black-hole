@@ -35,7 +35,11 @@ interface TicketCategory {
   salesEndTime?: string;
   salesEndTimeZone?: string;
   ticketStartRawDate?: string;
+  ticketStartTime?: string;
+  ticketStartTimeZone?: string;
   ticketEndRawDate?: string;
+  ticketEndTime?: string;
+  ticketEndTimeZone?: string;
 }
 
 const EditTicketsPage = () => {
@@ -131,19 +135,25 @@ const EditTicketsPage = () => {
               })
             : ticket.salesEndDate;
 
-        const nextTicketStartISO = data.ticketStartRawDate
-          ? dateUtils.formatDateISO({
-              date: data.ticketStartRawDate,
-              timeZone: '+07:00'
-            })
-          : ticket.ticketStartDate;
+        const nextTicketStartISO =
+          data.ticketStartRawDate &&
+          data.ticketStartTime &&
+          data.ticketStartTimeZone
+            ? dateUtils.formatDateISO({
+                date: data.ticketStartRawDate,
+                time: data.ticketStartTime,
+                timeZone: data.ticketStartTimeZone
+              })
+            : ticket.ticketStartDate;
 
-        const nextTicketEndISO = data.ticketEndRawDate
-          ? dateUtils.formatDateISO({
-              date: data.ticketEndRawDate,
-              timeZone: '+07:00'
-            })
-          : ticket.ticketEndDate;
+        const nextTicketEndISO =
+          data.ticketEndRawDate && data.ticketEndTime && data.ticketEndTimeZone
+            ? dateUtils.formatDateISO({
+                date: data.ticketEndRawDate,
+                time: data.ticketEndTime,
+                timeZone: data.ticketEndTimeZone
+              })
+            : ticket.ticketEndDate;
 
         return {
           ...ticket,
@@ -166,7 +176,11 @@ const EditTicketsPage = () => {
           salesEndTime: data.salesEndTime,
           salesEndTimeZone: data.salesEndTimeZone,
           ticketStartRawDate: data.ticketStartRawDate,
-          ticketEndRawDate: data.ticketEndRawDate
+          ticketStartTime: data.ticketStartTime,
+          ticketStartTimeZone: data.ticketStartTimeZone,
+          ticketEndRawDate: data.ticketEndRawDate,
+          ticketEndTime: data.ticketEndTime,
+          ticketEndTimeZone: data.ticketEndTimeZone
         };
       });
       setTickets(updatedTickets);
@@ -195,7 +209,11 @@ const EditTicketsPage = () => {
         salesEndTime: data.salesEndTime,
         salesEndTimeZone: data.salesEndTimeZone,
         ticketStartRawDate: data.ticketStartRawDate,
-        ticketEndRawDate: data.ticketEndRawDate
+        ticketStartTime: data.ticketStartTime,
+        ticketStartTimeZone: data.ticketStartTimeZone,
+        ticketEndRawDate: data.ticketEndRawDate,
+        ticketEndTime: data.ticketEndTime,
+        ticketEndTimeZone: data.ticketEndTimeZone
       };
 
       setTickets([...tickets, newTicket]);
@@ -279,18 +297,26 @@ const EditTicketsPage = () => {
                 timeZone: ticket.salesEndTimeZone
               })
             : dateUtils.toIso(ticket.salesEndDate);
-        const ticketStartISO = ticket.ticketStartRawDate
-          ? dateUtils.formatDateISO({
-              date: ticket.ticketStartRawDate,
-              timeZone: '+07:00'
-            })
-          : dateUtils.toIso(ticket.ticketStartDate);
-        const ticketEndISO = ticket.ticketEndRawDate
-          ? dateUtils.formatDateISO({
-              date: ticket.ticketEndRawDate,
-              timeZone: '+07:00'
-            })
-          : dateUtils.toIso(ticket.ticketEndDate);
+        const ticketStartISO =
+          ticket.ticketStartRawDate &&
+          ticket.ticketStartTime &&
+          ticket.ticketStartTimeZone
+            ? dateUtils.formatDateISO({
+                date: ticket.ticketStartRawDate,
+                time: ticket.ticketStartTime,
+                timeZone: ticket.ticketStartTimeZone
+              })
+            : dateUtils.toIso(ticket.ticketStartDate);
+        const ticketEndISO =
+          ticket.ticketEndRawDate &&
+          ticket.ticketEndTime &&
+          ticket.ticketEndTimeZone
+            ? dateUtils.formatDateISO({
+                date: ticket.ticketEndRawDate,
+                time: ticket.ticketEndTime,
+                timeZone: ticket.ticketEndTimeZone
+              })
+            : dateUtils.toIso(ticket.ticketEndDate);
 
         const updatePayload = {
           name: ticket.name,
@@ -323,11 +349,13 @@ const EditTicketsPage = () => {
         });
         const ticketStartISO = dateUtils.formatDateISO({
           date: ticket.ticketStartRawDate,
-          timeZone: '+07:00'
+          time: ticket.ticketStartTime,
+          timeZone: ticket.ticketStartTimeZone
         });
         const ticketEndISO = dateUtils.formatDateISO({
           date: ticket.ticketEndRawDate,
-          timeZone: '+07:00'
+          time: ticket.ticketEndTime,
+          timeZone: ticket.ticketEndTimeZone
         });
 
         const payload = {

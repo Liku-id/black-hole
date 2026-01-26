@@ -5,7 +5,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { Button, Modal, TextField, TextArea, Body2, Select } from '@/components/common';
 import { TicketType } from '@/types/event';
 
-import { SalesModal } from '../../../create/ticket/sales-modal';
+import { TicketDateModal } from '../../../create/ticket/date-modal';
 
 interface GroupTicketFormData {
   ticketTypeId: string;
@@ -379,7 +379,7 @@ export const GroupTicketCreateModal = ({
       </Modal>
 
       {/* Sales Start Modal */}
-      <SalesModal
+      <TicketDateModal
         open={salesStartModalOpen}
         title="Sales Start Date"
         onClose={() => setSalesStartModalOpen(false)}
@@ -387,7 +387,7 @@ export const GroupTicketCreateModal = ({
       />
 
       {/* Sales End Modal */}
-      <SalesModal
+      <TicketDateModal
         open={salesEndModalOpen}
         title="Sales End Date"
         onClose={() => setSalesEndModalOpen(false)}
