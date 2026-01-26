@@ -10,12 +10,13 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
+import { Transaction } from '@/types/transaction';
 import { formatUtils, dateUtils } from '@/utils';
 
 import { TransactionDetailModal } from '../detail-modal';
 
 interface EventTransactionTableProps {
-  transactions: any[];
+  transactions: Transaction[];
   loading?: boolean;
   error?: string | null;
   total?: number;
@@ -33,10 +34,10 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
   pageSize = 10,
   onPageChange
 }) => {
-  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleViewTransaction = (transaction: any) => {
+  const handleViewTransaction = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setModalOpen(true);
   };
@@ -155,11 +156,15 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                         whiteSpace: 'nowrap'
                       }}
                     >
-                      {transaction.ticketType?.name || '-'}
+                      {transaction.group_ticket?.name || transaction.ticketType?.name || '-'}
                     </Body2>
                   </TableCell>
                   <TableCell>
-                    <Body2>{transaction.orderQuantity || 0} Ticket</Body2>
+                    <Body2>
+                      {transaction.group_ticket 
+                        ? `${transaction.orderQuantity} Bundle (${transaction.orderQuantity * transaction.group_ticket.bundle_quantity} Tickets)` 
+                        : `${transaction.orderQuantity || 0} Ticket`}
+                    </Body2>
                   </TableCell>
                   <TableCell>
                     <Body2>{transaction.transactionNumber || '-'}</Body2>
