@@ -36,7 +36,11 @@ interface TicketCategory {
   salesEndTime?: string;
   salesEndTimeZone?: string;
   ticketStartRawDate?: string;
+  ticketStartTime?: string;
+  ticketStartTimeZone?: string;
   ticketEndRawDate?: string;
+  ticketEndTime?: string;
+  ticketEndTimeZone?: string;
 }
 
 const TicketPage = () => {
@@ -88,7 +92,19 @@ const TicketPage = () => {
               salesStartDate: data.salesStartDate,
               salesEndDate: data.salesEndDate,
               ticketStartDate: data.ticketStartDate,
-              ticketEndDate: data.ticketEndDate
+              ticketEndDate: data.ticketEndDate,
+              salesStartRawDate: data.salesStartRawDate,
+              salesStartTime: data.salesStartTime,
+              salesStartTimeZone: data.salesStartTimeZone,
+              salesEndRawDate: data.salesEndRawDate,
+              salesEndTime: data.salesEndTime,
+              salesEndTimeZone: data.salesEndTimeZone,
+              ticketStartRawDate: data.ticketStartRawDate,
+              ticketStartTime: data.ticketStartTime,
+              ticketStartTimeZone: data.ticketStartTimeZone,
+              ticketEndRawDate: data.ticketEndRawDate,
+              ticketEndTime: data.ticketEndTime,
+              ticketEndTimeZone: data.ticketEndTimeZone
             }
           : ticket
       );
@@ -116,7 +132,11 @@ const TicketPage = () => {
         salesEndTime: data.salesEndTime,
         salesEndTimeZone: data.salesEndTimeZone,
         ticketStartRawDate: data.ticketStartRawDate,
-        ticketEndRawDate: data.ticketEndRawDate
+        ticketStartTime: data.ticketStartTime,
+        ticketStartTimeZone: data.ticketStartTimeZone,
+        ticketEndRawDate: data.ticketEndRawDate,
+        ticketEndTime: data.ticketEndTime,
+        ticketEndTimeZone: data.ticketEndTimeZone
       };
 
       setTickets([...tickets, newTicket]);
@@ -152,12 +172,16 @@ const TicketPage = () => {
           ? `${ticket.salesEndRawDate}T${ticket.salesEndTime}:00${ticket.salesEndTimeZone}`
           : ticket.salesEndDate,
       isPublic: true,
-      ticketStartDate: ticket.ticketStartRawDate
-        ? `${ticket.ticketStartRawDate}T00:00:00+07:00`
-        : ticket.ticketStartDate,
-      ticketEndDate: ticket.ticketEndRawDate
-        ? `${ticket.ticketEndRawDate}T00:00:00+07:00`
-        : ticket.ticketEndDate
+      ticketStartDate:
+        ticket.ticketStartRawDate &&
+        ticket.ticketStartTime &&
+        ticket.ticketStartTimeZone
+          ? `${ticket.ticketStartRawDate}T${ticket.ticketStartTime}:00${ticket.ticketStartTimeZone}`
+          : ticket.ticketStartDate,
+      ticketEndDate:
+        ticket.ticketEndRawDate && ticket.ticketEndTime && ticket.ticketEndTimeZone
+          ? `${ticket.ticketEndRawDate}T${ticket.ticketEndTime}:00${ticket.ticketEndTimeZone}`
+          : ticket.ticketEndDate
     }));
 
     try {
