@@ -329,3 +329,81 @@ export interface CreateEventResponse {
   message: string;
   body: Event;
 }
+
+export interface Invitation {
+  id: string;
+  event_id: string;
+  ticket_type_id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  ticket_qty: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  event_name: string;
+  ticket_type_name: string;
+}
+
+export interface InvitationListResponse {
+  status_code: number;
+  message: string;
+  body: {
+    data: Invitation[];
+    pagination: Pagination;
+  };
+}
+
+export interface SendInvitationRequest {
+  invitations: Array<{
+    name: string;
+    email: string;
+    phone_number: string;
+    ticket_qty: number;
+    ticket_type_id: string;
+  }>;
+}
+
+export interface SendInvitationResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    success: number;
+    failed: number;
+  };
+}
+
+export interface ResendInvitationResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    invitation_id: string;
+    status: string;
+  };
+}
+
+export interface SubmitEventResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    id: string;
+    status: string;
+  };
+}
+
+export interface DuplicateEventResponse {
+  statusCode: number;
+  message: string;
+  body: Event;
+}
+
+export interface ApprovalResponse {
+  statusCode: number;
+  message: string;
+  body: {
+    id: string;
+    status: string;
+    rejectedFields?: string[];
+    rejectedReason?: string;
+  };
+}
