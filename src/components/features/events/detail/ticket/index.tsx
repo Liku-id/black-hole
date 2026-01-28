@@ -37,16 +37,25 @@ export const EventDetailTicket = ({
     router.push(`/events/edit/${eventDetail.metaUrl}/tickets`);
   };
 
-  // Check if there are any pending tickets
-  const hasPendingTicket = eventDetail.ticketTypes?.some(
+  // Check if there are any pending tickets (regular or group)
+  const hasPendingRegularTicket = eventDetail.ticketTypes?.some(
     (tt: any) => !tt.status || tt.status === 'pending'
   );
 
-  // Hide Edit button if event is on_going or approved and has pending tickets
-  const shouldHideEditButton =
+  const hasPendingGroupTicket = eventDetail.group_tickets?.some(
+    (gt: any) => !gt.status || gt.status === 'pending'
+  );
+
+  // Hide Edit button if event is on_going or approved AND there are NO pending tickets
+  const shouldHideEditTicketButton =
     (eventDetail.eventStatus === 'on_going' ||
       eventDetail.eventStatus === 'approved') &&
-    hasPendingTicket;
+    hasPendingRegularTicket;
+
+  const shouldHideEditGroupTicketButton =
+    (eventDetail.eventStatus === 'on_going' ||
+      eventDetail.eventStatus === 'approved') &&
+    hasPendingGroupTicket;
 
   return (
     <Box>
@@ -64,8 +73,11 @@ export const EventDetailTicket = ({
 
             {eventDetail.eventStatus !== 'done' &&
               eventDetail.eventStatus !== 'on_review' &&
-              !(eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) &&
-              !shouldHideEditButton &&
+              !(
+                eventDetail.eventStatus === 'on_going' &&
+                eventDetail.is_requested
+              ) &&
+              !shouldHideEditTicketButton &&
               !readOnly && (
                 <Button variant="primary" onClick={handleEditTickets}>
                   Edit Ticket
@@ -112,7 +124,7 @@ export const EventDetailTicket = ({
                 eventDetail.eventStatus === 'on_going' &&
                 eventDetail.is_requested
               ) &&
-              !shouldHideEditButton &&
+              !shouldHideEditGroupTicketButton &&
               !readOnly && (
                 <>
                   {eventDetail.ticketTypes &&

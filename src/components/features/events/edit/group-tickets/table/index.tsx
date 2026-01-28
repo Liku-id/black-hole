@@ -100,17 +100,12 @@ export const GroupTicketTable = ({
               </TableCell>
               <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Ticket Name
+                  G. Ticket Name
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '10%' }}>
+              <TableCell sx={{ width: '12%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Ticket Price
-                </Body2>
-              </TableCell>
-              <TableCell sx={{ width: '8%' }}>
-                <Body2 color="text.secondary" fontSize="14px">
-                  Ticket Quantity
+                  G. Ticket Price
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '8%' }}>
@@ -118,9 +113,9 @@ export const GroupTicketTable = ({
                   Bundle Qty
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '10%' }}>
+              <TableCell sx={{ width: '8%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
-                  Max. Ticket per user
+                  Max per user
                 </Body2>
               </TableCell>
               <TableCell sx={{ width: '13%' }}>
@@ -148,7 +143,7 @@ export const GroupTicketTable = ({
           <StyledTableBody>
             {groupTickets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11}>
+                <TableCell colSpan={10}>
                   <Box display="flex" justifyContent="center" padding="40px">
                     <Body2 color="text.secondary">
                       No tickets found. Add your first ticket category
@@ -181,11 +176,6 @@ export const GroupTicketTable = ({
                       fontWeight={700}
                     >
                       {formatPrice(ticket.price)}
-                    </Body2>
-                  </TableCell>
-                  <TableCell>
-                    <Body2 color="text.primary" fontSize="14px">
-                      {ticket.quantity}
                     </Body2>
                   </TableCell>
                   <TableCell>
