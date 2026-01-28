@@ -204,9 +204,9 @@ export interface TransactionsResponse {
   message: string;
   transactions: Transaction[];
   pagination: {
-    currentPage: number;
+    page: number;
     totalPages: number;
-    totalItems: number;
+    totalRecords: number;
     limit: number;
     hasNext: boolean;
     hasPrev: boolean;
