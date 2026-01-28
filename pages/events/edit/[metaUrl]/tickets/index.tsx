@@ -169,18 +169,21 @@ const EditTicketsPage = () => {
           ticketStartDate: nextTicketStartISO,
           ticketEndDate: nextTicketEndISO,
           // update raw parts from modal (used on submit)
-          salesStartRawDate: data.salesStartRawDate,
-          salesStartTime: data.salesStartTime,
-          salesStartTimeZone: data.salesStartTimeZone,
-          salesEndRawDate: data.salesEndRawDate,
-          salesEndTime: data.salesEndTime,
-          salesEndTimeZone: data.salesEndTimeZone,
-          ticketStartRawDate: data.ticketStartRawDate,
-          ticketStartTime: data.ticketStartTime,
-          ticketStartTimeZone: data.ticketStartTimeZone,
-          ticketEndRawDate: data.ticketEndRawDate,
-          ticketEndTime: data.ticketEndTime,
-          ticketEndTimeZone: data.ticketEndTimeZone
+          salesStartRawDate: data.salesStartRawDate || ticket.salesStartRawDate,
+          salesStartTime: data.salesStartTime || ticket.salesStartTime,
+          salesStartTimeZone:
+            data.salesStartTimeZone || ticket.salesStartTimeZone,
+          salesEndRawDate: data.salesEndRawDate || ticket.salesEndRawDate,
+          salesEndTime: data.salesEndTime || ticket.salesEndTime,
+          salesEndTimeZone: data.salesEndTimeZone || ticket.salesEndTimeZone,
+          ticketStartRawDate:
+            data.ticketStartRawDate || ticket.ticketStartRawDate,
+          ticketStartTime: data.ticketStartTime || ticket.ticketStartTime,
+          ticketStartTimeZone:
+            data.ticketStartTimeZone || ticket.ticketStartTimeZone,
+          ticketEndRawDate: data.ticketEndRawDate || ticket.ticketEndRawDate,
+          ticketEndTime: data.ticketEndTime || ticket.ticketEndTime,
+          ticketEndTimeZone: data.ticketEndTimeZone || ticket.ticketEndTimeZone
         };
       });
       setTickets(updatedTickets);
@@ -227,8 +230,8 @@ const EditTicketsPage = () => {
       ...ticket,
       salesStartDate: dateUtils.formatDateTimeWIB(ticket.salesStartDate),
       salesEndDate: dateUtils.formatDateTimeWIB(ticket.salesEndDate),
-      ticketStartDate: dateUtils.formatDateDDMMYYYY(ticket.ticketStartDate),
-      ticketEndDate: dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate),
+      ticketStartDate: dateUtils.formatDateTimeWIB(ticket.ticketStartDate),
+      ticketEndDate: dateUtils.formatDateTimeWIB(ticket.ticketEndDate),
       // Store original ISO dates for validation
       originalSalesStartDate: ticket.salesStartDate,
       originalSalesEndDate: ticket.salesEndDate,

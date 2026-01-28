@@ -52,7 +52,7 @@ export const TicketDateModal = ({
       const timeZoneLabel =
         timeZoneOptions.find((option) => option.value === data.timeZone)
           ?.label || 'WIB';
-      const formattedDate = `${format(date, 'MMM d, yyyy')} ${data.time} ${timeZoneLabel}`;
+      const formattedDate = `${format(date, 'MMM d, yyyy')}, ${data.time} ${timeZoneLabel}`;
 
       await onSave({
         date: data.date,

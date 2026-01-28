@@ -52,6 +52,19 @@ interface TicketCategory {
   originalSalesEndDate?: string;
   originalTicketStartDate?: string;
   originalTicketEndDate?: string;
+  // Raw date parts
+  salesStartRawDate?: string;
+  salesStartTime?: string;
+  salesStartTimeZone?: string;
+  salesEndRawDate?: string;
+  salesEndTime?: string;
+  salesEndTimeZone?: string;
+  ticketStartRawDate?: string;
+  ticketStartTime?: string;
+  ticketStartTimeZone?: string;
+  ticketEndRawDate?: string;
+  ticketEndTime?: string;
+  ticketEndTimeZone?: string;
 }
 
 interface TicketCreateModalProps {
@@ -163,7 +176,19 @@ export const TicketCreateModal = ({
         salesStartDate: editingTicket.salesStartDate,
         salesEndDate: editingTicket.salesEndDate,
         ticketStartDate: editingTicket.ticketStartDate,
-        ticketEndDate: editingTicket.ticketEndDate
+        ticketEndDate: editingTicket.ticketEndDate,
+        salesStartRawDate: editingTicket.salesStartRawDate || '',
+        salesStartTime: editingTicket.salesStartTime || '',
+        salesStartTimeZone: editingTicket.salesStartTimeZone || '',
+        salesEndRawDate: editingTicket.salesEndRawDate || '',
+        salesEndTime: editingTicket.salesEndTime || '',
+        salesEndTimeZone: editingTicket.salesEndTimeZone || '',
+        ticketStartRawDate: editingTicket.ticketStartRawDate || '',
+        ticketStartTime: editingTicket.ticketStartTime || '',
+        ticketStartTimeZone: editingTicket.ticketStartTimeZone || '',
+        ticketEndRawDate: editingTicket.ticketEndRawDate || '',
+        ticketEndTime: editingTicket.ticketEndTime || '',
+        ticketEndTimeZone: editingTicket.ticketEndTimeZone || ''
       });
     } else {
       methods.reset({
