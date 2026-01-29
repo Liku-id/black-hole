@@ -3,12 +3,13 @@ import { FC } from 'react';
 
 import { Modal, Body2, Button } from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
+import { Transaction } from '@/types/transaction';
 import { formatUtils, dateUtils } from '@/utils';
 
 interface TransactionDetailModalProps {
   open: boolean;
   onClose: () => void;
-  transaction: any;
+  transaction: Transaction | null;
 }
 
 export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
@@ -82,32 +83,65 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
       {/* Ticket Type */}
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Body2 color="text.secondary" fontSize="14px">
-          Ticket Type
+          {transaction.group_ticket ? 'Group Ticket' : 'Ticket Type'}
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.ticketType?.name || '-'}
+          {transaction.group_ticket?.name || transaction.ticketType?.name || '-'}
         </Body2>
       </Box>
 
       {/* Total Ticket */}
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Body2 color="text.secondary" fontSize="14px">
-          Total Ticket
+          {transaction.group_ticket ? 'Total Bundle' : 'Total Ticket'}
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
-          {transaction.orderQuantity || 0} Ticket
+          {transaction.group_ticket 
+            ? `${transaction.orderQuantity || 0} Bundle` 
+            : `${transaction.orderQuantity || 0} Ticket`}
         </Body2>
       </Box>
+
+      {/* Tickets per Bundle (for group tickets only) */}
+      {transaction.group_ticket && (
+        <Box alignItems="center" display="flex" justifyContent="space-between">
+          <Body2 color="text.secondary" fontSize="14px">
+            Tickets per Bundle
+          </Body2>
+          <Body2 color="text.primary" fontSize="14px">
+            {transaction.group_ticket.bundle_quantity} Tickets
+          </Body2>
+        </Box>
+      )}
+
+      {/* Total Tickets (for group tickets only) */}
+      {transaction.group_ticket && (
+        <Box alignItems="center" display="flex" justifyContent="space-between">
+          <Body2 color="text.secondary" fontSize="14px">
+            Total Tickets
+          </Body2>
+          <Body2 color="text.primary" fontSize="14px">
+            {(transaction.orderQuantity || 0) * transaction.group_ticket.bundle_quantity} Tickets
+          </Body2>
+        </Box>
+      )}
 
       {/* Ticket Price */}
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Body2 color="text.secondary" fontSize="14px">
-          Ticket Price
+          {transaction.group_ticket ? 'Price per Bundle' : 'Ticket Price'}
         </Body2>
         <Body2 color="text.primary" fontSize="14px">
           {(() => {
-            // If payment has partner code (basedPrice exists and is different from original price),
-            // show the discounted price per ticket
+            // For group tickets
+            if (transaction.group_ticket) {
+              const orderQuantity = transaction.orderQuantity || 1;
+              const basedPrice = paymentBreakdown?.basedPrice || 0;
+              const pricePerBundle = basedPrice / orderQuantity;
+              return formatUtils.formatPrice(pricePerBundle);
+            }
+            
+            // For single tickets - check if there's a discount
             const originalPrice = transaction.ticketType?.price || 0;
             const orderQuantity = transaction.orderQuantity || 1;
             const basedPrice = paymentBreakdown?.basedPrice || 0;
@@ -228,10 +262,10 @@ export const TransactionDetailModal: FC<TransactionDetailModalProps> = ({
   return (
     <Modal
       footer={modalFooter}
-      height={500}
+      height={600}
       open={open}
       title="Transaction Detail"
-      width={400}
+      width={550}
       onClose={onClose}
     >
       {modalContent}

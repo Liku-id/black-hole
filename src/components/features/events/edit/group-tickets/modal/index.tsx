@@ -248,7 +248,7 @@ export const GroupTicketCreateModal = ({
               <Grid item md={6} xs={12}>
                 <TextField
                   fullWidth
-                  label="Ticket Name*"
+                  label="G. Ticket Name*"
                   name="name"
                   placeholder="VIP - Group Ticket 5"
                   rules={{
@@ -274,7 +274,7 @@ export const GroupTicketCreateModal = ({
               <Grid item xs={12}>
                 <TextArea
                   fullWidth
-                  label="Ticket Description*"
+                  label="G. Ticket Description*"
                   name="description"
                   placeholder="Max. 500 characters"
                   rules={{
@@ -294,7 +294,7 @@ export const GroupTicketCreateModal = ({
                       <InputAdornment position="start">Rp</InputAdornment>
                     )
                   }}
-                  label="Ticket Price*"
+                  label="G. Ticket Price*"
                   name="price"
                   placeholder=""
                   rules={{
@@ -329,7 +329,7 @@ export const GroupTicketCreateModal = ({
                       <InputAdornment position="end">/User</InputAdornment>
                     )
                   }}
-                  label="Max. Ticket Per User*"
+                  label="Max. G. Ticket Per User*"
                   name="maxOrderQuantity"
                   placeholder="ex: 6 ticket per user"
                   rules={{

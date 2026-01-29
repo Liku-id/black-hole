@@ -25,6 +25,9 @@ function EventTransactions() {
 
   const { transactions, loading, error, pagination } = useTransactions(filters);
 
+  // Get event name from first transaction
+  const eventName = transactions?.[0]?.event?.name;
+
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({
       ...prev,
@@ -55,7 +58,7 @@ function EventTransactions() {
 
       {/* Title */}
       <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="24px">
-        Event Transactions
+        {eventName ? `${eventName}'s Transactions` : 'Event Transactions'}
       </H2>
 
       {/* Main Card */}
@@ -72,7 +75,7 @@ function EventTransactions() {
           error={error}
           loading={loading}
           transactions={transactions}
-          total={pagination?.totalItems}
+          total={pagination?.totalRecords || 0}
           currentPage={filters.page}
           pageSize={filters.show}
           onPageChange={handlePageChange}

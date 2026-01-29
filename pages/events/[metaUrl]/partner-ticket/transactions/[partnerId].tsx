@@ -184,7 +184,7 @@ function PartnerTransactions() {
             error={error}
             loading={loading}
             transactions={transactions}
-            total={pagination?.totalItems}
+            total={pagination?.totalRecords || 0}
             currentPage={filters.page}
             pageSize={filters.show}
             onPageChange={handlePageChange}
