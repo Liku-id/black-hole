@@ -12,8 +12,8 @@ import {
   DuplicateEventResponse,
   ApprovalResponse
 } from '@/types/event';
-import { apiUtils } from '@/utils/apiUtils';
 import { TicketInvitationResponse } from '@/types/ticket';
+import { apiUtils } from '@/utils/apiUtils';
 
 export interface CreateEventAssetRequest {
   eventId: string;

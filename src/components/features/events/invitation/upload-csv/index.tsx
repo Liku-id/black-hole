@@ -1,8 +1,8 @@
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton, LinearProgress } from '@mui/material';
 import Image from 'next/image';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useDropzone } from 'react-dropzone';
 import { useState, useCallback, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 import { 
     Button,
