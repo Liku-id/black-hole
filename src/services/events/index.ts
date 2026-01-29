@@ -3,9 +3,17 @@ import {
   EventsFilters,
   EventsResponse,
   CreateEventRequest,
-  CreateEventResponse
+  CreateEventResponse,
+  InvitationListResponse,
+  SendInvitationRequest,
+  SendInvitationResponse,
+  ResendInvitationResponse,
+  SubmitEventResponse,
+  DuplicateEventResponse,
+  ApprovalResponse
 } from '@/types/event';
 import { apiUtils } from '@/utils/apiUtils';
+import { TicketInvitationResponse } from '@/types/ticket';
 
 export interface CreateEventAssetRequest {
   eventId: string;
@@ -16,7 +24,12 @@ export interface CreateEventAssetRequest {
 export interface CreateEventAssetResponse {
   statusCode: number;
   message: string;
-  body: any;
+  body: {
+    id: string;
+    eventId: string;
+    assetId: string;
+    order: number;
+  };
 }
 
 export interface UpdateEventAssetRequest {
@@ -28,7 +41,12 @@ export interface UpdateEventAssetRequest {
 export interface UpdateEventAssetResponse {
   statusCode: number;
   message: string;
-  body: any;
+  body: {
+    id: string;
+    eventId: string;
+    assetId: string;
+    order: number;
+  };
 }
 
 // Events Service
@@ -155,9 +173,9 @@ class EventsService {
     }
   }
 
-  async submitEvent(id: string): Promise<any> {
+  async submitEvent(id: string): Promise<SubmitEventResponse> {
     try {
-      return await apiUtils.post<any>(
+      return await apiUtils.post<SubmitEventResponse>(
         `/api/events/${id}/submission`,
         {},
         'Failed to submit event'
@@ -168,9 +186,9 @@ class EventsService {
     }
   }
 
-  async duplicateEvent(id: string): Promise<any> {
+  async duplicateEvent(id: string): Promise<DuplicateEventResponse> {
     try {
-      return await apiUtils.post<any>(
+      return await apiUtils.post<DuplicateEventResponse>(
         '/api/events/duplicate',
         { id },
         'Failed to duplicate event'
@@ -201,9 +219,9 @@ class EventsService {
       rejectedReason?: string;
       status: string;
     }
-  ): Promise<any> {
+  ): Promise<ApprovalResponse> {
     try {
-      return await apiUtils.post<any>(
+      return await apiUtils.post<ApprovalResponse>(
         `/api/events/event-detail-approval/${eventId}`,
         payload,
         'Failed to process event detail'
@@ -215,9 +233,9 @@ class EventsService {
   }
 
   // Event Asset Approval/Rejection
-  async batchApproveAssets(eventId: string): Promise<any> {
+  async batchApproveAssets(eventId: string): Promise<ApprovalResponse> {
     try {
-      return await apiUtils.post<any>(
+      return await apiUtils.post<ApprovalResponse>(
         '/api/events/event-asset/approval',
         {
           eventId,
@@ -237,9 +255,9 @@ class EventsService {
     eventId: string,
     ids: string[],
     rejectedReason: string
-  ): Promise<any> {
+  ): Promise<ApprovalResponse> {
     try {
-      return await apiUtils.post<any>(
+      return await apiUtils.post<ApprovalResponse>(
         '/api/events/event-asset/approval',
         {
           eventId,
@@ -253,6 +271,78 @@ class EventsService {
       console.error('Error rejecting assets:', error);
       throw error;
     }
+  }
+  // Invitation Operations
+  async getInvitations(
+    eventId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      ticket_type_id?: string;
+      status?: string;
+    }
+  ): Promise<InvitationListResponse> {
+    try {
+      const queryParams: Record<string, any> = {};
+      if (params?.page) queryParams.page = params.page;
+      if (params?.limit) queryParams.limit = params.limit;
+      if (params?.search) queryParams.search = params.search;
+      if (params?.ticket_type_id)
+        queryParams.ticket_type_id = params.ticket_type_id;
+      if (params?.status) queryParams.status = params.status;
+
+      return await apiUtils.get(
+        `/api/events/invitations/${eventId}`,
+        queryParams,
+        'Failed to fetch invitations'
+      );
+    } catch (error) {
+      console.error('Error fetching invitations:', error);
+      throw error;
+    }
+  }
+
+  async sendInvitations(
+    eventId: string,
+    data: SendInvitationRequest
+  ): Promise<SendInvitationResponse> {
+    try {
+      return await apiUtils.post<SendInvitationResponse>(
+        `/api/events/invitations/${eventId}`,
+        data,
+        'Failed to send invitations'
+      );
+    } catch (error) {
+      console.error('Error sending invitations:', error);
+      throw error;
+    }
+  }
+
+  async resendInvitation(invitationId: string): Promise<ResendInvitationResponse> {
+    try {
+      return await apiUtils.post<ResendInvitationResponse>(
+        `/api/ticket-invitations/${invitationId}/resend`,
+        {},
+        'Failed to resend invitation'
+      );
+    } catch (error) {
+      console.error('Error resending invitation:', error);
+      throw error;
+    }
+  }
+
+  async getTicketInvitationsById(id: string): Promise<TicketInvitationResponse> {
+    try {
+      return await apiUtils.get(
+        `/api/ticket-invitations/${id}`,
+        {},
+        'Failed to fetch ticket invitation'
+      );
+    } catch (error) {
+      console.error('Error fetching ticket invitation:', error);
+      throw error;
+    } 
   }
 }
 
