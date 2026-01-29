@@ -24,11 +24,13 @@ export interface Ticket {
   created_at: string;
   updated_at: string;
   deleted_at?: string;
+  name?: string;
   email?: string;
   phone_number?: string;
   payment_method_name?: string;
   transaction_number?: string;
   attendee_data?: AttendeeAdditionalData[];
+  booking_type?: string;
 }
 
 export interface TicketsResponse {
@@ -65,4 +67,90 @@ export interface TicketsFilters {
   search?: string;
   ticketTypeIds?: string;
   ticketStatus?: TicketStatus;
+}
+
+export interface TicketInvitation {
+  id: string;
+  ticketType: {
+    id: string;
+    name: string;
+    quantity: number;
+    description: string;
+    price: number;
+    event_id: string;
+    max_order_quantity: number;
+    color_hex: string;
+    sales_start_date: string;
+    sales_end_date: string;
+    is_public: boolean;
+    is_logged_in: boolean;
+    purchased_amount: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    ticketStartDate: string;
+    ticketEndDate: string;
+    status: string;
+    rejected_fields: string[];
+    rejected_reason: string;
+    additional_forms: any[];
+    partnership_info: any | null;
+  };
+  event: {
+    id: string;
+    name: string;
+    eventType: string;
+    description: string;
+    address: string;
+    mapLocationUrl: string;
+    metaUrl: string;
+    startDate: string;
+    endDate: string;
+    eventStatus: string;
+    eventDetailStatus: string;
+    termAndConditions: string;
+    websiteUrl: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    ticketTypes: any[];
+    city: any | null;
+    eventOrganizer: {
+      id: string;
+      name: string;
+      email: string;
+      phone_number: string;
+      description: string;
+      address: string;
+      [key: string]: any;
+    };
+    paymentMethods: any[];
+    adminFee: number;
+    tax: number;
+    feeThresholds: any[];
+    eventAssets: any[];
+    is_requested: boolean;
+    login_required: boolean;
+    eventUpdateRequestStatus: string;
+    eventUpdateRequest: any | null;
+    eventAssetChanges: any[];
+    rejectedFields: string[];
+    rejectedReason: string;
+    updatedFields: string[];
+    group_tickets: any[];
+  };
+  tickets: Ticket[];
+  name: string;
+  email: string;
+  phone_number: string;
+  ticket_qty: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TicketInvitationResponse {
+  status_code: number;
+  message: string;
+  body: TicketInvitation;
 }

@@ -43,7 +43,7 @@ interface ModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   width?: number;
-  height?: number;
+  height?: number | string;
 }
 
 export default function CustomModal({
