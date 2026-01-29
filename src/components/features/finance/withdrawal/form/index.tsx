@@ -80,20 +80,25 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   const calculateFees = () => {
     const amount = parseFloat(withdrawalAmount) || 0;
-    const rawPlatformFee = parseFloat(
+
+    const platformFeePercentage = parseFloat(
       eventDetail?.feeThresholds?.[0]?.platformFee || '0'
     );
-    const platformFee = rawPlatformFee >= 100 ? rawPlatformFee : (rawPlatformFee / 100) * amount;
+    const taxPercentage = eventDetail?.tax || 0;
     const withdrawalFee = parseFloat(eventDetail?.withdrawalFee || '0');
+
+    const taxAmount = (taxPercentage / 100) * amount;
+    const amountAfterReductions = amount - taxAmount;
+
+    const platformFee = (platformFeePercentage / 100) * amountAfterReductions;
     const totalFees = platformFee + withdrawalFee;
-    const totalForBackend = amount;
     const grandTotal = amount - totalFees;
 
     return {
       platformFee,
       withdrawalFee,
       totalFees,
-      totalForBackend,
+      totalForBackend: amount,
       grandTotal
     };
   };
