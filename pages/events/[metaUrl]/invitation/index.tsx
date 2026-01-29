@@ -1,11 +1,11 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Card, CardContent, Table, TableCell, TableRow, IconButton, Tooltip, CircularProgress } from '@mui/material';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {
@@ -21,10 +21,11 @@ import {
 import { useToast } from '@/contexts/ToastContext';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
+import { ticketTemplate } from '@/lib/ticketTemplate';
 import { eventsService } from '@/services/events';
 import type { Invitation } from '@/types/event';
-import { ticketTemplate } from '@/lib/ticketTemplate';
 import { dateUtils } from '@/utils/dateUtils';
+
 
 interface InvitationFilters {
   page: number;
