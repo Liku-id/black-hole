@@ -1,16 +1,33 @@
-import { Box } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Button, Modal, DateField } from '@/components/common';
+import {
+  Button,
+  Modal,
+  DateField,
+  TimeField,
+  Select
+} from '@/components/common';
 
 interface TicketDateModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: { date: string; formattedDate: string }) => void;
+  onSave: (data: {
+    date: string;
+    time: string;
+    timeZone: string;
+    formattedDate: string;
+  }) => void;
   title: string;
 }
+
+const timeZoneOptions = [
+  { value: '+07:00', label: 'WIB' },
+  { value: '+08:00', label: 'WITA' },
+  { value: '+09:00', label: 'WIT' }
+];
 
 export const TicketDateModal = ({
   open,
@@ -22,7 +39,9 @@ export const TicketDateModal = ({
 
   const methods = useForm({
     defaultValues: {
-      date: ''
+      date: '',
+      time: '00:00',
+      timeZone: '+07:00'
     }
   });
 
@@ -30,16 +49,21 @@ export const TicketDateModal = ({
     setLoading(true);
     try {
       const date = new Date(data.date);
-      const formattedDate = format(date, 'MMM d, yyyy');
+      const timeZoneLabel =
+        timeZoneOptions.find((option) => option.value === data.timeZone)
+          ?.label || 'WIB';
+      const formattedDate = `${format(date, 'MMM d, yyyy')}, ${data.time} ${timeZoneLabel}`;
 
       await onSave({
         date: data.date,
+        time: data.time,
+        timeZone: data.timeZone,
         formattedDate
       });
       methods.reset();
       onClose();
     } catch (error) {
-      console.error('Failed to save ticket date:', error);
+      console.error('Failed to save the date:', error);
     } finally {
       setLoading(false);
     }
@@ -51,32 +75,54 @@ export const TicketDateModal = ({
   };
 
   return (
-    <Modal
-      height={224}
-      open={open}
-      title={title}
-      width={443}
-      onClose={handleClose}
-    >
+    <Modal open={open} title={title} onClose={handleClose}>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(handleSubmit)}>
-          <DateField
-            fullWidth
-            label="Select Date"
-            name="date"
-            placeholder="Select date"
-            rules={{
-              required: 'Date is required'
-            }}
-          />
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <DateField
+                fullWidth
+                label="Date"
+                name="date"
+                placeholder="Select date"
+                rules={{
+                  required: 'Date is required'
+                }}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TimeField
+                label="Time"
+                name="time"
+                placeholder="00:00"
+                rules={{
+                  required: 'Time is required'
+                }}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <Select
+                fullWidth
+                label="Time Zone"
+                name="timeZone"
+                options={timeZoneOptions}
+                rules={{
+                  required: 'Time zone is required'
+                }}
+              />
+            </Grid>
+          </Grid>
           <Box
             display="flex"
             gap={2}
             justifyContent="flex-end"
             marginTop="24px"
           >
+            <Button variant="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
             <Button disabled={loading} type="submit" variant="primary">
-              {loading ? 'Saving...' : 'Save Data'}
+              {loading ? 'Saving...' : 'Save Date'}
             </Button>
           </Box>
         </form>

@@ -185,14 +185,35 @@ export interface PaymentBreakdown {
   totalPrice: number;
 }
 
+export interface GroupTicket {
+  id: string;
+  ticket_type_id: string;
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  bundle_quantity: number;
+  max_order_quantity: number;
+  sales_start_date: string;
+  sales_end_date: string;
+  status: string;
+  rejected_reason: string;
+  created_at: string;
+  updated_at: string;
+  ticket_type: TicketType;
+  purchased_amount: number;
+}
+
 export interface Transaction {
   id: string;
   transactionNumber: string;
+  name: string;
   expiresAt: string;
   createdAt: string;
   status: string;
   paymentMethod: PaymentMethod;
-  ticketType: TicketType;
+  ticketType?: TicketType;  // Optional for single tickets
+  group_ticket?: GroupTicket;  // Optional for group tickets
   event: Event;
   paymentDetails: PaymentDetails;
   orderQuantity: number;
