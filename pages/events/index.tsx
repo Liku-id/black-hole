@@ -176,7 +176,8 @@ function Events() {
 
   const allowedTabsForRestrictedRoles = [
     'EVENT_STATUS_ON_GOING',
-    'EVENT_STATUS_APPROVED'
+    'EVENT_STATUS_APPROVED',
+    'EVENT_STATUS_DONE'
   ];
 
   const tabs =

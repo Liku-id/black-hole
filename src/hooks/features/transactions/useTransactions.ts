@@ -9,9 +9,9 @@ interface UseEventTransactionsReturn {
   error: string | null;
   mutate: () => void;
   pagination: {
-    currentPage: number;
+    page: number;
     totalPages: number;
-    totalItems: number;
+    totalRecords: number;
     limit: number;
     hasNext: boolean;
     hasPrev: boolean;

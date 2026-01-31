@@ -3,12 +3,15 @@ import { Box, Checkbox, Grid, IconButton, Modal } from '@mui/material';
 import { useState } from 'react';
 
 import { Body1, Body2, Button, H3, Overline } from '@/components/common';
-import { TicketType } from '@/types/event';
+import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatUtils } from '@/utils';
+
+// Union type for both ticket types
+type ReviewableTicket = TicketType | GroupTicket;
 
 interface TicketReviewModalProps {
   open: boolean;
-  ticket: TicketType | null;
+  ticket: ReviewableTicket | null;
   onClose: () => void;
   onApprove: (ticketId: string) => void;
   onReject: (ticketId: string, rejectedFields: string[]) => void;
@@ -16,16 +19,22 @@ interface TicketReviewModalProps {
   error?: string | null;
 }
 
-const ticketFields = [
+const ticketFields: Array<{
+  key: string;
+  label: string;
+  groupOnly?: boolean;
+  regularOnly?: boolean;
+}> = [
   { key: 'name', label: 'Ticket Name' },
   { key: 'description', label: 'Description' },
   { key: 'price', label: 'Price' },
   { key: 'quantity', label: 'Quantity' },
+  { key: 'bundle_quantity', label: 'Bundle Quantity', groupOnly: true },
   { key: 'max_order_quantity', label: 'Max Order Quantity' },
   { key: 'sales_start_date', label: 'Sales Start Date' },
   { key: 'sales_end_date', label: 'Sales End Date' },
-  { key: 'ticketStartDate', label: 'Ticket Start Date' },
-  { key: 'ticketEndDate', label: 'Ticket End Date' }
+  { key: 'ticketStartDate', label: 'Ticket Start Date', regularOnly: true },
+  { key: 'ticketEndDate', label: 'Ticket End Date', regularOnly: true }
 ];
 
 export const TicketReviewModal = ({
@@ -70,6 +79,9 @@ export const TicketReviewModal = ({
   const getFieldValue = (fieldKey: string): string => {
     if (!ticket) return '';
 
+    // Type guard to check if it's a GroupTicket
+    const isGroupTicket = 'ticket_type_id' in ticket;
+
     switch (fieldKey) {
       case 'name':
         return ticket.name;
@@ -79,6 +91,9 @@ export const TicketReviewModal = ({
         return formatUtils.formatCurrency(ticket.price);
       case 'quantity':
         return ticket.quantity.toString();
+      case 'bundle_quantity':
+        // Only available for group tickets
+        return isGroupTicket ? (ticket as GroupTicket).bundle_quantity.toString() : '';
       case 'max_order_quantity':
         return ticket.max_order_quantity.toString();
       case 'sales_start_date':
@@ -86,9 +101,11 @@ export const TicketReviewModal = ({
       case 'sales_end_date':
         return dateUtils.formatDateTimeWIB(ticket.sales_end_date);
       case 'ticketStartDate':
-        return dateUtils.formatDateDDMMYYYY(ticket.ticketStartDate);
+        // Only available for regular tickets
+        return !isGroupTicket ? dateUtils.formatDateDDMMYYYY((ticket as TicketType).ticketStartDate) : '';
       case 'ticketEndDate':
-        return dateUtils.formatDateDDMMYYYY(ticket.ticketEndDate);
+        // Only available for regular tickets
+        return !isGroupTicket ? dateUtils.formatDateDDMMYYYY((ticket as TicketType).ticketEndDate) : '';
       default:
         return '';
     }
@@ -116,7 +133,7 @@ export const TicketReviewModal = ({
         {/* Header with Title and Close Button */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <H3 color="text.primary" fontWeight={700}>
-            Review Ticket: {ticket.name}
+            Review {ticket && 'ticket_type_id' in ticket ? 'Group ' : ''}Ticket: {ticket.name}
           </H3>
           <IconButton 
             onClick={handleClose}
@@ -132,7 +149,20 @@ export const TicketReviewModal = ({
 
         {/* Ticket Details */}
         <Grid container spacing={2} mb={3}>
-          {ticketFields.map((field) => (
+          {ticketFields
+            .filter((field) => {
+              // Type guard to check if it's a GroupTicket
+              const isGroupTicket = ticket && 'ticket_type_id' in ticket;
+              
+              // Filter out group-only fields for regular tickets
+              if (!isGroupTicket && field.groupOnly) return false;
+              
+              // Filter out regular-only fields for group tickets
+              if (isGroupTicket && field.regularOnly) return false;
+              
+              return true;
+            })
+            .map((field) => (
             <Grid key={field.key} item xs={12} sm={6}>
               <Box>
                 <Box display="flex" alignItems="center" gap={0.5} mb={1}>
@@ -171,7 +201,7 @@ export const TicketReviewModal = ({
         </Grid>
 
         {/* Additional Forms */}
-        {ticket.additional_forms && ticket.additional_forms.length > 0 && (
+        {!('ticket_type_id' in ticket) && ticket.additional_forms && ticket.additional_forms.length > 0 && (
           <Box mb={3}>
             <Body1 color="text.primary" fontWeight={600} mb={2}>
               Additional Forms

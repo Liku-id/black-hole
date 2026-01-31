@@ -337,6 +337,97 @@ class TicketsService {
       throw error;
     }
   }
+
+  // Group Tickets methods
+  async createGroupTicket(payload: {
+    ticketTypeId: string;
+    name: string;
+    description: string;
+    price: number;
+    quantity: number;
+    bundleQuantity: number;
+    maxOrderQuantity: number;
+    salesStartDate: string;
+    salesEndDate: string;
+  }): Promise<any> {
+    try {
+      return await apiUtils.post(
+        '/api/group-tickets',
+        payload,
+        'Failed to create group ticket'
+      );
+    } catch (error) {
+      console.error('Error creating group ticket:', error);
+      throw error;
+    }
+  }
+
+  async updateGroupTicket(
+    id: string,
+    payload: {
+      name: string;
+      description: string;
+      price: number;
+      quantity: number;
+      bundleQuantity: number;
+      maxOrderQuantity: number;
+      salesStartDate: string;
+      salesEndDate: string;
+    }
+  ): Promise<any> {
+    try {
+      return await apiUtils.put(
+        `/api/group-tickets/${id}`,
+        payload,
+        'Failed to update group ticket'
+      );
+    } catch (error) {
+      console.error('Error updating group ticket:', error);
+      throw error;
+    }
+  }
+
+  async deleteGroupTicket(id: string): Promise<void> {
+    try {
+      await apiUtils.delete(
+        `/api/group-tickets/${id}`,
+        'Failed to delete group ticket'
+      );
+    } catch (error) {
+      console.error('Error deleting group ticket:', error);
+      throw error;
+    }
+  }
+
+  async getGroupTicket(id: string): Promise<any> {
+    try {
+      return await apiUtils.get(
+        `/api/group-tickets/${id}`,
+        undefined,
+        'Failed to fetch group ticket'
+      );
+    } catch (error) {
+      console.error('Error fetching group ticket:', error);
+      throw error;
+    }
+  }
+
+  async approveGroupTicket(payload: {
+    id: string;
+    status: string;
+    rejectedReason?: string;
+  }): Promise<any> {
+    try {
+      return await apiUtils.post(
+        '/api/group-tickets/approval',
+        payload,
+        'Failed to approve/reject group ticket'
+      );
+    } catch (error) {
+      console.error('Error processing group ticket approval:', error);
+      throw error;
+    }
+  }
 }
 
 const ticketsService = new TicketsService();

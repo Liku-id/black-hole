@@ -6,6 +6,10 @@ export interface Staff {
   phone_number: string;
   role_id?: string;
   role_name?: string;
+  role: {
+    id: string;
+    name: string;
+  };
   status: string;
   profile_picture_url?: string;
   last_login?: string | null;

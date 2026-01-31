@@ -31,7 +31,7 @@ interface AssetChangeInfo {
 const EditAssetsPage = () => {
   const router = useRouter();
   const { metaUrl } = router.query;
-  const { eventDetail } = useEventDetail(metaUrl as string);
+  const { eventDetail, mutate } = useEventDetail(metaUrl as string);
   const [assetChangeInfo, setAssetChangeInfo] =
     useState<AssetChangeInfo | null>(null);
   const [showError, setShowError] = useState(false);
@@ -357,6 +357,9 @@ const EditAssetsPage = () => {
 
       setProgress('Completed!');
       setProgressValue(100);
+      // Refresh event detail data
+      await mutate();
+
       // Navigate back to event detail page
       router.push(`/events/${metaUrl}?tab=assets`);
     } catch (error: any) {
@@ -500,7 +503,7 @@ const EditAssetsPage = () => {
                 variant="primary"
                 onClick={handleSubmitEvent}
               >
-                {isLoading ? 'Updating...' : 'Update Assets'}
+                {isLoading ? 'Saving...' : 'Save'}
               </Button>
             </Box>
           </Box>

@@ -264,8 +264,12 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
             return null;
           }
 
-          // For ongoing events with draft status, check eventDetailStatus
-          if (eventDetail.eventStatus === 'on_going' && eventDetail.eventUpdateRequestStatus === 'draft') {
+          // For ongoing or approved events with draft status, check eventDetailStatus
+          if (
+            (eventDetail.eventStatus === 'on_going' ||
+              eventDetail.eventStatus === 'approved') &&
+            eventDetail.eventUpdateRequestStatus === 'draft'
+          ) {
             const eventDetailStatus = eventDetail.eventUpdateRequest?.eventDetailStatus;
             // Show if approved or rejected, hide if pending
             if (eventDetailStatus === 'pending') {
@@ -286,11 +290,14 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
                 </Box>
               );
             }
-            // If eventDetailStatus is undefined, fall through to default logic
           }
 
-          // For ongoing events: hide if is_requested is true (unless draft with approved/rejected status handled above)
-          if (eventDetail.eventStatus === 'on_going' && eventDetail.is_requested) {
+          // For ongoing or approved events: hide if is_requested is true (unless draft with approved/rejected status handled above)
+          if (
+            (eventDetail.eventStatus === 'on_going' ||
+              eventDetail.eventStatus === 'approved') &&
+            eventDetail.is_requested
+          ) {
             return null;
           }
 
