@@ -10,7 +10,6 @@ import { EventTransactionTable } from '@/components/features/finance/transaction
 import { TransactionSummary } from '@/components/features/finance/transaction/summary';
 import WithdrawalHistoryTable from '@/components/features/finance/withdrawal/table';
 import { useTransactions } from '@/hooks';
-// import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import { useWithdrawalHistory } from '@/hooks/features/withdrawal/useWithdrawalHistory';
 import DashboardLayout from '@/layouts/dashboard';
 import { TransactionsFilters } from '@/types/transaction';
@@ -22,13 +21,9 @@ function EventTransactions() {
   const { eventId } = router.query as { eventId: string };
   const [activeTab, setActiveTab] = useState('payment');
 
-  // Fetch Event Detail using MetaUrl
-  // const { eventDetail } = useEventDetail(eventId);
-  // const realEventId = eventDetail?.id;
-
   // Pagination state for Transactions
   const [filters, setFilters] = useState<TransactionsFilters>({
-    eventId: '', // Will be updated when event loads
+    eventId: '',
     page: 0,
     show: 10
   });
