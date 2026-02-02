@@ -1,5 +1,12 @@
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Table,
+  TableCell,
+  TableRow,
+  useTheme
+} from '@mui/material';
 import { FC, useState } from 'react';
 
 import { Body1, Body2, Caption, Pagination } from '@/components/common';
@@ -19,6 +26,7 @@ interface WithdrawalHistoryTableProps {
   withdrawals: WithdrawalHistoryItem[];
   loading?: boolean;
   hideEOName?: boolean;
+  hideEventName?: boolean;
   total?: number;
   currentPage?: number;
   pageSize?: number;
@@ -29,11 +37,13 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
   withdrawals,
   loading = false,
   hideEOName = false,
+  hideEventName = false,
   total = 0,
   currentPage = 0,
   pageSize = 10,
   onPageChange
 }) => {
+  const theme = useTheme();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] =
     useState<WithdrawalHistoryItem | null>(null);
@@ -58,7 +68,10 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
   return (
     <>
       <StyledTableContainer>
-        <Box mb={2} pb={2} borderBottom="1px solid #E2E8F0">
+        <Box
+          borderBottom={`1px solid ${theme.palette.grey[100]}`}
+          pb={2}
+        >
           <Body1 color="text.primary" fontWeight={600}>
             Withdrawal History
           </Body1>
@@ -83,11 +96,13 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                   </Body2>
                 </TableCell>
               )}
-              <TableCell sx={{ width: '20%' }}>
-                <Body2 color="text.secondary" fontSize="14px">
-                  Event Name
-                </Body2>
-              </TableCell>
+              {!hideEventName && (
+                <TableCell sx={{ width: '20%' }}>
+                  <Body2 color="text.secondary" fontSize="14px">
+                    Event Name
+                  </Body2>
+                </TableCell>
+              )}
               <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Withdrawal Name
@@ -119,7 +134,9 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
             {withdrawals.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={hideEOName ? 7 : 8}
+                  colSpan={
+                    8 - (hideEOName ? 1 : 0) - (hideEventName ? 1 : 0)
+                  }
                   align="center"
                   sx={{ padding: '40px' }}
                 >
@@ -144,9 +161,11 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                       <Body2 fontSize="14px">{withdrawal.eventOrganizerName}</Body2>
                     </TableCell>
                   )}
-                  <TableCell>
-                    <Body2 fontSize="14px">{withdrawal.eventName}</Body2>
-                  </TableCell>
+                  {!hideEventName && (
+                    <TableCell>
+                      <Body2 fontSize="14px">{withdrawal.eventName}</Body2>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Body2 fontSize="14px">
                       {withdrawal.withdrawalName || '-'}
