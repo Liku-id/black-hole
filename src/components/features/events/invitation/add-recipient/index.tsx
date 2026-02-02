@@ -39,7 +39,7 @@ export const AddNewRecipientModal = ({
       ...defaultValues
     }
   });
-  const { handleSubmit, watch, reset } = methods;
+  const { handleSubmit, reset } = methods;
 
   // Reset form when modal opens or defaultValues change
   useEffect(() => {
@@ -55,8 +55,7 @@ export const AddNewRecipientModal = ({
     }
   }, [open, defaultValues, reset]);
   
-  // Watch ticketType for dynamic quantity logic
-  const watchedTicketType = watch('ticketType');
+
 
   // Map ticket types to dropdown options
   const ticketTypeOptions = ticketTypes.map((ticket) => ({
@@ -64,18 +63,7 @@ export const AddNewRecipientModal = ({
     label: ticket.name
   }));
   
-  // Determine ticket quantities based on selected ticket type
-  const selectedTicketObj = ticketTypes.find((t) => t.id === watchedTicketType);
-  const remainingQty = selectedTicketObj 
-    ? (selectedTicketObj.quantity - (selectedTicketObj.purchased_amount || 0)) 
-    : 0;
 
-  const ticketQuantities = remainingQty > 0 
-    ? Array.from({ length: remainingQty }, (_, i) => ({ 
-        value: String(i + 1), 
-        label: String(i + 1) 
-      }))
-    : [];
 
   const handleFormSubmit = (data: any) => {
       onSubmit(data);
@@ -112,7 +100,7 @@ export const AddNewRecipientModal = ({
                   <Body2 color="text.secondary" mb={1} fontWeight={600}>Email*</Body2>
                   <TextField
                     name="email"
-                    placeholder="Recipinet Email"
+                    placeholder="Recipient Email"
                     rules={{ 
                         required: 'Email is required',
                         pattern: {
@@ -130,8 +118,20 @@ export const AddNewRecipientModal = ({
                   <PhoneField 
                       name="phoneNumber"
                       placeholder="Recipient Phone Number"
-                      rules={{ required: 'Phone number is required' }}
+                      type="number"
+                      rules={{ 
+                        required: 'Phone number is required',
+                      }}
                       fullWidth
+                      sx={{
+                        "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+                          WebkitAppearance: "none",
+                          margin: 0,
+                        },
+                        "& input[type=number]": {
+                          MozAppearance: "textfield",
+                        },
+                      }}
                   />
               </Box>
             </Box>
@@ -152,13 +152,18 @@ export const AddNewRecipientModal = ({
                 {/* Qty Ticket */}
                 <Box flex={1}>
                   <Body2 color="text.secondary" mb={1} fontWeight={600}>Qty Ticket*</Body2>
-                  <Select
+                  <TextField
                       name="ticketQty"
-                      options={ticketQuantities}
+                      type="number"
                       placeholder="Ticket quantity"
                       fullWidth
-                      disabled={!watchedTicketType}
-                      rules={{ required: 'Ticket Quantity is required' }}
+                      rules={{ 
+                        required: 'Ticket Quantity is required',
+                        min: {
+                          value: 1,
+                          message: "Quantity must be at least 1"
+                        }
+                      }}
                   />
                 </Box>
             </Box>

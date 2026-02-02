@@ -108,7 +108,7 @@ function InvitationPage() {
         eventOrganizerName: data.body.event?.eventOrganizer?.name,
         type: data.body.ticketType?.name,
         attendee: ticket.visitor_name,
-        qrValue: ticket.ticket_id,
+        qrValue: ticket.id,
         date: dateUtils.formatDate(data.body.ticketType?.ticketStartDate, 'datetime'),
         address: data.body.event?.address,
         mapLocation: data.body.event?.mapLocationUrl,
