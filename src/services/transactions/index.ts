@@ -101,11 +101,35 @@ class TransactionsService {
 
   async getTransactionSummary(eventId: string): Promise<TransactionSummary> {
     try {
-      return await apiUtils.get<TransactionSummary>(
+      const response = await apiUtils.get<any>(
         `/api/transactions/${eventId}/summary`,
         {},
         'Failed to fetch transaction summary'
       );
+
+      const data = response?.body;
+
+      if (!data) {
+        return {
+          ticketSales: {
+            total: 0,
+            amount: 0
+          },
+          payment: 0,
+          withdrawal: 0,
+          balance: 0
+        };
+      }
+
+      return {
+        ticketSales: {
+          total: parseFloat(data.total_ticket_sold || '0'),
+          amount: parseFloat(data.total_payment || '0')
+        },
+        payment: parseFloat(data.total_payment || '0'),
+        withdrawal: parseFloat(data.total_withdrawal || '0'),
+        balance: parseFloat(data.available_balance || '0')
+      };
     } catch (error) {
       console.error('Error fetching transaction summary:', error);
       throw error;

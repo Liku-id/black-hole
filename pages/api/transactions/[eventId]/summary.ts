@@ -1,28 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 
-import { TransactionSummary } from '@/types/transaction';
+import { apiRouteUtils } from '@/utils/apiRouteUtils';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TransactionSummary | { message: string }>
+  res: NextApiResponse
 ) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Dummy data as requested
-  const dummyData: TransactionSummary = {
-    ticketSales: {
-      total: 657450,
-      amount: 657450
-    },
-    payment: 132560000,
-    withdrawal: 132560000,
-    balance: 2560000
-  };
+  const { eventId } = req.query;
 
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  if (!eventId || typeof eventId !== 'string') {
+    return res.status(400).json({ message: 'Event ID is required' });
+  }
 
-  return res.status(200).json(dummyData);
+  const getHandler = apiRouteUtils.createGetHandler({
+    endpoint: `/events/${eventId}/financial-summary`,
+    timeout: 10000
+  });
+
+  return await getHandler(req, res);
 }

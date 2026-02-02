@@ -108,6 +108,7 @@ export interface WithdrawalListItem {
   createdBy: string;
   requestedAmount: string;
   totalFee: number;
+  withdrawalFee: string;
   amountReceived: string;
   status: string;
   approvedBy: string;
