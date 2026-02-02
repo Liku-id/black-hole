@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
 import { usePaymentMethods } from '@/hooks';
-import { EventDetail } from '@/types/event';
+import { EventDetail, EventUpdateRequest } from '@/types/event';
 import { dateUtils } from '@/utils';
 
 // Rejected Reason Component
@@ -148,7 +148,7 @@ const Field = ({
 
 interface EventsSubmissionsInfoProps {
   eventDetail: EventDetail;
-  eventUpdateRequest?: any; // EventUpdateRequest type
+  eventUpdateRequest?: EventUpdateRequest;
   rejectMode?: boolean;
   selectedFields?: string[];
   onToggleField?: (fieldKey: string, checked: boolean) => void;
@@ -195,10 +195,12 @@ export const EventsSubmissionsInfo = ({
   const renderLabel = (text: string, key: string | string[]) => {
     if (
       !rejectMode ||
-      (eventDetail.eventStatus === 'on_going' &&
+      ((eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'approved') &&
         (key === 'admin_fee' || key === 'tax'))
-    )
+    ) {
       return text;
+    }
 
     const keys = Array.isArray(key) ? key : [key];
     const checked = keys.every((k) => selectedFields.includes(k));
