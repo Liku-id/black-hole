@@ -10,7 +10,7 @@ import { EventTransactionTable } from '@/components/features/finance/transaction
 import { TransactionSummary } from '@/components/features/finance/transaction/summary';
 import WithdrawalHistoryTable from '@/components/features/finance/withdrawal/table';
 import { useTransactions } from '@/hooks';
-import { useEventDetail } from '@/hooks/features/events/useEventDetail';
+// import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import { useWithdrawalHistory } from '@/hooks/features/withdrawal/useWithdrawalHistory';
 import DashboardLayout from '@/layouts/dashboard';
 import { TransactionsFilters } from '@/types/transaction';
@@ -18,13 +18,13 @@ import { TransactionsFilters } from '@/types/transaction';
 function EventTransactions() {
   const router = useRouter();
   const theme = useTheme();
-  // Using metaUrl from query
-  const { metaUrl } = router.query as { metaUrl: string };
+  // Using eventId from query
+  const { eventId } = router.query as { eventId: string };
   const [activeTab, setActiveTab] = useState('payment');
 
   // Fetch Event Detail using MetaUrl
-  const { eventDetail } = useEventDetail(metaUrl);
-  const realEventId = eventDetail?.id;
+  // const { eventDetail } = useEventDetail(eventId);
+  // const realEventId = eventDetail?.id;
 
   // Pagination state for Transactions
   const [filters, setFilters] = useState<TransactionsFilters>({
@@ -52,7 +52,7 @@ function EventTransactions() {
     withdrawals,
     loading: withdrawalsLoading,
     pagination: withdrawalsPagination
-  } = useWithdrawalHistory(realEventId, undefined, withdrawalFilters);
+  } = useWithdrawalHistory(eventId, undefined, withdrawalFilters);
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({
@@ -79,10 +79,10 @@ function EventTransactions() {
 
   // Update filters when event ID is available
   useEffect(() => {
-    if (realEventId) {
-      setFilters((prev) => ({ ...prev, eventId: realEventId }));
+    if (eventId) {
+      setFilters((prev) => ({ ...prev, eventId: eventId }));
     }
-  }, [realEventId]);
+  }, [eventId]);
 
   return (
     <DashboardLayout>
@@ -107,7 +107,7 @@ function EventTransactions() {
 
       {/* Title */}
       <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="16px">
-        Event Transactions: {eventDetail?.name ? `: ${eventDetail.name}` : ''}
+        Event Transactions{transactions?.[0]?.event?.name ? `: ${transactions[0].event.name}` : ''}
       </H2>
 
       {/* Main Card Content */}
@@ -122,7 +122,7 @@ function EventTransactions() {
         <Divider sx={{ borderColor: theme.palette.grey[100], mb: '16px' }} />
 
         {/* Summary Cards */}
-        <TransactionSummary eventId={realEventId} />
+        <TransactionSummary eventId={eventId} />
 
         {/* Tabs */}
         <Tabs activeTab={activeTab} tabs={tabs} onTabChange={handleTabChange} />
@@ -134,7 +134,7 @@ function EventTransactions() {
             error={transactionsError}
             loading={transactionsLoading}
             pageSize={filters.show}
-            total={transactionsPagination?.totalItems}
+            total={transactionsPagination?.totalRecords}
             transactions={transactions}
             onPageChange={handlePageChange}
           />
