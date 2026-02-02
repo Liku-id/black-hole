@@ -334,7 +334,10 @@ export const EventEditInfo = ({
                         options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
                         onValueChange={(type) => setValue('adminFeeType', type)}
-                        disabled={eventDetail.eventStatus === 'on_going'}
+                        disabled={
+                          eventDetail.eventStatus === 'on_going' ||
+                          eventDetail.eventStatus === 'approved'
+                        }
                       />
                     </InputAdornment>
                   )
@@ -359,7 +362,10 @@ export const EventEditInfo = ({
                     return true;
                   }
                 }}
-                disabled={eventDetail.eventStatus === 'on_going'}
+                disabled={
+                  eventDetail.eventStatus === 'on_going' ||
+                  eventDetail.eventStatus === 'approved'
+                }
                 isRejected={isFieldRejected('admin_fee')}
               />
             </Grid>
@@ -392,7 +398,10 @@ export const EventEditInfo = ({
                   }
                 }}
                 isRejected={isFieldRejected('tax')}
-                disabled={eventDetail.eventStatus === 'on_going'}
+                disabled={
+                  eventDetail.eventStatus === 'on_going' ||
+                  eventDetail.eventStatus === 'approved'
+                }
               />
             </Grid>
             <Grid item md={6} xs={12}>
