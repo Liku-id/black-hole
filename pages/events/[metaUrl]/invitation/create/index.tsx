@@ -38,6 +38,8 @@ const formatPhoneNumberFromCSV = (phone: string): string => {
   if (!phone) return phone;
   
   const trimmedPhone = phone.trim();
+
+  if (/[^0-9+\s-]/.test(trimmedPhone)) return "";
   
   // If already starts with +, leave as is
   if (trimmedPhone.startsWith('+')) {
@@ -144,27 +146,19 @@ function CreateRecipientPage() {
               // Ticket Type Matching Logic
               const csvTicketName = row.ticketTypeName?.trim().toUpperCase();
               let matchedTicketId = '';
-              let matchedTicketName = ''; // Default empty if no match
-              let matchedTicketQty = row.ticketQty;
+              let matchedTicketName = '';
+              let matchedTicketQty = '';
 
               if (csvTicketName && eventDetail?.ticketTypes) {
                   const match = eventDetail.ticketTypes.find(
                       t => t.name.toUpperCase() === csvTicketName
                   );
+
                   if (match) {
                       matchedTicketId = match.id;
                       matchedTicketName = match.name;
-                      
-                      // Check quantity limit
-                      const csvQty = parseInt(row.ticketQty, 10);
-                      if (!isNaN(csvQty) && csvQty > match.quantity) {
-                          matchedTicketQty = ''; // Leave empty if exceeds limit
-                      }
-                  } else {
-                      matchedTicketQty = ''; 
+                      matchedTicketQty = row.ticketQty; 
                   }
-              } else {
-                  matchedTicketQty = '';
               }
 
               return {
