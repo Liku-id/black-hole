@@ -193,7 +193,6 @@ export const EventsSubmissionsInfo = ({
   };
 
   const renderLabel = (text: string, key: string | string[]) => {
-    console.log(eventDetail.eventStatus);
     if (
       !rejectMode ||
       ((eventDetail.eventStatus === 'on_going' ||
