@@ -96,7 +96,7 @@ const EventsTable: FC<EventsTableProps> = ({
   };
 
   const handleTransactionClick = (event: Event) => {
-    router.push(`/finance/event-transactions/${event.id}`);
+    router.push(`/finance/event-transactions/${event.metaUrl}`);
     handleMenuClose(event.id);
   };
 
@@ -569,6 +569,43 @@ const EventsTable: FC<EventsTableProps> = ({
                                   fontWeight="400"
                                 >
                                   Partner Ticket
+                                </Body2>
+                              }
+                            />
+                          </MenuItem>
+                        )}
+                      {userRole !== UserRole.GROUND_STAFF &&
+                        userRole !== UserRole.FINANCE &&
+                        ['on_going'].includes(
+                        event.eventStatus
+                        ) && (
+                          <MenuItem
+                            onClick={() =>
+                              router.push(`/events/${event.metaUrl}/invitation`)
+                            }
+                            sx={{
+                              padding: '12px 16px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                              }
+                            }}
+                          >
+                            <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+                              <Image
+                                alt="Invitation"
+                                src="/icon/invitation.svg"
+                                height={18}
+                                width={18}
+                              />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Body2
+                                  color="text.primary"
+                                  fontSize="14px"
+                                  fontWeight="400"
+                                >
+                                  Invitation Ticket
                                 </Body2>
                               }
                             />

@@ -28,7 +28,8 @@ const transformTicketData = (tickets: Ticket[]) => {
     transactionNumber: ticket.transaction_number,
     redeemedAt: ticket.redeemed_at,
     checkedInAt: ticket.checked_in_at,
-    attendeeData: (ticket.attendee_data || []) as AttendeeAdditionalData[]
+    attendeeData: (ticket.attendee_data || []) as AttendeeAdditionalData[],
+    bookingType: ticket.booking_type,
   }));
 };
 

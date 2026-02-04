@@ -483,7 +483,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                 <MenuItem
                   onClick={() =>
                     handleMenuItemClick(
-                      `/finance/event-transactions/${event.id}`
+                      `/finance/event-transactions/${event.metaUrl}`
                     )
                   }
                 >

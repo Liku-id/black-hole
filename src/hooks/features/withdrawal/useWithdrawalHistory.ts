@@ -34,7 +34,7 @@ export const useWithdrawalHistory = (
   return {
     withdrawals: data?.body?.data || [],
     loading,
-    error,
+    error: error ?? null,
     mutate,
     pagination: data?.body?.pagination
   };
