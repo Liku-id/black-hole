@@ -12,6 +12,7 @@ import { Ticket, AttendeeAdditionalData, TicketStatus } from '@/types/ticket';
 
 // Transform ticket data to match UI expectations
 const transformTicketData = (tickets: Ticket[]) => {
+  console.log(tickets[0].booking_type);
   return tickets.map((ticket, index) => ({
     no: index + 1,
     id: ticket.id, // Database ID needed for API calls
@@ -28,7 +29,8 @@ const transformTicketData = (tickets: Ticket[]) => {
     transactionNumber: ticket.transaction_number,
     redeemedAt: ticket.redeemed_at,
     checkedInAt: ticket.checked_in_at,
-    attendeeData: (ticket.attendee_data || []) as AttendeeAdditionalData[]
+    attendeeData: (ticket.attendee_data || []) as AttendeeAdditionalData[],
+    bookingType: ticket.booking_type,
   }));
 };
 
