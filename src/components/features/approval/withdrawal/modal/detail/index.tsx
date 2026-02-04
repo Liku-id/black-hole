@@ -49,6 +49,17 @@ const WithdrawalDetailModal: FC<WithdrawalDetailModalProps> = ({
         </Body2>
       </Box>
 
+      {/* Total Fee Amount */}
+      <Box alignItems="center" display="flex" justifyContent="space-between">
+        <Body2 color="text.secondary">Total Fee</Body2>
+        <Body2 color="text.primary">
+          {formatUtils.formatPrice(
+            (withdrawal.totalFee || 0) +
+            parseFloat(withdrawal.withdrawalFee || '0')
+          )}
+        </Body2>
+      </Box>
+
       {/* Amount Received */}
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Body2 color="text.secondary">Amount Received</Body2>
