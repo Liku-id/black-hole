@@ -105,7 +105,7 @@ function EventTransactions() {
 
       {/* Title */}
       <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="16px">
-        Event Transactions{transactions?.[0]?.event?.name ? `: ${transactions[0].event.name}` : ''}
+        Event Transactions{eventName ? `: ${eventName}` : ''}
       </H2>
 
       {/* Main Card Content */}
