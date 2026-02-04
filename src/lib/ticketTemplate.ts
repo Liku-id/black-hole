@@ -185,11 +185,6 @@ export const ticketTemplate = (tickets: any[]) : string => {
                   </div>
                 </div>
               </div>
-
-               <div style="text-align: center; margin-top: 10px;">
-                  <div style="font-size: 10px; color: #64748B;">Location Map</div>
-                  <a href="${ticket.mapLocation?.replace(/\s/g, '') || '#'}" style="font-size: 12px; color: #2563EB; text-decoration: underline; word-break: break-all; display: block;">${ticket.mapLocation?.replace(/\s/g, '') || 'N/A'}</a>
-               </div>
             </div>
           </div>
         `).join('')}
