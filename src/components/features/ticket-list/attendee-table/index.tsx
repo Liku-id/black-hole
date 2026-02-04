@@ -42,6 +42,7 @@ interface AttendeeData {
   ticketId: string;
   name: string;
   ticketType: string;
+  bookingType?: string;
   phoneNumber: string;
   date: string;
   paymentMethod: string;
@@ -377,6 +378,17 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
+                    width="100px"
+                  >
+                    <Body2 color="text.secondary" fontWeight={600}>
+                      Booking Type
+                    </Body2>
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      color: 'text.secondary'
+                    }}
                     width="110px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
@@ -421,7 +433,7 @@ export const AttendeeTable = ({
               <StyledTableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
+                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
                       <Box
                         alignItems="center"
                         display="flex"
@@ -448,7 +460,7 @@ export const AttendeeTable = ({
                   </TableRow>
                 ) : attendeeData.length === 0 ? (
                   <TableRow>
-                    <TableCell align="center" colSpan={9} sx={{ py: 4 }}>
+                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
                       <Body2 color="text.secondary">No tickets found</Body2>
                     </TableCell>
                   </TableRow>
@@ -466,6 +478,9 @@ export const AttendeeTable = ({
                       </TableCell>
                       <TableCell>
                         <Body2>{attendee.ticketType}</Body2>
+                      </TableCell>
+                      <TableCell>
+                        <Body2>{attendee.bookingType?.toUpperCase() || '-'}</Body2>
                       </TableCell>
                       <TableCell>
                         <Body2>{attendee.phoneNumber}</Body2>
