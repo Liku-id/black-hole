@@ -240,6 +240,7 @@ export interface TransactionsFilters {
   eventId?: string;
   partnerId?: string;
   search?: string;
+  status?: string;
 }
 
 export interface TransactionError {

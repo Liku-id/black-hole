@@ -30,6 +30,13 @@ export default async function handler(
     if (search && typeof search === 'string') {
       req.query.search = search;
     }
+    const { status } = req.query;
+    if (status && typeof status === 'string') {
+      const validStatuses = ['pending', 'paid', 'expired', 'cancelled'];
+      if (validStatuses.includes(status)) {
+        req.query.status = status;
+      }
+    }
 
     return await getHandler(req, res);
   } catch (error) {
