@@ -19,6 +19,7 @@ class TransactionsService {
       if (filters?.show !== undefined) params.limit = filters.show.toString();
       if (filters?.partnerId) params.partnerId = filters.partnerId;
       if (filters?.search) params.search = filters.search;
+      if (filters?.status) params.status = filters.status;
 
       return await apiUtils.get<TransactionsResponse>(
         `/api/transactions/${filters.eventId}`,
