@@ -186,6 +186,7 @@ export interface WithdrawalHistoryResponse {
 export interface PaginationFilters {
   page: number;
   show: number;
+  status?: string;
 }
 
 class WithdrawalService {
@@ -314,6 +315,10 @@ class WithdrawalService {
 
     if (filters?.page !== undefined) {
       params.page = filters.page.toString();
+    }
+
+    if (filters?.status) {
+      params.status = filters.status;
     }
 
     return apiUtils.get<WithdrawalHistoryResponse>(
