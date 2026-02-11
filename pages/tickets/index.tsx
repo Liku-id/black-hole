@@ -29,7 +29,7 @@ const transformTicketData = (tickets: Ticket[]) => {
     redeemedAt: ticket.redeemed_at,
     checkedInAt: ticket.checked_in_at,
     attendeeData: (ticket.attendee_data || []) as AttendeeAdditionalData[],
-    bookingType: ticket.booking_type,
+    bookingType: ticket.booking_type
   }));
 };
 
@@ -65,7 +65,8 @@ function Tickets() {
     tickets,
     loading: ticketsLoading,
     mutate: mutateTickets,
-    pagination
+    pagination,
+    stats
   } = useTickets(filters);
 
   // Transform events for dropdown options
@@ -117,19 +118,23 @@ function Tickets() {
   };
 
   const handleTicketTypeChange = (ticketTypeIds: string) => {
-    setFilters((prev) => ({ 
-      ...prev, 
-      ticketTypeIds: ticketTypeIds === '' ? undefined : ticketTypeIds, 
-      page: 0 
+    setFilters((prev) => ({
+      ...prev,
+      ticketTypeIds: ticketTypeIds === '' ? undefined : ticketTypeIds,
+      page: 0
     }));
   };
-  
+
   const handleTicketStatusChange = (ticketStatus: TicketStatus | '') => {
-    setFilters((prev) => ({ 
-      ...prev, 
-      ticketStatus: ticketStatus !== '' ? ticketStatus : undefined, 
-      page: 0 
+    setFilters((prev) => ({
+      ...prev,
+      ticketStatus: ticketStatus !== '' ? ticketStatus : undefined,
+      page: 0
     }));
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setFilters((prev) => ({ ...prev, show: pageSize, page: 0 }));
   };
 
   const handleRedeemTicket = (_ticketId: string) => {
@@ -205,7 +210,7 @@ function Tickets() {
             attendeeData={attendeeData}
             currentPage={filters.page}
             loading={ticketsLoading}
-            pageSize={10}
+            pageSize={filters.show}
             searchQuery={filters.search}
             selectedEventData={selectedEventData}
             total={pagination?.totalRecords}
@@ -213,10 +218,12 @@ function Tickets() {
             selectedTicketTypeIds={filters.ticketTypeIds}
             selectedTicketStatus={filters.ticketStatus}
             onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
             onRedeemTicket={handleRedeemTicket}
             onSearchChange={handleSearchChange}
             onTicketTypeChange={handleTicketTypeChange}
             onTicketStatusChange={handleTicketStatusChange}
+            stats={stats}
           />
         )}
 
