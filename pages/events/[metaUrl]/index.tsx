@@ -282,12 +282,14 @@ function EventDetail() {
     // Check both regular tickets and group tickets (only if group tickets exist)
     // Don't show approved status when event status is ongoing
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    
+
     const allTickets = [
       ...(eventDetail.ticketTypes || []),
-      ...(eventDetail.group_tickets && eventDetail.group_tickets.length > 0 ? eventDetail.group_tickets : [])
+      ...(eventDetail.group_tickets && eventDetail.group_tickets.length > 0
+        ? eventDetail.group_tickets
+        : [])
     ];
-    
+
     // Only calculate status if there are tickets to check
     if (allTickets.length > 0) {
       const hasPendingTicket = allTickets.some(
@@ -296,7 +298,9 @@ function EventDetail() {
       const hasRejectedTicket = allTickets.some(
         (tt: any) => tt.status === 'rejected'
       );
-      const allApproved = allTickets.every((tt: any) => tt.status === 'approved');
+      const allApproved = allTickets.every(
+        (tt: any) => tt.status === 'approved'
+      );
 
       // For on_going or approved events, only show status if there are pending tickets
       if (
@@ -305,6 +309,8 @@ function EventDetail() {
       ) {
         if (hasPendingTicket) {
           ticketStatus = 'pending';
+        } else if (hasRejectedTicket) {
+          ticketStatus = 'rejected';
         } else {
           // Don't show tab status if no pending tickets
           ticketStatus = undefined;
@@ -337,7 +343,8 @@ function EventDetail() {
     (eventDetail?.eventStatus === 'rejected' ||
       !!eventDetail?.eventUpdateRequest ||
       (!!eventDetail?.eventAssetChanges &&
-        eventDetail.eventAssetChanges.length > 0));
+        eventDetail.eventAssetChanges.length > 0) ||
+      !!tabStatuses.tickets);
 
   // Check if no section is rejected (EO has fixed all rejected sections)
   const canResubmitRejectedEvent = () => {
