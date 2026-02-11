@@ -50,7 +50,10 @@ export const apiRouteUtils = {
         const response = await axios.get(url, {
           params,
           headers,
-          timeout: options.timeout || 10000
+          timeout: options.timeout || 10000,
+          paramsSerializer: {
+            indexes: null // Serializes arrays as 'key=value&key=value'
+          }
         });
 
         const responseData = options.transformResponse
