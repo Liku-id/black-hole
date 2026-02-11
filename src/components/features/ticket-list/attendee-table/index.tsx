@@ -11,21 +11,34 @@ import {
   InputAdornment,
   Menu,
   MenuItem,
+  Skeleton,
   Table,
   TableCell,
-  TableRow
+  TableRow,
+  useTheme
 } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Pagination, Button as ButtonExport, Select } from '@/components/common';
+import {
+  Pagination,
+  Button as ButtonExport,
+  Select,
+  MultiSelect
+} from '@/components/common';
 import {
   StyledTableBody,
   StyledTableContainer,
   StyledTableHead
 } from '@/components/common/table';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
-import { Body1, Body2, Caption, H4 } from '@/components/common/typography';
+import {
+  Body1,
+  Body2,
+  Caption,
+  H1,
+  H4
+} from '@/components/common/typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useExportTickets } from '@/hooks';
@@ -81,6 +94,11 @@ interface AttendeeTableProps {
   selectedTicketStatus?: TicketStatus | '';
   onTicketTypeChange?: (ticketTypeIds: string) => void;
   onTicketStatusChange?: (ticketStatus: TicketStatus | '') => void;
+  stats?: {
+    totalIssued: number;
+    totalRedeem: number;
+    totalTicket: number;
+  };
 }
 
 export const AttendeeTable = ({
@@ -98,9 +116,13 @@ export const AttendeeTable = ({
   selectedTicketTypeIds,
   selectedTicketStatus = '',
   onTicketTypeChange,
-  onTicketStatusChange
-  // onPageSizeChange // Not implemented in current design
+  onTicketStatusChange,
+  onPageSizeChange,
+  stats
 }: AttendeeTableProps) => {
+  const theme = useTheme();
+
+  // Initial state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [redeemModalOpen, setRedeemModalOpen] = useState(false);
@@ -230,37 +252,84 @@ export const AttendeeTable = ({
   const ticketStatusOptions = [
     { value: '', label: 'All Status' },
     { value: 'issued', label: 'Unredeemed' },
-    { value: 'redeemed', label: 'Redeemed' },
+    { value: 'redeemed', label: 'Redeemed' }
   ];
 
-  const allTicketTypeOptions = [
-    { value: '', label: 'All Ticket Types' },
-    ...ticketTypeOptions
+  const cards = [
+    {
+      title: 'Total Attendee',
+      value: stats?.totalTicket,
+      icon: '/icon/attendee.svg'
+    },
+    {
+      title: 'Total Redeemed',
+      value: stats?.totalRedeem,
+      icon: '/icon/scan.svg'
+    },
+    {
+      title: 'Total Unredeemed',
+      value: stats?.totalIssued,
+      icon: '/icon/unredeem.svg'
+    }
   ];
 
   return (
     <>
       <Card sx={{ mt: 3, p: 3 }}>
-        <Box display="flex" flexDirection="column" gap={2}>
-          {/* Attendee Details Header */}
-          <Box
-            alignItems="center"
-            display="flex"
-            justifyContent="space-between"
-          >
-            <H4
-              sx={{
-                color: 'text.primary'
-              }}
-            >
-              Attendee Details
-            </H4>
+        <H4 sx={{ color: 'text.primary', marginBottom: '12px' }}>
+          Attendee Details
+        </H4>
 
+        <Divider sx={{ borderColor: theme.palette.grey[100], mb: '16px' }} />
+
+        {/* Attendee Details Stat */}
+        <Box
+          display="grid"
+          gap="16px"
+          gridTemplateColumns="repeat(3, 1fr)"
+          marginBottom="24px"
+        >
+          {cards.map((card, index) => (
+            <Box
+              key={index}
+              border={1}
+              borderColor={theme.palette.grey[100]}
+              padding="16px 12px"
+              sx={{ backgroundColor: 'common.white', borderRadius: '4px' }}
+            >
+              <Box alignItems="center" display="flex" mb="18px">
+                <Image
+                  alt={card.title}
+                  height={24}
+                  src={card.icon}
+                  width={24}
+                />
+                <Body2
+                  color="text.secondary"
+                  fontSize="18px"
+                  fontWeight={400}
+                  ml="8px"
+                >
+                  {card.title}
+                </Body2>
+              </Box>
+              <H1 color="text.primary">
+                {stats ? card.value : <Skeleton width="60%" />}
+              </H1>
+            </Box>
+          ))}
+        </Box>
+
+        <Box display="flex" flexDirection="column" gap={2}>
+          {/* Attendee Details Filter */}
+          <Box alignItems="center" display="flex" justifyContent="flex-end">
             <Box display="flex" alignItems="center" gap={2}>
-              <Select
-                options={allTicketTypeOptions}
-                value={selectedTicketTypeIds || ''}
-                onChange={(value) => onTicketTypeChange?.(value || '')}
+              <MultiSelect
+                options={ticketTypeOptions}
+                value={
+                  selectedTicketTypeIds ? selectedTicketTypeIds.split(',') : []
+                }
+                onChange={(values) => onTicketTypeChange?.(values.join(','))}
                 placeholder="Select Ticket Type"
                 sx={{
                   minWidth: '200px',
@@ -272,12 +341,22 @@ export const AttendeeTable = ({
               <Select
                 options={ticketStatusOptions}
                 value={selectedTicketStatus || ''}
-                onChange={(value) => onTicketStatusChange(value as TicketStatus | '')}
+                onChange={(value) =>
+                  onTicketStatusChange(value as TicketStatus | '')
+                }
                 placeholder="Select Status"
                 sx={{
                   minWidth: '100px',
                   '& .MuiOutlinedInput-root': {
-                    height: '40px'
+                    height: '40px',
+                    '&:has(input:not(:placeholder-shown))': {
+                      borderColor: 'grey.100',
+                      backgroundColor: 'background.paper'
+                    },
+                    '&.Mui-focused:has(input:not(:placeholder-shown))': {
+                      borderColor: 'primary.main',
+                      backgroundColor: 'background.default'
+                    }
                   }
                 }}
               />
@@ -322,9 +401,13 @@ export const AttendeeTable = ({
 
           {/* Attendee Table */}
           <StyledTableContainer
-            sx={{ borderTop: '1px solid #E2E8F0', pt: 0.5 }}
+            sx={{
+              borderTop: '1px solid #E2E8F0',
+              pt: 0.5,
+              overflowX: 'auto'
+            }}
           >
-            <Table>
+            <Table sx={{ minWidth: '1200px' }}>
               <StyledTableHead>
                 <TableRow>
                   <TableCell
@@ -332,7 +415,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="50px"
+                    width="60px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       No
@@ -343,7 +426,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="100px"
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Ticket ID
@@ -354,7 +437,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="140px"
+                    width="180px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Name
@@ -365,7 +448,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="100px"
+                    width="140px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Ticket Type
@@ -376,7 +459,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="100px"
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Booking Type
@@ -387,7 +470,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="110px"
+                    width="140px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Phone Number
@@ -398,7 +481,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="140px"
+                    width="160px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Transaction Date
@@ -409,7 +492,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="100px"
+                    width="120px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Redeem Status
@@ -420,7 +503,7 @@ export const AttendeeTable = ({
                       fontWeight: 600,
                       color: 'text.secondary'
                     }}
-                    width="60px"
+                    width="80px"
                   >
                     <Body2 color="text.secondary" fontWeight={600}>
                       Action
@@ -478,7 +561,9 @@ export const AttendeeTable = ({
                         <Body2>{attendee.ticketType}</Body2>
                       </TableCell>
                       <TableCell>
-                        <Body2>{attendee.bookingType?.toUpperCase() || '-'}</Body2>
+                        <Body2>
+                          {attendee.bookingType?.toUpperCase() || '-'}
+                        </Body2>
                       </TableCell>
                       <TableCell>
                         <Body2>{attendee.phoneNumber}</Body2>
@@ -557,6 +642,7 @@ export const AttendeeTable = ({
             pageSize={pageSize}
             onPageChange={(page) => onPageChange && onPageChange(page)}
             loading={loading}
+            onPageSizeChange={onPageSizeChange}
           />
         </Box>
       </Card>

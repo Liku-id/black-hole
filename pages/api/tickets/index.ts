@@ -7,7 +7,7 @@ const transformQuery = (query: any) => {
   const {
     eventId,
     page = '0',
-    limit = '10',
+    show = '10',
     search,
     ticketTypeIds,
     ticketStatus
@@ -21,18 +21,26 @@ const transformQuery = (query: any) => {
   const transformedQuery: any = {
     event_id: eventId,
     page: page.toString(),
-    limit: limit.toString()
+    limit: show.toString()
   };
 
   if (search && typeof search === 'string' && search.trim() !== '') {
     transformedQuery.search = search.trim();
   }
 
-  if (ticketTypeIds && typeof ticketTypeIds === 'string' && ticketTypeIds.trim() !== '') {
-    transformedQuery.ticketTypeIds = ticketTypeIds.trim();
+  if (
+    ticketTypeIds &&
+    typeof ticketTypeIds === 'string' &&
+    ticketTypeIds.trim() !== ''
+  ) {
+    transformedQuery.ticketTypeIds = ticketTypeIds.split(',');
   }
 
-  if (ticketStatus && typeof ticketStatus === 'string' && ticketStatus.trim() !== '') {
+  if (
+    ticketStatus &&
+    typeof ticketStatus === 'string' &&
+    ticketStatus.trim() !== ''
+  ) {
     transformedQuery.status = ticketStatus.trim();
   }
 
