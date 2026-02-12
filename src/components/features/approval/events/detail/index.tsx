@@ -207,6 +207,7 @@ export const EventsSubmissionsInfo = ({
     if (
       !rejectMode ||
       ((eventDetail.eventStatus === 'on_going' ||
+        eventDetail.eventStatus === 'on_review' ||
         eventDetail.eventStatus === 'approved') &&
         (key === 'admin_fee' || key === 'tax'))
     ) {
