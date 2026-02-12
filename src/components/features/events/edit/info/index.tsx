@@ -1,5 +1,5 @@
 import { Box, Grid, InputAdornment } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import {
@@ -21,6 +21,17 @@ import { UserRole, isEventOrganizer } from '@/types/auth';
 import { dateUtils } from '@/utils';
 
 import { RejectedReason } from '../../detail/info';
+
+// Event types that have 10% tax by default
+const TAXABLE_EVENT_TYPES = [
+  'concerts',
+  'expo',
+  'conference',
+  'exhibition',
+  'bazaar',
+  'festivals',
+  'music'
+];
 
 // Admin Fee Type Options
 const adminFeeTypeOptions = [
@@ -190,6 +201,19 @@ export const EventEditInfo = ({
   const watchedTimeRange = watch('timeRange');
   const watchedAdminFeeType = watch('adminFeeType');
   const watchedPlatformFeeType = watch('platformFeeType');
+  const watchedEventType = watch('eventType');
+
+  // Auto-update tax based on event type (skip initial mount to preserve server data)
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (!watchedEventType) return;
+    const isTaxable = TAXABLE_EVENT_TYPES.includes(watchedEventType.toLowerCase());
+    setValue('taxNominal', isTaxable ? '10' : '0');
+  }, [watchedEventType, setValue]);
 
   const eventTypeOptions = eventTypes.map((type) => ({
     value: type,
