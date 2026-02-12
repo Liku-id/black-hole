@@ -210,6 +210,26 @@ function EditEvent() {
         payload.tax = calculatedTax;
       }
 
+      // Handle Platform Fee (feeThresholds)
+      const calculatedPlatformFee = formData.platformFee && formData.platformFee.trim() !== ''
+        ? parseInt(formData.platformFee)
+        : null;
+
+      const existingPlatformFee = comparisonSource?.feeThresholds?.[0]?.platformFee
+        ? parseInt(comparisonSource.feeThresholds[0].platformFee)
+        : null;
+
+      if (calculatedPlatformFee !== existingPlatformFee) {
+        if (calculatedPlatformFee !== null) {
+          payload.feeThresholds = [{
+            threshold: "0",
+            platformFee: calculatedPlatformFee.toString()
+          }];
+        } else {
+          payload.feeThresholds = [];
+        }
+      }
+
       const comparisonLoginRequired =
         (comparisonSource as any).login_required !== undefined
           ? (comparisonSource as any).login_required
@@ -230,9 +250,8 @@ function EditEvent() {
 
       if (changedFields.length === 0) {
         // Check if there are rejected fields that need to be fixed
-        const rejectedFields = eventDetail?.eventUpdateRequest?.rejectedFields || 
-                              eventDetail?.rejectedFields || [];
-        
+        const rejectedFields = eventDetail?.eventUpdateRequest?.rejectedFields ||
+          eventDetail?.rejectedFields || [];
         if (rejectedFields.length > 0) {
           setUpdateError(
             'Please fix the rejected fields before submitting. Review the fields marked with error indicators and make necessary corrections.'
@@ -240,7 +259,7 @@ function EditEvent() {
           setIsUpdating(false);
           return;
         }
-        
+
         setIsUpdating(false);
         return;
       }
@@ -321,7 +340,7 @@ function EditEvent() {
       {/* Title */}
       <H2 color="text.primary" fontWeight={700} mb="21px">
         {eventDetail.eventStatus === 'on_going' ||
-        eventDetail.eventStatus === 'approved'
+          eventDetail.eventStatus === 'approved'
           ? 'Edit Request Event Details'
           : 'Edit Event Details'}
       </H2>

@@ -226,6 +226,7 @@ export interface EventUpdateRequest {
   cityId: string;
   eventOrganizerId: string;
   paymentMethodIds: string[];
+  feeThresholds?: FeeThreshold[];
   login_required?: boolean;
 }
 
@@ -254,7 +255,7 @@ export interface EventDetail {
   paymentMethods: PaymentMethod[];
   adminFee: number;
   tax: number;
-  feeThresholds: FeeThreshold[];
+  feeThresholds?: FeeThreshold[];
   eventAssets: EventAsset[];
   eventAssetChanges?: EventAssetChange[];
   is_requested: boolean;
@@ -321,6 +322,7 @@ export interface CreateEventRequest {
   metaUrl: string;
   adminFee: number;
   tax: number;
+  feeThresholds?: FeeThreshold[];
   login_required?: boolean;
 }
 
