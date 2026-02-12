@@ -263,6 +263,7 @@ export const EventEditInfo = ({
                   required: 'Event name is required'
                 }}
                 isRejected={isFieldRejected('name')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -276,6 +277,7 @@ export const EventEditInfo = ({
                   required: 'Event type is required'
                 }}
                 isRejected={isFieldRejected('event_type')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -296,7 +298,8 @@ export const EventEditInfo = ({
                   }
                 }}
                 value={watchedDateRange}
-                onClick={() => setDateModalOpen(true)}
+                onClick={() => !(eventDetail.eventStatus === 'on_review') && setDateModalOpen(true)}
+                disabled={eventDetail.eventStatus === 'on_review'}
                 isRejected={
                   isFieldRejected('start_date') || isFieldRejected('end_date')
                 }
@@ -320,7 +323,8 @@ export const EventEditInfo = ({
                   }
                 }}
                 value={watchedTimeRange}
-                onClick={() => setTimeModalOpen(true)}
+                onClick={() => !(eventDetail.eventStatus === 'on_review') && setTimeModalOpen(true)}
+                disabled={eventDetail.eventStatus === 'on_review'}
                 isRejected={
                   isFieldRejected('start_date') || isFieldRejected('end_date')
                 }
@@ -336,6 +340,7 @@ export const EventEditInfo = ({
                   required: 'Address is required'
                 }}
                 isRejected={isFieldRejected('address')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -351,6 +356,7 @@ export const EventEditInfo = ({
                   <Caption color="text.primary">HTTPS://</Caption>
                 }
                 isRejected={isFieldRejected('map_location_url')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -363,6 +369,7 @@ export const EventEditInfo = ({
                   required: 'Website URL is required'
                 }}
                 isRejected={isFieldRejected('website_url')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -376,6 +383,7 @@ export const EventEditInfo = ({
                   required: 'City is required'
                 }}
                 isRejected={isFieldRejected('city')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -429,6 +437,7 @@ export const EventEditInfo = ({
                   required: 'Payment method is required'
                 }}
                 isRejected={isFieldRejected('payment_methods')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
 
@@ -466,6 +475,7 @@ export const EventEditInfo = ({
                   required: 'Login requirement is required'
                 }}
                 isRejected={isFieldRejected('login_required')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
 
@@ -527,6 +537,7 @@ export const EventEditInfo = ({
                   required: 'Event description is required'
                 }}
                 isRejected={isFieldRejected('description')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -539,6 +550,7 @@ export const EventEditInfo = ({
                   required: 'Terms and conditions are required'
                 }}
                 isRejected={isFieldRejected('term_and_conditions')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
           </Grid>
