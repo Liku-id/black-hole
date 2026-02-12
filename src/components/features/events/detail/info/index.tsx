@@ -6,8 +6,8 @@ import { useState, useMemo } from 'react';
 import { Body2, Button, H3 } from '@/components/common';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentMethods } from '@/hooks';
-import { EventDetail } from '@/types/event';
 import { UserRole, isEventOrganizer } from '@/types/auth';
+import { EventDetail } from '@/types/event';
 import { dateUtils, apiUtils } from '@/utils';
 
 
