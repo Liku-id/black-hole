@@ -6,8 +6,8 @@ import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentMethods } from '@/hooks';
-import { EventDetail, EventUpdateRequest } from '@/types/event';
 import { UserRole, isEventOrganizer } from '@/types/auth';
+import { EventDetail, EventUpdateRequest } from '@/types/event';
 import { dateUtils } from '@/utils';
 
 // Rejected Reason Component
