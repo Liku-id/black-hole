@@ -17,7 +17,12 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid metaUrl parameter' });
     }
 
-    const { ...eventData } = req.body;
+    const { eventStatus, eventOrganizerId, ...restData } = req.body;
+
+    // Only include eventOrganizerId if event is NOT on_review
+    const eventData = eventStatus === 'on_review'
+      ? restData
+      : { eventOrganizerId, ...restData };
 
     const putHandler = apiRouteUtils.createPutHandler({
       endpoint: `/events/${metaUrl}`,

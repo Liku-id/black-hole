@@ -115,6 +115,7 @@ function EditEvent() {
 
       // Always include required fields
       payload.eventOrganizerId = eventDetail?.eventOrganizer?.id || '';
+      payload.eventStatus = eventDetail?.eventStatus;
 
       // Use eventUpdateRequest data if available for comparison, otherwise use eventDetail
       const comparisonSource = eventDetail?.eventUpdateRequest || eventDetail;
@@ -286,7 +287,6 @@ function EditEvent() {
     if (!router.isReady) return;
     const status = eventDetail?.eventStatus;
     if (
-      status === 'on_review' ||
       status === 'done' ||
       eventDetail?.is_requested
     ) {
@@ -339,10 +339,12 @@ function EditEvent() {
 
       {/* Title */}
       <H2 color="text.primary" fontWeight={700} mb="21px">
-        {eventDetail.eventStatus === 'on_going' ||
-          eventDetail.eventStatus === 'approved'
-          ? 'Edit Request Event Details'
-          : 'Edit Event Details'}
+        {eventDetail.eventStatus === 'on_review'
+          ? 'Edit Event Details'
+          : eventDetail.eventStatus === 'on_going' ||
+            eventDetail.eventStatus === 'approved'
+            ? 'Edit Request Event Details'
+            : 'Edit Event Details'}
       </H2>
 
       {/* Main Card */}

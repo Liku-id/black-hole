@@ -270,9 +270,25 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
           Event Detail
         </H3>
         {(() => {
-          // Base conditions: hide if done or on_review
-          if (eventDetail.eventStatus === 'done' || eventDetail.eventStatus === 'on_review') {
+          // Base conditions: hide if done
+          if (eventDetail.eventStatus === 'done') {
             return null;
+          }
+
+          // For on_review events: show edit button (fee-only mode) - Admin/BD only
+          if (eventDetail.eventStatus === 'on_review' && isAdminOrBD) {
+            return (
+              <Box display="flex" gap={2}>
+                <Button
+                  variant="primary"
+                  onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+                  disabled={readOnly}
+                  sx={{ display: readOnly ? 'none' : 'flex' }}
+                >
+                  Edit Event Details
+                </Button>
+              </Box>
+            );
           }
 
           // For ongoing or approved events with draft status, check eventDetailStatus
