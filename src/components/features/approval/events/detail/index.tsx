@@ -4,8 +4,10 @@ import { useMemo } from 'react';
 
 import { Body2 } from '@/components/common';
 import { Checkbox } from '@/components/common/checkbox';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentMethods } from '@/hooks';
 import { EventDetail, EventUpdateRequest } from '@/types/event';
+import { UserRole, isEventOrganizer } from '@/types/auth';
 import { dateUtils } from '@/utils';
 
 // Rejected Reason Component
@@ -108,6 +110,11 @@ const Field = ({
           .map((id: string) => paymentMethodMap?.[id] || id)
           .join(', ');
         return names;
+      case 'feeThresholds':
+        const platformFee = eventUpdateRequest.feeThresholds?.[0]?.platformFee;
+        if (!platformFee) return '-';
+        const fee = parseInt(platformFee);
+        return fee < 100 ? `${fee}%` : `Rp ${fee.toLocaleString()}`;
       case 'login_required':
         return eventUpdateRequest[fieldKey] ? 'Yes' : 'No';
       default:
@@ -162,6 +169,10 @@ export const EventsSubmissionsInfo = ({
   onToggleField
 }: EventsSubmissionsInfoProps) => {
   const { paymentMethods } = usePaymentMethods();
+  const { user } = useAuth();
+
+  const isAdminOrBD = user && !isEventOrganizer(user) &&
+    (user.role?.name === UserRole.ADMIN || user.role?.name === UserRole.BUSINESS_DEVELOPMENT);
 
   const paymentMethodMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -186,7 +197,7 @@ export const EventsSubmissionsInfo = ({
       if (!eventUpdateRequest?.rejectedFields) return false;
       return eventUpdateRequest.rejectedFields.includes(fieldName);
     }
-    
+
     // Otherwise use eventDetail rejectedFields
     if (!eventDetail.rejectedFields) return false;
     return eventDetail.rejectedFields.includes(fieldName);
@@ -222,8 +233,8 @@ export const EventsSubmissionsInfo = ({
   };
 
   // Determine which rejection reason to display
-  const rejectionReason = useUpdateRequestRejection 
-    ? eventUpdateRequest?.rejectedReason 
+  const rejectionReason = useUpdateRequestRejection
+    ? eventUpdateRequest?.rejectedReason
     : eventDetail.rejectedReason;
 
   return (
@@ -373,6 +384,25 @@ export const EventsSubmissionsInfo = ({
                 isRejected={isFieldRejected('tax')}
               />
             </Grid>
+
+            {/* Platform Fee - Only visible for Admin and BD */}
+            {isAdminOrBD && (
+              <Grid item xs={12}>
+                <Field
+                  eventDetail={eventDetail}
+                  eventUpdateRequest={eventUpdateRequest}
+                  fieldKey="feeThresholds"
+                  label="Platform Fee"
+                  value={(() => {
+                    const platformFeeValue = eventDetail.feeThresholds?.[0]?.platformFee;
+                    if (!platformFeeValue) return '-';
+                    const fee = parseInt(platformFeeValue);
+                    return fee < 100 ? `${fee}%` : `Rp ${fee.toLocaleString()}`;
+                  })()}
+                  isRejected={false}
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <Field

@@ -33,6 +33,8 @@ interface FormData {
   paymentMethod: string[];
   tax: string;
   taxNominal: string;
+  platformFee: string;
+  platformFeeType: string;
   eventDescription: string;
   termsAndConditions: string;
   websiteUrl: string;
@@ -76,6 +78,14 @@ function CreateEvent() {
         tax: parseInt(data.taxNominal) || 0,
         login_required: data.loginRequired === 'true'
       };
+
+      // Add feeThresholds only if platformFee is filled
+      if (data.platformFee && data.platformFee.trim() !== '') {
+        payload.feeThresholds = [{
+          threshold: "0",
+          platformFee: parseInt(data.platformFee).toString()
+        }];
+      }
       const response = await eventsService.createEvent(payload);
 
       router.push(`/events/${response.body.metaUrl}`);

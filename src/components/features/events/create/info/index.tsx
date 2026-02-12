@@ -1,5 +1,5 @@
 import { Box, Grid, InputAdornment } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import {
@@ -15,7 +15,20 @@ import {
 import { EventDateModal } from '@/components/features/events/create/info/event-date-modal';
 import { EventTimeModal } from '@/components/features/events/create/info/event-time-modal';
 import { PaymentMethodSelector } from '@/components/features/events/create/info/payment-method-selector';
+import { useAuth } from '@/contexts/AuthContext';
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
+import { UserRole, isEventOrganizer } from '@/types/auth';
+
+// Event types that have 10% tax by default
+const TAXABLE_EVENT_TYPES = [
+  'concerts',
+  'expo',
+  'conference',
+  'exhibition',
+  'bazaar',
+  'festivals',
+  'music'
+];
 
 // Admin Fee Type Options
 const adminFeeTypeOptions = [
@@ -42,6 +55,8 @@ interface FormData {
   paymentMethod: string[];
   tax: string;
   taxNominal: string;
+  platformFee: string;
+  platformFeeType: string;
   eventDescription: string;
   termsAndConditions: string;
   loginRequired: string;
@@ -63,6 +78,10 @@ export const CreateEventForm = ({
   const { eventTypes } = useEventTypes();
   const { cities } = useCities();
   const { paymentMethods } = usePaymentMethods();
+  const { user } = useAuth();
+
+  const isAdminOrBD = user && !isEventOrganizer(user) &&
+    (user.role?.name === UserRole.ADMIN || user.role?.name === UserRole.BUSINESS_DEVELOPMENT);
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -79,11 +98,13 @@ export const CreateEventForm = ({
       googleMapsLink: '',
       websiteUrl: '',
       city: '',
-      adminFee: '',
-      adminFeeType: '%',
+      adminFee: '5000',
+      adminFeeType: 'Rp',
       paymentMethod: [],
       tax: '',
-      taxNominal: '',
+      taxNominal: '0',
+      platformFee: '',
+      platformFeeType: '%',
       eventDescription: '',
       termsAndConditions: '',
       loginRequired: ''
@@ -94,6 +115,15 @@ export const CreateEventForm = ({
   const watchedDateRange = watch('dateRange');
   const watchedTimeRange = watch('timeRange');
   const watchedAdminFeeType = watch('adminFeeType');
+  const watchedPlatformFeeType = watch('platformFeeType');
+  const watchedEventType = watch('eventType');
+
+  // Auto-update tax based on event type
+  useEffect(() => {
+    if (!watchedEventType) return;
+    const isTaxable = TAXABLE_EVENT_TYPES.includes(watchedEventType.toLowerCase());
+    setValue('taxNominal', isTaxable ? '10' : '0');
+  }, [watchedEventType, setValue]);
 
   const eventTypeOptions = eventTypes.map((type) => ({
     value: type,
@@ -257,6 +287,7 @@ export const CreateEventForm = ({
                         options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
                         onValueChange={(type) => setValue('adminFeeType', type)}
+                        disabled={!isAdminOrBD}
                       />
                     </InputAdornment>
                   )
@@ -282,6 +313,7 @@ export const CreateEventForm = ({
                     return true;
                   }
                 }}
+                disabled={!isAdminOrBD}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -313,24 +345,69 @@ export const CreateEventForm = ({
                     message: 'Tax nominal must be a number'
                   }
                 }}
+                disabled={!isAdminOrBD}
               />
             </Grid>
+
             <Grid item md={6} xs={12}>
               <Select
                 id="select-login-required"
                 fullWidth
                 label="User Must Login*"
                 name="loginRequired"
-                  options={[
-                    { value: 'true', label: 'Yes' },
-                    { value: 'false', label: 'No' }
-                  ]}
+                options={[
+                  { value: 'true', label: 'Yes' },
+                  { value: 'false', label: 'No' }
+                ]}
                 placeholder="Select Yes or No"
                 rules={{
                   required: 'Login requirement is required'
                 }}
               />
             </Grid>
+
+            {/* Platform Fee - Only visible for Admin and BD */}
+            {isAdminOrBD && (
+              <Grid item md={6} xs={12}>
+                <TextField
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <DropdownSelector
+                          id="platform_fee_type_selector"
+                          defaultLabel="%"
+                          options={adminFeeTypeOptions}
+                          selectedValue={watchedPlatformFeeType}
+                          onValueChange={(type) => setValue('platformFeeType', type)}
+                        />
+                      </InputAdornment>
+                    )
+                  }}
+                  id="platform_fee_field"
+                  label="Platform Fee"
+                  name="platformFee"
+                  placeholder={
+                    watchedPlatformFeeType === '%'
+                      ? 'Platform fee percentage'
+                      : 'Platform fee amount'
+                  }
+                  rules={{
+                    pattern: {
+                      value: /^\d+$/,
+                      message: 'Platform fee must be a number'
+                    },
+                    validate: (value) => {
+                      if (!value || value.trim() === '') return true; // Optional field
+                      if (watchedPlatformFeeType === '%' && parseInt(value) >= 100) {
+                        return 'Platform fee percentage must be less than 100%';
+                      }
+                      return true;
+                    }
+                  }}
+                />
+              </Grid>
+            )}
           </Grid>
 
           {/* TextArea fields - always on same row */}
