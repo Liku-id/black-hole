@@ -16,8 +16,8 @@ import { EventTimeModal } from '@/components/features/events/create/info/event-t
 import { PaymentMethodSelector } from '@/components/features/events/create/info/payment-method-selector';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
-import { EventDetail, FeeThreshold } from '@/types/event';
 import { UserRole, isEventOrganizer } from '@/types/auth';
+import { EventDetail, FeeThreshold } from '@/types/event';
 import { dateUtils } from '@/utils';
 
 import { RejectedReason } from '../../detail/info';
