@@ -1,7 +1,10 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import { Button, H3, H4, Body2 } from '@/components/common';
+import { useToast } from '@/contexts/ToastContext';
+import { ticketsService } from '@/services/tickets';
 import { EventDetail } from '@/types/event';
 
 import { EventDetailTicketTable } from './table';
@@ -17,6 +20,7 @@ interface EventDetailTicketProps {
   showStatus?: boolean;
   readOnly?: boolean;
   onEditAdditionalForm?: (ticketId: string) => void;
+  onVisibilityChange?: () => void;
 }
 
 export const EventDetailTicket = ({
@@ -29,12 +33,31 @@ export const EventDetailTicket = ({
   hideHeader = false,
   showStatus = false,
   readOnly = false,
-  onEditAdditionalForm
+  onEditAdditionalForm,
+  onVisibilityChange
 }: EventDetailTicketProps) => {
   const router = useRouter();
+  const { showError } = useToast();
+  const [visibilityLoadingId, setVisibilityLoadingId] = useState<string | null>(null);
 
   const handleEditTickets = () => {
     router.push(`/events/edit/${eventDetail.metaUrl}/tickets`);
+  };
+
+  const handleToggleVisibility = async (ticketId: string, isPublic: boolean) => {
+    setVisibilityLoadingId(ticketId);
+    try {
+      await ticketsService.updateTicketTypeVisibility(ticketId, isPublic);
+      onVisibilityChange?.();
+    } catch (error) {
+      const errorMessage =
+        (error as any)?.response?.data?.message ||
+        (error as Error)?.message ||
+        'Failed to update ticket visibility';
+      showError(errorMessage);
+    } finally {
+      setVisibilityLoadingId(null);
+    }
   };
 
   // Check if there are any pending tickets (regular or group)
@@ -102,11 +125,13 @@ export const EventDetailTicket = ({
         error={ticketApprovalError}
         showStatus={showStatus}
         onEditAdditionalForm={onEditAdditionalForm}
+        onTogglePublic={!readOnly && !approvalMode ? handleToggleVisibility : undefined}
+        visibilityLoadingId={visibilityLoadingId}
       />
 
       {/* Group Ticket Section */}
-       <Box mt={4}>
-         {(!hideHeader || approvalMode) && (
+      <Box mt={4}>
+        {(!hideHeader || approvalMode) && (
           <Box
             alignItems="center"
             display="flex"
@@ -128,7 +153,7 @@ export const EventDetailTicket = ({
               !readOnly && (
                 <>
                   {eventDetail.ticketTypes &&
-                  eventDetail.ticketTypes.length > 0 ? (
+                    eventDetail.ticketTypes.length > 0 ? (
                     <Button
                       variant="primary"
                       onClick={() =>
@@ -171,16 +196,16 @@ export const EventDetailTicket = ({
           </H4>
         )}
 
-         <EventDetailTicketTable
-           ticketTypes={eventDetail.group_tickets || []}
-           approvalMode={approvalMode}
-           onApproveTicket={onApproveTicket}
-           onRejectTicket={onRejectTicket}
-           loading={ticketApprovalLoading}
-           error={ticketApprovalError}
-           showStatus={showStatus}
-         />
-       </Box>
+        <EventDetailTicketTable
+          ticketTypes={eventDetail.group_tickets || []}
+          approvalMode={approvalMode}
+          onApproveTicket={onApproveTicket}
+          onRejectTicket={onRejectTicket}
+          loading={ticketApprovalLoading}
+          error={ticketApprovalError}
+          showStatus={showStatus}
+        />
+      </Box>
     </Box>
   );
 };
