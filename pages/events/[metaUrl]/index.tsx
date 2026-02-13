@@ -688,6 +688,7 @@ function EventDetail() {
             eventDetail={eventDetail}
             showStatus={true}
             readOnly={isReadOnly}
+            onVisibilityChange={() => mutate()}
           />
         )}
       </Card>

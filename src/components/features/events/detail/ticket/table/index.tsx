@@ -1,4 +1,4 @@
-import { Box, Table, TableCell, TableRow } from '@mui/material';
+import { Box, Table, TableCell, TableRow, Switch } from '@mui/material';
 import Image from 'next/image';
 import { FC, useState } from 'react';
 
@@ -25,6 +25,8 @@ interface EventDetailTicketTableProps {
   error?: string | null;
   showStatus?: boolean;
   onEditAdditionalForm?: (ticketId: string) => void;
+  onTogglePublic?: (ticketId: string, isPublic: boolean) => void;
+  visibilityLoadingId?: string | null;
 }
 
 export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
@@ -35,10 +37,15 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   onRejectTicket,
   error = null,
   showStatus = false,
-  onEditAdditionalForm
+  onEditAdditionalForm,
+  onTogglePublic,
+  visibilityLoadingId = null
 }) => {
   const [selectedTicket, setSelectedTicket] = useState<TicketType | GroupTicket | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Check if the ticket type is a group ticket based on the data
+  const isGroupTicketType = ticketTypes.length > 0 && 'bundle_quantity' in ticketTypes[0];
 
   const statusMap = {
     approved: 'on_going',
@@ -112,36 +119,43 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                   No.
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '23%' }}>
+              <TableCell sx={{ width: '18%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Name
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell sx={{ width: '11%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Price
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '8%' }}>
+              <TableCell sx={{ width: '7%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Quantity
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell sx={{ width: '10%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Max. Per User
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell sx={{ width: '13%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Sale Start Date
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '12%' }}>
+              <TableCell sx={{ width: '13%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Sale End Date
                 </Body2>
               </TableCell>
+              {!isGroupTicketType && (
+                <TableCell sx={{ width: '8%' }}>
+                  <Body2 color="text.secondary" fontSize="14px">
+                    Visibility
+                  </Body2>
+                </TableCell>
+              )}
               {showStatus && (
                 <TableCell sx={{ width: '8%' }}>
                   <Body2 color="text.secondary" fontSize="14px">
@@ -149,7 +163,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                   </Body2>
                 </TableCell>
               )}
-              <TableCell sx={{ width: '5%' }}>
+              <TableCell sx={{ width: '9%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Action
                 </Body2>
@@ -159,7 +173,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
           <StyledTableBody>
             {ticketTypes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={showStatus ? 9 : 8}>
+                <TableCell colSpan={(showStatus ? 10 : 9) - (isGroupTicketType ? 1 : 0)}>
                   <Box display="flex" justifyContent="center" padding="40px">
                     <Body2 color="text.secondary">No tickets found.</Body2>
                   </Box>
@@ -191,6 +205,16 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                     <TableCell>
                       <Body2>{formattedTicket.salesEndDate}</Body2>
                     </TableCell>
+                    {'is_public' in ticket && (
+                      <TableCell>
+                        <Switch
+                          checked={(ticket as TicketType).is_public ?? true}
+                          onChange={(e) => onTogglePublic?.(ticket.id, e.target.checked)}
+                          disabled={!onTogglePublic || visibilityLoadingId === ticket.id}
+                          size="small"
+                        />
+                      </TableCell>
+                    )}
                     {showStatus && (
                       <TableCell>
                         {ticket?.status ? (
