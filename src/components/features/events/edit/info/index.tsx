@@ -1,5 +1,5 @@
 import { Box, Grid, InputAdornment } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import {
@@ -14,11 +14,24 @@ import {
 import { EventDateModal } from '@/components/features/events/create/info/event-date-modal';
 import { EventTimeModal } from '@/components/features/events/create/info/event-time-modal';
 import { PaymentMethodSelector } from '@/components/features/events/create/info/payment-method-selector';
+import { useAuth } from '@/contexts/AuthContext';
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
-import { EventDetail } from '@/types/event';
+import { UserRole, isEventOrganizer } from '@/types/auth';
+import { EventDetail, FeeThreshold } from '@/types/event';
 import { dateUtils } from '@/utils';
 
 import { RejectedReason } from '../../detail/info';
+
+// Event types that have 10% tax by default
+const TAXABLE_EVENT_TYPES = [
+  'concerts',
+  'expo',
+  'conference',
+  'exhibition',
+  'bazaar',
+  'festivals',
+  'music'
+];
 
 // Admin Fee Type Options
 const adminFeeTypeOptions = [
@@ -45,6 +58,8 @@ interface FormData {
   paymentMethod: string[];
   tax: string;
   taxNominal: string;
+  platformFee: string;
+  platformFeeType: string;
   eventDescription: string;
   termsAndConditions: string;
   loginRequired: string;
@@ -66,6 +81,10 @@ export const EventEditInfo = ({
   const { eventTypes } = useEventTypes();
   const { cities } = useCities();
   const { paymentMethods } = usePaymentMethods();
+  const { user } = useAuth();
+
+  const isAdminOrBD = user && !isEventOrganizer(user) &&
+    (user.role?.name === UserRole.ADMIN || user.role?.name === UserRole.BUSINESS_DEVELOPMENT);
 
   // Use eventUpdateRequest data if available, otherwise use eventDetail
   const dataSource = eventDetail.eventUpdateRequest || eventDetail;
@@ -108,6 +127,26 @@ export const EventEditInfo = ({
     dataSource.adminFee
   );
 
+  // Process Platform Fee - extract from feeThresholds array
+  const processPlatformFee = (
+    feeThresholds: FeeThreshold[] | undefined
+  ): { fee: string; type: string } => {
+    if (!feeThresholds || feeThresholds.length === 0) {
+      return { fee: '', type: '%' };
+    }
+
+    const platformFee = parseInt(feeThresholds[0].platformFee);
+    if (platformFee < 100) {
+      return { fee: platformFee.toString(), type: '%' };
+    } else {
+      return { fee: platformFee.toString(), type: 'Rp' };
+    }
+  };
+
+  const { fee: platformFeeValue, type: platformFeeTypeValue } = processPlatformFee(
+    dataSource.feeThresholds
+  );
+
   // Get city ID - handle both eventDetail.city (object) and eventUpdateRequest.cityId (string)
   const cityId = eventDetail.eventUpdateRequest
     ? eventDetail.eventUpdateRequest.cityId
@@ -142,6 +181,8 @@ export const EventEditInfo = ({
       paymentMethod: paymentMethodIds,
       tax: dataSource.tax ? 'true' : 'false',
       taxNominal: dataSource.tax?.toString() || '',
+      platformFee: platformFeeValue,
+      platformFeeType: platformFeeTypeValue,
       eventDescription: dataSource.description || '',
       termsAndConditions: dataSource.termAndConditions || '',
       loginRequired:
@@ -159,6 +200,20 @@ export const EventEditInfo = ({
   const watchedDateRange = watch('dateRange');
   const watchedTimeRange = watch('timeRange');
   const watchedAdminFeeType = watch('adminFeeType');
+  const watchedPlatformFeeType = watch('platformFeeType');
+  const watchedEventType = watch('eventType');
+
+  // Auto-update tax based on event type (skip initial mount to preserve server data)
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (!watchedEventType) return;
+    const isTaxable = TAXABLE_EVENT_TYPES.includes(watchedEventType.toLowerCase());
+    setValue('taxNominal', isTaxable ? '10' : '0');
+  }, [watchedEventType, setValue]);
 
   const eventTypeOptions = eventTypes.map((type) => ({
     value: type,
@@ -208,6 +263,7 @@ export const EventEditInfo = ({
                   required: 'Event name is required'
                 }}
                 isRejected={isFieldRejected('name')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -221,6 +277,7 @@ export const EventEditInfo = ({
                   required: 'Event type is required'
                 }}
                 isRejected={isFieldRejected('event_type')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -241,7 +298,8 @@ export const EventEditInfo = ({
                   }
                 }}
                 value={watchedDateRange}
-                onClick={() => setDateModalOpen(true)}
+                onClick={() => !(eventDetail.eventStatus === 'on_review') && setDateModalOpen(true)}
+                disabled={eventDetail.eventStatus === 'on_review'}
                 isRejected={
                   isFieldRejected('start_date') || isFieldRejected('end_date')
                 }
@@ -265,7 +323,8 @@ export const EventEditInfo = ({
                   }
                 }}
                 value={watchedTimeRange}
-                onClick={() => setTimeModalOpen(true)}
+                onClick={() => !(eventDetail.eventStatus === 'on_review') && setTimeModalOpen(true)}
+                disabled={eventDetail.eventStatus === 'on_review'}
                 isRejected={
                   isFieldRejected('start_date') || isFieldRejected('end_date')
                 }
@@ -281,6 +340,7 @@ export const EventEditInfo = ({
                   required: 'Address is required'
                 }}
                 isRejected={isFieldRejected('address')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -296,6 +356,7 @@ export const EventEditInfo = ({
                   <Caption color="text.primary">HTTPS://</Caption>
                 }
                 isRejected={isFieldRejected('map_location_url')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -308,6 +369,7 @@ export const EventEditInfo = ({
                   required: 'Website URL is required'
                 }}
                 isRejected={isFieldRejected('website_url')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -321,6 +383,7 @@ export const EventEditInfo = ({
                   required: 'City is required'
                 }}
                 isRejected={isFieldRejected('city')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -334,10 +397,7 @@ export const EventEditInfo = ({
                         options={adminFeeTypeOptions}
                         selectedValue={watchedAdminFeeType}
                         onValueChange={(type) => setValue('adminFeeType', type)}
-                        disabled={
-                          eventDetail.eventStatus === 'on_going' ||
-                          eventDetail.eventStatus === 'approved'
-                        }
+                        disabled={!isAdminOrBD}
                       />
                     </InputAdornment>
                   )
@@ -362,10 +422,7 @@ export const EventEditInfo = ({
                     return true;
                   }
                 }}
-                disabled={
-                  eventDetail.eventStatus === 'on_going' ||
-                  eventDetail.eventStatus === 'approved'
-                }
+                disabled={!isAdminOrBD}
                 isRejected={isFieldRejected('admin_fee')}
               />
             </Grid>
@@ -380,6 +437,7 @@ export const EventEditInfo = ({
                   required: 'Payment method is required'
                 }}
                 isRejected={isFieldRejected('payment_methods')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
 
@@ -398,12 +456,10 @@ export const EventEditInfo = ({
                   }
                 }}
                 isRejected={isFieldRejected('tax')}
-                disabled={
-                  eventDetail.eventStatus === 'on_going' ||
-                  eventDetail.eventStatus === 'approved'
-                }
+                disabled={!isAdminOrBD}
               />
             </Grid>
+
             <Grid item md={6} xs={12}>
               <Select
                 id="select-login-required"
@@ -419,8 +475,53 @@ export const EventEditInfo = ({
                   required: 'Login requirement is required'
                 }}
                 isRejected={isFieldRejected('login_required')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
+
+            {/* Platform Fee - Only visible for Admin and BD */}
+            {isAdminOrBD && (
+              <Grid item md={6} xs={12}>
+                <TextField
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <DropdownSelector
+                          id="platform_fee_type_selector"
+                          defaultLabel="%"
+                          options={adminFeeTypeOptions}
+                          selectedValue={watchedPlatformFeeType}
+                          onValueChange={(type) => setValue('platformFeeType', type)}
+                        />
+                      </InputAdornment>
+                    )
+                  }}
+                  id="platform_fee_field"
+                  label="Platform Fee"
+                  name="platformFee"
+                  placeholder={
+                    watchedPlatformFeeType === '%'
+                      ? 'Platform fee percentage'
+                      : 'Platform fee amount'
+                  }
+                  rules={{
+                    pattern: {
+                      value: /^\d+$/,
+                      message: 'Platform fee must be a number'
+                    },
+                    validate: (value) => {
+                      if (!value || value.trim() === '') return true; // Optional field
+                      if (watchedPlatformFeeType === '%' && parseInt(value) >= 100) {
+                        return 'Platform fee percentage must be less than 100%';
+                      }
+                      return true;
+                    }
+                  }}
+                  disabled={!isAdminOrBD}
+                />
+              </Grid>
+            )}
           </Grid>
 
           {/* TextArea fields - always on same row */}
@@ -436,6 +537,7 @@ export const EventEditInfo = ({
                   required: 'Event description is required'
                 }}
                 isRejected={isFieldRejected('description')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -448,6 +550,7 @@ export const EventEditInfo = ({
                   required: 'Terms and conditions are required'
                 }}
                 isRejected={isFieldRejected('term_and_conditions')}
+                disabled={eventDetail.eventStatus === 'on_review'}
               />
             </Grid>
           </Grid>
@@ -463,7 +566,7 @@ export const EventEditInfo = ({
             <Box display="flex" gap={2} justifyContent="flex-end">
               <Button type="submit" variant="primary">
                 {eventDetail.eventStatus === 'approved' ||
-                eventDetail.eventStatus === 'on_going'
+                  eventDetail.eventStatus === 'on_going'
                   ? 'Request Update Event Details'
                   : 'Update Event Details'}
               </Button>

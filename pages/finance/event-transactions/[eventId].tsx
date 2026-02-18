@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Caption, H2, Card, Body2, Tabs } from '@/components/common';
+import { Caption, H2, Card, Body2, Tabs, Select } from '@/components/common';
 import { EventTransactionTable } from '@/components/features/finance/transaction/event-table';
 import { TransactionSummary } from '@/components/features/finance/transaction/summary';
 import WithdrawalHistoryTable from '@/components/features/finance/withdrawal/table';
@@ -25,13 +25,19 @@ function EventTransactions() {
   const [filters, setFilters] = useState<TransactionsFilters>({
     eventId: '',
     page: 0,
-    show: 10
+    show: 10,
+    status: ''
   });
 
   // Pagination state for Withdrawals
-  const [withdrawalFilters, setWithdrawalFilters] = useState({
+  const [withdrawalFilters, setWithdrawalFilters] = useState<{
+    page: number;
+    show: number;
+    status?: string;
+  }>({
     page: 0,
-    show: 10
+    show: 10,
+    status: ''
   });
 
   // Fetch Transactions
@@ -64,6 +70,38 @@ function EventTransactions() {
       ...prev,
       page
     }));
+  };
+
+  const statusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'expired', label: 'Expired' },
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'failed', label: 'Failed' }
+  ];
+
+  const withdrawalStatusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'PENDING', label: 'Pending' },
+    { value: 'APPROVED', label: 'Approved' },
+    { value: 'REJECTED', label: 'Rejected' }
+  ];
+
+  const handleStatusChange = (value: string) => {
+    if (activeTab === 'payment') {
+      setFilters((prev) => ({
+        ...prev,
+        page: 0,
+        status: value
+      }));
+    } else {
+      setWithdrawalFilters((prev) => ({
+        ...prev,
+        page: 0,
+        status: value
+      }));
+    }
   };
 
   const handleTabChange = (tabId: string) => {
@@ -105,7 +143,7 @@ function EventTransactions() {
 
       {/* Title */}
       <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="16px">
-        Event Transactions{eventName ? `: ${eventName}` : ''}
+        {eventName ? `${eventName}'s Transactions` : 'Event Transactions'}
       </H2>
 
       {/* Main Card Content */}
@@ -123,7 +161,41 @@ function EventTransactions() {
         <TransactionSummary eventId={eventId} />
 
         {/* Tabs */}
-        <Tabs activeTab={activeTab} tabs={tabs} onTabChange={handleTabChange} />
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="flex-end"
+          borderBottom={`1px solid ${theme.palette.grey[100]}`}
+        >
+          <Tabs
+            activeTab={activeTab}
+            tabs={tabs}
+            onTabChange={handleTabChange}
+            borderless
+          />
+
+          <Box mb={1}>
+            <Select
+              options={
+                activeTab === 'payment'
+                  ? statusOptions
+                  : withdrawalStatusOptions
+              }
+              value={
+                (activeTab === 'payment'
+                  ? filters.status
+                  : withdrawalFilters.status) || ''
+              }
+              onChange={(value) => handleStatusChange(value)}
+              placeholder="Status"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  height: '36px'
+                }
+              }}
+            />
+          </Box>
+        </Box>
 
         {/* Tab Panels */}
         {activeTab === 'payment' && (
@@ -152,8 +224,8 @@ function EventTransactions() {
             />
           </Box>
         )}
-      </Card >
-    </DashboardLayout >
+      </Card>
+    </DashboardLayout>
   );
 }
 

@@ -4,7 +4,9 @@ import { useRouter } from 'next/router';
 import { useState, useMemo } from 'react';
 
 import { Body2, Button, H3 } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentMethods } from '@/hooks';
+import { UserRole, isEventOrganizer } from '@/types/auth';
 import { EventDetail } from '@/types/event';
 import { dateUtils, apiUtils } from '@/utils';
 
@@ -105,6 +107,11 @@ const EventField = ({
         return adminFee < 100 ? `${adminFee}%` : `Rp ${adminFee}`;
       case 'tax':
         return `${updateRequest.tax ?? eventDetail?.tax ?? 0}%`;
+      case 'feeThresholds':
+        const platformFee = updateRequest.feeThresholds?.[0]?.platformFee;
+        if (!platformFee) return '-';
+        const fee = parseInt(platformFee);
+        return fee < 100 ? `${fee}%` : `Rp ${fee.toLocaleString()}`;
       case 'login_required':
         return updateRequest[fieldKey] ? 'Yes' : 'No';
       default:
@@ -179,6 +186,10 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
   const router = useRouter();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const { paymentMethods } = usePaymentMethods();
+  const { user } = useAuth();
+
+  const isAdminOrBD = user && !isEventOrganizer(user) &&
+    (user.role?.name === UserRole.ADMIN || user.role?.name === UserRole.BUSINESS_DEVELOPMENT);
 
   const paymentMethodMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -259,9 +270,25 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
           Event Detail
         </H3>
         {(() => {
-          // Base conditions: hide if done or on_review
-          if (eventDetail.eventStatus === 'done' || eventDetail.eventStatus === 'on_review') {
+          // Base conditions: hide if done
+          if (eventDetail.eventStatus === 'done') {
             return null;
+          }
+
+          // For on_review events: show edit button (fee-only mode) - Admin/BD only
+          if (eventDetail.eventStatus === 'on_review' && isAdminOrBD) {
+            return (
+              <Box display="flex" gap={2}>
+                <Button
+                  variant="primary"
+                  onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
+                  disabled={readOnly}
+                  sx={{ display: readOnly ? 'none' : 'flex' }}
+                >
+                  Edit Event Details
+                </Button>
+              </Box>
+            );
           }
 
           // For ongoing or approved events with draft status, check eventDetailStatus
@@ -488,6 +515,26 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
                 fieldKey="tax"
               />
             </Grid>
+
+            {/* Platform Fee - Only visible for Admin and BD */}
+            {isAdminOrBD && (
+              <Grid item xs={12}>
+                <EventField
+                  label="Platform Fee"
+                  value={(() => {
+                    const platformFeeValue = eventDetail.feeThresholds?.[0]?.platformFee;
+                    if (!platformFeeValue) return '-';
+                    const fee = parseInt(platformFeeValue);
+                    return fee < 100 ? `${fee}%` : `Rp ${fee.toLocaleString()}`;
+                  })()}
+                  isRejected={false}
+                  eventDetail={eventDetail}
+                  eventUpdateRequest={eventDetail.eventUpdateRequest}
+                  fieldKey="feeThresholds"
+                />
+              </Grid>
+            )}
+
             <Grid item xs={12}>
               <EventField
                 label="User Must Login*"

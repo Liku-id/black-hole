@@ -29,7 +29,7 @@ const FinanceAnalytic = ({ eventOrganizerId }: FinanceAnalyticProps) => {
     },
     {
       icon: '/icon/fee.svg',
-      title: 'Total Platform Fee',
+      title: 'Total Admin Fee',
       value: formatUtils.formatPrice(
         parseFloat(summary?.totalPlatformFees || '0')
       )

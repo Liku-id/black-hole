@@ -36,6 +36,8 @@ interface PaymentMethodSelectorProps {
   placeholder?: string;
   fullWidth?: boolean;
   isRejected?: boolean;
+  id?: string;
+  disabled?: boolean;
 }
 
 export const PaymentMethodSelector = ({
@@ -45,7 +47,9 @@ export const PaymentMethodSelector = ({
   groupedPaymentMethods,
   placeholder,
   fullWidth,
-  isRejected
+  isRejected,
+  id,
+  disabled = false
 }: PaymentMethodSelectorProps) => {
   const {
     control,
@@ -113,6 +117,8 @@ export const PaymentMethodSelector = ({
             error={!!fieldError}
             fullWidth={fullWidth}
             helperText={fieldError?.message as string}
+            id={id}
+            disabled={disabled}
             InputProps={{
               readOnly: true,
               endAdornment: (
@@ -142,7 +148,7 @@ export const PaymentMethodSelector = ({
             sx={{ cursor: 'pointer' }}
             value={getSelectedOptions(field.value || [])}
             variant="outlined"
-            onClick={() => setExpanded(!expanded)}
+            onClick={() => !disabled && setExpanded(!expanded)}
           />
 
           {/* Dropdown that floats above other content */}
@@ -210,8 +216,8 @@ export const PaymentMethodSelector = ({
                           const newValue = e.target.checked
                             ? [...(field.value || []), method.id]
                             : (field.value || []).filter(
-                                (id: string) => id !== method.id
-                              );
+                              (id: string) => id !== method.id
+                            );
                           field.onChange(newValue);
                         }}
                       />

@@ -62,7 +62,7 @@ interface TicketTypePayload {
   colorHex: string;
   salesStartDate: string;
   salesEndDate: string;
-  isPublic: boolean;
+  isPublic?: boolean;
   ticketStartDate: string;
   ticketEndDate: string;
 }
@@ -107,22 +107,22 @@ class TicketsService {
   async getTickets(filters: TicketsFilters): Promise<TicketsResponse> {
     try {
       const params = new URLSearchParams();
-  
+
       params.append('eventId', filters.eventId);
       if (filters.page !== undefined) params.append('page', String(filters.page));
       if (filters.show !== undefined) params.append('show', String(filters.show));
       if (filters.search && filters.search.trim() !== '') {
         params.append('search', filters.search.trim());
       }
-  
+
       if (filters.ticketTypeIds && typeof filters.ticketTypeIds === 'string' && filters.ticketTypeIds.trim() !== '') {
         params.append('ticketTypeIds', filters.ticketTypeIds);
       }
-  
+
       if (filters.ticketStatus) {
         params.append('ticketStatus', filters.ticketStatus);
       }
-  
+
       return await apiUtils.get<TicketsResponse>(
         `/api/tickets?${params.toString()}`,
         undefined,
@@ -187,6 +187,19 @@ class TicketsService {
     }
   }
 
+  async updateTicketTypeVisibility(id: string, isPublic: boolean): Promise<void> {
+    try {
+      await apiUtils.patch<void>(
+        '/api/tickets/ticket-types/visibility',
+        { id, is_public: isPublic },
+        'Failed to update ticket visibility'
+      );
+    } catch (error) {
+      console.error('Error updating ticket visibility:', error);
+      throw error;
+    }
+  }
+
   async redeemTicket(
     id: string,
     payload: RedeemTicketPayload
@@ -217,16 +230,16 @@ class TicketsService {
 
       const url = '/api/tickets-export';
       const params: Record<string, any> = { event_id: eventId };
-  
+
       // Directly append ticketTypeIds as a string if it's valid
       if (ticketTypeIds && typeof ticketTypeIds === 'string' && ticketTypeIds.trim() !== '') {
         params.ticket_type_ids = ticketTypeIds.trim(); // Append as string
       }
-  
+
       if (ticketStatus) {
         params.ticket_status = ticketStatus;
       }
-  
+
       const response = await axios({
         method: 'GET',
         url,
@@ -239,13 +252,13 @@ class TicketsService {
       // Generate filename with new format: attendees_ticket_[event name]_[exported date DDMMYYYY & time HH:MM:SS].csv
       const now = new Date();
       const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, ''); // DDMMYYYY format
-      const timeStr = now.toLocaleTimeString('en-GB', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' 
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
       }).replace(/:/g, ''); // HHMMSS format
-      
+
       const eventNameFormatted = eventName ? eventName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') : 'unknown_event';
       const filename = `attendees_ticket_${eventNameFormatted}_${dateStr}_${timeStr}.csv`;
 

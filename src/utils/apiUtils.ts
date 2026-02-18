@@ -268,6 +268,28 @@ export const apiUtils = {
   },
 
   /**
+   * PATCH request helper
+   * @param url - API endpoint URL
+   * @param data - Request body data
+   * @param defaultErrorMessage - Default error message
+   * @returns Promise with response data
+   */
+  patch: async <T = any>(
+    url: string,
+    data?: any,
+    defaultErrorMessage?: string
+  ): Promise<T> => {
+    return apiUtils.makeRequest<T>(
+      {
+        method: 'PATCH',
+        url,
+        data
+      },
+      defaultErrorMessage
+    );
+  },
+
+  /**
    * DELETE request helper
    * @param url - API endpoint URL
    * @param defaultErrorMessage - Default error message
