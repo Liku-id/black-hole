@@ -48,8 +48,6 @@ function EventTransactions() {
     pagination: transactionsPagination
   } = useTransactions(filters);
 
-  const eventName = transactions?.[0]?.event?.name;
-
   // Fetch Withdrawals
   const {
     withdrawals,
@@ -179,7 +177,9 @@ function EventTransactions() {
           <Box mb={1}>
             <Select
               options={
-                activeTab === 'payment' ? statusOptions : withdrawalStatusOptions
+                activeTab === 'payment'
+                  ? statusOptions
+                  : withdrawalStatusOptions
               }
               value={
                 (activeTab === 'payment'
@@ -224,8 +224,8 @@ function EventTransactions() {
             />
           </Box>
         )}
-      </Card >
-    </DashboardLayout >
+      </Card>
+    </DashboardLayout>
   );
 }
 
