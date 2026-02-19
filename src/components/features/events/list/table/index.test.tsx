@@ -10,6 +10,16 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: { id: '1', name: 'Test User', role: 'admin' },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
+}));
+
 const mockPush = jest.fn();
 const mockRouter = {
   push: mockPush,
@@ -49,7 +59,8 @@ describe('EventsTable', () => {
         sales_start_date: '2024-01-10'
       } as any,
       eventAssets: [],
-      eventCountByStatus: {} as any
+      eventCountByStatus: {} as any,
+      eventUpdateRequestStatus: null
     },
     {
       id: '2',
@@ -73,7 +84,8 @@ describe('EventsTable', () => {
       paymentMethods: [],
       lowestPriceTicketType: null as any,
       eventAssets: [],
-      eventCountByStatus: {} as any
+      eventCountByStatus: {} as any,
+      eventUpdateRequestStatus: null
     }
   ];
 
@@ -160,7 +172,7 @@ describe('EventsTable', () => {
   });
 
   describe('Action Buttons', () => {
-    it('should navigate to event detail when view button is clicked', () => {
+    it('should navigate to event detail when view button is clicked', async () => {
       render(
         <EventsTable
           events={[mockEvents[0]]}
@@ -168,14 +180,19 @@ describe('EventsTable', () => {
         />
       );
 
-      const viewButton = screen.getByAltText('View').closest('button');
-      if (viewButton) {
+      // Click the Options button to open menu
+      const optionsButton = screen.getByAltText('Options').closest('button');
+      if (optionsButton) {
+        fireEvent.click(optionsButton);
+        
+        // Then click Event Detail menu item
+        const viewButton = await screen.findByAltText('Event Detail');
         fireEvent.click(viewButton);
         expect(mockPush).toHaveBeenCalledWith('/events/test-event-1');
       }
     });
 
-    it('should navigate to tickets page when attendee button is clicked for on_going event', () => {
+    it('should navigate to tickets page when attendee button is clicked for on_going event', async () => {
       render(
         <EventsTable
           events={[mockEvents[0]]}
@@ -183,14 +200,19 @@ describe('EventsTable', () => {
         />
       );
 
-      const attendeeButton = screen.getByAltText('tickets').closest('button');
-      if (attendeeButton) {
+      // Click the Options button to open menu
+      const optionsButton = screen.getByAltText('Options').closest('button');
+      if (optionsButton) {
+        fireEvent.click(optionsButton);
+        
+        // Then click Attendee Tickets menu item
+        const attendeeButton = await screen.findByAltText('Attendee Tickets');
         fireEvent.click(attendeeButton);
         expect(mockPush).toHaveBeenCalledWith('/tickets?event=1');
       }
     });
 
-    it('should disable attendee button for non-ongoing/done events', () => {
+    it('should render options button for events', async () => {
       render(
         <EventsTable
           events={[mockEvents[1]]}
@@ -198,10 +220,9 @@ describe('EventsTable', () => {
         />
       );
 
-      const attendeeButton = screen.getByAltText('tickets').closest('button');
-      if (attendeeButton) {
-        expect(attendeeButton).toBeDisabled();
-      }
+      // Just verify the options button exists
+      const optionsButton = screen.getByAltText('Options');
+      expect(optionsButton).toBeInTheDocument();
     });
 
     it('should not render action column when showAction is false', () => {

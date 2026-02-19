@@ -1,7 +1,9 @@
 import { Box } from '@mui/material';
 import { FC, useState } from 'react';
 
-import { Body2, Modal, Tabs } from '@/components/common';
+import Modal from '@/components/common/modal';
+import Tabs from '@/components/common/tabs';
+import { Body2 } from '@/components/common/typography';
 import { dateUtils } from '@/utils';
 
 interface AttendeeData {

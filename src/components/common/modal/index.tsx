@@ -1,7 +1,7 @@
 import { Box, Modal, styled } from '@mui/material';
 import Image from 'next/image';
 
-import { Body1 } from '@/components/common';
+import { Body1 } from '../typography';
 
 const StyledModal = styled(Modal)({
   display: 'flex',
