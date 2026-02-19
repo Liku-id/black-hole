@@ -1,5 +1,16 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Card, CardContent, Table, TableCell, TableRow, IconButton, Tooltip, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Table,
+  TableCell,
+  TableRow,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+  InputAdornment
+} from '@mui/material';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Head from 'next/head';
@@ -16,8 +27,9 @@ import {
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody,
-  Pagination,
+  Pagination
 } from '@/components/common';
+import { StyledTextField } from '@/components/common/text-field/StyledTextField';
 import { useToast } from '@/contexts/ToastContext';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
@@ -25,7 +37,6 @@ import { ticketTemplate } from '@/lib/ticketTemplate';
 import { eventsService } from '@/services/events';
 import type { Invitation } from '@/types/event';
 import { dateUtils } from '@/utils/dateUtils';
-
 
 interface InvitationFilters {
   page: number;
@@ -38,7 +49,9 @@ interface InvitationFilters {
 function InvitationPage() {
   const router = useRouter();
   const { metaUrl } = router.query;
-  const { eventDetail, loading: eventLoading } = useEventDetail(metaUrl as string);
+  const { eventDetail, loading: eventLoading } = useEventDetail(
+    metaUrl as string
+  );
   const { showError, showSuccess } = useToast();
 
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -60,10 +73,13 @@ function InvitationPage() {
 
   const fetchInvitations = async () => {
     if (!eventDetail?.id) return;
-    
+
     setLoading(true);
     try {
-      const response = await eventsService.getInvitations(eventDetail.id, filters);
+      const response = await eventsService.getInvitations(
+        eventDetail.id,
+        filters
+      );
       setInvitations(response.body.data);
       setPagination(response.body.pagination);
     } catch (error) {
@@ -97,7 +113,7 @@ function InvitationPage() {
     try {
       setDownloadingId(id);
       const data = await eventsService.getTicketInvitationsById(id);
-      
+
       if (!data.body.tickets || data.body.tickets.length === 0) {
         showError('No tickets found for this invitation');
         return;
@@ -109,10 +125,13 @@ function InvitationPage() {
         type: data.body.ticketType?.name,
         attendee: ticket.visitor_name,
         qrValue: ticket.id,
-        date: dateUtils.formatDate(data.body.ticketType?.ticketStartDate, 'datetime'),
+        date: dateUtils.formatDate(
+          data.body.ticketType?.ticketStartDate,
+          'datetime'
+        ),
         address: data.body.event?.address,
         mapLocation: data.body.event?.mapLocationUrl,
-        raw: ticket,
+        raw: ticket
       }));
 
       // Generate PDF with proper page breaks
@@ -162,7 +181,7 @@ function InvitationPage() {
             if (clonedBody) {
               clonedBody.style.backgroundColor = '#ffffff';
             }
-          },
+          }
         });
 
         // Clean up iframe
@@ -180,7 +199,6 @@ function InvitationPage() {
       const eventDate = dateUtils.getTodayWIBString();
       const fileName = `${recipientName}-${eventDate}.pdf`;
       pdf.save(fileName);
-      
     } catch (error) {
       console.error('Error downloading ticket:', error);
       showError('Failed to download ticket');
@@ -191,6 +209,22 @@ function InvitationPage() {
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page: page }));
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      limit: pageSize,
+      page: 0 // Reset to first page
+    }));
+  };
+
+  const handleSearchChange = (value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      search: value,
+      page: 0 // Reset to first page
+    }));
   };
 
   return (
@@ -216,11 +250,13 @@ function InvitationPage() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: 2,
-            minWidth: 200,
+            minWidth: 200
           }}
         >
           <CircularProgress size={50} sx={{ color: 'primary.main' }} />
-          <Body2 sx={{ color: 'text.primary', fontSize: '14px', fontWeight: 500 }}>
+          <Body2
+            sx={{ color: 'text.primary', fontSize: '14px', fontWeight: 500 }}
+          >
             Generating PDF...
           </Body2>
         </Box>
@@ -243,11 +279,13 @@ function InvitationPage() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: 2,
-            minWidth: 200,
+            minWidth: 200
           }}
         >
           <CircularProgress size={50} sx={{ color: 'primary.main' }} />
-          <Body2 sx={{ color: 'text.primary', fontSize: '14px', fontWeight: 500 }}>
+          <Body2
+            sx={{ color: 'text.primary', fontSize: '14px', fontWeight: 500 }}
+          >
             Resending invitation...
           </Body2>
         </Box>
@@ -255,10 +293,10 @@ function InvitationPage() {
 
       <Box>
         {/* Back Button */}
-        <Box 
-          mb={2} 
-          display="flex" 
-          alignItems="center" 
+        <Box
+          mb={2}
+          display="flex"
+          alignItems="center"
           sx={{ cursor: 'pointer', width: 'fit-content' }}
           onClick={() => router.push('/events')}
         >
@@ -287,79 +325,154 @@ function InvitationPage() {
         {/* Invitation List */}
         <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
           <CardContent sx={{ padding: '24px' }}>
-            <H3 mb={3} fontWeight={700}>Invitation List</H3>
-            
+            <Box
+              mb={3}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <H3 fontWeight={700}>Invitation List</H3>
+              <StyledTextField
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Image
+                        alt="search"
+                        height={16}
+                        src="/icon/search.svg"
+                        width={16}
+                      />
+                    </InputAdornment>
+                  )
+                }}
+                placeholder="Search by name or email"
+                sx={{
+                  width: '300px',
+                  '& .MuiOutlinedInput-root': {
+                    height: '40px',
+                    backgroundColor: 'common.white'
+                  }
+                }}
+                value={filters.search || ''}
+                onChange={(e) => handleSearchChange(e.target.value)}
+              />
+            </Box>
+
             <StyledTableContainer>
               <Table>
                 <StyledTableHead>
                   <TableRow>
                     <TableCell sx={{ width: '60px' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>No</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        No
+                      </Body2>
                     </TableCell>
                     <TableCell sx={{ width: '20%' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>Full Name</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Full Name
+                      </Body2>
                     </TableCell>
                     <TableCell sx={{ width: '15%' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>No Telp</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        No Telp
+                      </Body2>
                     </TableCell>
                     <TableCell sx={{ width: '30%' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>Email</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Email
+                      </Body2>
                     </TableCell>
                     <TableCell sx={{ width: '15%' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>Ticket Type</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Ticket Type
+                      </Body2>
                     </TableCell>
                     <TableCell sx={{ width: '10%' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>Qty</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Qty
+                      </Body2>
                     </TableCell>
                     <TableCell sx={{ width: '10%' }}>
-                        <Body2 color="text.secondary" fontWeight={600}>Action</Body2>
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Action
+                      </Body2>
                     </TableCell>
                   </TableRow>
                 </StyledTableHead>
                 <StyledTableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, border: 'none' }}>
-                          <Body2 color="text.secondary">Loading...</Body2>
+                      <TableCell
+                        colSpan={7}
+                        sx={{ textAlign: 'center', py: 5, border: 'none' }}
+                      >
+                        <Body2 color="text.secondary">Loading...</Body2>
                       </TableCell>
                     </TableRow>
                   ) : invitations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, border: 'none' }}>
-                          <Body2 color="text.secondary">No invitations available</Body2>
+                      <TableCell
+                        colSpan={7}
+                        sx={{ textAlign: 'center', py: 5, border: 'none' }}
+                      >
+                        <Body2 color="text.secondary">
+                          No invitations available
+                        </Body2>
                       </TableCell>
                     </TableRow>
                   ) : (
                     invitations.map((invitation, index) => (
                       <TableRow key={invitation.id}>
                         <TableCell>
-                          <Body2 color="text.primary">{(pagination.page) * pagination.limit + index + 1}</Body2>
+                          <Body2 color="text.primary">
+                            {pagination.page * pagination.limit + index + 1}
+                          </Body2>
                         </TableCell>
                         <TableCell>
                           <Body2 color="text.primary">{invitation.name}</Body2>
                         </TableCell>
                         <TableCell>
-                          <Body2 color="text.primary">{invitation.phone_number}</Body2>
+                          <Body2 color="text.primary">
+                            {invitation.phone_number}
+                          </Body2>
                         </TableCell>
                         <TableCell>
                           <Body2 color="text.primary">{invitation.email}</Body2>
                         </TableCell>
                         <TableCell>
-                          <Body2 color="text.primary">{invitation.ticket_type_name}</Body2>
+                          <Body2 color="text.primary">
+                            {invitation.ticket_type_name}
+                          </Body2>
                         </TableCell>
                         <TableCell>
-                          <Body2 color="text.primary">{invitation.ticket_qty}</Body2>
+                          <Body2 color="text.primary">
+                            {invitation.ticket_qty}
+                          </Body2>
                         </TableCell>
                         <TableCell>
                           <Box display="flex" gap={1}>
                             <Tooltip title="Download Invitation">
-                              <IconButton onClick={() => handleDownload(invitation.id)}>
-                                <Image src="/icon/download.svg" alt="download" width={20} height={20} />
+                              <IconButton
+                                onClick={() => handleDownload(invitation.id)}
+                              >
+                                <Image
+                                  src="/icon/download.svg"
+                                  alt="download"
+                                  width={20}
+                                  height={20}
+                                />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Resend Invitation">
-                              <IconButton onClick={() => handleResend(invitation.id)}>
-                                <Image src="/icon/share.svg" alt="resend" width={20} height={20} />
+                              <IconButton
+                                onClick={() => handleResend(invitation.id)}
+                              >
+                                <Image
+                                  src="/icon/share.svg"
+                                  alt="resend"
+                                  width={20}
+                                  height={20}
+                                />
                               </IconButton>
                             </Tooltip>
                           </Box>
@@ -376,6 +489,7 @@ function InvitationPage() {
                 currentPage={pagination.page}
                 pageSize={pagination.limit}
                 onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
                 loading={loading}
               />
             </StyledTableContainer>
