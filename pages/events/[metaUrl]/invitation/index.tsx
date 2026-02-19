@@ -482,17 +482,16 @@ function InvitationPage() {
                   )}
                 </StyledTableBody>
               </Table>
-
-              {/* Pagination */}
-              <Pagination
-                total={pagination.totalRecords}
-                currentPage={pagination.page}
-                pageSize={pagination.limit}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                loading={loading}
-              />
             </StyledTableContainer>
+            {/* Pagination */}
+            <Pagination
+              total={pagination.totalRecords}
+              currentPage={pagination.page}
+              pageSize={pagination.limit}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              loading={loading}
+            />
           </CardContent>
         </Card>
       </Box>
