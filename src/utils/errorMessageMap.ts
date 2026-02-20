@@ -36,8 +36,7 @@ interface ErrorMapping {
 // ---------------------------------------------------------------------------
 
 const urlMatchers = {
-  login: (url: string) =>
-    /\/api\/auth\/login/i.test(url),
+  login: (url: string) => /\/api\/auth\/login/i.test(url),
 
   forgotPassword: (url: string) =>
     /\/api\/auth\/password\/(request|change)/i.test(url),
@@ -46,32 +45,23 @@ const urlMatchers = {
     /\/api\/(event-organizers|users\/check-availability)/i.test(url) ||
     /\/api\/auth\/register/i.test(url),
 
-  otpRequest: (url: string) =>
-    /\/api\/auth\/otp\/request/i.test(url),
+  otpRequest: (url: string) => /\/api\/auth\/otp\/request/i.test(url),
 
-  otpVerification: (url: string) =>
-    /\/api\/auth\/otp\/verification/i.test(url),
+  otpVerification: (url: string) => /\/api\/auth\/otp\/verification/i.test(url),
 
-  createOrder: (url: string) =>
-    /\/api\/.*order/i.test(url),
+  createOrder: (url: string) => /\/api\/.*order/i.test(url),
 
-  checkout: (url: string) =>
-    /\/api\/.*checkout/i.test(url),
+  checkout: (url: string) => /\/api\/.*checkout/i.test(url),
 
-  payment: (url: string) =>
-    /\/api\/.*payment/i.test(url),
+  payment: (url: string) => /\/api\/.*payment/i.test(url),
 
-  eventsSubmission: (url: string) =>
-    /\/api\/(events|event).*submit/i.test(url),
+  eventsSubmission: (url: string) => /\/api\/(events|event).*submit/i.test(url),
 
-  createTicket: (url: string) =>
-    /\/api\/.*ticket/i.test(url),
+  createTicket: (url: string) => /\/api\/.*ticket/i.test(url),
 
-  createAdditionalForm: (url: string) =>
-    /\/api\/.*additional-form/i.test(url),
+  createAdditionalForm: (url: string) => /\/api\/.*additional-form/i.test(url),
 
-  uploadAsset: (url: string) =>
-    /\/api\/(upload-asset|assets)/i.test(url),
+  uploadAsset: (url: string) => /\/api\/(upload-asset|assets)/i.test(url)
 };
 
 // ---------------------------------------------------------------------------
@@ -89,59 +79,52 @@ const errorMappings: Record<string, ErrorMapping[]> = {
   login: [
     {
       patterns: [
-        'too many',
-        'rate limit',
-        'failed 3',
-        'locked',
-        'temporarily blocked',
-      ],
-      userMessage:
-        'Too many requests. Please wait for 3 minutes to try again.',
-    },
-    {
-      patterns: [
         'wrong password',
         'password',
         'invalid credentials',
         'invalid email or password',
         'email & password',
         'unauthorized',
-        'credential',
+        'credential'
       ],
-      userMessage: "Email & password doesn’t match",
+      userMessage: "Email & password doesn't match"
     },
     {
       patterns: [
         'wrong email',
         'email not found',
         'user not found',
-        'account not found',
+        'account not found'
       ],
-      userMessage: "Email & password doesn’t match",
+      userMessage: "Email & password doesn't match"
     },
-  ],
-
-  forgotPassword: [
     {
       patterns: [
         'too many',
         'rate limit',
-        'request more than',
-        'cooldown',
+        'failed 3',
+        'locked',
+        'temporarily blocked'
       ],
+      userMessage: 'Too many requests. Please wait for 3 minutes to try again.'
+    }
+  ],
+
+  forgotPassword: [
+    {
+      patterns: ['too many', 'rate limit', 'request more than', 'cooldown'],
       userMessage:
-        'Too many requests. Please wait before requesting another link.',
+        'Too many requests. Please wait before requesting another link.'
     },
     {
       patterns: [
         'email not found',
         'user not found',
         'not registered',
-        'no account',
-        'this email is not registered',
+        'no account'
       ],
-      userMessage: 'Email not found',
-    },
+      userMessage: 'Email not found'
+    }
   ],
 
   register: [
@@ -151,19 +134,13 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'already exists',
         'email is already',
         'duplicate email',
-        'email already',
-        'not available to use',
+        'email already'
       ],
-      userMessage: 'Email is already registered. Sign in?',
+      userMessage: 'Email is already registered. Sign in?'
     },
     {
-      patterns: [
-        'terms',
-        'term and condition',
-        'terms and conditions',
-        't&c',
-      ],
-      userMessage: 'You must agree to terms and conditions',
+      patterns: ['terms', 'term and condition', 'terms and conditions', 't&c'],
+      userMessage: 'You must agree to terms and conditions'
     },
     {
       patterns: [
@@ -171,10 +148,10 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'required field',
         'missing field',
         'form incomplete',
-        'validation',
+        'validation'
       ],
-      userMessage: 'Please complete the form',
-    },
+      userMessage: 'Please complete the form'
+    }
   ],
 
   otpRequest: [
@@ -184,90 +161,74 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'phone number format',
         'wrong phone',
         'phone number is invalid',
-        'invalid format',
+        'invalid format'
       ],
-      userMessage: 'Please input a valid phone number',
+      userMessage: 'Please input a valid phone number'
     },
     {
       patterns: [
         'already registered',
         'phone number already',
         'phone already',
-        'duplicate phone',
+        'duplicate phone'
       ],
-      userMessage: 'Phone number is already registered. Sign in?',
+      userMessage: 'Phone number is already registered. Sign in?'
     },
     {
-      patterns: [
-        'too many',
-        'rate limit',
-        'request more than',
-        'cooldown',
-        'internal grpc error',
-      ],
+      patterns: ['too many', 'rate limit', 'request more than', 'cooldown'],
       userMessage:
-        'Too many requests. Please wait before requesting another link.',
-    },
+        'Too many requests. Please wait before requesting another link.'
+    }
   ],
 
   createOrder: [
     {
       patterns: ['sold out', 'ticket sold out', 'ticket type is sold'],
-      userMessage: 'This ticket type is sold out',
+      userMessage: 'This ticket type is sold out'
     },
     {
       patterns: ['maximum capacity', 'exceeded', 'quantity exceeded'],
-      userMessage: 'This event has reached maximum capacity',
+      userMessage: 'This event has reached maximum capacity'
     },
     {
       patterns: ['event sold out', 'event is sold out'],
-      userMessage: 'This event is sold out',
+      userMessage: 'This event is sold out'
     },
     {
-      patterns: [
-        'sales.*ended',
-        'sales period',
-        'sale ended',
-        'sales date',
-      ],
-      userMessage: 'Sales period is ended',
+      patterns: ['sales.*ended', 'sales period', 'sale ended', 'sales date'],
+      userMessage: 'Sales period is ended'
     },
     {
       patterns: [
         'incomplete',
         'required field',
         'missing field',
-        'form incomplete',
+        'form incomplete'
       ],
-      userMessage: 'Please complete the form',
-    },
+      userMessage: 'Please complete the form'
+    }
   ],
 
   checkout: [
     {
       patterns: ['event sold out', 'event is sold out', 'sold out'],
-      userMessage: 'This event is sold out',
+      userMessage: 'This event is sold out'
     },
     {
-      patterns: [
-        'sales.*ended',
-        'sales period',
-        'sale ended',
-        'sales date',
-      ],
-      userMessage: 'Sales period is ended',
+      patterns: ['sales.*ended', 'sales period', 'sale ended', 'sales date'],
+      userMessage: 'Sales period is ended'
     },
     {
       patterns: ['ticket sold out', 'ticket type is sold'],
-      userMessage: 'This ticket type is sold out',
-    },
+      userMessage: 'This ticket type is sold out'
+    }
   ],
 
   payment: [
     {
       patterns: ['unpaid', 'pending payment', 'complete.*transaction'],
-      userMessage: 'Please complete the transaction',
-    },
+      userMessage: 'Please complete the transaction'
+    }
   ],
 
   eventsSubmission: [
@@ -277,10 +238,10 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'required field',
         'missing field',
         'form incomplete',
-        'validation',
+        'validation'
       ],
-      userMessage: 'Please complete the form',
-    },
+      userMessage: 'Please complete the form'
+    }
   ],
 
   createTicket: [
@@ -290,10 +251,10 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'required field',
         'missing field',
         'form incomplete',
-        'validation',
+        'validation'
       ],
-      userMessage: 'Please complete the form',
-    },
+      userMessage: 'Please complete the form'
+    }
   ],
 
   createAdditionalForm: [
@@ -303,10 +264,10 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'required field',
         'missing field',
         'form incomplete',
-        'validation',
+        'validation'
       ],
-      userMessage: 'Please complete the form',
-    },
+      userMessage: 'Please complete the form'
+    }
   ],
 
   uploadAsset: [
@@ -316,12 +277,12 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'invalid format',
         'format not allowed',
         'file type',
-        'invalid file',
+        'invalid file'
       ],
       userMessage:
-        'Invalid format. Please ensure your file is in a supported format',
-    },
-  ],
+        'Invalid format. Please ensure your file is in a supported format'
+    }
+  ]
 };
 
 // ---------------------------------------------------------------------------
@@ -338,7 +299,7 @@ const statusCodeFallbacks: Record<number, string> = {
   500: 'An unexpected error occurred. Please try again later.',
   502: 'Server is temporarily unavailable. Please try again later.',
   503: 'Service unavailable. Please try again later.',
-  504: 'Request timeout. Please try again.',
+  504: 'Request timeout. Please try again.'
 };
 
 // ---------------------------------------------------------------------------
@@ -392,37 +353,7 @@ export function mapErrorMessage(context: ErrorContext): string | null {
       : null) ||
     '';
 
-  // 2. Check for dynamic cooldown message first (extract time from backend)
-  if (rawMessage) {
-    const lowerMsg = rawMessage.toLowerCase();
-    const cooldownMatch = lowerMsg.match(
-      /(?:wait|cooldown).*?(\d+)\s*(second|minute|hour|min|sec|hr)/i
-    );
-    if (cooldownMatch) {
-      const value = cooldownMatch[1];
-      const unit = cooldownMatch[2].toLowerCase();
-      const unitLabel =
-        unit.startsWith('min') ? 'minutes' :
-        unit.startsWith('sec') ? 'seconds' :
-        unit.startsWith('hr') || unit.startsWith('hour') ? 'hours' :
-        unit;
-      return `Too many requests. Please wait for ${value} ${unitLabel} to try again.`;
-    }
-  }
-
-  // 3. Handle 429 (Rate Limit) specifically for certain functions
-  // This handles cases where backend might return a generic error message or no message at all.
-  if (status === 429) {
-    const fnKey = url ? detectFunction(url) : null;
-    if (fnKey === 'forgotPassword' || fnKey === 'otpRequest') {
-      return 'Too many requests. Please wait before requesting another link.';
-    }
-    if (fnKey === 'login') {
-      return 'Too many requests. Please wait for 3 minutes to try again.';
-    }
-  }
-
-  // 4. If we have a URL, try function-specific mappings
+  // 2. If we have a URL, try function-specific mappings first
   if (url && rawMessage) {
     const fnKey = detectFunction(url);
     if (fnKey && errorMappings[fnKey]) {
@@ -434,12 +365,34 @@ export function mapErrorMessage(context: ErrorContext): string | null {
     }
   }
 
-  // 6. Fall back to status-code-based message
+  // 3. Try global pattern matching (raw message contains the dynamic cooldown)
+  if (rawMessage) {
+    const lowerMsg = rawMessage.toLowerCase();
+
+    // Dynamic cooldown message — extract time from backend
+    const cooldownMatch = lowerMsg.match(
+      /(?:wait|cooldown).*?(\d+)\s*(second|minute|hour|min|sec|hr)/i
+    );
+    if (cooldownMatch) {
+      const value = cooldownMatch[1];
+      const unit = cooldownMatch[2].toLowerCase();
+      const unitLabel = unit.startsWith('min')
+        ? 'minutes'
+        : unit.startsWith('sec')
+          ? 'seconds'
+          : unit.startsWith('hr') || unit.startsWith('hour')
+            ? 'hours'
+            : unit;
+      return `Too many requests. Please wait for ${value} ${unitLabel} to try again.`;
+    }
+  }
+
+  // 4. Fall back to status-code-based message
   if (status && statusCodeFallbacks[status]) {
     return statusCodeFallbacks[status];
   }
 
-  // 7. No mapping found — let the caller handle the default
+  // 5. No mapping found — let the caller handle the default
   return null;
 }
 
