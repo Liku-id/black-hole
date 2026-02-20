@@ -70,20 +70,21 @@ describe('EventDetailAssets', () => {
     rejectedReason: null,
     rejectedFields: null,
     withdrawalFee: '0',
-    login_required: false
+    login_required: false,
+    group_tickets: []
   };
 
   describe('Rendering', () => {
-    it('should render "Event Assets" title', () => {
+    it('should render "Event Asset" title', () => {
       render(<EventDetailAssets eventDetail={mockEventDetail} />);
 
-      expect(screen.getByText('Event Assets')).toBeInTheDocument();
+      expect(screen.getByText('Event Asset')).toBeInTheDocument();
     });
 
     it('should render edit button for non-done and non-on_review events', () => {
       render(<EventDetailAssets eventDetail={mockEventDetail} />);
 
-      expect(screen.getByText('Edit Thumbnail')).toBeInTheDocument();
+      expect(screen.getByText('Edit Assets')).toBeInTheDocument();
     });
 
     it('should not render edit button for done events', () => {
@@ -94,7 +95,7 @@ describe('EventDetailAssets', () => {
 
       render(<EventDetailAssets eventDetail={doneEvent} />);
 
-      expect(screen.queryByText('Edit Thumbnail')).not.toBeInTheDocument();
+      expect(screen.queryByText('Edit Assets')).not.toBeInTheDocument();
     });
 
     it('should not render edit button for on_review events', () => {
@@ -105,7 +106,7 @@ describe('EventDetailAssets', () => {
 
       render(<EventDetailAssets eventDetail={reviewEvent} />);
 
-      expect(screen.queryByText('Edit Thumbnail')).not.toBeInTheDocument();
+      expect(screen.queryByText('Edit Assets')).not.toBeInTheDocument();
     });
   });
 
@@ -127,7 +128,7 @@ describe('EventDetailAssets', () => {
       render(<EventDetailAssets eventDetail={eventWithoutAssets} />);
 
       // Just verify component rendered (empty state might have different text)
-      expect(screen.getByText('Event Assets')).toBeInTheDocument();
+      expect(screen.getByText('Event Asset')).toBeInTheDocument();
     });
   });
 
@@ -135,7 +136,7 @@ describe('EventDetailAssets', () => {
     it('should navigate to edit assets page when edit button is clicked', () => {
       render(<EventDetailAssets eventDetail={mockEventDetail} />);
 
-      const editButton = screen.getByText('Edit Thumbnail');
+      const editButton = screen.getByText('Edit Assets');
       fireEvent.click(editButton);
 
       expect(mockPush).toHaveBeenCalledWith('/events/edit/test-event/assets');

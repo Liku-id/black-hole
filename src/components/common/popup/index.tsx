@@ -1,7 +1,7 @@
 import { Box, styled } from '@mui/material';
 import { FC, useEffect } from 'react';
 
-import { H3 } from '@/components/common';
+import { H3 } from '../typography';
 
 const PopupOverlay = styled(Box)<{ open: boolean }>(({ open }) => ({
   position: 'fixed',

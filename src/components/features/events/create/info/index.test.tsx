@@ -1,4 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+
+import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
+
 import { CreateEventForm } from './index';
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
 
@@ -7,6 +10,21 @@ jest.mock('@/hooks', () => ({
   useCities: jest.fn(),
   usePaymentMethods: jest.fn(),
   useEventTypes: jest.fn()
+}));
+
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Test User',
+      role: { name: 'event_organizer_pic' },
+      eventOrganizerId: 'org1'
+    },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
 }));
 
 const mockUseCities = useCities as jest.MockedFunction<typeof useCities>;
@@ -23,10 +41,9 @@ describe('CreateEventForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseCities.mockReturnValue({
-      cities: [
-        { id: 'city1', name: 'Jakarta', province: 'DKI Jakarta' }
-      ],
-      loading: false
+      cities: [{ id: 'city1', name: 'Jakarta' }],
+      loading: false,
+      error: ''
     });
     mockUsePaymentMethods.mockReturnValue({
       paymentMethods: {
@@ -35,26 +52,38 @@ describe('CreateEventForm', () => {
             id: 'pm1',
             name: 'Bank Transfer',
             type: 'Virtual Account',
-            bank: { name: 'BCA', channelCode: 'BCA' }
+            logo: 'logo.png',
+            bankId: 'bank1',
+            requestType: 'VA',
+            paymentCode: 'BCA_VA',
+            channelProperties: {},
+            rules: [],
+            paymentMethodFee: 0,
+            bank: {
+              id: 'bank1',
+              name: 'BCA',
+              channelCode: 'BCA',
+              channelType: 'VIRTUAL_ACCOUNT',
+              minAmount: 10000,
+              maxAmount: 50000000
+            }
           }
         ]
       },
-      loading: false
+      loading: false,
+      error: ''
     });
     mockUseEventTypes.mockReturnValue({
       eventTypes: ['concert', 'festival'],
-      loading: false
+      loading: false,
+      error: '',
+      refetch: jest.fn()
     });
   });
 
   describe('Rendering', () => {
     it('should render event name field', async () => {
-      render(
-        <CreateEventForm
-          onSubmit={mockOnSubmit}
-          loading={false}
-        />
-      );
+      render(<CreateEventForm onSubmit={mockOnSubmit} loading={false} />);
 
       await waitFor(() => {
         expect(screen.getByText('Event Name*')).toBeInTheDocument();
@@ -62,12 +91,7 @@ describe('CreateEventForm', () => {
     });
 
     it('should render event type field', async () => {
-      render(
-        <CreateEventForm
-          onSubmit={mockOnSubmit}
-          loading={false}
-        />
-      );
+      render(<CreateEventForm onSubmit={mockOnSubmit} loading={false} />);
 
       await waitFor(() => {
         expect(screen.getByText('Event Type*')).toBeInTheDocument();
@@ -75,12 +99,7 @@ describe('CreateEventForm', () => {
     });
 
     it('should render date and time fields', async () => {
-      render(
-        <CreateEventForm
-          onSubmit={mockOnSubmit}
-          loading={false}
-        />
-      );
+      render(<CreateEventForm onSubmit={mockOnSubmit} loading={false} />);
 
       await waitFor(() => {
         expect(screen.getByText('Start & End Date*')).toBeInTheDocument();
@@ -89,12 +108,7 @@ describe('CreateEventForm', () => {
     });
 
     it('should render address field', async () => {
-      render(
-        <CreateEventForm
-          onSubmit={mockOnSubmit}
-          loading={false}
-        />
-      );
+      render(<CreateEventForm onSubmit={mockOnSubmit} loading={false} />);
 
       await waitFor(() => {
         expect(screen.getByText('Address*')).toBeInTheDocument();
@@ -102,12 +116,7 @@ describe('CreateEventForm', () => {
     });
 
     it('should render all form fields', async () => {
-      render(
-        <CreateEventForm
-          onSubmit={mockOnSubmit}
-          loading={false}
-        />
-      );
+      render(<CreateEventForm onSubmit={mockOnSubmit} loading={false} />);
 
       await waitFor(() => {
         expect(screen.getByText('Event Name*')).toBeInTheDocument();
@@ -136,12 +145,7 @@ describe('CreateEventForm', () => {
 
   describe('Loading State', () => {
     it('should disable submit button when loading is true', async () => {
-      render(
-        <CreateEventForm
-          onSubmit={mockOnSubmit}
-          loading={true}
-        />
-      );
+      render(<CreateEventForm onSubmit={mockOnSubmit} loading={true} />);
 
       await waitFor(() => {
         expect(screen.getByText('Event Name*')).toBeInTheDocument();
@@ -149,4 +153,3 @@ describe('CreateEventForm', () => {
     });
   });
 });
-

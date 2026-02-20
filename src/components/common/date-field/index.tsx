@@ -2,11 +2,11 @@ import { TextFieldProps, InputAdornment, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Image from 'next/image';
 import { forwardRef } from 'react';
-import { DatePicker } from 'react-datepicker';
+import DatePicker from 'react-datepicker';
 import { createPortal } from 'react-dom';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
-import { Body2 } from '@/components/common';
+import { Body2 } from '../typography';
 
 import { StyledTextField } from '../text-field/StyledTextField';
 import 'react-datepicker/dist/react-datepicker.css';
