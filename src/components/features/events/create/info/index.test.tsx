@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import { useCities, usePaymentMethods, useEventTypes } from '@/hooks';
 
@@ -9,6 +9,21 @@ jest.mock('@/hooks', () => ({
   useCities: jest.fn(),
   usePaymentMethods: jest.fn(),
   useEventTypes: jest.fn()
+}));
+
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Test User',
+      role: { name: 'event_organizer_pic' },
+      eventOrganizerId: 'org1'
+    },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
 }));
 
 const mockUseCities = useCities as jest.MockedFunction<typeof useCities>;
@@ -26,9 +41,10 @@ describe('CreateEventForm', () => {
     jest.clearAllMocks();
     mockUseCities.mockReturnValue({
       cities: [
-        { id: 'city1', name: 'Jakarta', province: 'DKI Jakarta' }
+        { id: 'city1', name: 'Jakarta' }
       ],
-      loading: false
+      loading: false,
+      error: ''
     });
     mockUsePaymentMethods.mockReturnValue({
       paymentMethods: {
@@ -37,15 +53,32 @@ describe('CreateEventForm', () => {
             id: 'pm1',
             name: 'Bank Transfer',
             type: 'Virtual Account',
-            bank: { name: 'BCA', channelCode: 'BCA' }
+            logo: 'logo.png',
+            bankId: 'bank1',
+            requestType: 'VA',
+            paymentCode: 'BCA_VA',
+            channelProperties: {},
+            rules: [],
+            paymentMethodFee: 0,
+            bank: {
+              id: 'bank1',
+              name: 'BCA',
+              channelCode: 'BCA',
+              channelType: 'VIRTUAL_ACCOUNT',
+              minAmount: 10000,
+              maxAmount: 50000000
+            }
           }
         ]
       },
-      loading: false
+      loading: false,
+      error: ''
     });
     mockUseEventTypes.mockReturnValue({
       eventTypes: ['concert', 'festival'],
-      loading: false
+      loading: false,
+      error: '',
+      refetch: jest.fn()
     });
   });
 

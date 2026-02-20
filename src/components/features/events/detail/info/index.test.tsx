@@ -10,6 +10,21 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Test User',
+      role: { name: 'event_organizer_pic' },
+      eventOrganizerId: 'org1'
+    },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
+}));
+
 const mockPush = jest.fn();
 const mockRouter = {
   push: mockPush,
@@ -98,7 +113,8 @@ describe('EventDetailInfo', () => {
     it('should not render edit button for on_review events', () => {
       const reviewEvent = {
         ...mockEventDetail,
-        eventStatus: 'on_review'
+        eventStatus: 'on_review',
+        eventUpdateRequestStatus: 'pending'
       };
 
       render(<EventDetailInfo eventDetail={reviewEvent} />);

@@ -4,6 +4,21 @@ import { EventDetail } from '@/types/event';
 
 import { EventsSubmissionsInfo } from './index';
 
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Test User',
+      role: { name: 'event_organizer_pic' },
+      eventOrganizerId: 'org1'
+    },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
+}));
+
 describe('EventsSubmissionsInfo', () => {
   const mockEventDetail: EventDetail = {
     id: '1',
@@ -25,13 +40,41 @@ describe('EventsSubmissionsInfo', () => {
     tickets: [],
     city: {
       id: 'city1',
-      name: 'Jakarta',
-      province: 'DKI Jakarta'
+      name: 'Jakarta'
     },
     eventOrganizer: {} as any,
     paymentMethods: [
-      { id: 'pm1', name: 'Bank Transfer' },
-      { id: 'pm2', name: 'Credit Card' }
+      {
+        id: 'pm1',
+        name: 'Bank Transfer',
+        type: 'Virtual Account',
+        logo: 'logo.png',
+        bankId: 'bank1',
+        requestType: 'VA',
+        paymentCode: 'BCA_VA',
+        channelProperties: {},
+        rules: [],
+        bank: {
+          id: 'bank1',
+          name: 'BCA',
+          channelCode: 'BCA',
+          channelType: 'VIRTUAL_ACCOUNT',
+          minAmount: 10000,
+          maxAmount: 50000000
+        }
+      },
+      {
+        id: 'pm2',
+        name: 'Credit Card',
+        type: 'Credit Card',
+        logo: 'logo.png',
+        bankId: 'bank2',
+        requestType: 'CC',
+        paymentCode: 'CC',
+        channelProperties: {},
+        rules: [],
+        bank: null
+      }
     ],
     adminFee: 5,
     tax: 10,
@@ -41,7 +84,8 @@ describe('EventsSubmissionsInfo', () => {
     rejectedReason: null,
     rejectedFields: null,
     withdrawalFee: '0',
-    login_required: false
+    login_required: false,
+    group_tickets: []
   };
 
   describe('Basic Rendering', () => {
@@ -86,9 +130,23 @@ describe('EventsSubmissionsInfo', () => {
   describe('Field Changes Display', () => {
     it('should display new value when field has changes', () => {
       const eventUpdateRequest = {
+        id: '1',
+        eventId: '1',
         name: 'Updated Event Name',
-        description: 'Updated description'
-      };
+        description: 'Updated description',
+        status: 'pending',
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-01',
+        eventDetailStatus: 'pending',
+        ticketStatus: 'pending',
+        assetStatus: 'pending',
+        rejectedReason: null,
+        rejectedFields: null,
+        eventType: 'concert',
+        address: 'Test Address',
+        mapLocationUrl: 'https://maps.google.com',
+        metaUrl: 'test-event'
+      } as any;
 
       render(
         <EventsSubmissionsInfo
