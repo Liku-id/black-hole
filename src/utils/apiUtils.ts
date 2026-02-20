@@ -1,5 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import { mapErrorMessage } from './errorMessageMap';
+
 let refreshTokenPromise: Promise<void> | null = null;
 
 const refreshTokens = async (): Promise<void> => {
@@ -80,37 +82,71 @@ export const apiUtils = {
     if (error.response) {
       // Server responded with error status
       const { data, status } = error.response;
+      const requestUrl = error.config?.url || '';
 
       // Check if it's an authentication error
       if (status === 401) {
         // Check if it's a login attempt (login endpoint) or session expired
-        if (error.config?.url?.includes('/api/auth/login')) {
-          if (data && typeof data === 'object' && (data as any).message) {
-            errorMessage = (data as any).message;
-          }
+        if (requestUrl.includes('/api/auth/login')) {
+          // Try mapped error first for login
+          const mapped = mapErrorMessage({
+            status,
+            backendMessage:
+              data && typeof data === 'object'
+                ? (data as any).message
+                : undefined,
+            url: requestUrl,
+            responseData: data,
+          });
+          errorMessage =
+            mapped ||
+            (data && typeof data === 'object' && (data as any).message
+              ? (data as any).message
+              : defaultErrorMessage);
         } else {
           if (!skipSessionClear) {
             apiUtils.clearExpiredSession();
           }
           errorMessage = 'Session expired. Please log in again.';
         }
-      } else if (status === 413) {
-        // Handle payload too large error
-        errorMessage =
-          'File size too large. Please ensure your files are less than 2MB and try again.';
-      } else if (data && typeof data === 'object') {
-        const errorData = data as any;
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (errorData.error) {
-          errorMessage = errorData.error;
-        } else if (errorData.details && Array.isArray(errorData.details)) {
-          errorMessage = errorData.details.join(', ');
+      } else {
+        // --- Centralized error message mapping ---
+        const rawMessage =
+          data && typeof data === 'object'
+            ? (data as any).message ||
+              (data as any).error ||
+              (Array.isArray((data as any).details)
+                ? (data as any).details.join(', ')
+                : undefined)
+            : undefined;
+
+        const mapped = mapErrorMessage({
+          status,
+          backendMessage: rawMessage,
+          url: requestUrl,
+          responseData: data,
+        });
+
+        if (mapped) {
+          errorMessage = mapped;
+        } else if (status === 413) {
+          // Handle payload too large error
+          errorMessage =
+            'File size too large. Please ensure your files are less than 2MB and try again.';
+        } else if (data && typeof data === 'object') {
+          const errorData = data as any;
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData.details && Array.isArray(errorData.details)) {
+            errorMessage = errorData.details.join(', ');
+          } else {
+            errorMessage = `Server error (${status})`;
+          }
         } else {
           errorMessage = `Server error (${status})`;
         }
-      } else {
-        errorMessage = `Server error (${status})`;
       }
     } else if (error.request) {
       // Request was made but no response received
