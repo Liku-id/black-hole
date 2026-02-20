@@ -2,7 +2,7 @@ import { Box, Menu, MenuItem, TextField, InputAdornment } from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Body2 } from '@/components/common';
+import { Body2 } from '../typography';
 
 interface DropdownOption {
   value: string;

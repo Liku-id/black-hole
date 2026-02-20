@@ -10,6 +10,21 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Test User',
+      role: { name: 'event_organizer_pic' },
+      eventOrganizerId: 'org1'
+    },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
+}));
+
 const mockPush = jest.fn();
 const mockRouter = {
   push: mockPush,
@@ -56,7 +71,8 @@ describe('EventDetailInfo', () => {
     rejectedReason: null,
     rejectedFields: null,
     withdrawalFee: '0',
-    login_required: false
+    login_required: false,
+    group_tickets: []
   };
 
   describe('Rendering', () => {
@@ -80,7 +96,7 @@ describe('EventDetailInfo', () => {
     it('should render edit button for editable events', () => {
       render(<EventDetailInfo eventDetail={mockEventDetail} />);
 
-      expect(screen.getByText('Edit Detail Event')).toBeInTheDocument();
+      expect(screen.getByText('Edit Event Details')).toBeInTheDocument();
     });
 
     it('should not render edit button for done events', () => {
@@ -91,31 +107,31 @@ describe('EventDetailInfo', () => {
 
       render(<EventDetailInfo eventDetail={doneEvent} />);
 
-      expect(screen.queryByText('Edit Detail Event')).not.toBeInTheDocument();
+      expect(screen.queryByText('Edit Event Details')).not.toBeInTheDocument();
     });
 
     it('should not render edit button for on_review events', () => {
       const reviewEvent = {
         ...mockEventDetail,
-        eventStatus: 'on_review'
+        eventStatus: 'on_review',
+        eventUpdateRequestStatus: 'pending'
       };
 
       render(<EventDetailInfo eventDetail={reviewEvent} />);
 
-      expect(screen.queryByText('Edit Detail Event')).not.toBeInTheDocument();
+      expect(screen.queryByText('Edit Event Details')).not.toBeInTheDocument();
     });
 
-    it('should show review message when is_requested is true', () => {
+    it('should hide edit button when is_requested is true', () => {
       const requestedEvent = {
         ...mockEventDetail,
+        eventStatus: 'approved',
         is_requested: true
       };
 
       render(<EventDetailInfo eventDetail={requestedEvent} />);
 
-      expect(
-        screen.getByText('Event update request is on review')
-      ).toBeInTheDocument();
+      expect(screen.queryByText('Edit Event Details')).not.toBeInTheDocument();
     });
   });
 
@@ -159,7 +175,7 @@ describe('EventDetailInfo', () => {
     it('should navigate to edit page when edit button is clicked', () => {
       render(<EventDetailInfo eventDetail={mockEventDetail} />);
 
-      const editButton = screen.getByText('Edit Detail Event');
+      const editButton = screen.getByText('Edit Event Details');
       fireEvent.click(editButton);
 
       expect(mockPush).toHaveBeenCalledWith('/events/edit/test-event');

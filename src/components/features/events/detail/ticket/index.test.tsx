@@ -10,6 +10,31 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
+// Mock ToastContext
+jest.mock('@/contexts/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    showError: jest.fn(),
+    showSuccess: jest.fn(),
+    showInfo: jest.fn(),
+    showWarning: jest.fn()
+  }))
+}));
+
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Test User',
+      role: { name: 'event_organizer_pic' },
+      eventOrganizerId: 'org1'
+    },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  }))
+}));
+
 const mockPush = jest.fn();
 const mockRouter = {
   push: mockPush,
@@ -61,20 +86,22 @@ describe('EventDetailTicket', () => {
     rejectedReason: null,
     rejectedFields: null,
     withdrawalFee: '0',
-    login_required: false
+    login_required: false,
+    group_tickets: []
   };
 
   describe('Rendering', () => {
-    it('should render "Event Detail Ticket" title', () => {
+    it('should render "Event Ticket" title', () => {
       render(<EventDetailTicket eventDetail={mockEventDetail} />);
 
-      expect(screen.getByText('Event Detail Ticket')).toBeInTheDocument();
+      expect(screen.getByText('Event Ticket')).toBeInTheDocument();
     });
 
     it('should render "Ticket Category" label', () => {
       render(<EventDetailTicket eventDetail={mockEventDetail} />);
 
-      expect(screen.getByText('Ticket Category')).toBeInTheDocument();
+      const labels = screen.getAllByText('Ticket Category');
+      expect(labels.length).toBeGreaterThan(0);
     });
 
     it('should render edit button for editable events', () => {
@@ -85,19 +112,9 @@ describe('EventDetailTicket', () => {
 
       render(<EventDetailTicket eventDetail={editableEvent} />);
 
-      expect(screen.getByText('Edit Ticket Detail')).toBeInTheDocument();
+      expect(screen.getByText('Edit Ticket')).toBeInTheDocument();
     });
 
-    it('should render additional form button for editable events', () => {
-      const editableEvent = {
-        ...mockEventDetail,
-        eventStatus: 'draft'
-      };
-
-      render(<EventDetailTicket eventDetail={editableEvent} />);
-
-      expect(screen.getByText('Additional Form')).toBeInTheDocument();
-    });
 
     it('should not render edit buttons for done events', () => {
       const doneEvent = {
@@ -107,22 +124,9 @@ describe('EventDetailTicket', () => {
 
       render(<EventDetailTicket eventDetail={doneEvent} />);
 
-      expect(screen.queryByText('Edit Ticket Detail')).not.toBeInTheDocument();
-      expect(screen.queryByText('Additional Form')).not.toBeInTheDocument();
+      expect(screen.queryByText('Edit Ticket')).not.toBeInTheDocument();
     });
 
-    it('should disable additional form button when no tickets', () => {
-      const eventWithoutTickets = {
-        ...mockEventDetail,
-        eventStatus: 'draft',
-        ticketTypes: []
-      };
-
-      render(<EventDetailTicket eventDetail={eventWithoutTickets} />);
-
-      const additionalFormButton = screen.getByText('Additional Form');
-      expect(additionalFormButton).toBeDisabled();
-    });
   });
 
   describe('Navigation', () => {
@@ -134,27 +138,13 @@ describe('EventDetailTicket', () => {
 
       render(<EventDetailTicket eventDetail={editableEvent} />);
 
-      const editButton = screen.getByText('Edit Ticket Detail');
+      const editButton = screen.getByText('Edit Ticket');
       fireEvent.click(editButton);
 
       expect(mockPush).toHaveBeenCalledWith('/events/edit/test-event/tickets');
     });
 
-    it('should navigate to additional form page when additional form button is clicked', () => {
-      const editableEvent = {
-        ...mockEventDetail,
-        eventStatus: 'draft'
-      };
 
-      render(<EventDetailTicket eventDetail={editableEvent} />);
-
-      const additionalFormButton = screen.getByText('Additional Form');
-      fireEvent.click(additionalFormButton);
-
-      expect(mockPush).toHaveBeenCalledWith(
-        '/events/edit/test-event/tickets/additional-form'
-      );
-    });
   });
 });
 

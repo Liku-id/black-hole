@@ -98,7 +98,7 @@ describe('TicketTable', () => {
   });
 
   describe('Action Buttons', () => {
-    it('should call onEdit when edit button is clicked', () => {
+    it('should call onEdit when edit button is clicked', async () => {
       render(
         <TicketTable
           tickets={[mockTickets[0]]}
@@ -107,14 +107,20 @@ describe('TicketTable', () => {
         />
       );
 
-      const editButton = screen.getByAltText('Edit').closest('button');
-      if (editButton) {
-        fireEvent.click(editButton);
+      // First click the Actions button to open the menu
+      const actionsButton = screen.getByAltText('Actions').closest('button');
+      if (actionsButton) {
+        fireEvent.click(actionsButton);
+        
+        // Then click the Edit menu item
+        const editMenuItem = await screen.findByText('Edit Ticket');
+        fireEvent.click(editMenuItem);
+        
         expect(mockOnEdit).toHaveBeenCalledWith(mockTickets[0]);
       }
     });
 
-    it('should call onDelete when delete button is clicked', () => {
+    it('should call onDelete when delete button is clicked', async () => {
       render(
         <TicketTable
           tickets={[mockTickets[0]]}
@@ -123,9 +129,15 @@ describe('TicketTable', () => {
         />
       );
 
-      const deleteButton = screen.getByAltText('Delete').closest('button');
-      if (deleteButton) {
-        fireEvent.click(deleteButton);
+      // First click the Actions button to open the menu
+      const actionsButton = screen.getByAltText('Actions').closest('button');
+      if (actionsButton) {
+        fireEvent.click(actionsButton);
+        
+        // Then click the Delete menu item
+        const deleteMenuItem = await screen.findByText('Delete');
+        fireEvent.click(deleteMenuItem);
+        
         expect(mockOnDelete).toHaveBeenCalledWith('1');
       }
     });

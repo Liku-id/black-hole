@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
-import { SalesModal } from './index';
+import { TicketDateModal } from './index';
 
-describe('SalesModal', () => {
+describe('TicketDateModal', () => {
   const mockOnClose = jest.fn();
   const mockOnSave = jest.fn();
 
@@ -13,7 +13,7 @@ describe('SalesModal', () => {
   describe('Modal Visibility', () => {
     it('should render when open is true', () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={true}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -26,7 +26,7 @@ describe('SalesModal', () => {
 
     it('should not render when open is false', () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={false}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -41,7 +41,7 @@ describe('SalesModal', () => {
   describe('Form Rendering', () => {
     it('should render date field', () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={true}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -49,12 +49,12 @@ describe('SalesModal', () => {
         />
       );
 
-      expect(screen.getByText('Start Date')).toBeInTheDocument();
+      expect(screen.getByText('Date')).toBeInTheDocument();
     });
 
     it('should render time field', () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={true}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -62,12 +62,12 @@ describe('SalesModal', () => {
         />
       );
 
-      expect(screen.getByText('Time Start')).toBeInTheDocument();
+      expect(screen.getByText('Time')).toBeInTheDocument();
     });
 
     it('should render timezone select', () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={true}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -80,7 +80,7 @@ describe('SalesModal', () => {
 
     it('should render save button', async () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={true}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -90,7 +90,7 @@ describe('SalesModal', () => {
 
       await waitFor(() => {
         // Save button should be rendered
-        const saveButton = screen.queryByText('Save Data');
+        const saveButton = screen.queryByText('Save Date');
         if (saveButton) {
           expect(saveButton).toBeInTheDocument();
         }
@@ -101,7 +101,7 @@ describe('SalesModal', () => {
   describe('Form Submission', () => {
     it('should render form fields correctly', async () => {
       render(
-        <SalesModal
+        <TicketDateModal
           open={true}
           onClose={mockOnClose}
           onSave={mockOnSave}
@@ -111,8 +111,8 @@ describe('SalesModal', () => {
 
       await waitFor(() => {
         // Verify all fields are rendered
-        expect(screen.getByText('Start Date')).toBeInTheDocument();
-        expect(screen.getByText('Time Start')).toBeInTheDocument();
+        expect(screen.getByText('Date')).toBeInTheDocument();
+        expect(screen.getByText('Time')).toBeInTheDocument();
         expect(screen.getByText('Time Zone')).toBeInTheDocument();
       });
     });

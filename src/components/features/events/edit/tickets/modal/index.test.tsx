@@ -87,7 +87,7 @@ describe('TicketAdditionalFormModal', () => {
       const noButton = screen.getByText("No, I don't need it");
       fireEvent.click(noButton);
 
-      expect(mockPush).toHaveBeenCalledWith('/events/test-event');
+      expect(mockPush).toHaveBeenCalledWith('/events/test-event?tab=tickets');
     });
 
     it('should navigate to additional form page when "Yes" button is clicked', () => {

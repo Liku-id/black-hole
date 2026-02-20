@@ -2,7 +2,8 @@ import { TextFieldProps, InputAdornment, Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
-import { Body2, DropdownSelector } from '@/components/common';
+import { DropdownSelector } from '../dropdown-selector';
+import { Body2 } from '../typography';
 
 import { StyledTextField } from '../text-field/StyledTextField';
 
