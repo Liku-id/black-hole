@@ -113,7 +113,7 @@ const Field = ({
       case 'feeThresholds':
         const platformFee = eventUpdateRequest.feeThresholds?.[0]?.platformFee;
         if (!platformFee) return '-';
-        const fee = parseInt(platformFee);
+        const fee = parseFloat(platformFee);
         return fee < 100 ? `${fee}%` : `Rp ${fee.toLocaleString()}`;
       case 'login_required':
         return eventUpdateRequest[fieldKey] ? 'Yes' : 'No';
@@ -397,7 +397,7 @@ export const EventsSubmissionsInfo = ({
                   value={(() => {
                     const platformFeeValue = eventDetail.feeThresholds?.[0]?.platformFee;
                     if (!platformFeeValue) return '-';
-                    const fee = parseInt(platformFeeValue);
+                    const fee = parseFloat(platformFeeValue);
                     return fee < 100 ? `${fee}%` : `Rp ${fee.toLocaleString()}`;
                   })()}
                   isRejected={false}

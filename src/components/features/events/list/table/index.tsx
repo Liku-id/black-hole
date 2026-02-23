@@ -96,7 +96,7 @@ const EventsTable: FC<EventsTableProps> = ({
   };
 
   const handleTransactionClick = (event: Event) => {
-    router.push(`/finance/event-transactions/${event.metaUrl}`);
+    router.push(`/finance/event-transactions/${event.id}`);
     handleMenuClose(event.id);
   };
 
@@ -577,7 +577,7 @@ const EventsTable: FC<EventsTableProps> = ({
                       {userRole !== UserRole.GROUND_STAFF &&
                         userRole !== UserRole.FINANCE &&
                         ['on_going'].includes(
-                        event.eventStatus
+                          event.eventStatus
                         ) && (
                           <MenuItem
                             onClick={() =>
