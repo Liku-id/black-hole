@@ -394,12 +394,12 @@ export const CreateEventForm = ({
                   }
                   rules={{
                     pattern: {
-                      value: /^\d+$/,
+                      value: /^\d+(\.\d+)?$/,
                       message: 'Platform fee must be a number'
                     },
                     validate: (value) => {
                       if (!value || value.trim() === '') return true; // Optional field
-                      if (watchedPlatformFeeType === '%' && parseInt(value) >= 100) {
+                      if (watchedPlatformFeeType === '%' && parseFloat(value) >= 100) {
                         return 'Platform fee percentage must be less than 100%';
                       }
                       return true;

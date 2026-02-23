@@ -487,7 +487,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
                   id="event_transactions_menu_item"
                   onClick={() =>
                     handleMenuItemClick(
-                      `/finance/event-transactions/${event.metaUrl}`
+                      `/finance/event-transactions/${event.id}`
                     )
                   }
                 >
