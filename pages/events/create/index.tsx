@@ -83,7 +83,7 @@ function CreateEvent() {
       if (data.platformFee && data.platformFee.trim() !== '') {
         payload.feeThresholds = [{
           threshold: "0",
-          platformFee: parseInt(data.platformFee).toString()
+          platformFee: parseFloat(data.platformFee).toString()
         }];
       }
       const response = await eventsService.createEvent(payload);

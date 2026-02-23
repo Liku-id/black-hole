@@ -213,11 +213,11 @@ function EditEvent() {
 
       // Handle Platform Fee (feeThresholds)
       const calculatedPlatformFee = formData.platformFee && formData.platformFee.trim() !== ''
-        ? parseInt(formData.platformFee)
+        ? parseFloat(formData.platformFee)
         : null;
 
       const existingPlatformFee = comparisonSource?.feeThresholds?.[0]?.platformFee
-        ? parseInt(comparisonSource.feeThresholds[0].platformFee)
+        ? parseFloat(comparisonSource.feeThresholds[0].platformFee)
         : null;
 
       if (calculatedPlatformFee !== existingPlatformFee) {
