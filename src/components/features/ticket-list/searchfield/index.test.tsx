@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import SearchField from './index';
+import React from 'react';
+
+import { SearchField } from './index';
 
 // Mock Autocomplete
 jest.mock('@mui/material', () => {

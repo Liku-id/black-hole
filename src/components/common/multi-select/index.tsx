@@ -10,10 +10,10 @@ import Image from 'next/image';
 import { useState, useMemo } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
-import { Body2 } from '../typography';
 
 import { Checkbox } from '../checkbox';
 import { StyledTextField } from '../text-field/StyledTextField';
+import { Body2 } from '../typography';
 
 interface SelectOption {
   value: any;

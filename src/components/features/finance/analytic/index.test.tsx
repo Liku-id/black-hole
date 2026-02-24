@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
+import { useEventOrganizerSummary } from '@/hooks';
+
 import FinanceAnalytic from './index';
 
 // Mock the hooks
@@ -19,7 +21,7 @@ jest.mock('./card', () => {
   };
 });
 
-import { useEventOrganizerSummary } from '@/hooks';
+
 
 const mockUseEventOrganizerSummary = useEventOrganizerSummary as jest.MockedFunction<
   typeof useEventOrganizerSummary

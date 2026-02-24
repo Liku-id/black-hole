@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import DropdownSelector from './index';
+import React from 'react';
+
+import { DropdownSelector } from './index';
 
 describe('DropdownSelector', () => {
   const options = [

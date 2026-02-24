@@ -4,9 +4,9 @@ import { ErrorOutline } from '@mui/icons-material';
 import { TextFieldProps, Box } from '@mui/material';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
+import { StyledTextField } from '../text-field/StyledTextField';
 import { Body2 } from '../typography';
 
-import { StyledTextField } from '../text-field/StyledTextField';
 
 interface CustomTextAreaProps extends Omit<TextFieldProps, 'variant'> {
   label?: string;
