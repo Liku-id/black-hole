@@ -1,6 +1,7 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import OTPVerificationForm from './index';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+
+import OTPVerificationForm from './index';
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

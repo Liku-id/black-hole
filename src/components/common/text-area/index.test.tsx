@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import CustomTextArea from './index';
+import React from 'react';
+
+import { CustomTextArea } from './index';
 
 // Mock StyledTextField
 jest.mock('../text-field/StyledTextField', () => {
