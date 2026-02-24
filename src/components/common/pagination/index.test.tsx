@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Pagination from './index';
+import React from 'react';
+
+import { Pagination } from './index';
 
 // Mock Select
 jest.mock('@/components/common/select', () => (props: any) => (

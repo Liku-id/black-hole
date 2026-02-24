@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Popup from './index';
+import React from 'react';
+
+import { Popup } from './index';
 
 describe('Popup', () => {
   it('renders when open', () => {

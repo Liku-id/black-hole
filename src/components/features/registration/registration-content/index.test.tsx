@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+
 import RegistrationContent from './index';
 
 describe('RegistrationContent', () => {
