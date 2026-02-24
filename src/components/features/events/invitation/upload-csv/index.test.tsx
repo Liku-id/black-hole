@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
 import { UploadCSVModal } from './index';
 
 // Mock Next.js Image component

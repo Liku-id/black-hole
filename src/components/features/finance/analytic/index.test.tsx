@@ -22,7 +22,6 @@ jest.mock('./card', () => {
 });
 
 
-
 const mockUseEventOrganizerSummary = useEventOrganizerSummary as jest.MockedFunction<
   typeof useEventOrganizerSummary
 >;

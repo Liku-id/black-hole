@@ -284,7 +284,9 @@ class EventsService {
     }
   ): Promise<InvitationListResponse> {
     try {
-      const queryParams: Record<string, any> = {};
+      const queryParams: Record<string, any> = {
+        event_id: eventId
+      };
       if (params?.page) queryParams.page = params.page;
       if (params?.limit) queryParams.limit = params.limit;
       if (params?.search) queryParams.search = params.search;
@@ -319,7 +321,9 @@ class EventsService {
     }
   }
 
-  async resendInvitation(invitationId: string): Promise<ResendInvitationResponse> {
+  async resendInvitation(
+    invitationId: string
+  ): Promise<ResendInvitationResponse> {
     try {
       return await apiUtils.post<ResendInvitationResponse>(
         `/api/ticket-invitations/${invitationId}/resend`,
@@ -332,7 +336,9 @@ class EventsService {
     }
   }
 
-  async getTicketInvitationsById(id: string): Promise<TicketInvitationResponse> {
+  async getTicketInvitationsById(
+    id: string
+  ): Promise<TicketInvitationResponse> {
     try {
       return await apiUtils.get(
         `/api/ticket-invitations/${id}`,
@@ -342,7 +348,7 @@ class EventsService {
     } catch (error) {
       console.error('Error fetching ticket invitation:', error);
       throw error;
-    } 
+    }
   }
 }
 

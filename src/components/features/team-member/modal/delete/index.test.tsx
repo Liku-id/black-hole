@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-
 import { DeleteTeamMemberModal } from './index';
 
 jest.mock('@/components/common', () => ({

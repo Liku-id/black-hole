@@ -39,7 +39,6 @@ describe('withAuth', () => {
     });
 
     render(<WrappedComponent />);
-
     expect(mockReplace).toHaveBeenCalledWith('/login?redirect=%2Fprotected');
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
@@ -52,7 +51,6 @@ describe('withAuth', () => {
     });
 
     render(<WrappedComponent />);
-
     expect(mockReplace).not.toHaveBeenCalled();
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
@@ -65,7 +63,6 @@ describe('withAuth', () => {
     });
 
     render(<WrappedComponent />);
-
     expect(screen.getByRole('progressbar')).toBeInTheDocument(); // CircularProgress has role progressbar
   });
 });

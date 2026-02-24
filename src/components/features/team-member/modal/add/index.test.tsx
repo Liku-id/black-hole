@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-
 import { AddTeamMemberModal } from './index';
 
 jest.mock('@/components/common', () => ({
