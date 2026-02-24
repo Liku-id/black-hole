@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+
 import { TeamMemberTable } from './index';
 
 // Mock Next.js Image component
