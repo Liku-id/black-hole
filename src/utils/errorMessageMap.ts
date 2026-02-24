@@ -89,27 +89,6 @@ const errorMappings: Record<string, ErrorMapping[]> = {
   login: [
     {
       patterns: [
-        'wrong password',
-        'password',
-        'invalid credentials',
-        'invalid email or password',
-        'email & password',
-        'unauthorized',
-        'credential',
-      ],
-      userMessage: "Email & password doesn't match",
-    },
-    {
-      patterns: [
-        'wrong email',
-        'email not found',
-        'user not found',
-        'account not found',
-      ],
-      userMessage: "Email & password doesn't match",
-    },
-    {
-      patterns: [
         'too many',
         'rate limit',
         'failed 3',
@@ -118,6 +97,27 @@ const errorMappings: Record<string, ErrorMapping[]> = {
       ],
       userMessage:
         'Too many requests. Please wait for 3 minutes to try again.',
+    },
+    {
+      patterns: [
+        'wrong password',
+        'password',
+        'invalid credentials',
+        'invalid email or password',
+        'email & password',
+        'unauthorized',
+        'credential',
+      ],
+      userMessage: "Email & password doesn’t match",
+    },
+    {
+      patterns: [
+        'wrong email',
+        'email not found',
+        'user not found',
+        'account not found',
+      ],
+      userMessage: "Email & password doesn’t match",
     },
   ],
 
@@ -138,6 +138,7 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'user not found',
         'not registered',
         'no account',
+        'this email is not registered',
       ],
       userMessage: 'Email not found',
     },
@@ -151,6 +152,7 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'email is already',
         'duplicate email',
         'email already',
+        'not available to use',
       ],
       userMessage: 'Email is already registered. Sign in?',
     },
@@ -201,6 +203,7 @@ const errorMappings: Record<string, ErrorMapping[]> = {
         'rate limit',
         'request more than',
         'cooldown',
+        'internal grpc error',
       ],
       userMessage:
         'Too many requests. Please wait before requesting another link.',
@@ -389,23 +392,9 @@ export function mapErrorMessage(context: ErrorContext): string | null {
       : null) ||
     '';
 
-  // 2. If we have a URL, try function-specific mappings first
-  if (url && rawMessage) {
-    const fnKey = detectFunction(url);
-    if (fnKey && errorMappings[fnKey]) {
-      for (const mapping of errorMappings[fnKey]) {
-        if (matchesPatterns(rawMessage, mapping.patterns)) {
-          return mapping.userMessage;
-        }
-      }
-    }
-  }
-
-  // 3. Try global pattern matching (raw message contains the dynamic cooldown)
+  // 2. Check for dynamic cooldown message first (extract time from backend)
   if (rawMessage) {
     const lowerMsg = rawMessage.toLowerCase();
-
-    // Dynamic cooldown message — extract time from backend
     const cooldownMatch = lowerMsg.match(
       /(?:wait|cooldown).*?(\d+)\s*(second|minute|hour|min|sec|hr)/i
     );
@@ -421,12 +410,36 @@ export function mapErrorMessage(context: ErrorContext): string | null {
     }
   }
 
-  // 4. Fall back to status-code-based message
+  // 3. Handle 429 (Rate Limit) specifically for certain functions
+  // This handles cases where backend might return a generic error message or no message at all.
+  if (status === 429) {
+    const fnKey = url ? detectFunction(url) : null;
+    if (fnKey === 'forgotPassword' || fnKey === 'otpRequest') {
+      return 'Too many requests. Please wait before requesting another link.';
+    }
+    if (fnKey === 'login') {
+      return 'Too many requests. Please wait for 3 minutes to try again.';
+    }
+  }
+
+  // 4. If we have a URL, try function-specific mappings
+  if (url && rawMessage) {
+    const fnKey = detectFunction(url);
+    if (fnKey && errorMappings[fnKey]) {
+      for (const mapping of errorMappings[fnKey]) {
+        if (matchesPatterns(rawMessage, mapping.patterns)) {
+          return mapping.userMessage;
+        }
+      }
+    }
+  }
+
+  // 6. Fall back to status-code-based message
   if (status && statusCodeFallbacks[status]) {
     return statusCodeFallbacks[status];
   }
 
-  // 5. No mapping found — let the caller handle the default
+  // 7. No mapping found — let the caller handle the default
   return null;
 }
 
