@@ -135,7 +135,7 @@ export const EventEditInfo = ({
       return { fee: '', type: '%' };
     }
 
-    const platformFee = parseInt(feeThresholds[0].platformFee);
+    const platformFee = parseFloat(feeThresholds[0].platformFee);
     if (platformFee < 100) {
       return { fee: platformFee.toString(), type: '%' };
     } else {
@@ -507,12 +507,12 @@ export const EventEditInfo = ({
                   }
                   rules={{
                     pattern: {
-                      value: /^\d+$/,
+                      value: /^\d+(\.\d+)?$/,
                       message: 'Platform fee must be a number'
                     },
                     validate: (value) => {
                       if (!value || value.trim() === '') return true; // Optional field
-                      if (watchedPlatformFeeType === '%' && parseInt(value) >= 100) {
+                      if (watchedPlatformFeeType === '%' && parseFloat(value) >= 100) {
                         return 'Platform fee percentage must be less than 100%';
                       }
                       return true;
