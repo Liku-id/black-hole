@@ -1,7 +1,8 @@
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import RegisterProfileForm from './index';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const theme = createTheme();
 

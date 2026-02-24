@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import MultiSelect from './index';
+import React from 'react';
+
+import { MultiSelect } from './index';
 
 // Mock StyledTextField
 jest.mock('../text-field/StyledTextField', () => ({

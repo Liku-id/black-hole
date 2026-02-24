@@ -1,5 +1,8 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
+import { useAuth } from '@/contexts/AuthContext';
+
 import { withAuth } from './withAuth';
 
 // Mock AuthContext
@@ -17,7 +20,6 @@ jest.mock('next/router', () => ({
   })
 }));
 
-import { useAuth } from '@/contexts/AuthContext';
 
 describe('withAuth', () => {
   const MockComponent = () => <div>Protected Content</div>;
@@ -37,7 +39,6 @@ describe('withAuth', () => {
     });
 
     render(<WrappedComponent />);
-    
     expect(mockReplace).toHaveBeenCalledWith('/login?redirect=%2Fprotected');
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
@@ -50,7 +51,6 @@ describe('withAuth', () => {
     });
 
     render(<WrappedComponent />);
-    
     expect(mockReplace).not.toHaveBeenCalled();
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
@@ -63,7 +63,6 @@ describe('withAuth', () => {
     });
 
     render(<WrappedComponent />);
-    
     expect(screen.getByRole('progressbar')).toBeInTheDocument(); // CircularProgress has role progressbar
   });
 });

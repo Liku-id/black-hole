@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
+import { useTransactionSummary } from '@/hooks';
+
 import { TransactionSummary } from './index';
 
 // Mock hook
@@ -7,7 +9,6 @@ jest.mock('@/hooks', () => ({
   useTransactionSummary: jest.fn()
 }));
 
-import { useTransactionSummary } from '@/hooks';
 
 const mockUseTransactionSummary = useTransactionSummary as jest.MockedFunction<
   typeof useTransactionSummary

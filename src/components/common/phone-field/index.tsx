@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
 import { DropdownSelector } from '../dropdown-selector';
+import { StyledTextField } from '../text-field/StyledTextField';
 import { Body2 } from '../typography';
 
-import { StyledTextField } from '../text-field/StyledTextField';
 
 interface CountryCode {
   code: string;

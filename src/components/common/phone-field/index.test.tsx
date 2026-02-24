@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CustomPhoneField from './index';
+import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
+
+import { CustomPhoneField } from './index';
+
 
 // Mock StyledTextField
 jest.mock('../text-field/StyledTextField', () => ({

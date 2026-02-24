@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Checkbox from './index';
+import React from 'react';
+
+import { Checkbox } from './index';
 
 describe('Checkbox', () => {
   it('renders without label', () => {

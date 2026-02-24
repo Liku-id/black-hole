@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+
 import FeaturesSection from './index';
 
 // Mock Next.js Image component

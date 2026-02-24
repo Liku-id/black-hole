@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CustomButton from './index';
+import React from 'react';
+
+import { CustomButton } from './index';
 
 describe('CustomButton', () => {
   it('renders correctly with default props', () => {
