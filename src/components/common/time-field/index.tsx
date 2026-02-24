@@ -7,9 +7,9 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Controller, useFormContext, RegisterOptions } from 'react-hook-form';
 
+import { StyledTextField } from '../text-field/StyledTextField';
 import { Body2 } from '../typography';
 
-import { StyledTextField } from '../text-field/StyledTextField';
 
 interface TimeFieldProps {
   id?: string;

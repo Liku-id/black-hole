@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { FinanceTransactionTable } from './index';
 import { useRouter } from 'next/router';
+
+import { FinanceTransactionTable } from './index';
 
 // Mock Router
 jest.mock('next/router', () => ({

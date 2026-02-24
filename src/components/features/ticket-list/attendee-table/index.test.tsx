@@ -1,8 +1,11 @@
 
-import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import { AttendeeTable } from './index';
+import React from 'react';
+
 import { ticketsService } from '@/services';
+
+import { AttendeeTable } from './index';
+
 
 // Mocks
 jest.mock('@/contexts/AuthContext', () => ({

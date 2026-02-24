@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Card from './index';
+import React from 'react';
+
+import { Card } from './index';
 
 describe('Card', () => {
   it('renders children correctly', () => {

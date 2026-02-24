@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import { H1, H2, H3, H4, Body1, Body2, Caption, Overline } from './index';
 
 describe('Typography', () => {

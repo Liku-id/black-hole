@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CustomAccordion from './index';
+import React from 'react';
+
+import { CustomAccordion } from './index';
 
 describe('CustomAccordion', () => {
   it('renders title correctly', () => {
