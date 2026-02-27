@@ -1,7 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { mapErrorMessage } from './errorMessageMap';
-
 let refreshTokenPromise: Promise<void> | null = null;
 
 const refreshTokens = async (): Promise<void> => {
@@ -80,76 +78,22 @@ export const apiUtils = {
     let errorMessage = defaultErrorMessage;
 
     if (error.response) {
-      // Server responded with error status
       const { data, status } = error.response;
       const requestUrl = error.config?.url || '';
 
-      // Check if it's an authentication error
-      if (status === 401) {
-        // Check if it's a login attempt (login endpoint) or session expired
-        if (requestUrl.includes('/api/auth/login')) {
-          // Try mapped error first for login
-          const mapped = mapErrorMessage({
-            status,
-            backendMessage:
-              data && typeof data === 'object'
-                ? (data as any).message
-                : undefined,
-            url: requestUrl,
-            responseData: data,
-          });
-          errorMessage =
-            mapped ||
-            (data && typeof data === 'object' && (data as any).message
-              ? (data as any).message
-              : defaultErrorMessage);
-        } else {
-          if (!skipSessionClear) {
-            apiUtils.clearExpiredSession();
-          }
-          errorMessage = 'Session expired. Please log in again.';
-        }
-      } else {
-        // --- Centralized error message mapping ---
-        const rawMessage =
-          data && typeof data === 'object'
-            ? (data as any).message ||
-              (data as any).error ||
-              (Array.isArray((data as any).details)
-                ? (data as any).details.join(', ')
-                : undefined)
-            : undefined;
-
-        const mapped = mapErrorMessage({
-          status,
-          backendMessage: rawMessage,
-          url: requestUrl,
-          responseData: data,
-        });
-
-        if (mapped) {
-          errorMessage = mapped;
-        } else if (status === 413) {
-          // Handle payload too large error
-          errorMessage =
-            'File size too large. Please ensure your files are less than 2MB and try again.';
-        } else if (data && typeof data === 'object') {
-          const errorData = data as any;
-          if (errorData.message) {
-            errorMessage = errorData.message;
-          } else if (errorData.error) {
-            errorMessage = errorData.error;
-          } else if (errorData.details && Array.isArray(errorData.details)) {
-            errorMessage = errorData.details.join(', ');
-          } else {
-            errorMessage = `Server error (${status})`;
-          }
-        } else {
-          errorMessage = `Server error (${status})`;
+      if (status === 401 && !requestUrl.includes('/api/auth/login')) {
+        if (!skipSessionClear) {
+          apiUtils.clearExpiredSession();
         }
       }
+
+      // Pass through the BE error message directly
+      if (data && typeof data === 'object') {
+        const errorData = data as any;
+        errorMessage =
+          errorData.message || errorData.error || defaultErrorMessage;
+      }
     } else if (error.request) {
-      // Request was made but no response received
       if (error.code === 'ECONNABORTED') {
         errorMessage = 'Request timeout - server is not responding';
       } else {
@@ -157,7 +101,6 @@ export const apiUtils = {
           'No response from server. Please check your internet connection.';
       }
     } else {
-      // Something else happened
       errorMessage = error.message || defaultErrorMessage;
     }
 
@@ -190,8 +133,7 @@ export const apiUtils = {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;
-        const requestUrl =
-          error.config?.url || config.url || '';
+        const requestUrl = error.config?.url || config.url || '';
 
         const isLoginRequest =
           typeof requestUrl === 'string' &&
@@ -213,11 +155,7 @@ export const apiUtils = {
         if (shouldAttemptRefresh) {
           try {
             await refreshTokens();
-            return apiUtils.makeRequest<T>(
-              config,
-              defaultErrorMessage,
-              false
-            );
+            return apiUtils.makeRequest<T>(config, defaultErrorMessage, false);
           } catch (refreshError) {
             if (axios.isAxiosError(refreshError)) {
               await apiUtils.clearExpiredSession();
