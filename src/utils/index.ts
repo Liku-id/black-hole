@@ -3,7 +3,6 @@ import { dateUtils } from './dateUtils';
 import { useDebouncedCallback } from './debounceUtils';
 import { deviceUtils } from './deviceUtils';
 import { encryptUtils } from './encryptUtils';
-import { mapErrorMessage } from './errorMessageMap';
 import { fileUtils } from './fileUtils';
 import { formatUtils } from './formatUtils';
 import { stringUtils } from './stringUtils';
@@ -17,7 +16,6 @@ export {
   encryptUtils,
   fileUtils,
   formatUtils,
-  mapErrorMessage,
   stringUtils,
   useDebouncedCallback,
   validationUtils
@@ -85,9 +83,7 @@ export const {
   isValidForm
 } = validationUtils;
 
-export const {
-  encrypt
-} = encryptUtils;
+export const { encrypt } = encryptUtils;
 
 // Common utility functions
 export const utils = {
