@@ -83,9 +83,7 @@ export const {
   isValidForm
 } = validationUtils;
 
-export const {
-  encrypt
-} = encryptUtils;
+export const { encrypt } = encryptUtils;
 
 // Common utility functions
 export const utils = {
