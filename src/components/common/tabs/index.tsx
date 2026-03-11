@@ -2,7 +2,7 @@ import { ErrorOutline, CheckCircleOutline } from '@mui/icons-material';
 import { Box, styled, Tooltip } from '@mui/material';
 import { useRef, useState } from 'react';
 
-import { Body2 } from '@/components/common';
+import { Body2 } from '../typography';
 
 type TabStatus = 'rejected' | 'approved' | 'pending';
 

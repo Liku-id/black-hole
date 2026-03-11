@@ -3,7 +3,7 @@
 import { Box, styled, keyframes } from '@mui/material';
 import React from 'react';
 
-import { H1 } from '@/components/common';
+import { H1 } from '../typography';
 
 interface StripeTextProps {
   direction?: 'vertical' | 'horizontal';

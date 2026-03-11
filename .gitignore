@@ -13,3 +13,9 @@ yarn-error.log*
 
 # Next.js
 /.next
+
+# Coverage directory used by tools like istanbul
+/coverage
+*.lcov
+.nyc_output
+coverage.lcov
