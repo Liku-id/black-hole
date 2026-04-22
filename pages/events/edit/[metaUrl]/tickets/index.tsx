@@ -56,7 +56,9 @@ const EditTicketsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showAdditionalFormModal, setShowAdditionalFormModal] = useState(false);
-  const [editedTicketIds, setEditedTicketIds] = useState<Set<string>>(new Set());
+  const [editedTicketIds, setEditedTicketIds] = useState<Set<string>>(
+    new Set()
+  );
 
   // Initialize tickets from eventDetail
   useEffect(() => {
@@ -269,8 +271,8 @@ const EditTicketsPage = () => {
         (t) => !originalTicketIds.includes(t.id)
       );
       // Find updated tickets - only tickets that were actually edited
-      const updatedTickets = tickets.filter((t) =>
-        originalTicketIds.includes(t.id) && editedTicketIds.has(t.id)
+      const updatedTickets = tickets.filter(
+        (t) => originalTicketIds.includes(t.id) && editedTicketIds.has(t.id)
       );
 
       // Step 1: Delete removed tickets
@@ -411,9 +413,7 @@ const EditTicketsPage = () => {
         `/events/edit/${metaUrl}/tickets/additional-form?ticketId=${ticket.id}`
       );
     } else {
-      alert(
-        'Please save the new ticket first before adding additional forms.'
-      );
+      alert('Please save the new ticket first before adding additional forms.');
     }
   };
 
@@ -504,6 +504,8 @@ const EditTicketsPage = () => {
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreateTicket}
         eventStatus={eventDetail?.eventStatus}
+        eventStartDate={eventDetail?.startDate}
+        eventEndDate={eventDetail?.endDate}
       />
 
       {/* Additional Form Modal */}

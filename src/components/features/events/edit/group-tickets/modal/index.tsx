@@ -2,7 +2,14 @@ import { Box, Grid, InputAdornment } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Button, Modal, TextField, TextArea, Body2, Select } from '@/components/common';
+import {
+  Button,
+  Modal,
+  TextField,
+  TextArea,
+  Body2,
+  Select
+} from '@/components/common';
 import { TicketType } from '@/types/event';
 
 import { TicketDateModal } from '../../../create/ticket/date-modal';
@@ -49,6 +56,8 @@ interface GroupTicketCreateModalProps {
   editingTicket?: GroupTicketCategory;
   eventStatus?: string;
   ticketTypes: TicketType[];
+  eventStartDate?: string;
+  eventEndDate?: string;
 }
 
 // Rejected Reason Component
@@ -86,15 +95,18 @@ export const GroupTicketCreateModal = ({
   onSubmit,
   editingTicket,
   eventStatus,
-  ticketTypes
+  ticketTypes,
+  eventEndDate
 }: GroupTicketCreateModalProps) => {
   const [loading, setLoading] = useState(false);
   const [salesStartModalOpen, setSalesStartModalOpen] = useState(false);
   const [salesEndModalOpen, setSalesEndModalOpen] = useState(false);
 
   // Show rejection info if event status is rejected, draft, or on_going AND ticket status is rejected
-  const shouldShowRejectionInfo = 
-    (eventStatus === 'rejected' || eventStatus === 'draft' || eventStatus === 'on_going') && 
+  const shouldShowRejectionInfo =
+    (eventStatus === 'rejected' ||
+      eventStatus === 'draft' ||
+      eventStatus === 'on_going') &&
     editingTicket?.status === 'rejected';
 
   const methods = useForm<GroupTicketFormData>({
@@ -203,17 +215,13 @@ export const GroupTicketCreateModal = ({
         width={683}
         onClose={handleClose}
         footer={
-          <Box
-            display="flex"
-            gap={2}
-            justifyContent="flex-end"
-          >
+          <Box display="flex" gap={2} justifyContent="flex-end">
             <Button variant="secondary" onClick={handleClose}>
               Cancel
             </Button>
-            <Button 
-              disabled={loading} 
-              type="submit" 
+            <Button
+              disabled={loading}
+              type="submit"
               variant="primary"
               onClick={methods.handleSubmit(handleSubmit)}
             >
@@ -228,7 +236,7 @@ export const GroupTicketCreateModal = ({
             {shouldShowRejectionInfo && (
               <RejectedReason reason={editingTicket?.rejectedReason} />
             )}
-            
+
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Select
@@ -384,6 +392,7 @@ export const GroupTicketCreateModal = ({
         title="Sales Start Date"
         onClose={() => setSalesStartModalOpen(false)}
         onSave={handleSalesStartSave}
+        maxDate={eventEndDate ? new Date(eventEndDate) : undefined}
       />
 
       {/* Sales End Modal */}
@@ -392,6 +401,7 @@ export const GroupTicketCreateModal = ({
         title="Sales End Date"
         onClose={() => setSalesEndModalOpen(false)}
         onSave={handleSalesEndSave}
+        maxDate={eventEndDate ? new Date(eventEndDate) : undefined}
       />
     </>
   );
