@@ -35,3 +35,4 @@ export { useStaff } from './features/staff/useStaff';
 export { useOTSTickets } from './features/ots/useOTSTickets';
 export { useOTSSummary } from './features/ots/useOTSSummary';
 export { useOTSTransactions } from './features/ots/useOTSTransactions';
+export { useDistinctAdditionalForms } from './features/tickets/useDistinctAdditionalForms';

@@ -329,6 +329,15 @@ class TicketsService {
     }
   }
 
+  async getDistinctAdditionalFormFields(eventId: string): Promise<AdditionalFormsResponse> {
+    try {
+      return await apiUtils.get<AdditionalFormsResponse>(`/api/tickets/additional-forms/distinct/event/${eventId}`);
+    } catch (error) {
+      console.error('Error fetching distinct additional form fields:', error);
+      throw error;
+    }
+  }
+
   // Ticket Type Approval/Rejection
   async approveTicketType(ticketTypeId: string): Promise<any> {
     try {
