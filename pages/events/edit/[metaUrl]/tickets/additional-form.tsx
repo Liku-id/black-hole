@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Card, Caption, H2 } from '@/components/common';
+import { Caption, H2 } from '@/components/common';
 import { AdditionalForm } from '@/components/features/events/edit/tickets/additional-form';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
@@ -15,7 +15,11 @@ function AdditionalFormPage() {
   const { metaUrl, ticketId } = router.query;
   const [selectedTicketType, setSelectedTicketType] = useState<string>('');
 
-  const { eventDetail, loading: eventLoading, error: eventError } = useEventDetail(metaUrl as string);
+  const {
+    eventDetail,
+    loading: eventLoading,
+    error: eventError
+  } = useEventDetail(metaUrl as string);
 
   const handleBack = () => {
     router.push(`/events/${metaUrl}`);
@@ -24,18 +28,22 @@ function AdditionalFormPage() {
   const handleTicketTypeChange = (value: string) => {
     setSelectedTicketType(value);
   };
-  
+
   // Set selected ticket from query param once event detail is loaded
   useEffect(() => {
     if (ticketId && eventDetail?.ticketTypes) {
-      const ticketExists = eventDetail.ticketTypes.some(t => t.id === ticketId);
+      const ticketExists = eventDetail.ticketTypes.some(
+        (t) => t.id === ticketId
+      );
       if (ticketExists) {
         setSelectedTicketType(ticketId as string);
       }
     }
   }, [ticketId, eventDetail]);
 
-  const selectedTicket = eventDetail?.ticketTypes?.find(ticket => ticket.id === selectedTicketType);
+  const selectedTicket = eventDetail?.ticketTypes?.find(
+    (ticket) => ticket.id === selectedTicketType
+  );
 
   // Redirect if event is not editable (align with edit tickets page behavior)
   useEffect(() => {
@@ -73,7 +81,9 @@ function AdditionalFormPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>Additional Form - {eventDetail.name} - Black Hole Dashboard</title>
+        <title>
+          Additional Form - {eventDetail.name} - Black Hole Dashboard
+        </title>
       </Head>
 
       {/* Back Button */}
@@ -96,25 +106,23 @@ function AdditionalFormPage() {
         Additional Form{selectedTicket ? `: ${selectedTicket.name}` : ''}
       </H2>
 
-      {/* Additional Form Card */}
-      <Card sx={{ py: 1 }}>
-        <AdditionalForm
-          eventId={eventDetail.id}
-          ticketTypes={
-            eventDetail?.ticketTypes?.filter((t) => {
-              const isEventLocked =
-                eventDetail?.eventStatus === 'approved' ||
-                eventDetail?.eventStatus === 'on_going';
-              if (isEventLocked && t.status === 'approved') {
-                return false;
-              }
-              return true;
-            }) || []
-          }
-          selectedTicketType={selectedTicketType}
-          onTicketTypeChange={handleTicketTypeChange}
-        />
-      </Card>
+      {/* Additional Form Section */}
+      <AdditionalForm
+        eventId={eventDetail.id}
+        ticketTypes={
+          eventDetail?.ticketTypes?.filter((t) => {
+            const isEventLocked =
+              eventDetail?.eventStatus === 'approved' ||
+              eventDetail?.eventStatus === 'on_going';
+            if (isEventLocked && t.status === 'approved') {
+              return false;
+            }
+            return true;
+          }) || []
+        }
+        selectedTicketType={selectedTicketType}
+        onTicketTypeChange={handleTicketTypeChange}
+      />
     </DashboardLayout>
   );
 }
