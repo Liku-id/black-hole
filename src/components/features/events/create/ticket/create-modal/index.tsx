@@ -73,6 +73,8 @@ interface TicketCreateModalProps {
   onSubmit: (data: TicketFormData) => void;
   editingTicket?: TicketCategory;
   eventStatus?: string;
+  eventStartDate?: string;
+  eventEndDate?: string;
 }
 
 // Rejected Reason Component
@@ -109,7 +111,9 @@ export const TicketCreateModal = ({
   onClose,
   onSubmit,
   editingTicket,
-  eventStatus
+  eventStatus,
+  eventStartDate,
+  eventEndDate
 }: TicketCreateModalProps) => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
@@ -642,6 +646,7 @@ export const TicketCreateModal = ({
         title="Sales Start Date"
         onClose={() => setSalesStartModalOpen(false)}
         onSave={handleSalesStartSave}
+        maxDate={eventEndDate ? new Date(eventEndDate) : undefined}
       />
 
       {/* Sales End Modal */}
@@ -650,6 +655,7 @@ export const TicketCreateModal = ({
         title="Sales End Date"
         onClose={() => setSalesEndModalOpen(false)}
         onSave={handleSalesEndSave}
+        maxDate={eventEndDate ? new Date(eventEndDate) : undefined}
       />
 
       {/* Ticket Start Modal */}
@@ -658,6 +664,8 @@ export const TicketCreateModal = ({
         title="Ticket Start Date"
         onClose={() => setTicketStartModalOpen(false)}
         onSave={handleTicketStartSave}
+        minDate={eventStartDate ? new Date(eventStartDate) : undefined}
+        maxDate={eventEndDate ? new Date(eventEndDate) : undefined}
       />
 
       {/* Ticket End Modal */}
@@ -666,6 +674,8 @@ export const TicketCreateModal = ({
         title="Ticket End Date"
         onClose={() => setTicketEndModalOpen(false)}
         onSave={handleTicketEndSave}
+        minDate={eventStartDate ? new Date(eventStartDate) : undefined}
+        maxDate={eventEndDate ? new Date(eventEndDate) : undefined}
       />
     </>
   );
