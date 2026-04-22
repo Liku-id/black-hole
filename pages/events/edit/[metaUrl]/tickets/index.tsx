@@ -8,7 +8,7 @@ import { Button, Card, Body1, Caption, H2 } from '@/components/common';
 import { TicketCreateModal } from '@/components/features/events/create/ticket/create-modal';
 import TicketTable from '@/components/features/events/create/ticket/table';
 import TicketAdditionalFormModal from '@/components/features/events/edit/tickets/modal';
-import { useEventDetail } from '@/hooks/features/events/useEventDetail';
+import { useEventDetail, useDistinctAdditionalForms } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketsService } from '@/services';
 import { dateUtils } from '@/utils';
@@ -48,6 +48,7 @@ const EditTicketsPage = () => {
   const { eventDetail, mutate: mutateEventDetail } = useEventDetail(
     metaUrl as string
   );
+  const { distinctForms } = useDistinctAdditionalForms(eventDetail?.id || null);
   const [tickets, setTickets] = useState<TicketCategory[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<
@@ -378,12 +379,43 @@ const EditTicketsPage = () => {
         const createdTicket = await ticketsService.createTicketType(payload);
         // Create default additional form for new ticket
         if (createdTicket?.body?.id) {
-          await ticketsService.createAdditionalForm({
-            ticketTypeId: createdTicket.body.id,
-            field: 'Visitor Name',
-            type: 'TEXT',
-            isRequired: true
-          });
+          // If this is the first ticket being created (total tickets is 1), add default Visitor Name
+          // If there are existing tickets, clone additional forms from the first ticket
+          const isFirstTicket = (eventDetail.ticketTypes?.length || 0) === 0 && newTickets.indexOf(ticket) === 0;
+          
+          if (isFirstTicket) {
+            await ticketsService.createAdditionalForm({
+              ticketTypeId: createdTicket.body.id,
+              field: 'Visitor Name',
+              type: 'TEXT',
+              isRequired: true
+            });
+          } else {
+            // Find the first ticket ID from existing ticketTypes
+            const firstTicketId = eventDetail.ticketTypes?.[0]?.id;
+            if (firstTicketId) {
+              const firstTicketForms = distinctForms.filter(f => f.ticketTypeId === firstTicketId);
+              if (firstTicketForms.length > 0) {
+                for (const form of firstTicketForms) {
+                  await ticketsService.createAdditionalForm({
+                    ticketTypeId: createdTicket.body.id,
+                    field: form.field,
+                    type: form.type as any,
+                    isRequired: form.isRequired,
+                    ...(form.options && form.options.length > 0 ? { options: form.options } : {})
+                  });
+                }
+              }
+            } else {
+              // Fallback to Visitor Name if something is wrong
+              await ticketsService.createAdditionalForm({
+                ticketTypeId: createdTicket.body.id,
+                field: 'Visitor Name',
+                type: 'TEXT',
+                isRequired: true
+              });
+            }
+          }
         }
       }
       await mutateEventDetail();
@@ -472,6 +504,7 @@ const EditTicketsPage = () => {
             </Button>
           </Box>
 
+
           {/* Footer Buttons */}
           <Box
             display="flex"
@@ -494,6 +527,16 @@ const EditTicketsPage = () => {
               Save
             </Button>
           </Box>
+
+          {/* Info Message */}
+          {tickets.some(ticket => !eventDetail?.ticketTypes?.some(t => t.id === ticket.id)) && (
+            <Box mb={2} textAlign="right">
+              <Caption color="text.secondary">
+                * If you want to add additional forms for a new ticket, you need to save it first. 
+                A modal will appear after saving to redirect you to the additional form settings.
+              </Caption>
+            </Box>
+          )}
         </Card>
       </Box>
 

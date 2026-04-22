@@ -2,7 +2,7 @@ import { Box, Grid, InputAdornment } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { Button, Modal, TextField, TextArea, Body2 } from '@/components/common';
+import { Button, Modal, TextField, TextArea, Body2, Tabs } from '@/components/common';
 import { dateUtils } from '@/utils';
 
 import { TicketDateModal } from '../date-modal';
@@ -112,6 +112,7 @@ export const TicketCreateModal = ({
   eventStatus
 }: TicketCreateModalProps) => {
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('detail');
   const [salesStartModalOpen, setSalesStartModalOpen] = useState(false);
   const [salesEndModalOpen, setSalesEndModalOpen] = useState(false);
   const [ticketStartModalOpen, setTicketStartModalOpen] = useState(false);
@@ -409,200 +410,228 @@ export const TicketCreateModal = ({
       >
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(handleSubmit)}>
-            {/* Show rejected reason if applicable */}
-            {shouldShowRejectionInfo && (
-              <RejectedReason reason={editingTicket?.rejectedReason} />
-            )}
-            
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Ticket Name*"
-                  name="name"
-                  placeholder="Ticket/Category Name"
-                  rules={{
-                    required: 'Ticket name is required'
-                  }}
-                  isRejected={isFieldRejected('name')}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextArea
-                  fullWidth
-                  label="Ticket Description*"
-                  name="description"
-                  placeholder="Max. 500 characters"
-                  rules={{
-                    required: 'Ticket description is required',
-                    maxLength: {
-                      value: 500,
-                      message: 'Description must be less than 500 characters'
-                    }
-                  }}
-                  isRejected={isFieldRejected('description')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">#</InputAdornment>
-                    )
-                  }}
-                  label="Color Hex*"
-                  name="colorHex"
-                  placeholder=""
-                  rules={{
-                    required: 'Color hex is required',
-                    pattern: {
-                      value: /^[0-9A-Fa-f]{6}$/,
-                      message: 'Please enter a valid hex color (e.g., FF0000)'
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">Rp</InputAdornment>
-                    )
-                  }}
-                  label="Ticket Price*"
-                  name="price"
-                  placeholder=""
-                  rules={{
-                    required: 'Ticket price is required',
-                    pattern: {
-                      value: /^\d+$/,
-                      message: 'Price must be a number'
-                    }
-                  }}
-                  isRejected={isFieldRejected('price')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  label="Ticket Qty*"
-                  name="quantity"
-                  placeholder="Ticket quantity"
-                  rules={{
-                    required: 'Ticket quantity is required',
-                    pattern: {
-                      value: /^\d+$/,
-                      message: 'Quantity must be a number'
-                    }
-                  }}
-                  isRejected={isFieldRejected('quantity')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">/User</InputAdornment>
-                    )
-                  }}
-                  label="Max. Ticket Per User*"
-                  name="maxPerUser"
-                  placeholder="ex: 6 ticket per user"
-                  rules={{
-                    required: 'Max ticket per user is required',
-                    pattern: {
-                      value: /^\d+$/,
-                      message: 'Max ticket per user must be a number'
-                    }
-                  }}
-                  isRejected={isFieldRejected('max_order_quantity')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    readOnly: true
-                  }}
-                  label="Sales Start Date*"
-                  name="salesStartDate"
-                  placeholder="Ticket sale will start on this date"
-                  rules={{
-                    required: 'Sales start date is required'
-                  }}
-                  value={salesStartDate}
-                  onClick={() => setSalesStartModalOpen(true)}
-                  isRejected={isFieldRejected('sales_start_date')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    readOnly: true
-                  }}
-                  label="Sales End Date*"
-                  name="salesEndDate"
-                  placeholder="Ticket sale will end on this date"
-                  rules={{
-                    required: 'Sales end date is required'
-                  }}
-                  value={salesEndDate}
-                  onClick={() => setSalesEndModalOpen(true)}
-                  isRejected={isFieldRejected('sales_end_date')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    readOnly: true
-                  }}
-                  label="Ticket Start Date*"
-                  name="ticketStartDate"
-                  placeholder="Ticket for date event"
-                  rules={{
-                    required: 'Ticket start date is required'
-                  }}
-                  value={ticketStartDate}
-                  onClick={() => setTicketStartModalOpen(true)}
-                  isRejected={isFieldRejected('ticketStartDate')}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <TextField
-                  fullWidth
-                  InputProps={{
-                    readOnly: true
-                  }}
-                  label="Ticket End Date*"
-                  name="ticketEndDate"
-                  placeholder="Ticket for date event"
-                  rules={{
-                    required: 'Ticket end date is required'
-                  }}
-                  value={ticketEndDate}
-                  onClick={() => setTicketEndModalOpen(true)}
-                  isRejected={isFieldRejected('ticketEndDate')}
-                />
-              </Grid>
-            </Grid>
-            <Box
-              display="flex"
-              gap={2}
-              justifyContent="flex-end"
-              marginTop="24px"
-            >
-              <Button variant="secondary" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button disabled={loading} type="submit" variant="primary">
-                {loading ? 'Saving...' : 'Save Ticket'}
-              </Button>
+            <Box mb={3}>
+              <Tabs
+                activeTab={activeTab}
+                tabs={[
+                  { id: 'detail', title: 'Detail Ticket' },
+                  { id: 'additional', title: 'Additional Form' }
+                ]}
+                onTabChange={setActiveTab}
+              />
             </Box>
+
+            {activeTab === 'detail' && (
+              <>
+                {/* Show rejected reason if applicable */}
+                {shouldShowRejectionInfo && (
+                  <RejectedReason reason={editingTicket?.rejectedReason} />
+                )}
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Ticket Name*"
+                      name="name"
+                      placeholder="Ticket/Category Name"
+                      rules={{
+                        required: 'Ticket name is required'
+                      }}
+                      isRejected={isFieldRejected('name')}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextArea
+                      fullWidth
+                      label="Ticket Description*"
+                      name="description"
+                      placeholder="Max. 500 characters"
+                      rules={{
+                        required: 'Ticket description is required',
+                        maxLength: {
+                          value: 500,
+                          message: 'Description must be less than 500 characters'
+                        }
+                      }}
+                      isRejected={isFieldRejected('description')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">#</InputAdornment>
+                        )
+                      }}
+                      label="Color Hex*"
+                      name="colorHex"
+                      placeholder=""
+                      rules={{
+                        required: 'Color hex is required',
+                        pattern: {
+                          value: /^[0-9A-Fa-f]{6}$/,
+                          message: 'Please enter a valid hex color (e.g., FF0000)'
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">Rp</InputAdornment>
+                        )
+                      }}
+                      label="Ticket Price*"
+                      name="price"
+                      placeholder=""
+                      rules={{
+                        required: 'Ticket price is required',
+                        pattern: {
+                          value: /^\d+$/,
+                          message: 'Price must be a number'
+                        }
+                      }}
+                      isRejected={isFieldRejected('price')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Ticket Qty*"
+                      name="quantity"
+                      placeholder="Ticket quantity"
+                      rules={{
+                        required: 'Ticket quantity is required',
+                        pattern: {
+                          value: /^\d+$/,
+                          message: 'Quantity must be a number'
+                        }
+                      }}
+                      isRejected={isFieldRejected('quantity')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">/User</InputAdornment>
+                        )
+                      }}
+                      label="Max. Ticket Per User*"
+                      name="maxPerUser"
+                      placeholder="ex: 6 ticket per user"
+                      rules={{
+                        required: 'Max ticket per user is required',
+                        pattern: {
+                          value: /^\d+$/,
+                          message: 'Max ticket per user must be a number'
+                        }
+                      }}
+                      isRejected={isFieldRejected('max_order_quantity')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      label="Sales Start Date*"
+                      name="salesStartDate"
+                      placeholder="Ticket sale will start on this date"
+                      rules={{
+                        required: 'Sales start date is required'
+                      }}
+                      value={salesStartDate}
+                      onClick={() => setSalesStartModalOpen(true)}
+                      isRejected={isFieldRejected('sales_start_date')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      label="Sales End Date*"
+                      name="salesEndDate"
+                      placeholder="Ticket sale will end on this date"
+                      rules={{
+                        required: 'Sales end date is required'
+                      }}
+                      value={salesEndDate}
+                      onClick={() => setSalesEndModalOpen(true)}
+                      isRejected={isFieldRejected('sales_end_date')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      label="Ticket Start Date*"
+                      name="ticketStartDate"
+                      placeholder="Ticket for date event"
+                      rules={{
+                        required: 'Ticket start date is required'
+                      }}
+                      value={ticketStartDate}
+                      onClick={() => setTicketStartModalOpen(true)}
+                      isRejected={isFieldRejected('ticketStartDate')}
+                    />
+                  </Grid>
+                  <Grid item md={6} xs={12}>
+                    <TextField
+                      fullWidth
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      label="Ticket End Date*"
+                      name="ticketEndDate"
+                      placeholder="Ticket for date event"
+                      rules={{
+                        required: 'Ticket end date is required'
+                      }}
+                      value={ticketEndDate}
+                      onClick={() => setTicketEndModalOpen(true)}
+                      isRejected={isFieldRejected('ticketEndDate')}
+                    />
+                  </Grid>
+                </Grid>
+              </>
+            )}
+
+            {activeTab === 'additional' && (
+              <Box p={3} textAlign="center" border="1px dashed" borderColor="divider" borderRadius={1}>
+                <Body2 color="text.secondary">
+                  {editingTicket 
+                    ? "Additional forms for this ticket can be managed from the 'Edit Additional Form' menu in the ticket list."
+                    : "Additional forms can be configured after the ticket category is saved. New tickets will automatically inherit forms from the first category."}
+                </Body2>
+              </Box>
+            )}
+
+            {activeTab === 'detail' && (
+              <Box
+                display="flex"
+                gap={2}
+                justifyContent="flex-end"
+                marginTop="24px"
+              >
+                <Button variant="secondary" onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button disabled={loading} type="submit" variant="primary">
+                  {loading ? 'Saving...' : 'Save Ticket'}
+                </Button>
+              </Box>
+            )}
           </form>
         </FormProvider>
       </Modal>

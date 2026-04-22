@@ -1,9 +1,9 @@
-import { Box } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Box, Divider, Typography } from '@mui/material';
+import React, { useEffect, useState, useMemo } from 'react';
 
-import { Body2, Select } from '@/components/common';
+import { Body2, Select, Button, H4 } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
-import { useTicketType } from '@/hooks';
+import { useTicketType, useDistinctAdditionalForms } from '@/hooks';
 import { ticketsService } from '@/services/tickets';
 
 import { CustomQuestionForm } from './custom-question-form';
@@ -26,12 +26,14 @@ interface CustomQuestion {
 }
 
 interface AdditionalFormProps {
+  eventId: string;
   ticketTypes: TicketType[];
   selectedTicketType: string;
   onTicketTypeChange: (value: string) => void;
 }
 
 export function AdditionalForm({
+  eventId,
   ticketTypes,
   selectedTicketType,
   onTicketTypeChange
@@ -41,9 +43,11 @@ export function AdditionalForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [deletedForms, setDeletedForms] = useState<Set<string>>(new Set());
   const [editableForms, setEditableForms] = useState<Map<string, any>>(new Map());
+  const [showDistinctQuestions, setShowDistinctQuestions] = useState(false);
   
   const { additionalForms, loading: additionalFormsLoading, mutate } = useTicketType(selectedTicketType || null);
-  const { showInfo } = useToast();
+  const { distinctForms, loading: distinctLoading } = useDistinctAdditionalForms(eventId);
+  const { showInfo, showSuccess } = useToast();
 
   const selectedTicket = ticketTypes.find(ticket => ticket.id === selectedTicketType);
   const selectOptions = ticketTypes.map(ticketType => ({
@@ -59,6 +63,39 @@ export function AdditionalForm({
     { value: 'CHECKBOX', label: 'Checkbox', icon: '/icon/checkbox.svg' },
     { value: 'DROPDOWN', label: 'Multiple Choice', icon: '/icon/radio.svg' }
   ];
+
+  // Memoized first ticket ID
+  const firstTicketId = useMemo(() => {
+    return ticketTypes.length > 0 ? ticketTypes[0].id : null;
+  }, [ticketTypes]);
+
+  // Handle auto-fill from first ticket
+  useEffect(() => {
+    const shouldAutoFill = 
+      selectedTicketType && 
+      selectedTicketType !== firstTicketId && 
+      !additionalFormsLoading && 
+      additionalForms.length === 0 &&
+      customQuestions.length === 0;
+
+    if (shouldAutoFill && firstTicketId) {
+      // Find questions from the first ticket in distinctForms or by fetching them
+      // Since we have distinctForms which has everything, we can filter by firstTicketId
+      const firstTicketQuestions = distinctForms.filter(f => f.ticketTypeId === firstTicketId);
+      
+      if (firstTicketQuestions.length > 0) {
+        const autoFilledQuestions: CustomQuestion[] = firstTicketQuestions.map(f => ({
+          id: `auto-${f.id}-${Date.now()}`,
+          question: f.field,
+          formType: f.type as any,
+          options: f.options,
+          isRequired: f.isRequired
+        }));
+        setCustomQuestions(autoFilledQuestions);
+        showInfo('Questions from the first ticket category have been automatically added.');
+      }
+    }
+  }, [selectedTicketType, firstTicketId, additionalForms, additionalFormsLoading, distinctForms, showInfo]);
 
   // Custom question handlers
   const addNewQuestion = () => {
@@ -208,6 +245,18 @@ export function AdditionalForm({
     }
   };
 
+  const handleAddDistinctQuestion = (form: any) => {
+    const newQuestion: CustomQuestion = {
+      id: `distinct-${form.id}-${Date.now()}`,
+      question: form.field,
+      formType: form.type as any,
+      options: Array.isArray(form.options) ? form.options : [],
+      isRequired: form.isRequired || false
+    };
+    setCustomQuestions([...customQuestions, newQuestion]);
+    showSuccess('Question added from existing categories.');
+  };
+
   // Validation
   const isFormValid = (form: any) => {
     if (!form.field?.trim()) return false;
@@ -244,8 +293,8 @@ export function AdditionalForm({
       const validForms = additionalForms?.filter(f => f.id && f.field?.trim()) || [];
       const remainingForms = validForms.filter(f => !deletedForms.has(f.id));
       
-      // STEP 2: Prepare forms to update (skip first form order 0)
-      const formsToUpdate = remainingForms.filter(form => form.order !== 0);
+      // STEP 2: Prepare forms to update
+      const formsToUpdate = remainingForms;
       
       const updated = formsToUpdate
         .map((form) => {
@@ -319,7 +368,7 @@ export function AdditionalForm({
       // STEP 5: Clean up
       setDeletedForms(new Set());
       setCustomQuestions([]);
-      showInfo('Additional forms updated successfully!');
+      showSuccess('Additional forms updated successfully!');
     } catch (error: any) {
       let errorMessage = 'Failed to submit changes. Please try again.';
       if (error?.response?.data?.message) {
@@ -378,7 +427,6 @@ export function AdditionalForm({
                       key={form.id}
                       form={editableForms.get(form.id) || form}
                       questionNumber={index + 1}
-                      isFirstForm={index === 0}
                       formTypeOptions={formTypeOptions}
                       onFieldChange={handleInputChange}
                       onTypeChange={(formId, value) => handleInputChange(formId, 'type', value)}
@@ -421,6 +469,69 @@ export function AdditionalForm({
                 onAddNewQuestion={addNewQuestion}
                 onSubmitAll={handleSubmitAll}
               />
+
+              {/* Show Distinct Questions Section */}
+              <Box mt={4}>
+                <Divider sx={{ mb: 3 }} />
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                  <H4 color="text.primary" fontWeight={700}>
+                    Existing ticket categories questions
+                  </H4>
+                  <Button 
+                    variant="secondary" 
+                    size="small"
+                    onClick={() => setShowDistinctQuestions(!showDistinctQuestions)}
+                  >
+                    {showDistinctQuestions ? 'Hide Questions' : 'Show Questions'}
+                  </Button>
+                </Box>
+
+                {showDistinctQuestions && (
+                  <Box sx={{ backgroundColor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider', p: 2 }}>
+                    {distinctLoading ? (
+                      <Typography variant="body2">Loading questions...</Typography>
+                    ) : distinctForms.length > 0 ? (
+                      <Box display="flex" flexDirection="column" gap={1}>
+                        {distinctForms.map((form) => (
+                          <Box 
+                            key={form.id} 
+                            display="flex" 
+                            justifyContent="space-between" 
+                            alignItems="center"
+                            p={1.5}
+                            sx={{ 
+                              borderRadius: 1, 
+                              border: '1px solid', 
+                              borderColor: 'divider',
+                              '&:hover': { backgroundColor: 'action.hover' }
+                            }}
+                          >
+                            <Box>
+                              <Typography variant="subtitle2" fontWeight={600}>
+                                {form.field}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                Type: {form.type} {form.isRequired ? '(Required)' : ''}
+                              </Typography>
+                            </Box>
+                            <Button 
+                              variant="primary" 
+                              size="small" 
+                              onClick={() => handleAddDistinctQuestion(form)}
+                            >
+                              Add to Form
+                            </Button>
+                          </Box>
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No existing questions found in other categories.
+                      </Typography>
+                    )}
+                  </Box>
+                )}
+              </Box>
             </>
           )}
         </Box>
