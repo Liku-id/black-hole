@@ -1,7 +1,7 @@
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import React, { useEffect, useState, useMemo } from 'react';
 
-import { Body2, Select, Button, H4 } from '@/components/common';
+import { Body2, Select, Button, H4, Card } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
 import { useTicketType, useDistinctAdditionalForms } from '@/hooks';
 import { ticketsService } from '@/services/tickets';
@@ -467,168 +467,173 @@ export function AdditionalForm({
   }, [additionalForms]);
 
   return (
-    <>
-      <Select
-        placeholder="Pilih Tiket"
-        options={selectOptions}
-        value={selectedTicketType}
-        onChange={onTicketTypeChange}
-        fullWidth
-      />
+    <Grid container spacing={3}>
+      {/* Left Column: Ticket Selector and Form Editor */}
+      <Grid item xs={12} md={8}>
+        <Card sx={{ p: 3 }}>
+          <Select
+            placeholder="Pilih Tiket"
+            options={selectOptions}
+            value={selectedTicketType}
+            onChange={onTicketTypeChange}
+            fullWidth
+          />
 
-      {selectedTicket && (
-        <Box mt={3}>
-          {additionalFormsLoading ? (
-            <Box>Loading additional forms...</Box>
-          ) : (
-            <>
-              {/* Render existing additional forms from backend */}
-              {additionalForms && additionalForms.length > 0 ? (
-                additionalForms
-                  .filter((form) => !deletedForms.has(form.id))
-                  .map((form, index) => (
-                    <ExistingQuestionForm
-                      key={form.id}
-                      form={editableForms.get(form.id) || form}
-                      questionNumber={index + 1}
-                      isFirstForm={index === 0}
-                      formTypeOptions={formTypeOptions}
-                      onFieldChange={handleInputChange}
-                      onTypeChange={(formId, value) =>
-                        handleInputChange(formId, 'type', value)
-                      }
-                      onDelete={handleClickDeleteIcon}
-                      onDuplicate={handleClickDuplicateIcon}
-                      onOptionChange={handleOptionChange}
-                      onAddOption={handleAddOption}
-                    />
-                  ))
+          {selectedTicket && (
+            <Box mt={3}>
+              {additionalFormsLoading ? (
+                <Box>Loading additional forms...</Box>
               ) : (
-                <Box
-                  mb={2}
-                  p={2}
-                  sx={{ backgroundColor: 'warning.light', borderRadius: 1 }}
-                >
-                  <Body2 color="warning.main">
-                    No additional forms found for this ticket type.
-                  </Body2>
-                </Box>
-              )}
+                <>
+                  {/* Render existing additional forms from backend */}
+                  {additionalForms && additionalForms.length > 0 ? (
+                    additionalForms
+                      .filter((form) => !deletedForms.has(form.id))
+                      .map((form, index) => (
+                        <ExistingQuestionForm
+                          key={form.id}
+                          form={editableForms.get(form.id) || form}
+                          questionNumber={index + 1}
+                          isFirstForm={index === 0}
+                          formTypeOptions={formTypeOptions}
+                          onFieldChange={handleInputChange}
+                          onTypeChange={(formId, value) =>
+                            handleInputChange(formId, 'type', value)
+                          }
+                          onDelete={handleClickDeleteIcon}
+                          onDuplicate={handleClickDuplicateIcon}
+                          onOptionChange={handleOptionChange}
+                          onAddOption={handleAddOption}
+                        />
+                      ))
+                  ) : (
+                    <Box
+                      mb={2}
+                      p={2}
+                      sx={{ backgroundColor: 'warning.light', borderRadius: 1 }}
+                    >
+                      <Body2 color="warning.main">
+                        No additional forms found for this ticket type.
+                      </Body2>
+                    </Box>
+                  )}
 
-              {/* Custom Questions */}
-              {customQuestions.map((question, index) => {
-                const remainingCount =
-                  additionalForms?.filter((form) => !deletedForms.has(form.id))
-                    .length || 0;
-                return (
-                  <CustomQuestionForm
-                    key={question.id}
-                    question={question}
-                    questionNumber={remainingCount + index + 1}
-                    formTypeOptions={formTypeOptions}
-                    onQuestionChange={updateQuestion}
-                    onDelete={deleteQuestion}
-                    onDuplicate={duplicateQuestion}
-                    onOptionChange={updateOption}
-                    onAddOption={addOption}
+                  {/* Custom Questions */}
+                  {customQuestions.map((question, index) => {
+                    const remainingCount =
+                      additionalForms?.filter(
+                        (form) => !deletedForms.has(form.id)
+                      ).length || 0;
+                    return (
+                      <CustomQuestionForm
+                        key={question.id}
+                        question={question}
+                        questionNumber={remainingCount + index + 1}
+                        formTypeOptions={formTypeOptions}
+                        onQuestionChange={updateQuestion}
+                        onDelete={deleteQuestion}
+                        onDuplicate={duplicateQuestion}
+                        onOptionChange={updateOption}
+                        onAddOption={addOption}
+                      />
+                    );
+                  })}
+
+                  <SubmitSection
+                    isSubmitting={isSubmitting}
+                    submitError={submitError}
+                    isSubmitDisabled={isSubmitDisabled()}
+                    onAddNewQuestion={addNewQuestion}
+                    onSubmitAll={handleSubmitAll}
                   />
-                );
-              })}
-
-              <SubmitSection
-                isSubmitting={isSubmitting}
-                submitError={submitError}
-                isSubmitDisabled={isSubmitDisabled()}
-                onAddNewQuestion={addNewQuestion}
-                onSubmitAll={handleSubmitAll}
-              />
-
-              {/* Show Distinct Questions Section */}
-              <Box mt={4}>
-                <Divider sx={{ mb: 3 }} />
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mb={2}
-                >
-                  <H4 color="text.primary" fontWeight={700}>
-                    Existing ticket categories questions
-                  </H4>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={() =>
-                      setShowDistinctQuestions(!showDistinctQuestions)
-                    }
-                  >
-                    {showDistinctQuestions
-                      ? 'Hide Questions'
-                      : 'Show Questions'}
-                  </Button>
-                </Box>
-
-                {showDistinctQuestions && (
-                  <Box
-                    sx={{
-                      backgroundColor: 'background.paper',
-                      borderRadius: 1,
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      p: 2
-                    }}
-                  >
-                    {distinctLoading ? (
-                      <Typography variant="body2">
-                        Loading questions...
-                      </Typography>
-                    ) : filteredDistinctForms.length > 0 ? (
-                      <Box display="flex" flexDirection="column" gap={1}>
-                        {filteredDistinctForms.map((form) => (
-                          <Box
-                            key={form.id}
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                            p={1.5}
-                            sx={{
-                              borderRadius: 1,
-                              border: '1px solid',
-                              borderColor: 'divider',
-                              '&:hover': { backgroundColor: 'action.hover' }
-                            }}
-                          >
-                            <Box>
-                              <Typography variant="subtitle2" fontWeight={600}>
-                                {form.field}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                Type: {form.type}{' '}
-                                {form.isRequired ? '(Required)' : ''}
-                              </Typography>
-                            </Box>
-                            <Button
-                              variant="primary"
-                              size="small"
-                              onClick={() => handleAddDistinctQuestion(form)}
-                            >
-                              Add to Form
-                            </Button>
-                          </Box>
-                        ))}
-                      </Box>
-                    ) : (
-                      <Typography variant="body2" color="text.secondary">
-                        No existing questions found in other categories.
-                      </Typography>
-                    )}
-                  </Box>
-                )}
-              </Box>
-            </>
+                </>
+              )}
+            </Box>
           )}
-        </Box>
-      )}
-    </>
+        </Card>
+      </Grid>
+
+      {/* Right Column: Existing Questions Sidebar */}
+      <Grid item xs={12} md={4}>
+        <Card
+          sx={{
+            p: 3,
+            position: 'sticky',
+            top: '24px'
+          }}
+        >
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <H4 color="text.primary" fontWeight={700}>
+              Existing Questions
+            </H4>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => setShowDistinctQuestions(!showDistinctQuestions)}
+              sx={{
+                minWidth: 'auto',
+                padding: '4px 12px',
+                fontSize: '12px',
+                height: '28px'
+              }}
+            >
+              {showDistinctQuestions ? 'Hide' : 'Show'}
+            </Button>
+          </Box>
+
+          {showDistinctQuestions && (
+            <Box mt={2}>
+              {distinctLoading ? (
+                <Typography variant="body2">Loading...</Typography>
+              ) : filteredDistinctForms.length > 0 ? (
+                <Box display="flex" flexDirection="column" gap={2}>
+                  {filteredDistinctForms.map((form) => (
+                    <Box
+                      key={form.id}
+                      p={2}
+                      sx={{
+                        borderRadius: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        '&:hover': { backgroundColor: 'action.hover' }
+                      }}
+                    >
+                      <Typography variant="subtitle2" fontWeight={600} mb={0.5}>
+                        {form.field}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                        mb={1.5}
+                      >
+                        Type: {form.type} {form.isRequired ? '(Required)' : ''}
+                      </Typography>
+                      <Button
+                        variant="primary"
+                        size="small"
+                        fullWidth
+                        disabled={!selectedTicket}
+                        onClick={() => handleAddDistinctQuestion(form)}
+                      >
+                        {selectedTicket ? 'Add to Form' : 'Select a ticket first'}
+                      </Button>
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No existing questions found in other categories.
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Card>
+      </Grid>
+    </Grid>
   );
 }
