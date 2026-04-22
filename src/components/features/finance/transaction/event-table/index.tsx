@@ -161,8 +161,8 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Body2>
-                      {transaction.group_ticket 
-                        ? `${transaction.orderQuantity} Bundle (${transaction.orderQuantity * transaction.group_ticket.bundle_quantity} Tickets)` 
+                      {transaction.group_ticket
+                        ? `${transaction.orderQuantity} Bundle (${transaction.orderQuantity * transaction.group_ticket.bundle_quantity} Tickets)`
                         : `${transaction.orderQuantity || 0} Ticket`}
                     </Body2>
                   </TableCell>
@@ -173,8 +173,8 @@ export const EventTransactionTable: FC<EventTransactionTableProps> = ({
                     <Body2>
                       {transaction.paymentBreakdown?.totalPrice
                         ? formatUtils.formatPrice(
-                            transaction.paymentBreakdown.totalPrice
-                          )
+                          transaction.paymentBreakdown.totalPrice
+                        )
                         : '-'}
                     </Body2>
                   </TableCell>

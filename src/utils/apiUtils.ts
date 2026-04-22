@@ -58,6 +58,9 @@ export const apiUtils = {
         Accept: 'application/json',
         ...additionalConfig?.headers
       },
+      paramsSerializer: {
+        indexes: null
+      },
       withCredentials: true, // Include session cookies
       ...additionalConfig
     };

@@ -49,7 +49,8 @@ function CreateTeamMember() {
 
   const roleOptions = [
     { value: 'ground_staff', label: 'Check-in Crew' },
-    { value: 'finance', label: 'Finance' }
+    { value: 'finance', label: 'Finance' },
+    { value: 'cashier', label: 'Cashier' }
   ];
 
   // Navigate back to team list

@@ -159,6 +159,17 @@ class TicketsService {
     }
   }
 
+  async getTicketTypesByEvent(eventId: string): Promise<any[]> {
+    try {
+      const response = await apiUtils.get(`/api/tickets/ticket-types/event/${eventId}`);
+      const result = response.body?.ticketTypes ?? response.body?.data ?? response.body ?? response;
+      return Array.isArray(result) ? result : [];
+    } catch (error) {
+      console.error('Error fetching ticket types by event:', error);
+      throw error;
+    }
+  }
+
   async updateTicketType(
     id: string,
     ticketType: TicketTypePayload

@@ -74,6 +74,12 @@ const menuItems: MenuItem[] = [
     icon: '/icon/creator.svg',
     path: '/creator',
     id: 'creator_menu'
+  },
+  {
+    text: 'OTS',
+    icon: '/icon/ticket.svg',
+    path: '/ots',
+    id: 'ots_menu'
   }
 ];
 
@@ -81,6 +87,7 @@ const menuItems: MenuItem[] = [
 const roleMenuConfig: Record<string, string[]> = {
   [UserRole.GROUND_STAFF]: ['event_menu', 'ticket_menu'],
   [UserRole.FINANCE]: ['event_menu', 'finance_menu'],
+  [UserRole.CASHIER]: ['ots_menu'],
 
   [UserRole.ADMIN]: [
     'dashboard_menu',
@@ -88,7 +95,7 @@ const roleMenuConfig: Record<string, string[]> = {
     'approval_menu',
     'finance_menu',
     'ticket_menu',
-    'creator_menu'
+    'creator_menu',
   ],
   [UserRole.BUSINESS_DEVELOPMENT]: [
     'dashboard_menu',
@@ -96,14 +103,15 @@ const roleMenuConfig: Record<string, string[]> = {
     'approval_menu',
     'finance_menu',
     'ticket_menu',
-    'creator_menu'
+    'creator_menu',
   ],
   [UserRole.EVENT_ORGANIZER_PIC]: [
     'dashboard_menu',
     'event_menu',
     'finance_menu',
     'ticket_menu',
-    'account_menu'
+    'account_menu',
+    'ots_menu'
   ]
 };
 

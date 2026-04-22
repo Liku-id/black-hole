@@ -40,7 +40,16 @@ export function withAuth<P extends object>(
         (router.pathname === '/login' || router.pathname === '/register')
       ) {
         setHasRedirected(true);
-        router.replace('/dashboard');
+        const userWithRole = user as any;
+        const userRole = userWithRole.role?.name;
+
+        if (userRole === 'cashier') {
+          router.replace('/ots');
+        } else if (userRole === 'ground_staff' || userRole === 'finance') {
+          router.replace('/events');
+        } else {
+          router.replace('/dashboard');
+        }
         return;
       }
 
@@ -79,6 +88,21 @@ export function withAuth<P extends object>(
           if (!isAllowedBase || isExplicitlyBlocked) {
             setHasRedirected(true);
             router.replace('/events');
+            return;
+          }
+        }
+
+        if (userRole === 'cashier') {
+          const path = router.pathname;
+          // Allowed: /ots, /tickets, /account
+          const isAllowedBase =
+            path.startsWith('/ots') ||
+            path.startsWith('/tickets') ||
+            path.startsWith('/account');
+
+          if (!isAllowedBase) {
+            setHasRedirected(true);
+            router.replace('/ots');
             return;
           }
         }

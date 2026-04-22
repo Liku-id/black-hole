@@ -136,6 +136,19 @@ class TransactionsService {
       throw error;
     }
   }
+
+  async getTransactionDetails(id: string): Promise<any> {
+    try {
+      return await apiUtils.get<any>(
+        `/api/transaction/${id}`,
+        {},
+        'Failed to fetch transaction details'
+      );
+    } catch (error) {
+      console.error('Error fetching transaction details:', error);
+      throw error;
+    }
+  }
 }
 
 const transactionsService = new TransactionsService();

@@ -1,5 +1,14 @@
 import { createTheme, Theme } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+  interface SimplePaletteColorOptions {
+    lowStock?: string;
+  }
+  interface PaletteColor {
+    lowStock?: string;
+  }
+}
+
 export function themeCreator(): Theme {
   return createTheme({
     palette: {
@@ -43,7 +52,8 @@ export function themeCreator(): Theme {
       },
       warning: {
         main: '#F48042',
-        light: '#FFE8DA'
+        light: '#FFE8DA',
+        lowStock: '#EEB711'
       },
       info: {
         main: '#8A38F5',

@@ -387,5 +387,22 @@ export const dateUtils = {
       .padStart(2, '0');
     const secs = (seconds % 60).toString().padStart(2, '0');
     return `${minutes}:${secs}`;
+  },
+
+  /**
+   * Format date to long Indonesian format (e.g., 10 Desember 2025)
+   * @param date - Date string or Date object to format
+   * @returns Formatted date string in d MMMM yyyy format
+   */
+  formatDateFullIndo: (date: string | Date): string => {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '-';
+
+    return new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(d);
   }
 };

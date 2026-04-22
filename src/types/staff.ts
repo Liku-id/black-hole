@@ -22,6 +22,7 @@ export interface ListStaffRequest {
   limit?: number;
   search?: string;
   name?: string;
+  role?: string;
 }
 
 export interface ListStaffResponse {
