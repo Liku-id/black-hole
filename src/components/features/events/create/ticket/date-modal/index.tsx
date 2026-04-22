@@ -21,6 +21,8 @@ interface TicketDateModalProps {
     formattedDate: string;
   }) => void;
   title: string;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 const timeZoneOptions = [
@@ -33,7 +35,9 @@ export const TicketDateModal = ({
   open,
   onClose,
   onSave,
-  title
+  title,
+  minDate,
+  maxDate
 }: TicketDateModalProps) => {
   const [loading, setLoading] = useState(false);
 
@@ -83,6 +87,8 @@ export const TicketDateModal = ({
               <DateField
                 fullWidth
                 label="Date"
+                maxDate={maxDate}
+                minDate={minDate}
                 name="date"
                 placeholder="Select date"
                 rules={{
