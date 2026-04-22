@@ -7,10 +7,12 @@ import { useEffect, useState } from 'react';
 import { withAuth } from '@/components/Auth/withAuth';
 import { Tabs, TextField } from '@/components/common';
 import SubmissionsTable from '@/components/features/approval/events/table';
+import OTSTable from '@/components/features/approval/ots/table';
+import OTSFilter from '@/components/features/approval/ots/table/filter';
 import WithdrawalTable from '@/components/features/approval/withdrawal/table';
 import WithdrawalFilter from '@/components/features/approval/withdrawal/table/filter';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWithdrawals } from '@/hooks';
+import { useWithdrawals, useOTSApprovals } from '@/hooks';
 import { useEventsSubmissions } from '@/hooks/features/events-submissions/useEventsSubmissions';
 import DashboardLayout from '@/layouts/dashboard';
 import { User } from '@/types/auth';
@@ -34,6 +36,11 @@ function Approval() {
     status: ''
   });
 
+  const [otsFilters, setOtsFilters] = useState<{ status: string; page: number }>({
+    status: '',
+    page: 0
+  });
+
   const { submissions, loading, error, mutate, pagination } =
     useEventsSubmissions(filters);
 
@@ -45,15 +52,6 @@ function Approval() {
     pagination: withdrawalPagination
   } = useWithdrawals(withdrawalFilters);
 
-  useEffect(() => {
-    if (user) {
-      const userRole = (user as User).role?.name;
-      if (userRole !== 'admin' && userRole !== 'business_development') {
-        router.push('/events');
-      }
-    }
-  }, [user, router]);
-
   const debouncedSetFilters = useDebouncedCallback((value: string) => {
     setFilters((prev) => ({
       ...prev,
@@ -62,6 +60,18 @@ function Approval() {
       page: 0
     }));
   }, 1000);
+
+  const {
+    data: otsApprovals,
+    loading: otsLoading,
+    error: otsError,
+    mutate: otsMutate,
+    pagination: otsPagination
+  } = useOTSApprovals({
+    status: otsFilters.status || undefined,
+    page: otsFilters.page,
+    limit: 10
+  });
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -92,11 +102,28 @@ function Approval() {
     }));
   };
 
+  const handleOtsPage = (newPage: number) => {
+    setOtsFilters((prev) => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
   const tabs = [
     { id: 'upcoming_draft', title: 'Upcoming Draft' },
     { id: 'current_event', title: 'Current Event' },
-    { id: 'withdrawal', title: 'Withdrawal' }
+    { id: 'withdrawal', title: 'Withdrawal' },
+    { id: 'ots', title: 'OTS' }
   ];
+
+  useEffect(() => {
+    if (user) {
+      const userRole = (user as User).role?.name;
+      if (userRole !== 'admin' && userRole !== 'business_development') {
+        router.push('/events');
+      }
+    }
+  }, [user, router]);
 
   return (
     <DashboardLayout>
@@ -138,7 +165,14 @@ function Approval() {
                 <WithdrawalFilter
                   status={withdrawalFilters.status}
                   onStatusChange={(v) => {
-                    setWithdrawalFilters((prev) => ({ ...prev, status: v }));
+                    setWithdrawalFilters((prev) => ({ ...prev, status: v, page: 0 }));
+                  }}
+                />
+              ) : activeTab === 'ots' ? (
+                <OTSFilter
+                  status={otsFilters.status}
+                  onStatusChange={(v) => {
+                    setOtsFilters((prev) => ({ ...prev, status: v, page: 0 }));
                   }}
                 />
               ) : (
@@ -160,7 +194,49 @@ function Approval() {
             </Box>
 
             {/* Content based on active tab */}
-            {activeTab === 'withdrawal' ? (
+            {activeTab === 'ots' ? (
+              <>
+                {(otsLoading || otsApprovals.length > 0) && (
+                  <OTSTable
+                    data={otsApprovals as any}
+                    loading={otsLoading}
+                    onRefresh={otsMutate}
+                    total={otsPagination?.totalRecords || 0}
+                    currentPage={otsFilters.page}
+                    onPageChange={handleOtsPage}
+                  />
+                )}
+
+                {/* Empty State */}
+                {!otsLoading && otsApprovals.length === 0 && !otsError && (
+                  <Box py={4} textAlign="center">
+                    <Typography gutterBottom color="text.secondary" variant="h6">
+                      No requests found
+                    </Typography>
+                    <Typography color="text.secondary" variant="body2">
+                      There are no ots requests to review
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Error */}
+                {otsError && (
+                  <Box py={4} textAlign="center">
+                    <Typography gutterBottom variant="subtitle2">
+                      Failed to load OTS requests
+                    </Typography>
+                    <Typography variant="body2">{otsError}</Typography>
+                    <Typography
+                      color="text.secondary"
+                      sx={{ mt: 1 }}
+                      variant="caption"
+                    >
+                      Please check your connection and try again.
+                    </Typography>
+                  </Box>
+                )}
+              </>
+            ) : activeTab === 'withdrawal' ? (
               <>
                 {/* Withdrawal Table */}
                 {(withdrawalLoading || withdrawals.length > 0) && (

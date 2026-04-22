@@ -25,3 +25,4 @@ export {
   StyledTableHead,
   StyledTableBody
 } from './table';
+export { default as QRCode } from './qr-code';

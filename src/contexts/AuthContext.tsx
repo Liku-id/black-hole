@@ -320,7 +320,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const userRoleName =
           !isEventOrganizer(userData) && (userData as any).role?.name;
 
-        if (
+        if (userRoleName === UserRole.CASHIER) {
+          defaultRedirect = '/ots';
+        } else if (
           userRoleName === UserRole.GROUND_STAFF ||
           userRoleName === UserRole.FINANCE
         ) {

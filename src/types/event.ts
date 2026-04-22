@@ -409,3 +409,25 @@ export interface ApprovalResponse {
     rejectedReason?: string;
   };
 }
+
+export interface OTSApproval {
+  id: string;
+  event_id: string;
+  requested_by: string;
+  status: string;
+  created_at: string;
+  eventName?: string; // Optional field for when backend adds relationship or local mapping
+  event?: {
+    name: string;
+    metaUrl: string;
+  };
+}
+
+export interface OTSApprovalsResponse {
+  status_code: number;
+  message: string;
+  body: {
+    data: OTSApproval[];
+    pagination: Pagination;
+  };
+}

@@ -11,7 +11,7 @@ export default async function handler(
   }
 
   try {
-    const { eventId, partnerId, search } = req.query;
+    const { eventId, partnerId, search, cashier_id } = req.query;
 
     if (!eventId || typeof eventId !== 'string') {
       return res.status(400).json({ message: 'Invalid eventId parameter' });
@@ -36,6 +36,10 @@ export default async function handler(
       if (validStatuses.includes(status)) {
         req.query.status = status;
       }
+    }
+
+    if (cashier_id && typeof cashier_id === 'string') {
+      req.query.cashier_id = cashier_id;
     }
 
     return await getHandler(req, res);

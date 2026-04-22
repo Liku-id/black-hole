@@ -7,7 +7,8 @@ export enum UserRole {
   GROUND_STAFF = 'ground_staff',
   FINANCE = 'finance',
   BUYER = 'buyer',
-  GUEST = 'guest'
+  GUEST = 'guest',
+  CASHIER = 'cashier'
 }
 
 export const ALLOWED_ROLES = [
@@ -15,7 +16,8 @@ export const ALLOWED_ROLES = [
   UserRole.BUSINESS_DEVELOPMENT,
   UserRole.EVENT_ORGANIZER_PIC,
   UserRole.GROUND_STAFF,
-  UserRole.FINANCE
+  UserRole.FINANCE,
+  UserRole.CASHIER
 ];
 
 export const formatRoleName = (roleName: string): string => {
@@ -24,7 +26,8 @@ export const formatRoleName = (roleName: string): string => {
     business_development: 'Business Development',
     event_organizer_pic: 'Event Organizer PIC',
     ground_staff: 'Ground Staff',
-    finance: 'Finance'
+    finance: 'Finance',
+    cashier: 'Cashier'
   };
 
   return (

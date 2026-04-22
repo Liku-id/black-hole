@@ -122,7 +122,7 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
                         ? 'Ground Staff'
                         : member.role.name === 'finance'
                           ? 'Finance'
-                          : member.role.name || 'Ground Staff'}
+                          : member.role.name === 'cashier' ? 'Cashier' : member.role.name}
                     </Body2>
                   </TableCell>
                   <TableCell sx={{ width: '80px', minWidth: '80px' }}>
