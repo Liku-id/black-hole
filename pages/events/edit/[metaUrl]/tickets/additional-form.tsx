@@ -99,6 +99,7 @@ function AdditionalFormPage() {
       {/* Additional Form Card */}
       <Card sx={{ py: 1 }}>
         <AdditionalForm
+          eventId={eventDetail.id}
           ticketTypes={
             eventDetail?.ticketTypes?.filter((t) => {
               const isEventLocked =

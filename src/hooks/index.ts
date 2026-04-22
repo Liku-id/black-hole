@@ -29,3 +29,4 @@ export { useCreatePartner } from './features/partners/useCreatePartner';
 export { useUpdatePartner } from './features/partners/useUpdatePartner';
 export { useCreatePartnerTicketType } from './features/partner-ticket-types/useCreatePartnerTicketType';
 export { usePartnerTicketTypes } from './features/partner-ticket-types/usePartnerTicketTypes';
+export { useDistinctAdditionalForms } from './features/tickets/useDistinctAdditionalForms';

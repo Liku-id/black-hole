@@ -17,7 +17,6 @@ interface ExistingForm {
 interface ExistingQuestionFormProps {
   form: ExistingForm;
   questionNumber: number;
-  isFirstForm: boolean;
   formTypeOptions: Array<{ value: string; label: string; icon: string }>;
   onFieldChange: (formId: string, field: string, value: any) => void;
   onTypeChange: (formId: string, value: string) => void;
@@ -30,7 +29,6 @@ interface ExistingQuestionFormProps {
 export function ExistingQuestionForm({
   form,
   questionNumber,
-  isFirstForm,
   formTypeOptions,
   onFieldChange,
   onTypeChange,
@@ -52,16 +50,15 @@ export function ExistingQuestionForm({
               label="Question*"
               placeholder="Write your question here"
               value={form.field}
-              onChange={isFirstForm ? undefined : (e) => onFieldChange(form.id, 'field', e.target.value)}
+              onChange={(e) => onFieldChange(form.id, 'field', e.target.value)}
               fullWidth
-              disabled={isFirstForm}
             />
           </Box>
 
           <FormFieldRenderer
             formType={form.type}
             options={form.options}
-            isDisabled={isFirstForm}
+            isDisabled={false}
             questionId={form.id}
             isExistingForm={true}
             onOptionChange={onOptionChange}
@@ -69,51 +66,49 @@ export function ExistingQuestionForm({
           />
         </Grid>
 
-        {!isFirstForm && (
-          <Grid item xs={12} md={3}>
-            <Box mb={2}>
-              <Select
-                label="Form Type"
-                options={formTypeOptions}
-                value={form.type}
-                onChange={(value) => onTypeChange(form.id, value)}
-                fullWidth
-                sx={{
-                  '& .MuiPaper-root-MuiPopover-paper-MuiMenu-paper': {
-                    padding: '0 !important'
-                  }
-                }}
+        <Grid item xs={12} md={3}>
+          <Box mb={2}>
+            <Select
+              label="Form Type"
+              options={formTypeOptions}
+              value={form.type}
+              onChange={(value) => onTypeChange(form.id, value)}
+              fullWidth
+              sx={{
+                '& .MuiPaper-root-MuiPopover-paper-MuiMenu-paper': {
+                  padding: '0 !important'
+                }
+              }}
+            />
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={2} mb="12px" justifyContent="space-between">
+            <Box display="flex" alignItems="center">
+              <Body2 color="text.primary" fontWeight={400} fontSize="14px">
+                Option
+              </Body2>
+            </Box>
+            <Box display="flex" alignItems="center" gap={0}>
+              <Checkbox
+                checked={form.isRequired || false}
+                onChange={(e) => onFieldChange(form.id, 'isRequired', e.target.checked)}
+                sx={{ marginRight: "8px" }}
               />
+              <Body2 color="text.primary" fontWeight={400} fontSize="14px">
+                Required Question
+              </Body2>
             </Box>
+          </Box>
 
-            <Box display="flex" alignItems="center" gap={2} mb="12px" justifyContent="space-between">
-              <Box display="flex" alignItems="center">
-                <Body2 color="text.primary" fontWeight={400} fontSize="14px">
-                  Option
-                </Body2>
-              </Box>
-              <Box display="flex" alignItems="center" gap={0}>
-                <Checkbox
-                  checked={form.isRequired || false}
-                  onChange={(e) => onFieldChange(form.id, 'isRequired', e.target.checked)}
-                  sx={{ marginRight: "8px" }}
-                />
-                <Body2 color="text.primary" fontWeight={400} fontSize="14px">
-                  Required Question
-                </Body2>
-              </Box>
-            </Box>
-
-            <Box display="flex">
-              <IconButton onClick={() => onDelete(form.id)} size="small">
-                <Image alt="Delete" height={20} src="/icon/trash-v2.svg" width={20} />
-              </IconButton>
-              <IconButton onClick={() => onDuplicate(form.id)} size="small">
-                <Image alt="Copy" height={20} src="/icon/copy.svg" width={20} />
-              </IconButton>
-            </Box>
-          </Grid>
-        )}
+          <Box display="flex">
+            <IconButton onClick={() => onDelete(form.id)} size="small">
+              <Image alt="Delete" height={20} src="/icon/trash-v2.svg" width={20} />
+            </IconButton>
+            <IconButton onClick={() => onDuplicate(form.id)} size="small">
+              <Image alt="Copy" height={20} src="/icon/copy.svg" width={20} />
+            </IconButton>
+          </Box>
+        </Grid>
       </Grid>
     </Box>
   );
