@@ -35,11 +35,11 @@ const useEventOrganizers = (
     mutate,
     pagination: data?.body
       ? {
-          show: data.body.show,
-          page: data.body.page,
-          total: data.body.total,
-          totalPage: data.body.totalPage
-        }
+        show: data.body.show,
+        page: data.body.page,
+        total: data.body.total,
+        totalPage: data.body.totalPage
+      }
       : null
   };
 };

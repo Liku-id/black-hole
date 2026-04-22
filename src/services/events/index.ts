@@ -10,7 +10,8 @@ import {
   ResendInvitationResponse,
   SubmitEventResponse,
   DuplicateEventResponse,
-  ApprovalResponse
+  ApprovalResponse,
+  OTSApprovalsResponse
 } from '@/types/event';
 import { TicketInvitationResponse } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
@@ -64,13 +65,7 @@ class EventsService {
       if (filters?.event_organizer_id)
         params.event_organizer_id = filters.event_organizer_id;
       if (filters?.status) {
-        if (Array.isArray(filters.status)) {
-          filters.status.forEach((status, index) => {
-            params[`status[${index}]`] = status;
-          });
-        } else {
-          params.status = filters.status;
-        }
+        params.status = filters.status;
       }
 
       return await apiUtils.get(
@@ -347,6 +342,68 @@ class EventsService {
       );
     } catch (error) {
       console.error('Error fetching ticket invitation:', error);
+      throw error;
+    }
+  }
+
+  // --- OTS Operations ---
+  async getOTSApprovals(params?: {
+    status?: string | string[];
+    page?: number;
+    limit?: number;
+    event_id?: string;
+  }): Promise<OTSApprovalsResponse> {
+    try {
+      const queryParams: Record<string, any> = {};
+      if (params?.page) queryParams.page = params.page.toString();
+      if (params?.limit) queryParams.limit = params.limit.toString();
+      if (params?.event_id) queryParams.event_id = params.event_id;
+      if (params?.status) queryParams.status = params.status;
+
+      return await apiUtils.get('/api/events/on-the-spot-sales', queryParams, 'Failed to fetch OTS approvals');
+    } catch (error) {
+      console.error('Error fetching OTS approvals:', error);
+      throw error;
+    }
+  }
+
+  async requestOTSActivation(eventId: string): Promise<any> {
+    try {
+      return await apiUtils.post('/api/events/on-the-spot-sales/request', { event_id: eventId }, 'Failed to request OTS activation');
+    } catch (error) {
+      console.error('Error requesting OTS activation:', error);
+      throw error;
+    }
+  }
+
+  async updateOTSStatus(id: string, status: 'approved' | 'rejected'): Promise<any> {
+    try {
+      return await apiUtils.post('/api/events/on-the-spot-sales/status', { id, status }, 'Failed to update OTS status');
+    } catch (error) {
+      console.error(`Error ${status} OTS request:`, error);
+      throw error;
+    }
+  }
+
+  async getOTSTransactions(eventId: string, params?: {
+    cashier_id?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<any> {
+    try {
+      return await apiUtils.get(`/api/transactions/${eventId}`, params, 'Failed to fetch OTS transactions');
+    } catch (error) {
+      console.error('Error fetching OTS transactions:', error);
+      throw error;
+    }
+  }
+
+  async getOTSSummary(eventId: string): Promise<any> {
+    try {
+      return await apiUtils.get(`/api/ots/summary`, { eventId }, 'Failed to fetch OTS summary');
+    } catch (error) {
+      console.error('Error fetching OTS summary:', error);
       throw error;
     }
   }

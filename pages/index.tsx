@@ -5,17 +5,26 @@ import { useAuth } from '@/contexts/AuthContext';
 
 function Home() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated) {
-        router.replace('/events');
+        const userWithRole = user as any;
+        const userRole = userWithRole?.role?.name;
+
+        if (userRole === 'cashier') {
+          router.replace('/ots');
+        } else if (userRole === 'ground_staff' || userRole === 'finance') {
+          router.replace('/events');
+        } else {
+          router.replace('/dashboard');
+        }
       } else {
         router.replace('/register');
       }
     }
-  }, [router, isAuthenticated, isLoading]);
+  }, [router, isAuthenticated, isLoading, user]);
 
   return null;
 }
