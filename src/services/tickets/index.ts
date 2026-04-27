@@ -450,6 +450,19 @@ class TicketsService {
       throw error;
     }
   }
+
+  async updateGroupTicketVisibility(id: string, isPublic: boolean): Promise<void> {
+    try {
+      await apiUtils.patch<void>(
+        '/api/group-tickets/visibility',
+        { id, is_public: isPublic },
+        'Failed to update group ticket visibility'
+      );
+    } catch (error) {
+      console.error('Error updating group ticket visibility:', error);
+      throw error;
+    }
+  }
 }
 
 const ticketsService = new TicketsService();
