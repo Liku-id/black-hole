@@ -16,7 +16,15 @@ export const EventDateModal: React.FC<EventDateModalProps> = ({
   onClose,
   onSave
 }) => {
-  const { getValues } = useFormContext();
+  const { getValues, watch, setValue } = useFormContext();
+  const startDateValue = watch('startDate');
+
+  // Clear end date if start date is cleared
+  React.useEffect(() => {
+    if (!startDateValue) {
+      setValue('endDate', '');
+    }
+  }, [startDateValue, setValue]);
 
   const onSubmit = () => {
     const startDate = getValues('startDate');
@@ -51,8 +59,10 @@ export const EventDateModal: React.FC<EventDateModalProps> = ({
         </Grid>
         <Grid item xs={12}>
           <DateField
+            disabled={!startDateValue}
             fullWidth
             label="End Date*"
+            minDate={startDateValue ? new Date(startDateValue) : undefined}
             name="endDate"
             placeholder="Select end date"
             rules={{

@@ -149,13 +149,11 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                   Sale End Date
                 </Body2>
               </TableCell>
-              {!isGroupTicketType && (
-                <TableCell sx={{ width: '8%' }}>
-                  <Body2 color="text.secondary" fontSize="14px">
-                    Visibility
-                  </Body2>
-                </TableCell>
-              )}
+              <TableCell sx={{ width: '8%' }}>
+                <Body2 color="text.secondary" fontSize="14px">
+                  Visibility
+                </Body2>
+              </TableCell>
               {showStatus && (
                 <TableCell sx={{ width: '8%' }}>
                   <Body2 color="text.secondary" fontSize="14px">
@@ -173,7 +171,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
           <StyledTableBody>
             {ticketTypes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={(showStatus ? 10 : 9) - (isGroupTicketType ? 1 : 0)}>
+                <TableCell colSpan={showStatus ? 10 : 9}>
                   <Box display="flex" justifyContent="center" padding="40px">
                     <Body2 color="text.secondary">No tickets found.</Body2>
                   </Box>
@@ -208,7 +206,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                     {'is_public' in ticket && (
                       <TableCell>
                         <Switch
-                          checked={(ticket as TicketType).is_public ?? true}
+                          checked={ticket.is_public ?? true}
                           onChange={(e) => onTogglePublic?.(ticket.id, e.target.checked)}
                           disabled={!onTogglePublic || visibilityLoadingId === ticket.id}
                           size="small"

@@ -20,6 +20,7 @@ interface CustomDateFieldProps extends Omit<TextFieldProps, 'variant'> {
   placeholder?: string;
   id?: string;
   minDate?: Date;
+  maxDate?: Date;
 }
 
 // Custom input component for DatePicker
@@ -34,7 +35,10 @@ interface CustomInputProps {
 }
 
 const CustomInput = forwardRef<HTMLDivElement, CustomInputProps>(
-  ({ value, onClick, placeholder, error, helperText, ...otherProps }, ref) => (
+  (
+    { value, onClick, placeholder, error, helperText, id, ...otherProps },
+    ref
+  ) => (
     <StyledTextField
       ref={ref}
       error={error}
@@ -122,7 +126,7 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
   },
   '& .react-datepicker__day': {
     color: theme.palette.text.primary,
-    fontWeight: 300,
+    fontWeight: 600,
     fontSize: '14px',
     width: '30px',
     height: '30px',
@@ -132,15 +136,32 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
     fontFamily: '"Onest", sans-serif',
     display: 'inline-flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.primary.main
+    }
+  },
+  '& .react-datepicker__day--disabled': {
+    color: `${theme.palette.text.disabled} !important`,
+    fontWeight: 300,
+    backgroundColor: 'transparent !important',
+    cursor: 'not-allowed',
+    '&:hover': {
+      backgroundColor: 'transparent !important',
+      color: `${theme.palette.text.disabled} !important`
+    }
   },
   '& .react-datepicker__day--outside-month': {
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
+    fontWeight: 300
   },
   '& .react-datepicker__day--today': {
-    fontWeight: 600,
+    fontWeight: 700,
     backgroundColor: 'transparent',
-    color: 'theme.palette.text.primary',
+    color: theme.palette.primary.main,
+    border: `1px solid ${theme.palette.primary.main}`,
     '&:hover': {
       backgroundColor: `${theme.palette.primary.main} !important`,
       color: `${theme.palette.common.white} !important`
@@ -149,7 +170,15 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
   '& .react-datepicker__day--selected': {
     backgroundColor: `${theme.palette.primary.main} !important`,
     color: `${theme.palette.common.white} !important`,
-    fontWeight: 300
+    fontWeight: 600
+  },
+  '& .react-datepicker__day--keyboard-selected:not(.react-datepicker__day--selected)': {
+    backgroundColor: 'transparent !important',
+    color: 'inherit !important'
+  },
+  '& .react-datepicker__day--keyboard-selected:hover': {
+    backgroundColor: `${theme.palette.primary.light} !important`,
+    color: `${theme.palette.primary.main} !important`
   },
   '& .react-datepicker__navigation': {
     top: '24px',
@@ -279,7 +308,16 @@ const DatePickerWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export const CustomDateField = (props: CustomDateFieldProps) => {
-  const { label, name, rules, placeholder, id, minDate, ...otherProps } = props;
+  const {
+    label,
+    name,
+    rules,
+    placeholder,
+    id,
+    minDate,
+    maxDate,
+    ...otherProps
+  } = props;
 
   const {
     control,
@@ -325,6 +363,7 @@ export const CustomDateField = (props: CustomDateFieldProps) => {
               }
               yearDropdownItemNumber={10}
               minDate={minDate}
+              maxDate={maxDate}
               popperContainer={({ children }) =>
                 createPortal(
                   <DatePickerWrapper>{children}</DatePickerWrapper>,

@@ -60,6 +60,22 @@ export const EventDetailTicket = ({
     }
   };
 
+  const handleToggleGroupVisibility = async (ticketId: string, isPublic: boolean) => {
+    setVisibilityLoadingId(ticketId);
+    try {
+      await ticketsService.updateGroupTicketVisibility(ticketId, isPublic);
+      onVisibilityChange?.();
+    } catch (error) {
+      const errorMessage =
+        (error as any)?.response?.data?.message ||
+        (error as Error)?.message ||
+        'Failed to update group ticket visibility';
+      showError(errorMessage);
+    } finally {
+      setVisibilityLoadingId(null);
+    }
+  };
+
   // Check if there are any pending tickets (regular or group)
   const hasPendingRegularTicket = eventDetail.ticketTypes?.some(
     (tt: any) => !tt.status || tt.status === 'pending'
@@ -204,6 +220,8 @@ export const EventDetailTicket = ({
           loading={ticketApprovalLoading}
           error={ticketApprovalError}
           showStatus={showStatus}
+          onTogglePublic={!readOnly && !approvalMode ? handleToggleGroupVisibility : undefined}
+          visibilityLoadingId={visibilityLoadingId}
         />
       </Box>
     </Box>

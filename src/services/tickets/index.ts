@@ -318,6 +318,15 @@ class TicketsService {
     }
   }
 
+  async getDistinctAdditionalFormFields(eventId: string): Promise<AdditionalFormsResponse> {
+    try {
+      return await apiUtils.get<AdditionalFormsResponse>(`/api/tickets/additional-forms/distinct/event/${eventId}`);
+    } catch (error) {
+      console.error('Error fetching distinct additional form fields:', error);
+      throw error;
+    }
+  }
+
   // Ticket Type Approval/Rejection
   async approveTicketType(ticketTypeId: string): Promise<any> {
     try {
@@ -438,6 +447,19 @@ class TicketsService {
       );
     } catch (error) {
       console.error('Error processing group ticket approval:', error);
+      throw error;
+    }
+  }
+
+  async updateGroupTicketVisibility(id: string, isPublic: boolean): Promise<void> {
+    try {
+      await apiUtils.patch<void>(
+        '/api/group-tickets/visibility',
+        { id, is_public: isPublic },
+        'Failed to update group ticket visibility'
+      );
+    } catch (error) {
+      console.error('Error updating group ticket visibility:', error);
       throw error;
     }
   }
