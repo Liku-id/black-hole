@@ -1,6 +1,6 @@
 import { Box, Grid } from '@mui/material';
 import { format } from 'date-fns';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { Button, Modal, DateField } from '@/components/common';
@@ -20,7 +20,7 @@ export const EventDateModal: React.FC<EventDateModalProps> = ({
   const startDateValue = watch('startDate');
 
   // Clear end date if start date is cleared
-  React.useEffect(() => {
+  useEffect(() => {
     if (!startDateValue) {
       setValue('endDate', '');
     }
