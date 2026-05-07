@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line import/no-unresolved
 import posthog from 'posthog-js';
 import React, { useEffect, useState } from 'react';
 
