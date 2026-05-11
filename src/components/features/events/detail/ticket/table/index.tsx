@@ -192,7 +192,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                       <Body2>{formatPrice(ticket.price)}</Body2>
                     </TableCell>
                     <TableCell>
-                      <Body2>{ticket.quantity}</Body2>
+                      <Body2>{ticket.quantity - ticket.purchased_amount}/{ticket.quantity}</Body2>
                     </TableCell>
                     <TableCell>
                       <Body2>{ticket.max_order_quantity} Ticket</Body2>

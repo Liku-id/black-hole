@@ -150,11 +150,11 @@ function OTSPage() {
                         <Box borderBottom="1px solid" borderColor="grey.100">
                           <Box display="flex" pb="12px" width="calc(65% - 12px)">
                             <Box sx={{ width: '5%' }}><Body2 color="text.secondary">No</Body2></Box>
-                            <Box sx={{ width: '24%' }}><Body2 color="text.secondary">Ticket Type</Body2></Box>
-                            <Box sx={{ width: '23%' }}><Body2 color="text.secondary">Price</Body2></Box>
-                            <Box sx={{ width: '15%' }}><Body2 color="text.secondary">Stock</Body2></Box>
-                            <Box sx={{ width: '14%' }}><Body2 color="text.secondary">Max Buy</Body2></Box>
-                            <Box sx={{ width: '19%' }}><Body2 color="text.secondary">Buy Ticket</Body2></Box>
+                            <Box sx={{ width: '27%' }}><Body2 color="text.secondary">Ticket Type</Body2></Box>
+                            <Box sx={{ width: '18%' }}><Body2 color="text.secondary">Price</Body2></Box>
+                            <Box sx={{ width: '20%' }}><Body2 color="text.secondary">Stock</Body2></Box>
+                            <Box sx={{ width: '15%' }}><Body2 color="text.secondary">Max Buy</Body2></Box>
+                            <Box sx={{ width: '15%' }}><Body2 color="text.secondary">Buy Ticket</Body2></Box>
                           </Box>
                         </Box>
                       </>
