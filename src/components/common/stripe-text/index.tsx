@@ -8,10 +8,10 @@ import { H1 } from '../typography';
 interface StripeTextProps {
   direction?: 'vertical' | 'horizontal';
   scrollDirection?:
-    | 'top-to-bottom'
-    | 'bottom-to-top'
-    | 'left-to-right'
-    | 'right-to-left';
+  | 'top-to-bottom'
+  | 'bottom-to-top'
+  | 'left-to-right'
+  | 'right-to-left';
 }
 
 const defaultTexts = [
@@ -19,7 +19,7 @@ const defaultTexts = [
   "Let's create",
   "Let's connect",
   "Let's Play",
-  "Let's fun",
+  "Have fun",
   "Let's learn"
 ];
 
@@ -67,13 +67,13 @@ const StripeContainer = styled(Box)<{ isVertical: boolean }>(({ isVertical }) =>
   width: '100%',
   ...(isVertical
     ? {
-        borderLeft: '1px solid black',
-        borderRight: '1px solid black'
-      }
+      borderLeft: '1px solid black',
+      borderRight: '1px solid black'
+    }
     : {
-        borderTop: '1px solid black',
-        borderBottom: '1px solid black'
-      })
+      borderTop: '1px solid black',
+      borderBottom: '1px solid black'
+    })
 }));
 
 const StripeWrapper = styled(Box)<{
@@ -84,17 +84,17 @@ const StripeWrapper = styled(Box)<{
   justifyContent: 'space-between',
   ...(isVertical
     ? {
-        flexDirection: 'column-reverse',
-        padding: '0 10px'
-      }
+      flexDirection: 'column-reverse',
+      padding: '0 10px'
+    }
     : {
-        minWidth: '100%',
-        flexShrink: 0,
-        alignItems: 'center',
-        gap: '32px',
-        padding: '8px 0',
-        whiteSpace: 'nowrap'
-      }),
+      minWidth: '100%',
+      flexShrink: 0,
+      alignItems: 'center',
+      gap: '32px',
+      padding: '8px 0',
+      whiteSpace: 'nowrap'
+    }),
   animation: animationClass
 }));
 
