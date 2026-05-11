@@ -79,41 +79,41 @@ export function TicketTypeCard({ index, ticketType, qty, onQtyChange }: TicketTy
         </Box>
 
         {/* Ticket Type */}
-        <Box width="24%">
+        <Box width="27%">
           <Body2 color="text.primary" fontWeight={600}>{ticketType.name}</Body2>
         </Box>
 
         {/* Price */}
-        <Box width="23%">
+        <Box width="20%">
           <Body2 color="text.primary">{formatPrice(ticketType.price)}</Body2>
         </Box>
 
         {/* Remaining Stock */}
-        <Box width="15%" display="flex" alignItems="center" gap="6px">
-          <Body2 color="text.secondary" fontSize="12px">
-            Remaining: {remaining}{' '}
+        <Box width="23%" display="flex" alignItems="center" gap="6px">
+          <Body2 color="text.primary" fontSize="12px">
+            {remaining}{' '}
             {remaining <= 5 && remaining > 0 && (
               <Box
                 component="span"
-                color="warning.light"
+                color="warning.main"
                 whiteSpace="nowrap"
               >
-                <Box component="span" color="warning.light">
+                <Box component="span" color="warning.main">
                   ⚠
                 </Box>{' '}
-                Low Stock
+                low stock
               </Box>
             )}
           </Body2>
         </Box>
 
         {/* Max Buy */}
-        <Box width="14%">
+        <Box width="13%">
           <Body2 color="text.primary">{maxBuy}</Body2>
         </Box>
 
         {/* Buy Ticket — qty counter */}
-        <Box width="19%" display="flex" alignItems="center" gap="8px">
+        <Box width="12%" display="flex" alignItems="center" gap="8px">
           {salesState === 'AVAILABLE' ? (
             <>
               <StyledQtyButton
