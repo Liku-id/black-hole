@@ -43,7 +43,7 @@ export function themeCreator(): Theme {
       },
       warning: {
         main: '#F48042',
-        light: '#FFE8DA'
+        light: '#FFE8DA',
       },
       info: {
         main: '#8A38F5',

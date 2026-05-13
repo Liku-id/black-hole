@@ -81,7 +81,7 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
             Quantity Available
           </Body2>
           <Body2 color="text.primary" fontSize="14px">
-            {ticket.quantity} tickets
+            {ticket.quantity - ticket.purchased_amount} tickets
           </Body2>
         </Box>
 

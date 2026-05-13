@@ -1,7 +1,7 @@
 import { Box, Modal, styled } from '@mui/material';
 import Image from 'next/image';
 
-import { Body1 } from '../typography';
+import { Body1, H3 } from '../typography';
 
 const StyledModal = styled(Modal)({
   display: 'flex',
@@ -77,9 +77,15 @@ export default function CustomModal({
       >
         {/* Header */}
         <ModalHeader>
-          <Body1 color="text.primary" fontSize={titleSize} fontWeight={700}>
-            {title}
-          </Body1>
+          {titleSize === "22px" ? (
+            <H3 color="text.primary" fontWeight={700}>
+              {title}
+            </H3>
+          ) : (
+            <Body1 color="text.primary" fontSize={titleSize} fontWeight={700}>
+              {title}
+            </Body1>
+          )}
           {onClose && (
             <Image
               alt="Close"
