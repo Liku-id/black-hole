@@ -44,8 +44,6 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   const [selectedTicket, setSelectedTicket] = useState<TicketType | GroupTicket | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-
-
   const statusMap = {
     approved: 'on_going',
     rejected: 'rejected',
