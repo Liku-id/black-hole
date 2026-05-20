@@ -44,8 +44,6 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   const [selectedTicket, setSelectedTicket] = useState<TicketType | GroupTicket | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Check if the ticket type is a group ticket based on the data
-  const isGroupTicketType = ticketTypes.length > 0 && 'bundle_quantity' in ticketTypes[0];
 
   const statusMap = {
     approved: 'on_going',
