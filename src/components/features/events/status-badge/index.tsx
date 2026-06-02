@@ -7,8 +7,17 @@ interface StatusBadgeProps {
   displayName?: string;
 }
 
-const getStatusStyle = (value: string) => {
+const getStatusStyle = (value: string, displayName?: string) => {
   const statusLower = (value || '').toLowerCase();
+  const displayLower = (displayName || '').toLowerCase();
+
+  if (statusLower === 'approved' && displayLower === 'approved') {
+    return {
+      backgroundColor: 'success.light',
+      color: 'success.main',
+      displayName: 'Approved'
+    };
+  }
 
   switch (statusLower) {
     case 'done':
@@ -69,7 +78,7 @@ const getStatusStyle = (value: string) => {
 };
 
 export const StatusBadge = ({ status, displayName }: StatusBadgeProps) => {
-  const statusConfig = getStatusStyle(status);
+  const statusConfig = getStatusStyle(status, displayName);
 
   return (
     <Box
