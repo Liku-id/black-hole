@@ -11,3 +11,5 @@ export { assetsService } from './assets';
 export { withdrawalService } from './withdrawal';
 export { utmService } from './utm';
 export { partnersService } from './partners';
+export { discountsService } from './discounts';
+

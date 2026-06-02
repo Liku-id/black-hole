@@ -1,10 +1,13 @@
 import { Box } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button, H3, H4, Body2 } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { isEventOrganizer, User } from '@/types/auth';
 import { ticketsService } from '@/services/tickets';
+import { discountsService, Discount } from '@/services/discounts';
 import { EventDetail } from '@/types/event';
 
 import { EventDetailTicketTable } from './table';
@@ -21,6 +24,7 @@ interface EventDetailTicketProps {
   onEditAdditionalForm?: (ticketId: string) => void;
   readOnly?: boolean;
   onVisibilityChange?: () => void;
+  onDiscountsChange?: () => void;
 }
 
 export const EventDetailTicket = ({
@@ -34,11 +38,36 @@ export const EventDetailTicket = ({
   showStatus = false,
   readOnly = false,
   onEditAdditionalForm,
-  onVisibilityChange
+  onVisibilityChange,
+  onDiscountsChange
 }: EventDetailTicketProps) => {
   const router = useRouter();
   const { showError } = useToast();
+  const { user } = useAuth();
   const [visibilityLoadingId, setVisibilityLoadingId] = useState<string | null>(null);
+
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+  const [discountsLoading, setDiscountsLoading] = useState(false);
+
+  const userRole = user && !isEventOrganizer(user) ? (user as User).role?.name : undefined;
+  const sessionRole = user && isEventOrganizer(user) ? 'event_organizer_pic' : userRole;
+
+  const fetchDiscounts = async () => {
+    if (!eventDetail?.id) return;
+    setDiscountsLoading(true);
+    try {
+      const res = await discountsService.getDiscountsByEvent(eventDetail.id);
+      setDiscounts(res?.body?.discounts || []);
+    } catch (error) {
+      console.error('Failed to fetch discounts:', error);
+    } finally {
+      setDiscountsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDiscounts();
+  }, [eventDetail?.id]);
 
   const handleEditTickets = () => {
     router.push(`/events/edit/${eventDetail.metaUrl}/tickets`);
@@ -137,12 +166,19 @@ export const EventDetailTicket = ({
         approvalMode={approvalMode}
         onApproveTicket={onApproveTicket}
         onRejectTicket={onRejectTicket}
-        loading={ticketApprovalLoading}
+        loading={ticketApprovalLoading || discountsLoading}
         error={ticketApprovalError}
         showStatus={showStatus}
         onEditAdditionalForm={onEditAdditionalForm}
         onTogglePublic={!readOnly && !approvalMode ? handleToggleVisibility : undefined}
         visibilityLoadingId={visibilityLoadingId}
+        discounts={discounts}
+        sessionRole={sessionRole}
+        onDiscountsChange={async () => {
+          await fetchDiscounts();
+          onDiscountsChange?.();
+        }}
+        eventStatus={eventDetail.eventStatus}
       />
 
       {/* Group Ticket Section */}
