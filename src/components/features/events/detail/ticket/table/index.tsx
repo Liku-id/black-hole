@@ -11,10 +11,12 @@ import {
 import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
 import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
+import { Discount, discountsService } from '@/services/discounts';
 
 import { StatusBadge } from '../../../status-badge';
 
 import { TicketDetailModal } from './modal';
+import { DiscountModal } from './modal/DiscountModal';
 
 interface EventDetailTicketTableProps {
   ticketTypes: TicketType[] | GroupTicket[];
@@ -27,6 +29,10 @@ interface EventDetailTicketTableProps {
   onEditAdditionalForm?: (ticketId: string) => void;
   onTogglePublic?: (ticketId: string, isPublic: boolean) => void;
   visibilityLoadingId?: string | null;
+  discounts?: Discount[];
+  sessionRole?: string;
+  onDiscountsChange?: () => Promise<void>;
+  eventStatus?: string;
 }
 
 export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
@@ -39,10 +45,16 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
   showStatus = false,
   onEditAdditionalForm,
   onTogglePublic,
-  visibilityLoadingId = null
+  visibilityLoadingId = null,
+  discounts = [],
+  sessionRole,
+  onDiscountsChange,
+  eventStatus
 }) => {
   const [selectedTicket, setSelectedTicket] = useState<TicketType | GroupTicket | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const [selectedDiscountTicket, setSelectedDiscountTicket] = useState<any>(null);
 
 
   const statusMap = {
@@ -117,17 +129,17 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                   No.
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '18%' }}>
+              <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Name
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '11%' }}>
+              <TableCell sx={{ width: '15%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Ticket Price
                 </Body2>
               </TableCell>
-              <TableCell sx={{ width: '7%' }}>
+              <TableCell sx={{ width: '6%' }}>
                 <Body2 color="text.secondary" fontSize="14px">
                   Quantity
                 </Body2>
@@ -186,8 +198,61 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                     <TableCell>
                       <Body2>{ticket.name}</Body2>
                     </TableCell>
-                    <TableCell>
-                      <Body2>{formatPrice(ticket.price)}</Body2>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                      <Box display="flex" flexDirection="column" gap={0.5}>
+                        {(() => {
+                          const ticketDiscount = !isGroupTicketType && discounts
+                            ? discounts.find((d) => d.ticket_type_id === ticket.id)
+                            : undefined;
+
+                          if (ticketDiscount) {
+                            if (ticketDiscount.status === 'approved') {
+                              const discountAmount = ticketDiscount.value <= 100
+                                ? (ticket.price * ticketDiscount.value) / 100
+                                : ticketDiscount.value;
+                              const discountedPrice = Math.max(0, ticket.price - discountAmount);
+
+                              return (
+                                <>
+                                  <Box display="flex" alignItems="center" gap={0.5}>
+                                    <Body2 sx={{ textDecoration: 'line-through', color: 'text.secondary', fontSize: '11px' }}>
+                                      {formatPrice(ticket.price)}
+                                    </Body2>
+                                    <Box
+                                      bgcolor="success.light"
+                                      color="success.main"
+                                      borderRadius="4px"
+                                      padding="1px 4px"
+                                      display="inline-flex"
+                                      fontSize="10px"
+                                      fontWeight={700}
+                                    >
+                                      {ticketDiscount.value <= 100 ? `-${ticketDiscount.value}%` : `-${formatPrice(ticketDiscount.value)}`}
+                                    </Box>
+                                  </Box>
+                                  <Body2 color="success.main" fontWeight={600} fontSize="14px">
+                                    {formatPrice(discountedPrice)}
+                                  </Body2>
+                                </>
+                              );
+                            } else {
+                              return (
+                                <>
+                                  <Body2>{formatPrice(ticket.price)}</Body2>
+                                  <Box display="inline-flex" alignSelf="flex-start" mt={0.5}>
+                                    <StatusBadge
+                                      status={ticketDiscount.status}
+                                      displayName={`Disc: ${ticketDiscount.status}`}
+                                    />
+                                  </Box>
+                                </>
+                              );
+                            }
+                          }
+
+                          return <Body2>{formatPrice(ticket.price)}</Body2>;
+                        })()}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Body2>{ticket.quantity - ticket.purchased_amount}/{ticket.quantity}</Body2>
@@ -226,10 +291,11 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                       </TableCell>
                     )}
                     <TableCell>
-                      <Box display="flex" gap={1} alignItems="center">
+                      <Box display="flex" gap={1.5} alignItems="center">
                         <Box
                           sx={{ cursor: 'pointer' }}
                           onClick={() => handleViewDetail(ticket)}
+                          title="View detail"
                         >
                           <Image
                             alt="View detail"
@@ -238,6 +304,23 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
                             width={20}
                           />
                         </Box>
+                        {(!approvalMode || discounts.some(d => d.ticket_type_id === ticket.id)) && !isGroupTicketType && (
+                          <Box
+                            sx={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              setSelectedDiscountTicket(ticket);
+                              setDiscountModalOpen(true);
+                            }}
+                            title={approvalMode ? "Review Discount" : "Manage Discount"}
+                          >
+                            <Image
+                              alt={approvalMode ? "Review Discount" : "Manage Discount"}
+                              height={20}
+                              src="/icon/coupon.svg"
+                              width={20}
+                            />
+                          </Box>
+                        )}
                         {!approvalMode && onEditAdditionalForm && (
                           <Box
                             sx={{ cursor: 'pointer' }}
@@ -277,7 +360,41 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
         <TicketDetailModal
           open={modalOpen}
           ticket={selectedTicket}
+          discount={selectedTicket ? discounts.find(d => d.ticket_type_id === selectedTicket.id) || null : null}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {/* Discount Modal */}
+      {discountModalOpen && selectedDiscountTicket && (
+        <DiscountModal
+          open={discountModalOpen}
+          onClose={() => {
+            setDiscountModalOpen(false);
+            setSelectedDiscountTicket(null);
+          }}
+          ticket={selectedDiscountTicket}
+          discount={discounts.find(d => d.ticket_type_id === selectedDiscountTicket.id) || null}
+          sessionRole={sessionRole}
+          onSave={async (payload) => {
+            const activeDiscount = discounts.find(d => d.ticket_type_id === selectedDiscountTicket.id);
+            if (activeDiscount) {
+              await discountsService.updateDiscount(activeDiscount.id, payload);
+            } else {
+              await discountsService.createDiscount(payload);
+            }
+            await onDiscountsChange?.();
+          }}
+          onDelete={async (id) => {
+            await discountsService.deleteDiscount(id);
+            await onDiscountsChange?.();
+          }}
+          onApproveReject={async (id, status, reason) => {
+            await discountsService.approveRejectDiscount(id, { status, rejected_reason: reason });
+            await onDiscountsChange?.();
+          }}
+          eventStatus={eventStatus}
+          approvalMode={approvalMode}
         />
       )}
     </>
