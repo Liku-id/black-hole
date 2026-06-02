@@ -189,6 +189,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
             ) : (
               ticketTypes.map((ticket, index) => {
                 const formattedTicket = formatTicketData(ticket);
+                const isGroupTicketType = 'bundle_quantity' in ticket;
                 return (
                   <TableRow key={ticket.id}>
                     <TableCell>
