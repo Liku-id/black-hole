@@ -13,9 +13,10 @@ import {
   Body2,
   Caption
 } from '@/components/common';
-import { StatusBadge } from '../../../../status-badge';
-import { dateUtils, formatPrice } from '@/utils';
 import { Discount } from '@/services/discounts';
+import { dateUtils, formatPrice } from '@/utils';
+
+import { StatusBadge } from '../../../../status-badge';
 
 interface DiscountModalProps {
   open: boolean;

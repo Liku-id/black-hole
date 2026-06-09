@@ -2,9 +2,9 @@ import { Box, useTheme } from '@mui/material';
 import { FC, useState } from 'react';
 
 import { Body2, Caption, Modal, Tabs } from '@/components/common';
+import { Discount } from '@/services/discounts';
 import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
-import { Discount } from '@/services/discounts';
 
 interface TicketDetailModalProps {
   open: boolean;

@@ -9,9 +9,9 @@ import {
   StyledTableBody
 } from '@/components/common';
 import { TicketReviewModal } from '@/components/features/approval/events/modal/ticket-review';
+import { Discount, discountsService } from '@/services/discounts';
 import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
-import { Discount, discountsService } from '@/services/discounts';
 
 import { StatusBadge } from '../../../status-badge';
 

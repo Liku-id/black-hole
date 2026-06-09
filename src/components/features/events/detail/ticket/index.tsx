@@ -3,11 +3,11 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { Button, H3, H4, Body2 } from '@/components/common';
-import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { isEventOrganizer, User } from '@/types/auth';
-import { ticketsService } from '@/services/tickets';
+import { useToast } from '@/contexts/ToastContext';
 import { discountsService, Discount } from '@/services/discounts';
+import { ticketsService } from '@/services/tickets';
+import { isEventOrganizer, User } from '@/types/auth';
 import { EventDetail } from '@/types/event';
 
 import { EventDetailTicketTable } from './table';
