@@ -57,7 +57,7 @@ function EventDetail() {
   );
 
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-  const [discountsLoading, setDiscountsLoading] = useState(false);
+  const [, setDiscountsLoading] = useState(false);
 
   const fetchDiscounts = async () => {
     if (!eventDetail?.id) return;

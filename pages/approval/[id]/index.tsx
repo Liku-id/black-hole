@@ -16,10 +16,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useEventsSubmissionDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
+import { discountsService, Discount } from '@/services/discounts';
 import { eventsService } from '@/services/events';
 import { eventSubmissionsService } from '@/services/events-submissions';
 import { ticketsService } from '@/services/tickets';
-import { discountsService, Discount } from '@/services/discounts';
 import { User } from '@/types/auth';
 
 function ApprovalDetail() {
