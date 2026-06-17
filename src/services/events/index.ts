@@ -11,7 +11,9 @@ import {
   SubmitEventResponse,
   DuplicateEventResponse,
   ApprovalResponse,
-  OTSApprovalsResponse
+  OTSApprovalsResponse,
+  InvitationLimitResponse,
+  UpdateInvitationLimitResponse
 } from '@/types/event';
 import { TicketInvitationResponse } from '@/types/ticket';
 import { apiUtils } from '@/utils/apiUtils';
@@ -342,6 +344,35 @@ class EventsService {
       );
     } catch (error) {
       console.error('Error fetching ticket invitation:', error);
+      throw error;
+    }
+  }
+
+  async getInvitationLimit(eventId: string): Promise<InvitationLimitResponse> {
+    try {
+      return await apiUtils.get(
+        `/api/events/invitations/${eventId}/limit`,
+        {},
+        'Failed to fetch invitation limit'
+      );
+    } catch (error) {
+      console.error('Error fetching invitation limit:', error);
+      throw error;
+    }
+  }
+
+  async updateInvitationLimit(
+    eventId: string,
+    limit: number
+  ): Promise<UpdateInvitationLimitResponse> {
+    try {
+      return await apiUtils.put<UpdateInvitationLimitResponse>(
+        `/api/events/invitations/${eventId}/limit`,
+        { invitation_limit: limit },
+        'Failed to update invitation limit'
+      );
+    } catch (error) {
+      console.error('Error updating invitation limit:', error);
       throw error;
     }
   }
