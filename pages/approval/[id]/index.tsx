@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useEventsSubmissionDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
+import { discountsService, Discount } from '@/services/discounts';
 import { eventsService } from '@/services/events';
 import { eventSubmissionsService } from '@/services/events-submissions';
 import { ticketsService } from '@/services/tickets';
@@ -67,6 +68,22 @@ function ApprovalDetail() {
   const { submission, loading, error, mutate } = useEventsSubmissionDetail(
     id as string
   );
+
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+
+  const fetchDiscounts = async () => {
+    if (!submission?.event?.id) return;
+    try {
+      const res = await discountsService.getDiscountsByEvent(submission.event.id);
+      setDiscounts(res?.body?.discounts || []);
+    } catch (error) {
+      console.error('Failed to fetch discounts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDiscounts();
+  }, [submission?.event?.id]);
 
   // Calculate tab statuses for indicators
   const getTabStatus = () => {
@@ -127,7 +144,7 @@ function ApprovalDetail() {
     }
 
     // Ticket Status - Priority: pending > rejected > approved
-    // Check both regular tickets and group tickets (only if group tickets exist)
+    // Check regular tickets, group tickets, and discounts
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
     
     const allTickets = [
@@ -135,21 +152,30 @@ function ApprovalDetail() {
       ...(event.group_tickets && event.group_tickets.length > 0 ? event.group_tickets : [])
     ];
     
-    // Only calculate status if there are tickets to check
-    if (allTickets.length > 0) {
+    // Only calculate status if there are tickets or discounts to check
+    if (allTickets.length > 0 || discounts.length > 0) {
       const hasPendingTicket = allTickets.some(
         (tt: any) => !tt.status || tt.status === 'pending'
       );
+      const hasPendingDiscount = discounts.some(
+        (d: any) => d.status === 'pending'
+      );
+
       const hasRejectedTicket = allTickets.some(
         (tt: any) => tt.status === 'rejected'
       );
-      const allApproved = allTickets.every((tt: any) => tt.status === 'approved');
+      const hasRejectedDiscount = discounts.some(
+        (d: any) => d.status === 'rejected'
+      );
 
-      if (hasPendingTicket) {
+      const allTicketsApproved = allTickets.every((tt: any) => tt.status === 'approved');
+      const allDiscountsApproved = discounts.every((d: any) => d.status === 'approved');
+
+      if (hasPendingTicket || hasPendingDiscount) {
         ticketStatus = 'pending';
-      } else if (hasRejectedTicket) {
+      } else if (hasRejectedTicket || hasRejectedDiscount) {
         ticketStatus = 'rejected';
-      } else if (allApproved) {
+      } else if (allTicketsApproved && allDiscountsApproved) {
         ticketStatus = 'approved';
       }
     }
@@ -843,6 +869,7 @@ function ApprovalDetail() {
               ticketApprovalError={ticketApprovalError}
               hideHeader={true}
               showStatus={true}
+              onDiscountsChange={fetchDiscounts}
             />
           </>
         )}

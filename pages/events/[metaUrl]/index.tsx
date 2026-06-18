@@ -25,7 +25,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { useEventDetail } from '@/hooks';
 import DashboardLayout from '@/layouts/dashboard';
 import { eventsService } from '@/services';
-
+import { discountsService, Discount } from '@/services/discounts';
 import { UserRole, isEventOrganizer, User } from '@/types/auth';
 
 function EventDetail() {
@@ -55,6 +55,26 @@ function EventDetail() {
   const { eventDetail, loading, error, mutate } = useEventDetail(
     metaUrl as string
   );
+
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+  const [, setDiscountsLoading] = useState(false);
+
+  const fetchDiscounts = async () => {
+    if (!eventDetail?.id) return;
+    setDiscountsLoading(true);
+    try {
+      const res = await discountsService.getDiscountsByEvent(eventDetail.id);
+      setDiscounts(res?.body?.discounts || []);
+    } catch (error) {
+      console.error('Failed to fetch discounts:', error);
+    } finally {
+      setDiscountsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDiscounts();
+  }, [eventDetail?.id]);
 
   // Calculate tab statuses
   const getTabStatus = () => {
@@ -280,7 +300,7 @@ function EventDetail() {
     }
 
     // Ticket Status - Priority: pending > rejected > approved
-    // Check both regular tickets and group tickets (only if group tickets exist)
+    // Check regular tickets, group tickets, and discounts
     // Don't show approved status when event status is ongoing
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
 
@@ -291,38 +311,49 @@ function EventDetail() {
         : [])
     ];
 
-    // Only calculate status if there are tickets to check
-    if (allTickets.length > 0) {
+    // Only calculate status if there are tickets or discounts to check
+    if (allTickets.length > 0 || discounts.length > 0) {
       const hasPendingTicket = allTickets.some(
         (tt: any) => !tt.status || tt.status === 'pending'
       );
+      const hasPendingDiscount = discounts.some(
+        (d: any) => d.status === 'pending'
+      );
+
       const hasRejectedTicket = allTickets.some(
         (tt: any) => tt.status === 'rejected'
       );
-      const allApproved = allTickets.every(
-        (tt: any) => tt.status === 'approved'
+      const hasRejectedDiscount = discounts.some(
+        (d: any) => d.status === 'rejected'
       );
 
-      // For on_going or approved events, only show status if there are pending tickets
+      const allTicketsApproved = allTickets.every(
+        (tt: any) => tt.status === 'approved'
+      );
+      const allDiscountsApproved = discounts.every(
+        (d: any) => d.status === 'approved'
+      );
+
+      // For on_going or approved events, only show status if there are pending/rejected tickets or discounts
       if (
         eventDetail.eventStatus === 'on_going' ||
         eventDetail.eventStatus === 'approved'
       ) {
-        if (hasPendingTicket) {
+        if (hasPendingTicket || hasPendingDiscount) {
           ticketStatus = 'pending';
-        } else if (hasRejectedTicket) {
+        } else if (hasRejectedTicket || hasRejectedDiscount) {
           ticketStatus = 'rejected';
         } else {
-          // Don't show tab status if no pending tickets
+          // Don't show tab status if no pending/rejected tickets or discounts
           ticketStatus = undefined;
         }
       } else {
         // For other event statuses, use the original logic
-        if (hasPendingTicket) {
+        if (hasPendingTicket || hasPendingDiscount) {
           ticketStatus = 'pending';
-        } else if (hasRejectedTicket) {
+        } else if (hasRejectedTicket || hasRejectedDiscount) {
           ticketStatus = 'rejected';
-        } else if (allApproved) {
+        } else if (allTicketsApproved && allDiscountsApproved) {
           ticketStatus = 'approved';
         }
       }
@@ -361,6 +392,15 @@ function EventDetail() {
     return statuses.every((status) => status !== 'rejected');
   };
 
+  const hasAnyRejectedSection = () => {
+    const statuses = [
+      tabStatuses.detail,
+      tabStatuses.assets,
+      tabStatuses.tickets
+    ];
+    return statuses.some((status) => status === 'rejected');
+  };
+
   // Check if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes
   const hasAnyPendingStatus = () => {
     if (!eventDetail) return false;
@@ -384,8 +424,12 @@ function EventDetail() {
       (tt: any) => tt.status === 'pending'
     );
 
+    const hasPendingDiscount = discounts.some(
+      (d: any) => d.status === 'pending'
+    );
+
     return (
-      hasPendingEventDetailStatus || hasPendingAssetStatus || hasPendingTicket
+      hasPendingEventDetailStatus || hasPendingAssetStatus || hasPendingTicket || hasPendingDiscount
     );
   };
 
@@ -401,10 +445,14 @@ function EventDetail() {
       eventDetail.eventStatus === 'approved' ||
       eventDetail.eventStatus === 'on_going'
     ) {
-      // Check if eventUpdateRequestStatus is draft or pending
+      // If there are still rejected sections, keep the button disabled
+      if (hasAnyRejectedSection()) return false;
+
+      // Check if eventUpdateRequestStatus is draft, pending, or rejected
       const hasPendingUpdateRequest =
         eventDetail.eventUpdateRequestStatus === 'draft' ||
-        eventDetail.eventUpdateRequestStatus === 'pending';
+        eventDetail.eventUpdateRequestStatus === 'pending' ||
+        eventDetail.eventUpdateRequestStatus === 'rejected';
 
       // Check if eventAssetChanges is not empty
       const hasAssetChanges =
@@ -420,7 +468,11 @@ function EventDetail() {
         (tt: any) => tt.status === 'pending'
       );
 
-      return hasPendingUpdateRequest || hasAssetChanges || hasPendingTicket;
+      const hasPendingDiscount = discounts.some(
+        (d: any) => d.status === 'pending'
+      );
+
+      return hasPendingUpdateRequest || hasAssetChanges || hasPendingTicket || hasPendingDiscount;
     }
 
     return false;
@@ -448,6 +500,17 @@ function EventDetail() {
     // Validasi for rejected events
     if (eventDetail.eventStatus === 'rejected') {
       if (!canResubmitRejectedEvent()) {
+        setErrorMessage('Please fix all rejected sections before resubmitting');
+        return;
+      }
+    }
+
+    // Validasi for approved or ongoing events where the update request was rejected
+    if (
+      (eventDetail.eventStatus === 'approved' || eventDetail.eventStatus === 'on_going') &&
+      eventDetail.eventUpdateRequestStatus === 'rejected'
+    ) {
+      if (hasAnyRejectedSection()) {
         setErrorMessage('Please fix all rejected sections before resubmitting');
         return;
       }
@@ -589,6 +652,7 @@ function EventDetail() {
                   {/* For rejected events, always show Resubmit Event button */}
                   {/* For other events, show button if there's any pending status from eventDetailStatus, eventAssetChanges, or ticketTypes */}
                   {(eventDetail.eventStatus === 'rejected' ||
+                    eventDetail.eventUpdateRequestStatus === 'rejected' ||
                     hasAnyPendingStatus()) &&
                     !isReadOnly && (
                       <>
@@ -689,7 +753,11 @@ function EventDetail() {
             eventDetail={eventDetail}
             showStatus={true}
             readOnly={isReadOnly}
-            onVisibilityChange={() => mutate()}
+            onVisibilityChange={async () => {
+              await mutate();
+              await fetchDiscounts();
+            }}
+            onDiscountsChange={fetchDiscounts}
           />
         )}
       </Card>

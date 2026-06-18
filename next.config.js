@@ -32,12 +32,23 @@ const nextConfig = {
 
   // Image optimization (Next.js built-in)
   images: {
-    domains: [
-      'wukong-staging-public.s3.ap-southeast-3.amazonaws.com',
-      'wukong-dev-public.s3.ap-southeast-3.amazonaws.com',
-      'wukong-staging-private.s3.ap-southeast-3.amazonaws.com',
-      'wukong-production-public.s3.ap-southeast-3.amazonaws.com',
-      'wukong-production-private.s3.ap-southeast-3.amazonaws.com',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'wukong-staging-public.s3.ap-southeast-3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wukong-dev-public.s3.ap-southeast-3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wukong-staging-private.s3.ap-southeast-3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wukong-production-public.s3.ap-southeast-3.amazonaws.com',
+      }
     ],
     formats: ['image/webp', 'image/avif']
   }
