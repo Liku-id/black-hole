@@ -39,10 +39,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Mendapatkan commit hash pendek
-      - name: Get short git commit SHA
+      # Tentukan env + nama image dari branch tujuan PR:
+      #   develop -> staging -> <user>/black-hole-stag
+      #   main    -> prod    -> <user>/black-hole
+      - name: Resolve env and image name
         id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: |
+          sha_short=$(git rev-parse --short HEAD)
+          echo "sha_short=$sha_short" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
+            echo "env=prod" >> "$GITHUB_OUTPUT"
+            echo "image=${{ secrets.DOCKERHUB_USERNAME }}/black-hole" >> "$GITHUB_OUTPUT"
+          else
+            echo "env=staging" >> "$GITHUB_OUTPUT"
+            echo "image=${{ secrets.DOCKERHUB_USERNAME }}/black-hole-stag" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -50,4 +61,16 @@ jobs:
           context: .
           file: ./staging.dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/black-hole:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ steps.vars.outputs.image }}:${{ steps.vars.outputs.sha_short }}
+
+      - name: Trigger deploy on byteplus-infra
+        run: |
+          payload=$(jq -nc \
+            --arg env "${{ steps.vars.outputs.env }}" \
+            --arg tag "${{ steps.vars.outputs.sha_short }}" \
+            '{event_type:"image-pushed", client_payload:{service:"black-hole", env:$env, tag:$tag}}')
+          curl -sf -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.EKUID_K8S_DISPATCH_TOKEN }}" \
+            https://api.github.com/repos/Liku-id/byteplus-infra/dispatches \
+            -d "$payload"
