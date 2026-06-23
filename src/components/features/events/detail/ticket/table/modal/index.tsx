@@ -2,6 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import { FC, useState } from 'react';
 
 import { Body2, Caption, Modal, Tabs } from '@/components/common';
+import { Discount } from '@/services/discounts';
 import { TicketType, GroupTicket } from '@/types/event';
 import { dateUtils, formatPrice } from '@/utils';
 
@@ -9,12 +10,14 @@ interface TicketDetailModalProps {
   open: boolean;
   onClose: () => void;
   ticket: TicketType | GroupTicket | null;
+  discount?: Discount | null;
 }
 
 export const TicketDetailModal: FC<TicketDetailModalProps> = ({
   open,
   onClose,
-  ticket
+  ticket,
+  discount
 }) => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState('detail');
@@ -30,6 +33,8 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
   ];
 
   const renderDetailTicket = () => {
+    if (!ticket) return null;
+
     // Helper to get field from ticket or nested ticket_type (for GroupTicket)
     const getField = (field: keyof TicketType) => {
       // @ts-ignore
@@ -40,6 +45,11 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
     const ticketEndDate = getField('ticketEndDate');
     const colorHex = getField('color_hex');
     const isPublic = getField('is_public');
+
+    const discountAmount = discount && discount.status === 'approved'
+      ? (discount.value <= 100 ? (ticket.price * discount.value) / 100 : discount.value)
+      : 0;
+    const discountedPrice = Math.max(0, ticket.price - discountAmount);
 
     return (
       <Box display="flex" flexDirection="column" gap="12px">
@@ -66,10 +76,26 @@ export const TicketDetailModal: FC<TicketDetailModalProps> = ({
           <Body2 color="text.secondary" fontSize="14px">
             Price
           </Body2>
-          <Body2 color="text.primary" fontSize="14px">
+          <Body2 color="text.primary" fontSize="14px" sx={{ textDecoration: discountAmount > 0 ? 'line-through' : 'none' }}>
             {formatPrice(ticket.price)}
           </Body2>
         </Box>
+
+        {/* Discount Details if approved and active */}
+        {discountAmount > 0 && discount && (
+          <Box
+            alignItems="center"
+            display="flex"
+            justifyContent="space-between"
+          >
+            <Body2 color="success.main" fontSize="14px" fontWeight={600}>
+              Discounted Price
+            </Body2>
+            <Body2 color="success.main" fontSize="14px" fontWeight={700}>
+              {formatPrice(discountedPrice)} ({discount.name}: {discount.value <= 100 ? `-${discount.value}%` : `-${formatPrice(discount.value)}`})
+            </Body2>
+          </Box>
+        )}
 
         {/* Quantity Available */}
         <Box

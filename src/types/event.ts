@@ -385,6 +385,26 @@ export interface ResendInvitationResponse {
   };
 }
 
+export interface InvitationLimit {
+  invitation_limit: number;
+  invitations_used: number;
+}
+
+export interface InvitationLimitResponse {
+  status_code: number;
+  message: string;
+  body: InvitationLimit;
+}
+
+export interface UpdateInvitationLimitRequest {
+  invitation_limit: number;
+}
+
+export interface UpdateInvitationLimitResponse {
+  status_code: number;
+  message: string;
+}
+
 export interface SubmitEventResponse {
   statusCode: number;
   message: string;
