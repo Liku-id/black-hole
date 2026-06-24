@@ -9,7 +9,8 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
-  InputAdornment
+  InputAdornment,
+  LinearProgress
 } from '@mui/material';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -30,11 +31,14 @@ import {
   Pagination
 } from '@/components/common';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
+import { EditInvitationLimitModal } from '@/components/features/events/invitation/edit-limit';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useEventDetail } from '@/hooks/features/events/useEventDetail';
 import DashboardLayout from '@/layouts/dashboard';
 import { ticketTemplate } from '@/lib/ticketTemplate';
 import { eventsService } from '@/services/events';
+import { isEventOrganizer, UserRole } from '@/types/auth';
 import type { Invitation } from '@/types/event';
 import { dateUtils } from '@/utils/dateUtils';
 
@@ -71,6 +75,50 @@ function InvitationPage() {
     limit: 10
   });
 
+  const { user } = useAuth();
+  const [limitInfo, setLimitInfo] = useState<{ invitation_limit: number; invitations_used: number } | null>(null);
+  const [editLimitOpen, setEditLimitOpen] = useState(false);
+  const [updatingLimit, setUpdatingLimit] = useState(false);
+
+  const fetchInvitationLimit = async () => {
+    if (!eventDetail?.id) return;
+    try {
+      const response = await eventsService.getInvitationLimit(eventDetail.id);
+      setLimitInfo(response.body);
+    } catch (error) {
+      console.error('Error fetching invitation limit:', error);
+    }
+  };
+
+  const userRoleName = user && !isEventOrganizer(user) && user.role?.name
+    ? user.role.name
+    : '';
+  const canEditLimit =
+    user &&
+    (userRoleName === UserRole.ADMIN ||
+      userRoleName === UserRole.BUSINESS_DEVELOPMENT);
+
+  const isLimitReached =
+    !!limitInfo &&
+    limitInfo.invitation_limit !== -1 &&
+    limitInfo.invitations_used >= limitInfo.invitation_limit;
+
+  const handleUpdateLimit = async (newLimit: number) => {
+    if (!eventDetail?.id) return;
+    setUpdatingLimit(true);
+    try {
+      await eventsService.updateInvitationLimit(eventDetail.id, newLimit);
+      showSuccess('Invitation limit updated successfully');
+      setEditLimitOpen(false);
+      await fetchInvitationLimit();
+    } catch (error) {
+      console.error('Error updating invitation limit:', error);
+      showError('Failed to update invitation limit');
+    } finally {
+      setUpdatingLimit(false);
+    }
+  };
+
   const fetchInvitations = async () => {
     if (!eventDetail?.id) return;
 
@@ -93,6 +141,7 @@ function InvitationPage() {
   useEffect(() => {
     if (eventDetail?.id) {
       fetchInvitations();
+      fetchInvitationLimit();
     }
   }, [eventDetail?.id, filters]);
 
@@ -311,15 +360,80 @@ function InvitationPage() {
           </H2>
         </Box>
 
-        {/* Action Button */}
-        <Box display="flex" justifyContent="flex-end" mb={2}>
-          <Button
-            onClick={() => {
-              router.push(`/events/${metaUrl}/invitation/create`);
-            }}
-          >
-            Add New Recipient
-          </Button>
+        {/* Header Actions & Quota Row */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          {/* Quota Info (Left) */}
+          {limitInfo ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', width: '280px' }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
+                <Body2 color="text.secondary" fontWeight={700} sx={{ fontSize: '13px', textTransform: 'uppercase', tracking: 0.5 }}>
+                  Quota: {limitInfo.invitations_used} / {limitInfo.invitation_limit === -1 ? 'Unlimited' : limitInfo.invitation_limit} Used
+                </Body2>
+                {limitInfo.invitation_limit !== -1 && (
+                  <Body2 color="text.secondary" fontSize="11px" fontWeight={600}>
+                    {Math.round((limitInfo.invitations_used / limitInfo.invitation_limit) * 100)}% used
+                  </Body2>
+                )}
+              </Box>
+              {limitInfo.invitation_limit !== -1 ? (
+                <Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={Math.min((limitInfo.invitations_used / limitInfo.invitation_limit) * 100, 100)}
+                    sx={{
+                      height: 5,
+                      borderRadius: 2.5,
+                      backgroundColor: 'grey.100',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor:
+                          (limitInfo.invitations_used / limitInfo.invitation_limit) >= 0.9
+                            ? 'error.main'
+                            : 'primary.main',
+                        borderRadius: 2.5
+                      }
+                    }}
+                  />
+                </Box>
+              ) : (
+                <Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={0}
+                    sx={{
+                      height: 5,
+                      borderRadius: 2.5,
+                      backgroundColor: 'success.light',
+                      '& .MuiLinearProgress-bar': {
+                        borderRadius: 2.5
+                      }
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
+          ) : (
+            <Box />
+          )}
+
+          {/* Action Buttons (Right) */}
+          <Box display="flex" gap={2} alignItems="center">
+            {canEditLimit && (
+              <Button
+                variant="secondary"
+                onClick={() => setEditLimitOpen(true)}
+              >
+                Edit Limit
+              </Button>
+            )}
+            <Button
+              disabled={isLimitReached}
+              onClick={() => {
+                router.push(`/events/${metaUrl}/invitation/create`);
+              }}
+            >
+              Add New Recipient
+            </Button>
+          </Box>
         </Box>
 
         {/* Invitation List */}
@@ -495,6 +609,16 @@ function InvitationPage() {
           </CardContent>
         </Card>
       </Box>
+
+      {editLimitOpen && limitInfo && (
+        <EditInvitationLimitModal
+          open={editLimitOpen}
+          onClose={() => setEditLimitOpen(false)}
+          onSubmit={handleUpdateLimit}
+          currentLimit={limitInfo.invitation_limit}
+          loading={updatingLimit}
+        />
+      )}
     </DashboardLayout>
   );
 }
