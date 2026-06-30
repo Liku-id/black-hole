@@ -68,7 +68,10 @@ jobs:
           payload=$(jq -nc \
             --arg env "${{ steps.vars.outputs.env }}" \
             --arg tag "${{ steps.vars.outputs.sha_short }}" \
-            '{event_type:"image-pushed", client_payload:{service:"black-hole", env:$env, tag:$tag}}')
+            --arg actor "${{ github.actor }}" \
+            --arg pr_title "${{ github.event.pull_request.title }}" \
+            --arg pr_url "${{ github.event.pull_request.html_url }}" \
+            '{event_type:"image-pushed", client_payload:{service:"black-hole", env:$env, tag:$tag, actor:$actor, pr_title:$pr_title, pr_url:$pr_url}}')
           curl -sf -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.EKUID_K8S_DISPATCH_TOKEN }}" \
