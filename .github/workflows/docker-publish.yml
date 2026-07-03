@@ -9,71 +9,12 @@ on:
       - develop
 
 jobs:
-  build-and-push:
+  call-publish-core:
     # Hanya berjalan jika PR ditutup karena di-merge
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Configure git to use HTTPS instead of SSH
-        run: |
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          submodules: 'recursive'
-          fetch-depth: 0
-          token: ${{ secrets.WUKONG_PAT }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Tentukan env + nama image dari branch tujuan PR:
-      #   develop -> staging -> <user>/black-hole-stag
-      #   main    -> prod    -> <user>/black-hole
-      - name: Resolve env and image name
-        id: vars
-        run: |
-          sha_short=$(git rev-parse --short HEAD)
-          echo "sha_short=$sha_short" >> "$GITHUB_OUTPUT"
-          if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
-            echo "env=prod" >> "$GITHUB_OUTPUT"
-            echo "image=${{ secrets.DOCKERHUB_USERNAME }}/black-hole" >> "$GITHUB_OUTPUT"
-          else
-            echo "env=staging" >> "$GITHUB_OUTPUT"
-            echo "image=${{ secrets.DOCKERHUB_USERNAME }}/black-hole-stag" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./staging.dockerfile
-          push: true
-          tags: ${{ steps.vars.outputs.image }}:${{ steps.vars.outputs.sha_short }}
-
-      - name: Trigger deploy on byteplus-infra
-        run: |
-          payload=$(jq -nc \
-            --arg env "${{ steps.vars.outputs.env }}" \
-            --arg tag "${{ steps.vars.outputs.sha_short }}" \
-            --arg actor "${{ github.actor }}" \
-            --arg pr_title "${{ github.event.pull_request.title }}" \
-            --arg pr_url "${{ github.event.pull_request.html_url }}" \
-            '{event_type:"image-pushed", client_payload:{service:"black-hole", env:$env, tag:$tag, actor:$actor, pr_title:$pr_title, pr_url:$pr_url}}')
-          curl -sf -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.EKUID_K8S_DISPATCH_TOKEN }}" \
-            https://api.github.com/repos/Liku-id/byteplus-infra/dispatches \
-            -d "$payload"
+    uses: ./.github/workflows/publish-core.yml
+    with:
+      target_branch: ${{ github.event.pull_request.base.ref }}
+      reason: ${{ github.event.pull_request.title }}
+      pr_url: ${{ github.event.pull_request.html_url }}
+    secrets: inherit

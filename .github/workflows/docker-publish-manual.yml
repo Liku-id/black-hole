@@ -1,0 +1,30 @@
+name: Publish Docker Image Manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Target branch (main atau develop)"
+        required: true
+        default: "develop"
+        type: choice
+        options:
+          - develop
+          - main
+      custom_tag:
+        description: "Optional custom image tag (jika kosong gunakan short SHA)"
+        required: false
+        type: string
+      reason:
+        description: "Optional reason / notes"
+        required: false
+        type: string
+
+jobs:
+  call-publish-core:
+    uses: ./.github/workflows/publish-core.yml
+    with:
+      target_branch: ${{ inputs.target_branch }}
+      custom_tag: ${{ inputs.custom_tag }}
+      reason: ${{ inputs.reason }}
+    secrets: inherit
