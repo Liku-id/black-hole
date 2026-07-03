@@ -31,8 +31,16 @@ class ListService {
       // Group and map the payment methods
       const groupedMethods = responseData.body.reduce(
         (acc: GroupedPaymentMethods, method: PaymentMethod) => {
-          const displayType =
-            method.type === 'va' ? 'Virtual Account' : method.type || 'Other';
+          let displayType = method.type || 'Other';
+          if (method.type === 'va') {
+            displayType = 'Virtual Account';
+          } else if (method.type === 'qris') {
+            displayType = 'QRIS';
+          } else if (method.type === 'payment_link') {
+            displayType = 'Payment Link';
+          } else if (method.type === 'free') {
+            displayType = 'Free';
+          }
 
           if (!acc[displayType]) {
             acc[displayType] = [];

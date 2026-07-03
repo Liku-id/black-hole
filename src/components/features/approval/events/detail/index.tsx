@@ -39,6 +39,20 @@ const RejectedReason = ({ reason }: { reason: string | null }) => {
   );
 };
 
+const formatPaymentMethods = (paymentMethods?: { name: string; type: string }[]) => {
+  if (!paymentMethods || paymentMethods.length === 0) return '';
+  const hasPaymentLink = paymentMethods.some((pm) => pm.type === 'payment_link');
+  if (hasPaymentLink) {
+    const paymentLinkMethod = paymentMethods.find((pm) => pm.type === 'payment_link');
+    const subMethods = paymentMethods.filter((pm) => pm.type !== 'payment_link');
+    if (subMethods.length > 0) {
+      return `${paymentLinkMethod?.name || 'Payment Link'} (${subMethods.map((pm) => pm.name).join(', ')})`;
+    }
+    return `${paymentLinkMethod?.name || 'Payment Link'} (All Payment Methods)`;
+  }
+  return paymentMethods.map((pm) => pm.name).join(' / ');
+};
+
 const Field = ({
   label,
   value,
@@ -56,7 +70,7 @@ const Field = ({
   eventUpdateRequest?: any;
   fieldKey?: string;
   isRejected?: boolean;
-  paymentMethodMap?: Record<string, string>;
+  paymentMethodMap?: Record<string, any>;
 }) => {
   // Check if field has changes
   const hasChanges =
@@ -105,11 +119,12 @@ const Field = ({
         return '';
       case 'cityId':
         return `${eventUpdateRequest?.city?.name}`;
-      case 'paymentMethodIds':
-        const names = (eventUpdateRequest[fieldKey] || [])
-          .map((id: string) => paymentMethodMap?.[id] || id)
-          .join(', ');
-        return names;
+      case 'paymentMethodIds': {
+        const selectedPMs = (eventUpdateRequest[fieldKey] || [])
+          .map((id: string) => paymentMethodMap?.[id])
+          .filter(Boolean);
+        return formatPaymentMethods(selectedPMs);
+      }
       case 'feeThresholds':
         const platformFee = eventUpdateRequest.feeThresholds?.[0]?.platformFee;
         if (!platformFee) return '-';
@@ -175,10 +190,10 @@ export const EventsSubmissionsInfo = ({
     (user.role?.name === UserRole.ADMIN || user.role?.name === UserRole.BUSINESS_DEVELOPMENT);
 
   const paymentMethodMap = useMemo(() => {
-    const map: Record<string, string> = {};
+    const map: Record<string, any> = {};
     Object.values(paymentMethods).forEach((methods) => {
       methods.forEach((pm: any) => {
-        map[pm.id] = pm.name;
+        map[pm.id] = pm;
       });
     });
     return map;
@@ -356,11 +371,7 @@ export const EventsSubmissionsInfo = ({
                 paymentMethodMap={paymentMethodMap}
                 fieldKey="paymentMethodIds"
                 label={renderLabel('Payment Method*', 'payment_methods')}
-                value={
-                  eventDetail.paymentMethods
-                    ?.map((pm) => pm.name)
-                    .join(' / ') || ''
-                }
+                value={formatPaymentMethods(eventDetail.paymentMethods)}
                 isRejected={isFieldRejected('payment_methods')}
               />
             </Grid>

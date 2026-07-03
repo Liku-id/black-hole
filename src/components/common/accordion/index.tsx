@@ -13,23 +13,39 @@ interface CustomAccordionProps {
   children: React.ReactNode;
   defaultExpanded?: boolean;
   id?: string;
+  disabled?: boolean;
+  expanded?: boolean;
+  onChange?: (event: React.SyntheticEvent, isExpanded: boolean) => void;
 }
 
 export const CustomAccordion = ({
   title,
   children,
   defaultExpanded = false,
-  id
+  id,
+  disabled = false,
+  expanded: controlledExpanded,
+  onChange
 }: CustomAccordionProps) => {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [localExpanded, setLocalExpanded] = useState(defaultExpanded);
 
-  const handleChange = (_: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpanded(isExpanded);
+  const isControlled = controlledExpanded !== undefined;
+  const isExpanded = isControlled ? controlledExpanded : localExpanded;
+
+  const handleChange = (event: React.SyntheticEvent, nextExpanded: boolean) => {
+    if (disabled) return;
+    if (onChange) {
+      onChange(event, nextExpanded);
+    }
+    if (!isControlled) {
+      setLocalExpanded(nextExpanded);
+    }
   };
 
   return (
     <MuiAccordion
-      expanded={expanded}
+      disabled={disabled}
+      expanded={isExpanded}
       id={id}
       sx={{
         boxShadow: 'none',
@@ -54,7 +70,7 @@ export const CustomAccordion = ({
             height={16}
             src="/icon/accordion-arrow.svg"
             style={{
-              transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
               transition: 'transform 0.2s ease'
             }}
             width={16}
