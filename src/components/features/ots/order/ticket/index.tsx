@@ -80,9 +80,9 @@ export function TicketSellingSection({ tickets, eventDetail, isLoading }: Ticket
   };
 
   return (
-    <Box display="flex" gap="24px" width="100%">
+    <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap="24px" width="100%">
       {/* Left Column: List */}
-      <Box sx={{ flex: '0 0 calc(65% - 12px)', width: 'calc(65% - 12px)' }}>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 calc(65% - 12px)' }, width: { xs: '100%', md: 'calc(65% - 12px)' } }}>
         {isLoading ? (
           <Box bgcolor="background.paper" p="24px" borderRadius="4px">
             <Body2 color="text.secondary" fontSize="14px">Loading tickets...</Body2>
@@ -107,7 +107,7 @@ export function TicketSellingSection({ tickets, eventDetail, isLoading }: Ticket
       </Box>
 
       {/* Right Column: Summary */}
-      <Box sx={{ flex: '0 0 calc(35% - 12px)', width: 'calc(35% - 12px)' }}>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 calc(35% - 12px)' }, width: { xs: '100%', md: 'calc(35% - 12px)' } }}>
         <OrderSummary
           items={orderItems}
           eventDetail={eventDetail}
