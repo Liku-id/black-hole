@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone';
 import { Caption, Overline } from '@/components/common/typography';
 
 interface DropzoneProps {
+  id?: string;
   width?: string | number;
   height?: string | number;
   onFileSelect?: (file: File) => void;
@@ -20,6 +21,7 @@ interface DropzoneProps {
 }
 
 const Dropzone = ({
+  id,
   width = '100%',
   height = '200px',
   onFileSelect,
@@ -67,6 +69,7 @@ const Dropzone = ({
 
   return (
     <Box
+      id={id}
       {...getRootProps()}
       border="1px solid"
       borderColor={error ? 'error.main' : 'grey.100'}
@@ -118,14 +121,18 @@ const Dropzone = ({
             </Box>
           )}
           <Box
-            height="24px"
+            id="clear_icon"
+            height="40px"
             position="absolute"
-            right="16px"
+            right="8px"
             sx={{
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
-            top="16px"
-            width="24px"
+            top="8px"
+            width="40px"
             zIndex={1}
             onClick={handleRemoveFile}
           >
@@ -161,7 +168,7 @@ const Dropzone = ({
             flexDirection="column"
             height="100%"
             justifyContent="center"
-            paddingX="24px"
+            paddingX={{ xs: '12px', sm: '24px' }}
           >
             <Box marginBottom="16px">
               <Image
@@ -179,7 +186,7 @@ const Dropzone = ({
               Click or drag file to this area to upload{' '}
               {order === 1 ? 'thumbnail' : 'supporting'} image
             </Caption>
-            <Overline color="text.secondary" textAlign="center">
+            <Overline color="text.secondary" textAlign="center" sx={{ display: { xs: 'none', sm: 'block' } }}>
               Suggestion resolution: 630x354px, 300 DPI, size max: 2MB
             </Overline>
           </Box>

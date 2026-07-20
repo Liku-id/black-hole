@@ -1,10 +1,16 @@
-import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
+import {
+  IconButton,
+  Table,
+  TableCell,
+  TableRow
+} from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
 
 import {
   Body2,
+  CollapsibleCardList,
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody,
@@ -13,8 +19,6 @@ import {
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { EventSubmission } from '@/types/events-submission';
 import { dateUtils } from '@/utils';
-
-// Use shared StatusBadge
 
 interface SubmissionsTableProps {
   activeTab: string;
@@ -43,16 +47,81 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
     router.push(`/approval/${id}`);
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" padding="40px">
-        <Body2 color="text.secondary">Loading submissions...</Body2>
-      </Box>
-    );
-  }
+  const renderViewAction = (submission: EventSubmission) => (
+    <IconButton
+      size="small"
+      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+      onClick={() => handleViewClick(submission)}
+    >
+      <Image alt="View" height={24} src="/icon/eye.svg" width={24} />
+    </IconButton>
+  );
+
+  const pagination = (
+    <Pagination
+      total={total}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      onPageChange={(page) => onPageChange && onPageChange(page)}
+      loading={loading}
+    />
+  );
 
   return (
-    <StyledTableContainer>
+    <>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        <CollapsibleCardList
+          items={submissions}
+          getKey={(item) => item.id}
+          loading={loading}
+          loadingMessage="Loading submissions..."
+          emptyMessage="No submissions found"
+          renderTitle={(item, index) =>
+            `${index + 1 + currentPage * pageSize}. ${item.event?.name || '-'}`
+          }
+          renderDetails={(item) => {
+            const details = [
+              {
+                label: 'Event Date',
+                value: item.event?.startDate
+                  ? dateUtils.formatDateDDMMYYYY(item.event.startDate)
+                  : '-'
+              },
+              {
+                label: 'Event Status',
+                value: item.event?.eventStatus ? (
+                  <StatusBadge status={item.event.eventStatus} />
+                ) : (
+                  '-'
+                )
+              },
+              {
+                label: 'Submitted At',
+                value: item.createdAt
+                  ? dateUtils.formatDateDDMMYYYY(item.createdAt)
+                  : '-'
+              }
+            ];
+
+            if (activeTab === 'current_event') {
+              details.push({
+                label: 'Approval Status',
+                value: item.eventUpdateRequest?.status ? (
+                  <StatusBadge status={item.eventUpdateRequest.status} />
+                ) : (
+                  '-'
+                )
+              });
+            }
+
+            return details;
+          }}
+          renderActions={renderViewAction}
+        />
+        {pagination}
+      </StyledTableContainer>
+
+      <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
       <Table>
         <StyledTableHead>
           <TableRow>
@@ -100,7 +169,7 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
             <TableRow key={submission.id}>
               <TableCell>
                 <Body2 color="text.primary" fontSize="14px">
-                  {index + 1 + currentPage * 10}.
+                  {index + 1 + currentPage * pageSize}.
                 </Body2>
               </TableCell>
               <TableCell>
@@ -144,34 +213,14 @@ const SubmissionsTable: FC<SubmissionsTableProps> = ({
                   )}
                 </TableCell>
               )}
-              <TableCell align="right">
-                <IconButton
-                  size="small"
-                  sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                  onClick={() => handleViewClick(submission)}
-                >
-                  <Image
-                    alt="View"
-                    height={24}
-                    src="/icon/eye.svg"
-                    width={24}
-                  />
-                </IconButton>
-              </TableCell>
+              <TableCell align="right">{renderViewAction(submission)}</TableCell>
             </TableRow>
           ))}
         </StyledTableBody>
       </Table>
-
-      {/* Pagination */}
-      <Pagination
-        total={total}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageChange={(page) => onPageChange && onPageChange(page)}
-        loading={loading}
-      />
-    </StyledTableContainer>
+      {pagination}
+      </StyledTableContainer>
+    </>
   );
 };
 

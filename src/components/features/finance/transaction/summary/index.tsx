@@ -41,7 +41,11 @@ export function TransactionSummary({ eventId }: TransactionSummaryProps) {
     <Box
       display="grid"
       gap="16px"
-      gridTemplateColumns="repeat(4, 1fr)"
+      gridTemplateColumns={{
+        xs: '1fr',
+        sm: '1fr 1fr',
+        md: 'repeat(4, 1fr)'
+      }}
     >
       {cards.map((card, index) => (
         <Box
@@ -49,20 +53,33 @@ export function TransactionSummary({ eventId }: TransactionSummaryProps) {
           border={1}
           borderColor={theme.palette.grey[100]}
           padding="16px 12px"
-          sx={{ backgroundColor: 'common.white' }}
+          sx={{ backgroundColor: 'common.white', minWidth: 0, overflow: 'hidden' }}
         >
-          <Box alignItems="center" display="flex" mb="24px">
+          <Box alignItems="center" display="flex" mb="24px" minWidth={0}>
             <Image alt={card.title} height={24} src={card.icon} width={24} />
             <Body2
               color="text.secondary"
-              fontSize="18px"
               fontWeight={400}
               ml="8px"
+              sx={{
+                fontSize: { xs: '14px', sm: '18px' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: 0
+              }}
             >
               {card.title}
             </Body2>
           </Box>
-          <H2 color="text.primary" fontSize="32px">
+          <H2
+            color="text.primary"
+            sx={{
+              fontSize: { xs: '22px', sm: '28px', md: '32px' },
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere'
+            }}
+          >
             {loading ? <Skeleton width="60%" /> : card.value}
           </H2>
         </Box>

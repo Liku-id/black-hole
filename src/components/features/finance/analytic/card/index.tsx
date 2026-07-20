@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Tooltip } from '@mui/material';
 import Image from 'next/image';
 
 import { Body2, H2 } from '@/components/common';
@@ -22,26 +22,48 @@ const AnalyticCard = ({
       borderRadius={0}
       display="flex"
       flexDirection="column"
-      height="125px"
+      minHeight="125px"
       justifyContent="space-between"
       padding="16px"
+      minWidth={0}
+      overflow="hidden"
     >
-      <Box alignItems="center" display="flex">
+      <Box alignItems="center" display="flex" minWidth={0} gap={1}>
         {!loading && (
           <Image
             alt="icon"
             height={20}
             src={icon}
-            style={{ marginRight: '8px' }}
+            style={{ flexShrink: 0 }}
             width={20}
           />
         )}
-        <Body2 fontWeight={300}>{title}</Body2>
+        <Body2
+          fontWeight={300}
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0
+          }}
+        >
+          {title}
+        </Body2>
       </Box>
 
-      <H2 overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
-        {value}
-      </H2>
+      <Tooltip title={value} arrow>
+        <H2
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            fontSize: { xs: '20px', sm: '24px', md: '28px' },
+            minWidth: 0
+          }}
+        >
+          {value}
+        </H2>
+      </Tooltip>
     </Box>
   );
 };

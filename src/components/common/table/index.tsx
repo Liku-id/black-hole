@@ -3,26 +3,35 @@ import { TableBody, TableContainer, TableHead, styled } from '@mui/material';
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   borderRadius: 0,
+  overflowX: 'auto',
+  width: '100%',
+  maxWidth: '100%',
   '& .MuiTable-root': {
     borderCollapse: 'separate',
     borderSpacing: 0,
+    width: '100%',
     tableLayout: 'fixed',
-    width: '100%'
+    [theme.breakpoints.down('md')]: {
+      tableLayout: 'auto'
+    }
   }
 }));
 
-const StyledTableHead = styled(TableHead)({
+const StyledTableHead = styled(TableHead)(({ theme }) => ({
   '& .MuiTableCell-head': {
     border: 'none',
     backgroundColor: 'transparent'
   },
   '& .MuiTableCell-root': {
-    padding: '16px 8px'
+    padding: '16px 8px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '12px 6px',
+      fontSize: '12px'
+    }
   }
-});
+}));
 
 const StyledTableBody = styled(TableBody)(({ theme }) => ({
-  overflow: 'scroll',
   '& .MuiTableRow-root': {
     borderTop: `1px solid ${theme.palette.grey[100]}`,
     '&:hover': {
@@ -34,7 +43,11 @@ const StyledTableBody = styled(TableBody)(({ theme }) => ({
     borderTop: `1px solid ${theme.palette.grey[100]}`
   },
   '& .MuiTableCell-root': {
-    padding: '16px 8px'
+    padding: '16px 8px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '12px 6px',
+      fontSize: '12px'
+    }
   }
 }));
 

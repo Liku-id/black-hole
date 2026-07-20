@@ -138,7 +138,7 @@ const EventField = ({
         p="12px 16px"
         sx={{
           backgroundColor: 'primary.light',
-          ...(isTextArea && { height: '216px' })
+          ...(isTextArea && { height: { xs: '150px', sm: '216px' } })
         }}
       >
         <Body2 color="text.primary">{value}</Body2>
@@ -261,12 +261,14 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
   return (
     <>
       <Box
-        alignItems="center"
         display="flex"
+        flexDirection="row"
+        alignItems="center"
         justifyContent="space-between"
+        gap={1}
         mb={2}
       >
-        <H3 color="text.primary" fontWeight={700}>
+        <H3 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
           Event Detail
         </H3>
         {(() => {
@@ -278,12 +280,16 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
           // For on_review events: show edit button (fee-only mode) - Admin/BD only
           if (eventDetail.eventStatus === 'on_review' && isAdminOrBD) {
             return (
-              <Box display="flex" gap={2}>
+              <Box display="flex" gap={1} flexShrink={0} alignItems="center">
                 <Button
                   variant="primary"
                   onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
                   disabled={readOnly}
-                  sx={{ display: readOnly ? 'none' : 'flex' }}
+                  sx={{
+                    display: readOnly ? 'none' : 'flex',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap'
+                  }}
                 >
                   Edit Event Details
                 </Button>
@@ -305,12 +311,16 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
             // Show if approved or rejected (or undefined)
             if (eventDetailStatus === 'approved' || eventDetailStatus === 'rejected') {
               return (
-                <Box display="flex" gap={2}>
+                <Box display="flex" gap={1} flexShrink={0} alignItems="center">
                   <Button
                     variant="primary"
                     onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
                     disabled={readOnly}
-                    sx={{ display: readOnly ? 'none' : 'flex' }}
+                    sx={{
+                      display: readOnly ? 'none' : 'flex',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap'
+                    }}
                   >
                     Edit Event Details
                   </Button>
@@ -335,11 +345,12 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
 
           // Default: show the button
           return (
-            <Box display="flex" gap={2}>
-              {eventDetail.eventStatus === "draft" && (
+            <Box display="flex" gap={1} flexShrink={0} alignItems="center">
+              {eventDetail.eventStatus === 'draft' && (
                 <Button
                   variant="secondary"
                   onClick={() => setIsPreviewModalOpen(true)}
+                  sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
                 >
                   Preview Event
                 </Button>
@@ -348,7 +359,11 @@ export const EventDetailInfo = ({ eventDetail, showRejectionInfo = false, readOn
                 variant="primary"
                 onClick={() => router.push(`/events/edit/${eventDetail.metaUrl}`)}
                 disabled={readOnly}
-                sx={{ display: readOnly ? 'none' : 'flex' }}
+                sx={{
+                  display: readOnly ? 'none' : 'flex',
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
+                }}
               >
                 Edit Event Details
               </Button>

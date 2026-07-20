@@ -36,24 +36,27 @@ export const Pagination = ({
 
   return (
     <Box
-      alignItems="center"
       display="flex"
+      flexDirection={{ xs: 'column', sm: 'row' }}
+      alignItems="center"
       justifyContent="space-between"
+      gap={{ xs: 2, sm: 0 }}
       sx={{
         mt: 2,
         pt: 2,
-        borderTop: '1px solid #E2E8F0'
+        borderTop: '1px solid #E2E8F0',
+        width: '100%'
       }}
     >
       {showInfo && (
-        <Body2 color="text.secondary">
+        <Body2 color="text.secondary" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
           Showing {startItem} to {endItem} of {total} entries
         </Body2>
       )}
 
       <Box alignItems="center" display="flex" gap={2}>
         {onPageSizeChange && (
-          <Box alignItems="center" display="flex" gap={1}>
+          <Box alignItems="center" display={{ xs: 'none', sm: 'flex' }} gap={1}>
             <Body2 color="text.secondary">Rows per page:</Body2>
             <Select
               options={
@@ -92,8 +95,8 @@ export const Pagination = ({
           <IconButton
             disabled={currentPage === 0}
             sx={{
-              width: 24,
-              height: 24,
+              width: 40,
+              height: 40,
               fontSize: '12px',
               mr: 0.5,
               color: 'text.secondary',
@@ -115,8 +118,9 @@ export const Pagination = ({
             display="flex"
             justifyContent="center"
             sx={{
-              width: 24,
-              height: 24,
+              minWidth: 32,
+              height: 32,
+              px: 1,
               fontSize: '12px',
               backgroundColor: 'primary.main',
               color: 'white',
@@ -136,8 +140,8 @@ export const Pagination = ({
           <IconButton
             disabled={currentPage >= totalPages - 1}
             sx={{
-              width: 24,
-              height: 24,
+              width: 40,
+              height: 40,
               fontSize: '12px',
               color: 'text.secondary',
               '&:hover': {

@@ -24,7 +24,8 @@ import {
   Pagination,
   Button as ButtonExport,
   Select,
-  MultiSelect
+  MultiSelect,
+  CollapsibleCardList
 } from '@/components/common';
 import {
   StyledTableBody,
@@ -177,7 +178,6 @@ export const AttendeeTable = ({
     handleActionClose();
   };
 
-  // Function to get status display text and color
   const getStatusDisplay = (status: TicketStatus) => {
     switch (status) {
       case 'issued':
@@ -188,6 +188,56 @@ export const AttendeeTable = ({
         return { text: 'Unknown', color: '#6B7280' }; // Grey fallback
     }
   };
+
+  const renderStatusBadge = (status: TicketStatus) => {
+    const display = getStatusDisplay(status);
+    return (
+      <Box
+        sx={{
+          display: 'inline-block',
+          px: 2,
+          py: 0.5,
+          borderRadius: '10px',
+          backgroundColor: `${display.color}20`
+        }}
+      >
+        <Caption color={display.color} fontWeight={600}>
+          {display.text}
+        </Caption>
+      </Box>
+    );
+  };
+
+  const renderRowActions = (ticketId: string) => (
+    <IconButton sx={{ p: 1 }} onClick={(e) => handleActionClick(e, ticketId)}>
+      <Box display="flex" flexDirection="column" gap={0.5}>
+        <Box
+          sx={{
+            width: 4,
+            height: 4,
+            borderRadius: '50%',
+            backgroundColor: 'text.secondary'
+          }}
+        />
+        <Box
+          sx={{
+            width: 4,
+            height: 4,
+            borderRadius: '50%',
+            backgroundColor: 'text.secondary'
+          }}
+        />
+        <Box
+          sx={{
+            width: 4,
+            height: 4,
+            borderRadius: '50%',
+            backgroundColor: 'text.secondary'
+          }}
+        />
+      </Box>
+    </IconButton>
+  );
 
   const handleConfirmRedeem = async () => {
     if (!selectedAttendee) return;
@@ -275,7 +325,7 @@ export const AttendeeTable = ({
 
   return (
     <>
-      <Card sx={{ mt: 3, p: 3 }}>
+      <Card sx={{ mt: 3, p: { xs: 2, sm: 3 } }}>
         <H4 sx={{ color: 'text.primary', marginBottom: '12px' }}>
           Attendee Details
         </H4>
@@ -285,8 +335,12 @@ export const AttendeeTable = ({
         {/* Attendee Details Stat */}
         <Box
           display="grid"
-          gap="16px"
-          gridTemplateColumns="repeat(3, 1fr)"
+          gap={{ xs: '12px', sm: '16px' }}
+          gridTemplateColumns={{
+            xs: '1fr',
+            sm: '1fr 1fr',
+            md: 'repeat(3, 1fr)'
+          }}
           marginBottom="24px"
         >
           {cards.map((card, index) => (
@@ -295,9 +349,14 @@ export const AttendeeTable = ({
               border={1}
               borderColor={theme.palette.grey[100]}
               padding="16px 12px"
-              sx={{ backgroundColor: 'common.white', borderRadius: '4px' }}
+              sx={{
+                backgroundColor: 'common.white',
+                borderRadius: '4px',
+                minWidth: 0,
+                overflow: 'hidden'
+              }}
             >
-              <Box alignItems="center" display="flex" mb="18px">
+              <Box alignItems="center" display="flex" mb="18px" minWidth={0}>
                 <Image
                   alt={card.title}
                   height={24}
@@ -306,14 +365,23 @@ export const AttendeeTable = ({
                 />
                 <Body2
                   color="text.secondary"
-                  fontSize="18px"
                   fontWeight={400}
                   ml="8px"
+                  sx={{
+                    fontSize: { xs: '14px', sm: '18px' },
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    minWidth: 0
+                  }}
                 >
                   {card.title}
                 </Body2>
               </Box>
-              <H1 color="text.primary">
+              <H1
+                color="text.primary"
+                sx={{ fontSize: { xs: '24px', sm: '32px' } }}
+              >
                 {stats ? card.value : <Skeleton width="60%" />}
               </H1>
             </Box>
@@ -322,318 +390,338 @@ export const AttendeeTable = ({
 
         <Box display="flex" flexDirection="column" gap={2}>
           {/* Attendee Details Filter */}
-          <Box alignItems="center" display="flex" justifyContent="flex-end">
-            <Box display="flex" alignItems="center" gap={2}>
-              <MultiSelect
-                options={ticketTypeOptions}
-                value={
-                  selectedTicketTypeIds ? selectedTicketTypeIds.split(',') : []
+          <Box
+            display="flex"
+            flexDirection={{ xs: 'column', md: 'row' }}
+            alignItems={{ xs: 'stretch', md: 'center' }}
+            justifyContent={{ xs: 'stretch', md: 'flex-end' }}
+            gap={{ xs: 1.5, md: 2 }}
+          >
+            <MultiSelect
+              options={ticketTypeOptions}
+              value={
+                selectedTicketTypeIds ? selectedTicketTypeIds.split(',') : []
+              }
+              onChange={(values) => onTicketTypeChange?.(values.join(','))}
+              placeholder="Select Ticket Type"
+              sx={{
+                width: { xs: '100%', md: 'auto' },
+                minWidth: { md: '200px' },
+                '& .MuiOutlinedInput-root': {
+                  height: '40px'
                 }
-                onChange={(values) => onTicketTypeChange?.(values.join(','))}
-                placeholder="Select Ticket Type"
-                sx={{
-                  minWidth: '200px',
-                  '& .MuiOutlinedInput-root': {
-                    height: '40px'
+              }}
+            />
+            <Select
+              options={ticketStatusOptions}
+              value={selectedTicketStatus || ''}
+              onChange={(value) =>
+                onTicketStatusChange(value as TicketStatus | '')
+              }
+              placeholder="Select Status"
+              sx={{
+                width: { xs: '100%', md: 'auto' },
+                minWidth: { md: '140px' },
+                '& .MuiOutlinedInput-root': {
+                  height: '40px',
+                  '&:has(input:not(:placeholder-shown))': {
+                    borderColor: 'grey.100',
+                    backgroundColor: 'background.paper'
+                  },
+                  '&.Mui-focused:has(input:not(:placeholder-shown))': {
+                    borderColor: 'primary.main',
+                    backgroundColor: 'background.default'
                   }
-                }}
-              />
-              <Select
-                options={ticketStatusOptions}
-                value={selectedTicketStatus || ''}
-                onChange={(value) =>
-                  onTicketStatusChange(value as TicketStatus | '')
                 }
-                placeholder="Select Status"
-                sx={{
-                  minWidth: '100px',
-                  '& .MuiOutlinedInput-root': {
-                    height: '40px',
-                    '&:has(input:not(:placeholder-shown))': {
-                      borderColor: 'grey.100',
-                      backgroundColor: 'background.paper'
-                    },
-                    '&.Mui-focused:has(input:not(:placeholder-shown))': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'background.default'
-                    }
+              }}
+            />
+            <StyledTextField
+              id="search_name_field"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Image
+                      alt="search"
+                      height={16}
+                      src="/icon/search.svg"
+                      width={16}
+                    />
+                  </InputAdornment>
+                )
+              }}
+              placeholder="Name"
+              sx={{
+                width: { xs: '100%', md: '250px' },
+                '& .MuiOutlinedInput-root': {
+                  height: '40px'
+                },
+                '& .MuiInputBase-input': {
+                  fontSize: '14px',
+                  '&::placeholder': {
+                    fontSize: '14px',
+                    opacity: 1
                   }
-                }}
-              />
-              <StyledTextField
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Image
-                        alt="search"
-                        height={16}
-                        src="/icon/search.svg"
-                        width={16}
-                      />
-                    </InputAdornment>
-                  )
-                }}
-                placeholder="Name"
-                sx={{
-                  width: '250px',
-                  '& .MuiOutlinedInput-root': {
-                    height: '40px'
-                  }
-                }}
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-              />
+                }
+              }}
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
 
-              <ButtonExport
-                type="button"
-                variant="primary"
-                disabled={exportLoading || !selectedEventData?.id}
-                startIcon={
-                  exportLoading ? <CircularProgress size={16} /> : undefined
-                }
-                sx={{ padding: '11px 24px' }}
-                onClick={handleExportTickets}
-              >
-                {exportLoading ? 'Exporting...' : 'Export'}
-              </ButtonExport>
-            </Box>
+            <ButtonExport
+              id="export_csv_button"
+              type="button"
+              variant="primary"
+              disabled={exportLoading || !selectedEventData?.id}
+              startIcon={
+                exportLoading ? <CircularProgress size={16} /> : undefined
+              }
+              sx={{
+                width: { xs: '100%', md: 'auto' },
+                flexShrink: 0
+              }}
+              onClick={handleExportTickets}
+            >
+              {exportLoading ? 'Exporting...' : 'Export'}
+            </ButtonExport>
           </Box>
 
-          {/* Attendee Table */}
+          {/* Attendee Table / Card List */}
+          <Box
+            sx={{
+              display: { xs: 'block', lg: 'none' },
+              borderTop: '1px solid #E2E8F0',
+              pt: 0.5
+            }}
+          >
+            <CollapsibleCardList
+              items={attendeeData}
+              getKey={(attendee) => attendee.ticketId}
+              loading={loading}
+              loadingMessage="Loading tickets..."
+              emptyMessage="No tickets found"
+              renderTitle={(attendee, index) =>
+                `${index + 1 + currentPage * pageSize}. ${attendee.name}`
+              }
+              renderSubtitle={(attendee) => attendee.ticketId}
+              renderTitleMeta={(attendee) =>
+                renderStatusBadge(attendee.redeemStatus)
+              }
+              renderDetails={(attendee) => [
+                {
+                  label: 'Ticket ID',
+                  value: attendee.ticketId
+                },
+                {
+                  label: 'Ticket Type',
+                  value: attendee.ticketType
+                },
+                {
+                  label: 'Booking Type',
+                  value: attendee.bookingType?.toUpperCase() || '-'
+                },
+                {
+                  label: 'Phone Number',
+                  value: attendee.phoneNumber
+                },
+                {
+                  label: 'Transaction Date',
+                  value: dateUtils.formatDateDDMMYYYYHHMM(attendee.date)
+                }
+              ]}
+              renderActions={(attendee) =>
+                renderRowActions(attendee.ticketId)
+              }
+            />
+          </Box>
+
           <StyledTableContainer
             sx={{
+              display: { xs: 'none', lg: 'block' },
               borderTop: '1px solid #E2E8F0',
               pt: 0.5,
               overflowX: 'auto'
             }}
           >
-            <Table sx={{ minWidth: '1200px' }}>
-              <StyledTableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="60px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      No
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="120px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Ticket ID
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="180px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Name
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="140px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Ticket Type
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="120px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Booking Type
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="140px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Phone Number
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="160px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Transaction Date
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="120px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Redeem Status
-                    </Body2>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: 'text.secondary'
-                    }}
-                    width="80px"
-                  >
-                    <Body2 color="text.secondary" fontWeight={600}>
-                      Action
-                    </Body2>
-                  </TableCell>
-                </TableRow>
-              </StyledTableHead>
-              <StyledTableBody>
-                {loading ? (
+              <Table>
+                <StyledTableHead>
                   <TableRow>
-                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
-                      <Box
-                        alignItems="center"
-                        display="flex"
-                        flexDirection="column"
-                        gap={2}
-                      >
-                        <Box
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            border: '2px solid #E2E8F0',
-                            borderTop: '2px solid #3B82F6',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                            '@keyframes spin': {
-                              '0%': { transform: 'rotate(0deg)' },
-                              '100%': { transform: 'rotate(360deg)' }
-                            }
-                          }}
-                        />
-                        <Body2 color="text.secondary">Loading tickets...</Body2>
-                      </Box>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="60px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        No
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="120px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Ticket ID
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="180px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Name
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="140px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Ticket Type
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="120px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Booking Type
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="140px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Phone Number
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="160px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Transaction Date
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="120px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Redeem Status
+                      </Body2>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.secondary'
+                      }}
+                      width="80px"
+                    >
+                      <Body2 color="text.secondary" fontWeight={600}>
+                        Action
+                      </Body2>
                     </TableCell>
                   </TableRow>
-                ) : attendeeData.length === 0 ? (
-                  <TableRow>
-                    <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
-                      <Body2 color="text.secondary">No tickets found</Body2>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  attendeeData.map((attendee) => (
-                    <TableRow key={attendee.ticketId}>
-                      <TableCell>
-                        <Body2>{attendee.no + currentPage * pageSize}.</Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>{attendee.ticketId}</Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>{attendee.name}</Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>{attendee.ticketType}</Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>
-                          {attendee.bookingType?.toUpperCase() || '-'}
-                        </Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>{attendee.phoneNumber}</Body2>
-                      </TableCell>
-                      <TableCell>
-                        <Body2>
-                          {dateUtils.formatDateDDMMYYYYHHMM(attendee.date)}
-                        </Body2>
-                      </TableCell>
-                      <TableCell>
+                </StyledTableHead>
+                <StyledTableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
                         <Box
-                          sx={{
-                            display: 'inline-block',
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: '10px',
-                            backgroundColor: `${getStatusDisplay(attendee.redeemStatus).color}20`
-                          }}
+                          alignItems="center"
+                          display="flex"
+                          flexDirection="column"
+                          gap={2}
                         >
-                          <Caption
-                            color={
-                              getStatusDisplay(attendee.redeemStatus).color
-                            }
-                            fontWeight={600}
-                          >
-                            {getStatusDisplay(attendee.redeemStatus).text}
-                          </Caption>
+                          <Box
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              border: '2px solid #E2E8F0',
+                              borderTop: '2px solid #3B82F6',
+                              borderRadius: '50%',
+                              animation: 'spin 1s linear infinite',
+                              '@keyframes spin': {
+                                '0%': { transform: 'rotate(0deg)' },
+                                '100%': { transform: 'rotate(360deg)' }
+                              }
+                            }}
+                          />
+                          <Body2 color="text.secondary">
+                            Loading tickets...
+                          </Body2>
                         </Box>
                       </TableCell>
-                      <TableCell>
-                        <IconButton
-                          sx={{ p: 1 }}
-                          onClick={(e) =>
-                            handleActionClick(e, attendee.ticketId)
-                          }
-                        >
-                          <Box display="flex" flexDirection="column" gap={0.5}>
-                            <Box
-                              sx={{
-                                width: 4,
-                                height: 4,
-                                borderRadius: '50%',
-                                backgroundColor: 'text.secondary'
-                              }}
-                            />
-                            <Box
-                              sx={{
-                                width: 4,
-                                height: 4,
-                                borderRadius: '50%',
-                                backgroundColor: 'text.secondary'
-                              }}
-                            />
-                            <Box
-                              sx={{
-                                width: 4,
-                                height: 4,
-                                borderRadius: '50%',
-                                backgroundColor: 'text.secondary'
-                              }}
-                            />
-                          </Box>
-                        </IconButton>
+                    </TableRow>
+                  ) : attendeeData.length === 0 ? (
+                    <TableRow>
+                      <TableCell align="center" colSpan={10} sx={{ py: 4 }}>
+                        <Body2 color="text.secondary">No tickets found</Body2>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </StyledTableBody>
-            </Table>
-          </StyledTableContainer>
+                  ) : (
+                    attendeeData.map((attendee, idx) => (
+                      <TableRow key={attendee.ticketId}>
+                        <TableCell>
+                          <Body2>{idx + 1 + currentPage * pageSize}.</Body2>
+                        </TableCell>
+                        <TableCell>
+                          <Body2>{attendee.ticketId}</Body2>
+                        </TableCell>
+                        <TableCell>
+                          <Body2>{attendee.name}</Body2>
+                        </TableCell>
+                        <TableCell>
+                          <Body2>{attendee.ticketType}</Body2>
+                        </TableCell>
+                        <TableCell>
+                          <Body2>
+                            {attendee.bookingType?.toUpperCase() || '-'}
+                          </Body2>
+                        </TableCell>
+                        <TableCell>
+                          <Body2>{attendee.phoneNumber}</Body2>
+                        </TableCell>
+                        <TableCell>
+                          <Body2>
+                            {dateUtils.formatDateDDMMYYYYHHMM(attendee.date)}
+                          </Body2>
+                        </TableCell>
+                        <TableCell>
+                          {renderStatusBadge(attendee.redeemStatus)}
+                        </TableCell>
+                        <TableCell>
+                          {renderRowActions(attendee.ticketId)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </StyledTableBody>
+              </Table>
+            </StyledTableContainer>
 
           {/* Pagination */}
           <Pagination

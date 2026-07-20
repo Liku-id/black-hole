@@ -163,7 +163,7 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
         </Box>
 
         <Box display="flex" alignItems="end" gap={0.5}>
-          <H2 color="text.primary" fontWeight={600}>
+          <H2 color="text.primary" fontWeight={600} sx={{ fontSize: { xs: '20px', sm: '28px' } }}>
             {stat.value}
           </H2>
           {stat.miniDesc && (

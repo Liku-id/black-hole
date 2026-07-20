@@ -433,8 +433,8 @@ export const CreateEventForm = ({
               </Box>
             )}
 
-            <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button disabled={loading} type="submit" variant="primary">
+            <Box display="flex" gap={2} justifyContent="flex-end" sx={{ width: { xs: '100%', sm: 'auto' } }}>
+              <Button disabled={loading} type="submit" variant="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>
                 Submit
               </Button>
             </Box>

@@ -17,12 +17,19 @@ const FinanceTransaction = () => {
         borderBottom={`1px solid ${theme.palette.grey[100]}`}
         paddingBottom="16px"
         display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
         justifyContent="space-between"
-        alignItems="center"
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={1.5}
       >
         <Body1 fontWeight={600}>Event Transaction Detail</Body1>
         <Button
-          sx={{ fontSize: '12px', padding: '12px 18px' }}
+          id="export_button"
+          sx={{
+            fontSize: '12px',
+            padding: '12px 18px',
+            width: { xs: '100%', sm: 'auto' }
+          }}
           onClick={() => setOpenExportModal(true)}
         >
           Export

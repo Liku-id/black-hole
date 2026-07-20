@@ -432,12 +432,14 @@ export const EventDetailAssets = ({
       {!hideHeader && (
         <>
           <Box
-            alignItems="center"
             display="flex"
+            flexDirection="row"
+            alignItems="center"
             justifyContent="space-between"
+            gap={1}
             mb={2}
           >
-            <H3 color="text.primary" fontWeight={700}>
+            <H3 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
               Event Asset
             </H3>
 
@@ -449,7 +451,16 @@ export const EventDetailAssets = ({
               return (
                 (shouldShowForOnGoingOrApproved ||
                   shouldShowForRejectedOrDraft) && (
-                  <Button variant="primary" onClick={handleEditAssets} disabled={readOnly} sx={{ display: readOnly ? 'none' : 'flex' }}>
+                  <Button
+                    variant="primary"
+                    onClick={handleEditAssets}
+                    disabled={readOnly}
+                    sx={{
+                      display: readOnly ? 'none' : 'flex',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
                     Edit Assets
                   </Button>
                 )

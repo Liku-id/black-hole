@@ -148,12 +148,14 @@ function Approval() {
         <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
           <CardContent sx={{ padding: '16px 24px' }}>
             <Box
-              alignItems="center"
               display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
+              alignItems={{ xs: 'stretch', sm: 'center' }}
               justifyContent="space-between"
+              gap={2}
               mb={2}
             >
-              <Box flex="1" marginRight={4}>
+              <Box flex="1" mr={{ xs: 0, sm: 4 }} minWidth={0}>
                 <Tabs
                   activeTab={activeTab}
                   tabs={tabs}
@@ -176,20 +178,22 @@ function Approval() {
                   }}
                 />
               ) : (
-                <TextField
-                  placeholder="Cari Event"
-                  startComponent={
-                    <Image
-                      alt="Search"
-                      height={20}
-                      src="/icon/search.svg"
-                      width={20}
-                    />
-                  }
-                  sx={{ width: 300, flexShrink: 0 }}
-                  value={searchValue}
-                  onChange={handleSearchChange}
-                />
+                <Box width={{ xs: '100%', sm: 300 }} flexShrink={{ xs: 1, sm: 0 }}>
+                  <TextField
+                    fullWidth
+                    placeholder="Cari Event"
+                    startComponent={
+                      <Image
+                        alt="Search"
+                        height={20}
+                        src="/icon/search.svg"
+                        width={20}
+                      />
+                    }
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                  />
+                </Box>
               )}
             </Box>
 

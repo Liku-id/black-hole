@@ -126,7 +126,7 @@ export default function CheckoutPaymentPage() {
         <title>Payment Confirmation | Likuid</title>
       </Head>
 
-      <Box p="24px 40px">
+      <Box p={{ xs: '16px 0', sm: '24px 16px', md: '24px 40px' }}>
         {/* Back Button */}
         <Box
           display="flex"
@@ -140,7 +140,7 @@ export default function CheckoutPaymentPage() {
         </Box>
 
         {/* Title */}
-        <H2 color="text.primary" mb="36px" fontWeight={700}>
+        <H2 color="text.primary" mb={{ xs: '24px', md: '36px' }} fontWeight={700}>
           Payment Confirmation
         </H2>
 
@@ -150,25 +150,34 @@ export default function CheckoutPaymentPage() {
           color="text.primary"
           mb="16px"
           fontWeight={400}
+          sx={{ fontSize: { xs: '18px', sm: '22px' }, px: 1 }}
         >
           One more step to have fun
         </H3>
 
         {/* Confirmation Card */}
-        <Box display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" width="100%">
           <Box
             ref={cardRef}
-            width="653px"
+            width="100%"
+            maxWidth="653px"
             bgcolor="background.paper"
-            p="16px 24px"
+            p={{ xs: '16px', sm: '16px 24px' }}
             sx={{
               boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)'
             }}
           >
             {/* Transaction Info Header */}
-            <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb="40px">
-              <Box>
-                <Body2 color="text.primary">
+            <Box
+              display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+              gap={1}
+              mb="40px"
+            >
+              <Box minWidth={0}>
+                <Body2 color="text.primary" sx={{ wordBreak: 'break-word' }}>
                   Transaction Number: <Box component="span" fontWeight={700}>{transaction.transactionNumber}</Box>
                 </Body2>
                 <Caption color="text.secondary" mt="8px" display="block">

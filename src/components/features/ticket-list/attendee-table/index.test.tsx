@@ -1,6 +1,5 @@
 
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import React from 'react';
 
 import { ticketsService } from '@/services';
 
@@ -37,16 +36,16 @@ jest.mock('@/utils', () => ({
 
 // Mock simple components
 jest.mock('@/components/common', () => {
-  const React = require('react');
+  const { createElement } = require('react');
+  const { CollapsibleCardListMock } = require('@/test-utils/collapsible-card-list-mock');
   return {
-    Pagination: () => <div data-testid="pagination">Pagination</div>,
-    MultiSelect: () => <div data-testid="multi-select">MultiSelect</div>,
-    Select: () => <div data-testid="select">Select</div>,
-    Button: ({ children, onClick, disabled }: any) => (
-      <button onClick={onClick} disabled={disabled}>
-        {children}
-      </button>
-    )
+    Pagination: () => createElement('div', { 'data-testid': 'pagination' }, 'Pagination'),
+    MultiSelect: () =>
+      createElement('div', { 'data-testid': 'multi-select' }, 'MultiSelect'),
+    Select: () => createElement('div', { 'data-testid': 'select' }, 'Select'),
+    CollapsibleCardList: CollapsibleCardListMock,
+    Button: ({ children, onClick, disabled }: any) =>
+      createElement('button', { onClick, disabled }, children)
   };
 });
 
@@ -90,9 +89,9 @@ describe('AttendeeTable', () => {
         stats={mockStats}
       />
     );
-    expect(screen.getByText('Jane Doe')).toBeInTheDocument();
-    expect(screen.getByText('Regular')).toBeInTheDocument();
-    expect(screen.getByText('t1')).toBeInTheDocument(); // Ticket ID
+    expect(screen.getAllByText('Jane Doe').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Regular').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('t1').length).toBeGreaterThan(0);
     expect(screen.getByText('10')).toBeInTheDocument(); // Stats
   });
 
@@ -132,6 +131,12 @@ describe('AttendeeTable', () => {
     expect(mockExportTickets).toHaveBeenCalledWith('e1', 'Event 1', undefined, '');
   });
 
+  const clickFirstRowAction = () => {
+    const cardItem = screen.getByTestId('card-item-t1');
+    const actionBtn = within(cardItem).getByRole('button');
+    fireEvent.click(actionBtn);
+  };
+
   it('opens action menu and shows options', () => {
     render(
       <AttendeeTable
@@ -143,20 +148,8 @@ describe('AttendeeTable', () => {
       />
     );
 
-    // Find the action button in the row
-    // It's the IconButton in the last column.
-    // There are other buttons (Export).
-    // Let's find the row first.
-    const row = screen.getByText('Jane Doe').closest('tr');
-    expect(row).toBeInTheDocument();
-    
-    // Within the row, find the button. 
-    // IconButton usually doesn't have text. It has an svg or boxes.
-    // We can assume it's the only button in the row (Action column).
-    const actionBtn = within(row!).getByRole('button');
-    fireEvent.click(actionBtn);
+    clickFirstRowAction();
 
-    // Menu should open
     expect(screen.getByText('Redeem Ticket')).toBeInTheDocument();
     expect(screen.getByText('Detail Ticket')).toBeInTheDocument();
   });
@@ -175,12 +168,8 @@ describe('AttendeeTable', () => {
       />
     );
 
-    // Open menu
-    const row = screen.getByText('Jane Doe').closest('tr');
-    const actionBtn = within(row!).getByRole('button');
-    fireEvent.click(actionBtn);
+    clickFirstRowAction();
 
-    // Click Redeem Ticket item
     fireEvent.click(screen.getByText('Redeem Ticket'));
 
     // Modal should appear
@@ -213,12 +202,8 @@ describe('AttendeeTable', () => {
       />
     );
 
-    // Open menu
-    const row = screen.getByText('Jane Doe').closest('tr');
-    const actionBtn = within(row!).getByRole('button');
-    fireEvent.click(actionBtn);
+    clickFirstRowAction();
 
-    // Click Detail Ticket
     fireEvent.click(screen.getByText('Detail Ticket'));
 
     expect(screen.getByTestId('ticket-detail-modal')).toBeInTheDocument();
@@ -234,7 +219,7 @@ describe('AttendeeTable', () => {
         onRedeemTicket={jest.fn()}
       />
     );
-    expect(screen.getByText('Loading tickets...')).toBeInTheDocument();
+    expect(screen.getAllByText('Loading tickets...').length).toBeGreaterThan(0);
   });
 
   it('renders empty state', () => {
@@ -247,6 +232,6 @@ describe('AttendeeTable', () => {
         onRedeemTicket={jest.fn()}
       />
     );
-    expect(screen.getByText('No tickets found')).toBeInTheDocument();
+    expect(screen.getAllByText('No tickets found').length).toBeGreaterThan(0);
   });
 });
