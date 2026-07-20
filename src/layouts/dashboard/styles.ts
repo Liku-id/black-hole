@@ -19,7 +19,7 @@ export const StyledAppBar = styled(AppBar)(({ theme }) => ({
   marginLeft: drawerWidth,
   backgroundColor: theme.palette.primary.dark,
   boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.05)',
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down('md')]: {
     width: '100%',
     marginLeft: 0
   }
@@ -27,7 +27,12 @@ export const StyledAppBar = styled(AppBar)(({ theme }) => ({
 
 export const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
-  height: '80px'
+  height: '80px',
+  minWidth: 0,
+  [theme.breakpoints.down('md')]: {
+    height: '64px',
+    padding: '0 16px'
+  }
 }));
 
 export const StyledDrawer = styled(Drawer)(({ theme }) => ({
@@ -37,7 +42,7 @@ export const StyledDrawer = styled(Drawer)(({ theme }) => ({
     width: drawerWidth,
     backgroundColor: theme.palette.primary.dark
   },
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up('md')]: {
     display: 'none'
   }
 }));
@@ -49,7 +54,7 @@ export const StyledPermanentDrawer = styled(Drawer)(({ theme }) => ({
     width: drawerWidth,
     backgroundColor: theme.palette.primary.dark
   },
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up('md')]: {
     display: 'block'
   }
 }));
@@ -60,8 +65,15 @@ export const StyledMainBox = styled(Box)(({ theme }) => ({
   padding: '115px 40px',
   backgroundColor: theme.palette.primary.light,
   width: `calc(100% - ${drawerWidth}px)`,
+  minWidth: 0,
+  overflowX: 'hidden',
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '88px 20px'
+  },
   [theme.breakpoints.down('sm')]: {
-    width: '100%'
+    width: '100%',
+    padding: '80px 12px'
   }
 }));
 
@@ -120,6 +132,8 @@ export const UserMenuContainer = styled(Box)(({ theme }) => ({
 export const ProfileMenuBox = styled(Box)({
   cursor: 'pointer',
   flex: 1,
+  minWidth: 0,
+  overflow: 'hidden',
   '&:hover': {
     opacity: 0.8
   },
@@ -160,11 +174,22 @@ export const MenuDivider = styled(Box)(({ theme }) => ({
   margin: '4px 0'
 }));
 
-export const DropdownContainer = styled(Box)({
+export const DropdownContainer = styled(Box)(({ theme }) => ({
   width: '220px',
   marginLeft: '12px',
-  position: 'relative'
-});
+  position: 'relative',
+  minWidth: 0,
+  [theme.breakpoints.down('md')]: {
+    width: '180px',
+    flex: 1
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: 'auto',
+    flex: 1,
+    marginRight: '12px',
+    marginLeft: 0
+  }
+}));
 
 export const DropdownBox = styled(Box)(({ theme }) => ({
   position: 'absolute',

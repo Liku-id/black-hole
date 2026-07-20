@@ -17,6 +17,10 @@ const BaseButton = styled(Button, {
     textTransform: 'none',
     fontFamily: '"Onest", sans-serif',
     lineHeight: 'normal',
+    [theme.breakpoints.down('sm')]: {
+      padding: '8px 12px',
+      fontSize: '12px'
+    },
 
     // Primary variant (default)
     ...(customVariant === 'primary' && {

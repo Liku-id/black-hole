@@ -1,4 +1,4 @@
-import { Box, Modal, styled } from '@mui/material';
+import { Box, IconButton, Modal, styled } from '@mui/material';
 import Image from 'next/image';
 
 import { Body1, H3 } from '../typography';
@@ -10,29 +10,50 @@ const StyledModal = styled(Modal)({
   zIndex: 1300
 });
 
-const ModalContent = styled(Box)({
+const ModalContent = styled(Box)(({ theme }) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   backgroundColor: '#FFFFFF',
-  outline: 'none'
-});
+  outline: 'none',
+  display: 'flex',
+  flexDirection: 'column',
+  maxWidth: '100%',
+  maxHeight: '90vh',
+  [theme.breakpoints.down('md')]: {
+    width: '80% !important',
+    maxWidth: '600px',
+    height: 'auto !important',
+    borderRadius: '8px'
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '95% !important',
+    maxWidth: '400px',
+    height: 'auto !important',
+    borderRadius: '8px'
+  }
+}));
 
 const ModalHeader = styled(Box)({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: '24px'
+  marginBottom: '24px',
+  gap: '12px',
+  flexShrink: 0,
+  minWidth: 0
 });
 
 const ModalBody = styled(Box)({
   flex: 1,
-  overflow: 'auto'
+  overflowY: 'auto',
+  minHeight: 0
 });
 
 const ModalFooter = styled(Box)({
-  marginTop: '16px'
+  marginTop: '16px',
+  flexShrink: 0
 });
 
 interface ModalProps {
@@ -72,36 +93,51 @@ export default function CustomModal({
         display="flex"
         flexDirection="column"
         height={height}
-        padding="16px 24px"
+        padding={{ xs: '16px 16px', sm: '16px 24px' }}
         width={width}
       >
-        {/* Header */}
         <ModalHeader>
-          {titleSize === "22px" ? (
-            <H3 color="text.primary" fontWeight={700}>
-              {title}
-            </H3>
-          ) : (
-            <Body1 color="text.primary" fontSize={titleSize} fontWeight={700}>
-              {title}
-            </Body1>
-          )}
+          <Box minWidth={0} flex={1} overflow="hidden">
+            {titleSize === '22px' ? (
+              <H3
+                color="text.primary"
+                fontWeight={700}
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {title}
+              </H3>
+            ) : (
+              <Body1
+                color="text.primary"
+                fontSize={titleSize}
+                fontWeight={700}
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {title}
+              </Body1>
+            )}
+          </Box>
           {onClose && (
-            <Image
-              alt="Close"
-              height={24}
-              src="/icon/close.svg"
-              style={{ cursor: 'pointer' }}
-              width={24}
+            <IconButton
+              aria-label="Close"
               onClick={onClose}
-            />
+              sx={{ width: 40, height: 40, flexShrink: 0 }}
+            >
+              <Image alt="Close" height={24} src="/icon/close.svg" width={24} />
+            </IconButton>
           )}
         </ModalHeader>
 
-        {/* Content */}
         <ModalBody>{children}</ModalBody>
 
-        {/* Footer */}
         {footer && <ModalFooter>{footer}</ModalFooter>}
       </ModalContent>
     </StyledModal>
