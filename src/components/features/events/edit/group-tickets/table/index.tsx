@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import {
   Body2,
+  CollapsibleCardList,
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody
@@ -50,7 +51,9 @@ export const GroupTicketTable = ({
   };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [activeTicket, setActiveTicket] = useState<GroupTicketCategory | null>(null);
+  const [activeTicket, setActiveTicket] = useState<GroupTicketCategory | null>(
+    null
+  );
 
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLElement>,
@@ -70,9 +73,7 @@ export const GroupTicketTable = ({
     return ticketType?.name || 'Unknown';
   };
 
-  // Check if action buttons should be shown for a ticket
   const shouldShowActions = (ticket: GroupTicketCategory) => {
-    // For upcoming (approved) or ongoing events, hide actions for approved tickets
     if (
       (eventStatus === 'approved' || eventStatus === 'on_going') &&
       ticket.status === 'approved'
@@ -82,9 +83,119 @@ export const GroupTicketTable = ({
     return true;
   };
 
+  const renderRowActions = (ticket: GroupTicketCategory) =>
+    shouldShowActions(ticket) ? (
+      <IconButton
+        onClick={(e) => handleOpenMenu(e, ticket)}
+        sx={{ color: 'text.secondary' }}
+      >
+        <Image alt="Actions" height={24} src="/icon/options.svg" width={24} />
+      </IconButton>
+    ) : (
+      <Body2 color="text.secondary" fontSize="14px">
+        -
+      </Body2>
+    );
+
+  const actionMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleCloseMenu}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      PaperProps={{
+        elevation: 1,
+        sx: {
+          mt: 1,
+          '& .MuiMenuItem-root': {
+            px: 2,
+            py: 1,
+            gap: 1.5
+          }
+        }
+      }}
+    >
+      <MenuItem
+        onClick={() => {
+          if (activeTicket) onEdit(activeTicket);
+          handleCloseMenu();
+        }}
+      >
+        <Image alt="Edit" height={20} src="/icon/edit.svg" width={20} />
+        <Body2>Edit</Body2>
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          if (activeTicket) onDelete(activeTicket.id);
+          handleCloseMenu();
+        }}
+      >
+        <Image alt="Delete" height={20} src="/icon/trash.svg" width={20} />
+        <Body2 color="error.main">Delete</Body2>
+      </MenuItem>
+    </Menu>
+  );
+
   return (
     <>
-      <StyledTableContainer>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        <CollapsibleCardList
+          items={groupTickets}
+          getKey={(ticket) => ticket.id}
+          emptyMessage="No tickets found. Add your first ticket category"
+          renderTitle={(ticket, index) => `${index + 1}. ${ticket.name}`}
+          renderSubtitle={(ticket) => formatPrice(ticket.price)}
+          renderTitleMeta={(ticket) =>
+            ticket.status ? (
+              <StatusBadge
+                status={statusMap[ticket.status as keyof typeof statusMap]}
+                displayName={ticket.status}
+              />
+            ) : null
+          }
+          renderDetails={(ticket) => [
+            { label: 'Ticket Type', value: getTicketTypeName(ticket.ticketTypeId) },
+            { label: 'G. Ticket Name', value: ticket.name },
+            {
+              label: 'G. Ticket Price',
+              value: (
+                <Body2 color="primary.main" fontSize="12px" fontWeight={700}>
+                  {formatPrice(ticket.price)}
+                </Body2>
+              )
+            },
+            { label: 'Bundle Qty', value: `${ticket.bundleQuantity} Ticket` },
+            { label: 'Max per user', value: ticket.maxOrderQuantity },
+            {
+              label: 'Sale Start Date',
+              value: dateUtils.formatDateTimeWIB(ticket.salesStartDate)
+            },
+            {
+              label: 'Sale End Date',
+              value: dateUtils.formatDateTimeWIB(ticket.salesEndDate)
+            },
+            ...(ticket.status
+              ? [
+                  {
+                    label: 'Status',
+                    value: (
+                      <StatusBadge
+                        status={
+                          statusMap[ticket.status as keyof typeof statusMap]
+                        }
+                        displayName={ticket.status}
+                      />
+                    )
+                  }
+                ]
+              : [])
+          ]}
+          renderActions={renderRowActions}
+        />
+      </StyledTableContainer>
+
+      <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
         <Table>
           <StyledTableHead>
             <TableRow>
@@ -201,7 +312,7 @@ export const GroupTicketTable = ({
                   <TableCell>
                     {ticket?.status ? (
                       <StatusBadge
-                        status={statusMap[ticket.status]}
+                        status={statusMap[ticket.status as keyof typeof statusMap]}
                         displayName={ticket.status}
                       />
                     ) : (
@@ -210,25 +321,7 @@ export const GroupTicketTable = ({
                       </Body2>
                     )}
                   </TableCell>
-                  <TableCell align="right">
-                    {shouldShowActions(ticket) ? (
-                      <IconButton
-                        onClick={(e) => handleOpenMenu(e, ticket)}
-                        sx={{ color: 'text.secondary' }}
-                      >
-                        <Image
-                          alt="Actions"
-                          height={24}
-                          src="/icon/options.svg"
-                          width={24}
-                        />
-                      </IconButton>
-                    ) : (
-                      <Body2 color="text.secondary" fontSize="14px">
-                        -
-                      </Body2>
-                    )}
-                  </TableCell>
+                  <TableCell align="right">{renderRowActions(ticket)}</TableCell>
                 </TableRow>
               ))
             )}
@@ -236,43 +329,7 @@ export const GroupTicketTable = ({
         </Table>
       </StyledTableContainer>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        PaperProps={{
-          elevation: 1,
-          sx: {
-            mt: 1,
-            '& .MuiMenuItem-root': {
-              px: 2,
-              py: 1,
-              gap: 1.5
-            }
-          }
-        }}
-      >
-        <MenuItem
-          onClick={() => {
-            if (activeTicket) onEdit(activeTicket);
-            handleCloseMenu();
-          }}
-        >
-          <Image alt="Edit" height={20} src="/icon/edit.svg" width={20} />
-          <Body2>Edit</Body2>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            if (activeTicket) onDelete(activeTicket.id);
-            handleCloseMenu();
-          }}
-        >
-          <Image alt="Delete" height={20} src="/icon/trash.svg" width={20} />
-          <Body2 color="error.main">Delete</Body2>
-        </MenuItem>
-      </Menu>
+      {actionMenu}
     </>
   );
 };

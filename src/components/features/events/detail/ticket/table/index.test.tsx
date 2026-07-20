@@ -41,7 +41,7 @@ describe('EventDetailTicketTable', () => {
         />
       );
 
-      expect(screen.getByText('Loading tickets...')).toBeInTheDocument();
+      expect(screen.getAllByText('Loading tickets...').length).toBeGreaterThan(0);
     });
   });
 
@@ -72,8 +72,8 @@ describe('EventDetailTicketTable', () => {
         />
       );
 
-      expect(screen.getByText('VIP Ticket')).toBeInTheDocument();
-      expect(screen.getByText('Regular Ticket')).toBeInTheDocument();
+      expect(screen.getAllByText('VIP Ticket').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Regular Ticket').length).toBeGreaterThan(0);
     });
   });
 
@@ -86,7 +86,7 @@ describe('EventDetailTicketTable', () => {
         />
       );
 
-      expect(screen.getByText('No tickets found.')).toBeInTheDocument();
+      expect(screen.getAllByText('No tickets found.').length).toBeGreaterThan(0);
     });
   });
 
@@ -99,7 +99,7 @@ describe('EventDetailTicketTable', () => {
         />
       );
 
-      const viewButton = screen.getByAltText('View detail').closest('div');
+      const viewButton = screen.getAllByAltText('View detail')[0].closest('div');
       if (viewButton) {
         fireEvent.click(viewButton);
         // Modal should open (check for modal title)

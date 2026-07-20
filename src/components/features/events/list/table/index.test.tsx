@@ -1,9 +1,14 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
 
 import { Event } from '@/types/event';
 
 import EventsTable from './index';
+
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => <img {...props} />
+}));
 
 // Mock next/router
 jest.mock('next/router', () => ({
@@ -98,7 +103,7 @@ describe('EventsTable', () => {
         />
       );
 
-      expect(screen.getByText('Loading events...')).toBeInTheDocument();
+      expect(screen.getAllByText('Loading events...').length).toBeGreaterThan(0);
     });
   });
 
@@ -167,7 +172,7 @@ describe('EventsTable', () => {
         />
       );
 
-      expect(screen.getByText('No events found')).toBeInTheDocument();
+      expect(screen.getAllByText('No events found').length).toBeGreaterThan(0);
     });
   });
 
@@ -181,13 +186,19 @@ describe('EventsTable', () => {
       );
 
       // Click the Options button to open menu
-      const optionsButton = screen.getByAltText('Options').closest('button');
+      const optionsButton = screen.getAllByAltText('Options')[0].closest('button');
       if (optionsButton) {
         fireEvent.click(optionsButton);
-        
-        // Then click Event Detail menu item
-        const viewButton = await screen.findByAltText('Event Detail');
-        fireEvent.click(viewButton);
+
+        await waitFor(() => {
+          expect(
+            screen.getAllByRole('menuitem', { name: /Event Detail/i }).length
+          ).toBeGreaterThan(0);
+        });
+
+        fireEvent.click(
+          screen.getAllByRole('menuitem', { name: /Event Detail/i })[0]
+        );
         expect(mockPush).toHaveBeenCalledWith('/events/test-event-1');
       }
     });
@@ -201,13 +212,19 @@ describe('EventsTable', () => {
       );
 
       // Click the Options button to open menu
-      const optionsButton = screen.getByAltText('Options').closest('button');
+      const optionsButton = screen.getAllByAltText('Options')[0].closest('button');
       if (optionsButton) {
         fireEvent.click(optionsButton);
-        
-        // Then click Attendee Tickets menu item
-        const attendeeButton = await screen.findByAltText('Attendee Tickets');
-        fireEvent.click(attendeeButton);
+
+        await waitFor(() => {
+          expect(
+            screen.getAllByRole('menuitem', { name: /Attendee Tickets/i }).length
+          ).toBeGreaterThan(0);
+        });
+
+        fireEvent.click(
+          screen.getAllByRole('menuitem', { name: /Attendee Tickets/i })[0]
+        );
         expect(mockPush).toHaveBeenCalledWith('/tickets?event=1');
       }
     });
@@ -221,7 +238,7 @@ describe('EventsTable', () => {
       );
 
       // Just verify the options button exists
-      const optionsButton = screen.getByAltText('Options');
+      const optionsButton = screen.getAllByAltText('Options')[0];
       expect(optionsButton).toBeInTheDocument();
     });
 
@@ -251,7 +268,7 @@ describe('EventsTable', () => {
         />
       );
 
-      expect(screen.getByText(/Showing/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Showing/i).length).toBeGreaterThan(0);
     });
   });
 });
