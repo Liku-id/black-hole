@@ -1,6 +1,5 @@
 
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import React from 'react';
 
 import { ticketsService } from '@/services';
 
@@ -37,15 +36,16 @@ jest.mock('@/utils', () => ({
 
 // Mock simple components
 jest.mock('@/components/common', () => {
-  const React = require('react');
+  const { createElement } = require('react');
   const { CollapsibleCardListMock } = require('@/test-utils/collapsible-card-list-mock');
   return {
-    Pagination: () => React.createElement('div', { 'data-testid': 'pagination' }, 'Pagination'),
-    MultiSelect: () => React.createElement('div', { 'data-testid': 'multi-select' }, 'MultiSelect'),
-    Select: () => React.createElement('div', { 'data-testid': 'select' }, 'Select'),
+    Pagination: () => createElement('div', { 'data-testid': 'pagination' }, 'Pagination'),
+    MultiSelect: () =>
+      createElement('div', { 'data-testid': 'multi-select' }, 'MultiSelect'),
+    Select: () => createElement('div', { 'data-testid': 'select' }, 'Select'),
     CollapsibleCardList: CollapsibleCardListMock,
     Button: ({ children, onClick, disabled }: any) =>
-      React.createElement('button', { onClick, disabled }, children)
+      createElement('button', { onClick, disabled }, children)
   };
 });
 
