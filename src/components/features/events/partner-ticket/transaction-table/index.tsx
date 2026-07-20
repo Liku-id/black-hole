@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 
 import {
   Body2,
+  CollapsibleCardList,
   Pagination,
   StyledTableContainer,
   StyledTableHead,
@@ -45,13 +46,39 @@ export const PartnerTransactionTable: FC<PartnerTransactionTableProps> = ({
     setSelectedTransaction(null);
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" padding="40px">
-        <Body2 color="text.secondary">Loading transactions...</Body2>
-      </Box>
-    );
-  }
+  const getAmount = (transaction: any) =>
+    transaction.paymentBreakdown?.totalPrice
+      ? formatUtils.formatPrice(transaction.paymentBreakdown.totalPrice)
+      : '-';
+
+  const renderActionCell = (transaction: any) => (
+    <IconButton
+      size="small"
+      sx={{ padding: '4px', color: 'primary.main' }}
+      onClick={() => handleViewTransaction(transaction)}
+    >
+      <Image alt="View" height={16} src="/icon/eye.svg" width={16} />
+    </IconButton>
+  );
+
+  const renderTransactionDetails = (transaction: any) => [
+    { label: 'Name', value: transaction.name || '-' },
+    { label: 'Ticket Type', value: transaction.ticketType?.name || '-' },
+    {
+      label: 'Ticket Amount',
+      value: `${transaction.orderQuantity || 0} Ticket`
+    },
+    { label: 'Order ID', value: transaction.transactionNumber || '-' },
+    { label: 'Amount', value: getAmount(transaction) },
+    {
+      label: 'Payment Method',
+      value: transaction.paymentMethod?.name || '-'
+    },
+    {
+      label: 'Status Payment',
+      value: <StatusBadge status={transaction.status || 'UNKNOWN'} />
+    }
+  ];
 
   if (error) {
     return (
@@ -61,9 +88,49 @@ export const PartnerTransactionTable: FC<PartnerTransactionTableProps> = ({
     );
   }
 
+  const pagination =
+    transactions.length > 0 ? (
+      <Pagination
+        total={total}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={(page) => onPageChange && onPageChange(page)}
+        loading={loading}
+      />
+    ) : null;
+
   return (
     <>
-      <StyledTableContainer>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        <CollapsibleCardList
+          items={transactions}
+          getKey={(transaction) => transaction.id}
+          loading={loading}
+          loadingMessage="Loading transactions..."
+          emptyMessage="No transactions found."
+          renderTitle={(transaction, index) =>
+            `${index + 1 + currentPage * pageSize}. ${transaction.name || '-'}`
+          }
+          renderSubtitle={(transaction) =>
+            transaction.ticketType?.name || transaction.transactionNumber || '-'
+          }
+          renderTitleMeta={(transaction) => (
+            <StatusBadge status={transaction.status || 'UNKNOWN'} />
+          )}
+          renderDetails={renderTransactionDetails}
+          renderActions={renderActionCell}
+        />
+        {pagination}
+      </StyledTableContainer>
+
+      <StyledTableContainer
+        sx={{
+          display: { xs: 'none', lg: 'block' },
+          '& .MuiTable-root': {
+            minWidth: { xs: '720px', md: '100%' }
+          }
+        }}
+      >
         <Table>
           <StyledTableHead>
             <TableRow>
@@ -115,12 +182,16 @@ export const PartnerTransactionTable: FC<PartnerTransactionTableProps> = ({
             </TableRow>
           </StyledTableHead>
           <StyledTableBody>
-            {transactions.length === 0 ? (
+            {loading ? (
               <TableRow>
-                <TableCell colSpan={9}>
-                  <Box display="flex" justifyContent="center" padding="40px">
-                    <Body2 color="text.secondary">No transactions found.</Body2>
-                  </Box>
+                <TableCell colSpan={9} align="center" sx={{ padding: '40px' }}>
+                  <Body2 color="text.secondary">Loading transactions...</Body2>
+                </TableCell>
+              </TableRow>
+            ) : transactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} align="center" sx={{ padding: '40px' }}>
+                  <Body2 color="text.secondary">No transactions found.</Body2>
                 </TableCell>
               </TableRow>
             ) : (
@@ -171,11 +242,7 @@ export const PartnerTransactionTable: FC<PartnerTransactionTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Body2 color="text.primary" fontSize="14px">
-                      {transaction.paymentBreakdown?.totalPrice
-                        ? formatUtils.formatPrice(
-                            transaction.paymentBreakdown.totalPrice
-                          )
-                        : '-'}
+                      {getAmount(transaction)}
                     </Body2>
                   </TableCell>
                   <TableCell>
@@ -195,39 +262,15 @@ export const PartnerTransactionTable: FC<PartnerTransactionTableProps> = ({
                   <TableCell>
                     <StatusBadge status={transaction.status || 'UNKNOWN'} />
                   </TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      sx={{ padding: '4px', color: 'primary.main' }}
-                      onClick={() => handleViewTransaction(transaction)}
-                    >
-                      <Image
-                        alt="View"
-                        height={16}
-                        src="/icon/eye.svg"
-                        width={16}
-                      />
-                    </IconButton>
-                  </TableCell>
+                  <TableCell>{renderActionCell(transaction)}</TableCell>
                 </TableRow>
               ))
             )}
           </StyledTableBody>
         </Table>
+        {pagination}
       </StyledTableContainer>
 
-      {/* Pagination */}
-      {transactions.length > 0 && (
-        <Pagination
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={(page) => onPageChange && onPageChange(page)}
-          loading={loading}
-        />
-      )}
-
-      {/* Transaction Detail Modal */}
       <TransactionDetailModal
         open={modalOpen}
         transaction={selectedTransaction}
