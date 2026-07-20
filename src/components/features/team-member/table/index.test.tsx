@@ -2,16 +2,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 
 import { TeamMemberTable } from './index';
 
-// Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: any) => <img {...props} />
 }));
 
 describe('TeamMemberTable', () => {
   const mockOnPageChange = jest.fn();
   const mockOnOpenDeleteModal = jest.fn();
-  
+
   const mockMembers = [
     {
       id: '1',
@@ -19,7 +18,6 @@ describe('TeamMemberTable', () => {
       email: 'john@example.com',
       role: { name: 'ground_staff' },
       status: 'active'
-      // other props...
     },
     {
       id: '2',
@@ -27,7 +25,7 @@ describe('TeamMemberTable', () => {
       email: 'jane@example.com',
       role: { name: 'finance' },
       status: 'active'
-    },
+    }
   ];
 
   const defaultProps = {
@@ -37,36 +35,31 @@ describe('TeamMemberTable', () => {
     pageSize: 10,
     total: 2,
     onPageChange: mockOnPageChange,
-    onOpenDeleteModal: mockOnOpenDeleteModal,
+    onOpenDeleteModal: mockOnOpenDeleteModal
   };
 
   it('renders table with data', () => {
     render(<TeamMemberTable {...defaultProps} />);
-    
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('john@example.com')).toBeInTheDocument();
-    expect(screen.getByText('Ground Staff')).toBeInTheDocument();
-    
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-    expect(screen.getByText('Finance')).toBeInTheDocument();
+
+    expect(screen.getAllByText('John Doe').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('john@example.com').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Ground Staff').length).toBeGreaterThan(0);
+
+    expect(screen.getAllByText('Jane Smith').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Finance').length).toBeGreaterThan(0);
   });
 
   it('opens options menu and clicks delete', () => {
     render(<TeamMemberTable {...defaultProps} />);
-    
-    // Find action button for first row
-    const actionButtons = screen.getAllByRole('button'); 
-    // Usually IconButton has button role.
-    // Click the first one.
-    fireEvent.click(actionButtons[0]);
-    
-    // Check for "Delete Team Member" menu item
-    const deleteMenu = screen.getByText('Delete Team Member');
+
+    const optionsButton = screen.getAllByAltText('Options')[0].closest('button');
+    fireEvent.click(optionsButton!);
+
+    const deleteMenu = screen.getAllByText('Delete Team Member')[0];
     expect(deleteMenu).toBeInTheDocument();
-    
-    // Click delete
+
     fireEvent.click(deleteMenu);
-    
+
     expect(mockOnOpenDeleteModal).toHaveBeenCalledWith(mockMembers[0]);
   });
 });

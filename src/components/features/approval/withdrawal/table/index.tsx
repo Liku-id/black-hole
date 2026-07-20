@@ -1,8 +1,17 @@
-import { Box, IconButton, Table, TableCell, TableRow } from '@mui/material';
+import {
+  IconButton,
+  Table,
+  TableCell,
+  TableRow
+} from '@mui/material';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Body2, Pagination } from '@/components/common';
+import {
+  Body2,
+  CollapsibleCardList,
+  Pagination
+} from '@/components/common';
 import {
   StyledTableContainer,
   StyledTableHead,
@@ -75,7 +84,6 @@ const WithdrawalTable = ({
         }
       );
 
-      // Check if response indicates error
       if (response.statusCode && response.statusCode !== 200) {
         throw new Error(
           response.message || 'Failed to process withdrawal action'
@@ -99,17 +107,94 @@ const WithdrawalTable = ({
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" padding={4}>
-        <Body2>Loading withdrawals...</Body2>
-      </Box>
-    );
-  }
+  const renderViewAction = (withdrawal: WithdrawalListItem) => (
+    <IconButton
+      size="small"
+      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+      onClick={() => handleViewClick(withdrawal)}
+    >
+      <Image alt="View" height={24} src="/icon/eye.svg" width={24} />
+    </IconButton>
+  );
+
+  const pagination = (
+    <Pagination
+      total={total}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      onPageChange={(page) => onPageChange && onPageChange(page)}
+      loading={loading}
+    />
+  );
+
+  const modals = (
+    <>
+      <WithdrawalApprovalModal
+        open={approvalModalOpen}
+        onClose={handleModalClose}
+        onAction={handleAction}
+        errorMessage={modalError}
+        loading={actionLoading}
+      />
+      <WithdrawalDetailModal
+        open={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        withdrawal={selectedWithdrawal}
+      />
+    </>
+  );
 
   return (
     <>
-      <StyledTableContainer>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        <CollapsibleCardList
+          items={withdrawals}
+          getKey={(item) => item.id}
+          loading={loading}
+          loadingMessage="Loading withdrawals..."
+          emptyMessage="No withdrawals found"
+          renderTitle={(item, index) =>
+            `${index + 1 + currentPage * pageSize}. ${truncate(item.eventName, 20) || '-'}`
+          }
+          renderDetails={(item) => [
+            {
+              label: 'Withdrawal',
+              value: item.withdrawalName || '-'
+            },
+            {
+              label: 'Received',
+              value: formatUtils.formatPrice(parseFloat(item.amountReceived))
+            },
+            {
+              label: 'Status',
+              value: (
+                <StatusBadge
+                  status={item.status}
+                  displayName={
+                    item.status === 'APPROVED' ? 'Approved' : ''
+                  }
+                />
+              )
+            },
+            {
+              label: 'Bank Name',
+              value: truncate(item.bankName, 10) || '-'
+            },
+            {
+              label: 'Account Number',
+              value: item.accountNumber
+            },
+            {
+              label: 'Account Holder',
+              value: truncate(item.accountHolderName, 15) || '-'
+            }
+          ]}
+          renderActions={renderViewAction}
+        />
+        {pagination}
+      </StyledTableContainer>
+
+      <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
         <Table>
           <StyledTableHead>
             <TableRow>
@@ -165,7 +250,7 @@ const WithdrawalTable = ({
               <TableRow key={withdrawal.id}>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {index + 1 + currentPage * 10}.
+                    {index + 1 + currentPage * pageSize}.
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -208,48 +293,14 @@ const WithdrawalTable = ({
                     {truncate(withdrawal.accountHolderName, 15) || '-'}
                   </Body2>
                 </TableCell>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                    onClick={() => handleViewClick(withdrawal)}
-                  >
-                    <Image
-                      alt="View"
-                      height={24}
-                      src="/icon/eye.svg"
-                      width={24}
-                    />
-                  </IconButton>
-                </TableCell>
+                <TableCell>{renderViewAction(withdrawal)}</TableCell>
               </TableRow>
             ))}
           </StyledTableBody>
         </Table>
-
-        {/* Pagination */}
-        <Pagination
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={(page) => onPageChange && onPageChange(page)}
-          loading={loading}
-        />
+        {pagination}
       </StyledTableContainer>
-
-      <WithdrawalApprovalModal
-        open={approvalModalOpen}
-        onClose={handleModalClose}
-        onAction={handleAction}
-        errorMessage={modalError}
-        loading={actionLoading}
-      />
-
-      <WithdrawalDetailModal
-        open={detailModalOpen}
-        onClose={() => setDetailModalOpen(false)}
-        withdrawal={selectedWithdrawal}
-      />
+      {modals}
     </>
   );
 };

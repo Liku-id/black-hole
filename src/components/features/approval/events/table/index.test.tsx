@@ -123,7 +123,7 @@ describe('SubmissionsTable', () => {
         />
       );
 
-      const viewButton = screen.getByAltText('View').closest('button');
+      const viewButton = screen.getAllByAltText('View')[0].closest('button');
       if (viewButton) {
         fireEvent.click(viewButton);
         expect(mockPush).toHaveBeenCalledWith('/approval/1');
@@ -145,7 +145,7 @@ describe('SubmissionsTable', () => {
       );
 
       // Pagination component should be rendered
-      expect(screen.getByText(/Showing/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Showing/i).length).toBeGreaterThan(0);
     });
   });
 
