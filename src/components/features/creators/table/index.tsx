@@ -12,6 +12,7 @@ import { FC } from 'react';
 
 import {
   Body2,
+  CollapsibleCardList,
   Pagination,
   StyledTableBody,
   StyledTableContainer,
@@ -39,14 +40,6 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
 }) => {
   const router = useRouter();
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" padding="40px">
-        <Body2 color="text.secondary">Loading creators...</Body2>
-      </Box>
-    );
-  }
-
   const handleAccountClick = (creatorId: string) => {
     router.push(`/creator/${creatorId}`);
   };
@@ -55,8 +48,85 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
     router.push(`/creator/${creatorId}/events`);
   };
 
+  const getPicName = (creator: EventOrganizer) =>
+    creator.pic_name ||
+    creator.event_organizer_pic?.name ||
+    creator.full_name ||
+    '-';
+
+  const renderActions = (creator: EventOrganizer) => (
+    <Box display="flex" gap={1}>
+      <Tooltip title="Event List" arrow>
+        <IconButton
+          size="small"
+          sx={{ color: 'text.secondary', cursor: 'pointer' }}
+          onClick={() => handleCalendarClick(creator.id)}
+        >
+          <Image
+            alt="Calendar"
+            height={24}
+            src="/icon/calendar-v4.svg"
+            width={24}
+          />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Profile" arrow>
+        <IconButton
+          size="small"
+          sx={{ color: 'text.secondary', cursor: 'pointer' }}
+          onClick={() => handleAccountClick(creator.id)}
+        >
+          <Image
+            alt="Account"
+            height={24}
+            src="/icon/account-v2.svg"
+            width={24}
+          />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+
+  const pagination =
+    creators.length > 0 || loading ? (
+      <Pagination
+        total={total}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={(page) => onPageChange && onPageChange(page)}
+        loading={loading}
+      />
+    ) : null;
+
   return (
-    <StyledTableContainer>
+    <>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        <CollapsibleCardList
+          items={creators}
+          getKey={(creator) => creator.id}
+          loading={loading}
+          loadingMessage="Loading creators..."
+          emptyMessage="No creators found"
+          renderTitle={(creator, index) =>
+            `${index + 1 + currentPage * pageSize}. ${creator.name || '-'}`
+          }
+          renderSubtitle={(creator) => getPicName(creator)}
+          renderDetails={(creator) => [
+            {
+              label: 'PIC Name',
+              value: getPicName(creator)
+            },
+            {
+              label: 'Email',
+              value: creator.email || '-'
+            }
+          ]}
+          renderActions={renderActions}
+        />
+        {pagination}
+      </StyledTableContainer>
+
+      <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
       <Table>
         <StyledTableHead>
           <TableRow>
@@ -88,9 +158,17 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
           </TableRow>
         </StyledTableHead>
         <StyledTableBody>
-          {creators.length === 0 ? (
+          {loading ? (
             <TableRow>
-              <TableCell colSpan={6}>
+              <TableCell colSpan={5}>
+                <Box display="flex" justifyContent="center" padding="40px">
+                  <Body2 color="text.secondary">Loading creators...</Body2>
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : creators.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5}>
                 <Box display="flex" justifyContent="center" padding="40px">
                   <Body2 color="text.secondary">No creators found</Body2>
                 </Box>
@@ -111,10 +189,7 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {creator.pic_name ||
-                      creator.event_organizer_pic?.name ||
-                      creator.full_name ||
-                      '-'}
+                    {getPicName(creator)}
                   </Body2>
                 </TableCell>
                 <TableCell>
@@ -122,55 +197,16 @@ const CreatorsTable: FC<CreatorsTableProps> = ({
                     {creator.email || '-'}
                   </Body2>
                 </TableCell>
-                <TableCell>
-                  <Box display="flex" gap={1}>
-                    <Tooltip title="Event List" arrow>
-                      <IconButton
-                        size="small"
-                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                        onClick={() => handleCalendarClick(creator.id)}
-                      >
-                        <Image
-                          alt="Calendar"
-                          height={24}
-                          src="/icon/calendar-v4.svg"
-                          width={24}
-                        />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Profile" arrow>
-                      <IconButton
-                        size="small"
-                        sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                        onClick={() => handleAccountClick(creator.id)}
-                      >
-                        <Image
-                          alt="Account"
-                          height={24}
-                          src="/icon/account-v2.svg"
-                          width={24}
-                        />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </TableCell>
+                <TableCell>{renderActions(creator)}</TableCell>
               </TableRow>
             ))
           )}
         </StyledTableBody>
       </Table>
 
-      {/* Pagination */}
-      {creators.length > 0 && (
-        <Pagination
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={(page) => onPageChange && onPageChange(page)}
-          loading={loading}
-        />
-      )}
-    </StyledTableContainer>
+      {pagination}
+      </StyledTableContainer>
+    </>
   );
 };
 
