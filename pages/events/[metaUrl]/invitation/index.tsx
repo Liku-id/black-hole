@@ -361,10 +361,17 @@ function InvitationPage() {
         </Box>
 
         {/* Header Actions & Quota Row */}
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box
+          display="flex"
+          flexDirection={{ xs: 'column', md: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'stretch', md: 'center' }}
+          gap={2}
+          mb={3}
+        >
           {/* Quota Info (Left) */}
           {limitInfo ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', width: '280px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '280px' }, maxWidth: '100%' }}>
               <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
                 <Body2 color="text.secondary" fontWeight={700} sx={{ fontSize: '13px', textTransform: 'uppercase', tracking: 0.5 }}>
                   Quota: {limitInfo.invitations_used} / {limitInfo.invitation_limit === -1 ? 'Unlimited' : limitInfo.invitation_limit} Used

@@ -229,8 +229,9 @@ function PartnerTicket() {
 
       {/* Event Name with Action Buttons */}
       <Box
-        alignItems="flex-start"
         display="flex"
+        flexDirection={{ xs: 'column', md: 'row' }}
+        alignItems={{ xs: 'stretch', md: 'flex-start' }}
         justifyContent="space-between"
         mb="24px"
         gap={2}
@@ -251,22 +252,31 @@ function PartnerTicket() {
             </Caption>
           </Box>
 
-          <H2 color="text.primary" fontWeight={700}>
+          <H2
+            color="text.primary"
+            fontWeight={700}
+            sx={{
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere'
+            }}
+          >
             Event Name: {eventDetail.name}
           </H2>
         </Box>
         <Box
           display="flex"
+          flexDirection={{ xs: 'column', sm: 'row' }}
           gap={2}
           flexShrink={0}
-          alignItems="flex-start"
-          pt={0.5}
+          alignItems={{ xs: 'stretch', md: 'flex-start' }}
+          pt={{ xs: 0, md: 0.5 }}
+          width={{ xs: '100%', md: 'auto' }}
         >
           <Button
             id="choose_existing_partner_button"
             variant="secondary"
             onClick={handleChooseExistingPartner}
-            sx={{ whiteSpace: 'nowrap' }}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             Choose Existing Partner
           </Button>
@@ -274,7 +284,7 @@ function PartnerTicket() {
             id="add_new_partner_button"
             variant="primary"
             onClick={handleAddPartner}
-            sx={{ whiteSpace: 'nowrap' }}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             Add New Partner
           </Button>

@@ -46,7 +46,7 @@ const FinanceAnalytic = ({ eventOrganizerId }: FinanceAnalyticProps) => {
   return (
     <Grid container spacing={3}>
       {analyticsData.map((item, index) => (
-        <Grid key={index} item xs={6}>
+        <Grid key={index} item xs={12} sm={6}>
           <AnalyticCard
             icon={item.icon}
             title={item.title}

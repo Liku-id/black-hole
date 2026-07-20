@@ -222,14 +222,18 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             </Box>
 
             <Grid container spacing={3}>
-              <Grid item xs={5}>
-                <Box display="flex" justifyContent="flex-end" mt={1.5}>
+              <Grid item xs={12} sm={5}>
+                <Box
+                  display="flex"
+                  justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
+                  mt={{ xs: 0, sm: 1.5 }}
+                >
                   <Body2 color="text.primary" fontSize="16px" fontWeight={600}>
                     Withdrawal Amount
                   </Body2>
                 </Box>
               </Grid>
-              <Grid item xs={7}>
+              <Grid item xs={12} sm={7}>
                 <TextField
                   id="withdrawal_amount_field"
                   fullWidth
@@ -247,14 +251,14 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   mt={4}
                   paddingBottom={2}
                 >
-                  <Grid container spacing={3}>
-                    <Grid item xs={6}>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} sm={6}>
                       <Caption color="text.primary" fontWeight={700}>
                         Wukong Platform Fee
                       </Caption>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Caption color="error.main">
+                    <Grid item xs={12} sm={6}>
+                      <Caption color="error.main" sx={{ textAlign: { xs: 'left', sm: 'left' } }}>
                         {withdrawalAmount
                           ? formatUtils.formatPrice(fees.platformFee)
                           : '-'}
@@ -268,13 +272,13 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   mt={2}
                   paddingBottom={2}
                 >
-                  <Grid container spacing={3}>
-                    <Grid item xs={6}>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} sm={6}>
                       <Caption color="text.primary" fontWeight={700}>
                         Withdrawal Fee
                       </Caption>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <Caption color="error.main">
                         {withdrawalAmount
                           ? formatUtils.formatPrice(fees.withdrawalFee)
@@ -289,13 +293,13 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   mt={2}
                   paddingBottom={2}
                 >
-                  <Grid container spacing={3}>
-                    <Grid item xs={6}>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} sm={6}>
                       <Caption color="text.primary" fontWeight={700}>
                         Grand Total
                       </Caption>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <Caption color="success.main" fontWeight={600}>
                         {withdrawalAmount
                           ? formatUtils.formatPrice(fees.grandTotal)
@@ -314,7 +318,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   </Caption>
                 </Box>
 
-                <Box textAlign="right">
+                <Box textAlign={{ xs: 'left', sm: 'right' }}>
                   {isTotalForBackendExceeded && (
                     <Box mb={1}>
                       <Overline color="error.main" fontWeight={600}>
@@ -339,6 +343,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                       isGrandTotalMinus
                     }
                     onClick={handleWithdrawalClick}
+                    sx={{ width: { xs: '100%', sm: 'auto' } }}
                   >
                     Withdraw
                   </Button>

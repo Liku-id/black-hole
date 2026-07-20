@@ -563,8 +563,17 @@ export const EventEditInfo = ({
               </Box>
             )}
 
-            <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button type="submit" variant="primary">
+            <Box
+              display="flex"
+              gap={2}
+              justifyContent="flex-end"
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
+              <Button
+                type="submit"
+                variant="primary"
+                sx={{ width: { xs: '100%', sm: 'auto' } }}
+              >
                 {eventDetail.eventStatus === 'approved' ||
                   eventDetail.eventStatus === 'on_going'
                   ? 'Request Update Event Details'

@@ -130,12 +130,14 @@ export const EventDetailTicket = ({
       {!hideHeader && (
         <>
           <Box
-            alignItems="center"
             display="flex"
+            flexDirection="row"
+            alignItems="center"
             justifyContent="space-between"
+            gap={1}
             mb={2}
           >
-            <H3 color="text.primary" fontWeight={700}>
+            <H3 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
               Event Ticket
             </H3>
 
@@ -147,7 +149,11 @@ export const EventDetailTicket = ({
               ) &&
               !shouldHideEditTicketButton &&
               !readOnly && (
-                <Button variant="primary" onClick={handleEditTickets}>
+                <Button
+                  variant="primary"
+                  onClick={handleEditTickets}
+                  sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+                >
                   Edit Ticket
                 </Button>
               )}
@@ -185,12 +191,14 @@ export const EventDetailTicket = ({
       <Box mt={4}>
         {(!hideHeader || approvalMode) && (
           <Box
-            alignItems="center"
             display="flex"
+            flexDirection="row"
+            alignItems="center"
             justifyContent="space-between"
+            gap={1}
             mb={2}
           >
-            <H3 color="text.primary" fontWeight={700}>
+            <H3 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
               Group Ticket
             </H3>
 
@@ -213,6 +221,7 @@ export const EventDetailTicket = ({
                           `/events/edit/${eventDetail.metaUrl}/group-tickets`
                         )
                       }
+                      sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
                     >
                       Edit Group Ticket
                     </Button>
@@ -225,13 +234,16 @@ export const EventDetailTicket = ({
                       sx={{
                         backgroundColor: 'info.light',
                         borderLeft: '4px solid',
-                        borderLeftColor: 'info.main'
+                        borderLeftColor: 'info.main',
+                        flexShrink: 1,
+                        minWidth: 0
                       }}
                     >
                       <Body2
                         color="text.primary"
                         fontSize="13px"
                         fontWeight={500}
+                        sx={{ wordBreak: 'break-word' }}
                       >
                         Please add at least 1 event ticket first
                       </Body2>

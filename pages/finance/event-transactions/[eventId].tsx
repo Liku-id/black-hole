@@ -141,7 +141,13 @@ function EventTransactions() {
       </Box>
 
       {/* Title */}
-      <H2 color="text.primary" fontSize="28px" fontWeight={700} mb="16px">
+      <H2
+        color="text.primary"
+        fontSize="28px"
+        fontWeight={700}
+        mb="16px"
+        sx={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+      >
         {eventName ? `${eventName}'s Transactions` : 'Event Transactions'}
       </H2>
 
@@ -162,18 +168,22 @@ function EventTransactions() {
         {/* Tabs */}
         <Box
           display="flex"
+          flexDirection={{ xs: 'column', sm: 'row' }}
           justifyContent="space-between"
-          alignItems="flex-end"
+          alignItems={{ xs: 'stretch', sm: 'flex-end' }}
+          gap={2}
           borderBottom={`1px solid ${theme.palette.grey[100]}`}
         >
-          <Tabs
-            activeTab={activeTab}
-            tabs={tabs}
-            onTabChange={handleTabChange}
-            borderless
-          />
+          <Box minWidth={0} width={{ xs: '100%', sm: 'auto' }} flex={1}>
+            <Tabs
+              activeTab={activeTab}
+              tabs={tabs}
+              onTabChange={handleTabChange}
+              borderless
+            />
+          </Box>
 
-          <Box mb={1}>
+          <Box mb={{ xs: 1, sm: 1 }} width={{ xs: '100%', sm: 'auto' }}>
             <Select
               options={
                 activeTab === 'payment' ? statusOptions : withdrawalStatusOptions
@@ -186,6 +196,7 @@ function EventTransactions() {
               onChange={(value) => handleStatusChange(value)}
               placeholder="Status"
               sx={{
+                width: { xs: '100%', sm: 'auto' },
                 '& .MuiOutlinedInput-root': {
                   height: '36px'
                 }

@@ -139,19 +139,22 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
       {/* Header */}
       <Box
         display="flex"
+        flexDirection="row"
         alignItems="center"
         justifyContent="space-between"
+        gap={1}
         px={2}
         py={2.5}
         sx={{ borderBottom: '1px solid', borderColor: 'grey.100' }}
       >
-        <H3 color="text.primary" fontWeight={700}>
+        <H3 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
           Events
         </H3>
         <Button
           id="create_new_event_button"
           onClick={() => router.push('/events/create')}
           disabled={!isOrganizerDataComplete}
+          sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
         >
           Create New Event
         </Button>
@@ -162,11 +165,13 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
         <Box px={3} py={2}>
           <Box
             display="flex"
-            alignItems="center"
+            flexDirection={{ xs: 'column', sm: 'row' }}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
             justifyContent="space-between"
+            gap={2}
             mb={2}
           >
-            <Box flex={1} mr={4}>
+            <Box flex={1} mr={{ xs: 0, sm: 4 }}>
               <Tabs
                 activeTab={activeTab}
                 tabs={tabs}
@@ -174,7 +179,7 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
               />
             </Box>
 
-            <Box width={300} flexShrink={0}>
+            <Box width={{ xs: '100%', sm: 300 }} flexShrink={{ xs: 1, sm: 0 }}>
               <TextField
                 fullWidth
                 placeholder="Cari Event"
@@ -200,6 +205,7 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
               onRefresh={mutate}
               total={pagination?.totalRecords || 0}
               currentPage={filters.page}
+              pageSize={filters.show}
               onPageChange={handlePageChange}
               isCompact
             />

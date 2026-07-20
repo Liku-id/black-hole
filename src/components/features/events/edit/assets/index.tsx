@@ -296,7 +296,7 @@ export const EventAssetsEditForm = ({
                   ? mainEventAsset?.asset.url
                   : undefined
               }
-              height="354px"
+              height={{ xs: '200px', sm: '280px', md: '354px' }}
               order={1}
               width="100%"
               onFileRemove={handleThumbnailRemove}
@@ -334,7 +334,7 @@ export const EventAssetsEditForm = ({
                           ? existingEventAsset?.asset.url
                           : undefined
                       }
-                      height="169px"
+                      height={{ xs: '120px', sm: '140px', md: '169px' }}
                       order={index + 2}
                       width="100%"
                       onFileRemove={() => handleSupportingImageRemove(index)}
