@@ -59,6 +59,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [router.pathname]);
+
+
   // Fetch event organizers when dropdown is open
   useEffect(() => {
     const fetchEventOrganizers = async () => {
@@ -174,9 +180,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <StyledToolbar>
           <IconButton
             aria-label="open drawer"
-            color="inherit"
-            edge="start"
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { md: 'none' }, color: 'primary.dark' }}
             onClick={handleDrawerToggle}
           >
             <MenuIcon />
@@ -201,7 +205,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </StyledAppBar>
 
       {/* Sidebar menu - left navigation drawer with menu items and user profile */}
-      <Box component="nav" flexShrink={{ sm: 0 }} width={{ sm: drawerWidth }}>
+      <Box component="nav" flexShrink={{ md: 0 }} width={{ md: drawerWidth }}>
         <StyledDrawer
           ModalProps={{ keepMounted: true }}
           open={mobileOpen}

@@ -7,9 +7,15 @@ import {
   TableRow,
   useTheme
 } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, ReactNode, useState } from 'react';
 
-import { Body1, Body2, Caption, Pagination } from '@/components/common';
+import {
+  Body1,
+  Body2,
+  Caption,
+  CollapsibleCardList,
+  Pagination
+} from '@/components/common';
 import {
   StyledTableBody,
   StyledTableContainer,
@@ -57,25 +63,115 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
     setModalOpen(false);
     setSelectedWithdrawal(null);
   };
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" padding="40px">
-        <Body2 color="text.secondary">Loading withdrawal history...</Body2>
-      </Box>
-    );
-  }
+
+  const renderActionCell = (withdrawal: WithdrawalHistoryItem) => (
+    <IconButton
+      size="small"
+      onClick={() => handleViewWithdrawal(withdrawal)}
+      sx={{
+        color: 'primary.main'
+      }}
+    >
+      <VisibilityIcon fontSize="small" />
+    </IconButton>
+  );
+
+  const colSpan = 8 - (hideEOName ? 1 : 0) - (hideEventName ? 1 : 0);
+
+  const pagination = (
+    <Pagination
+      total={total}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      onPageChange={(page) => onPageChange && onPageChange(page)}
+      loading={loading}
+    />
+  );
+
+  const modal = (
+    <WithdrawalDetailModal
+      open={modalOpen}
+      onClose={handleCloseModal}
+      withdrawal={selectedWithdrawal}
+    />
+  );
+
+  const sectionHeader = (
+    <Box borderBottom={`1px solid ${theme.palette.grey[100]}`} pb={2}>
+      <Body1 color="text.primary" fontWeight={600}>
+        Withdrawal History
+      </Body1>
+    </Box>
+  );
 
   return (
     <>
-      <StyledTableContainer>
-        <Box
-          borderBottom={`1px solid ${theme.palette.grey[100]}`}
-          pb={2}
-        >
-          <Body1 color="text.primary" fontWeight={600}>
-            Withdrawal History
-          </Body1>
-        </Box>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        {sectionHeader}
+        <CollapsibleCardList
+          items={withdrawals}
+          getKey={(withdrawal) => withdrawal.id}
+          loading={loading}
+          loadingMessage="Loading withdrawal history..."
+          emptyMessage="No withdrawal history found"
+          renderTitle={(withdrawal, index) =>
+            `${index + 1 + currentPage * pageSize}. ${withdrawal.withdrawalId}`
+          }
+          renderDetails={(withdrawal) => {
+            const details: { label: string; value: ReactNode }[] = [];
+
+            if (!hideEOName) {
+              details.push({
+                label: 'Event Organizer',
+                value: withdrawal.eventOrganizerName
+              });
+            }
+            if (!hideEventName) {
+              details.push({
+                label: 'Event Name',
+                value: withdrawal.eventName
+              });
+            }
+            details.push(
+              {
+                label: 'Withdrawal Name',
+                value: withdrawal.withdrawalName || '-'
+              },
+              {
+                label: 'Submission Date',
+                value: dateUtils.formatDateDDMMYYYY(withdrawal.createdAt)
+              },
+              {
+                label: 'Amount Received',
+                value: (
+                  <Body2 fontSize="12px" color="primary.main">
+                    {formatUtils.formatPrice(
+                      parseFloat(withdrawal.amountReceived)
+                    )}
+                  </Body2>
+                )
+              },
+              {
+                label: 'Withdrawal Status',
+                value: (
+                  <StatusBadge
+                    status={withdrawal.status}
+                    displayName={
+                      withdrawal.status === 'APPROVED' ? 'Approved' : ''
+                    }
+                  />
+                )
+              }
+            );
+            return details;
+          }}
+          renderActions={renderActionCell}
+        />
+        {pagination}
+      </StyledTableContainer>
+
+      <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
+        {sectionHeader}
         <Table>
           <StyledTableHead>
             <TableRow>
@@ -131,15 +227,19 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
             </TableRow>
           </StyledTableHead>
           <StyledTableBody>
-            {withdrawals.length === 0 ? (
+            {loading ? (
               <TableRow>
-                <TableCell
-                  colSpan={
-                    8 - (hideEOName ? 1 : 0) - (hideEventName ? 1 : 0)
-                  }
-                  align="center"
-                  sx={{ padding: '40px' }}
-                >
+                <TableCell colSpan={colSpan} sx={{ border: 'none' }}>
+                  <Box display="flex" justifyContent="center" padding="40px">
+                    <Body2 color="text.secondary">
+                      Loading withdrawal history...
+                    </Body2>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : withdrawals.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={colSpan} align="center" sx={{ padding: '40px' }}>
                   <Body2 color="text.secondary">
                     No withdrawal history found
                   </Body2>
@@ -158,7 +258,9 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                   </TableCell>
                   {!hideEOName && (
                     <TableCell>
-                      <Body2 fontSize="14px">{withdrawal.eventOrganizerName}</Body2>
+                      <Body2 fontSize="14px">
+                        {withdrawal.eventOrganizerName}
+                      </Body2>
                     </TableCell>
                   )}
                   {!hideEventName && (
@@ -192,15 +294,7 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleViewWithdrawal(withdrawal)}
-                      sx={{
-                        color: 'primary.main'
-                      }}
-                    >
-                      <VisibilityIcon fontSize="small" />
-                    </IconButton>
+                    {renderActionCell(withdrawal)}
                   </TableCell>
                 </TableRow>
               ))
@@ -208,21 +302,10 @@ const WithdrawalHistoryTable: FC<WithdrawalHistoryTableProps> = ({
           </StyledTableBody>
         </Table>
 
-        {/* Pagination */}
-        <Pagination
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={(page) => onPageChange && onPageChange(page)}
-          loading={loading}
-        />
+        {pagination}
       </StyledTableContainer>
 
-      <WithdrawalDetailModal
-        open={modalOpen}
-        onClose={handleCloseModal}
-        withdrawal={selectedWithdrawal}
-      />
+      {modal}
     </>
   );
 };

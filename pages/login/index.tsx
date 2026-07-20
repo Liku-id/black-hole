@@ -21,7 +21,7 @@ function LoginPage() {
         display={'flex'}
         alignItems={'center'}
         justifyContent={'center'}
-        p={3}
+        p={{ xs: 2, sm: 3 }}
         sx={{
           bgcolor: 'primary.dark'
         }}

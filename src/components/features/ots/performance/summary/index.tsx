@@ -26,8 +26,12 @@ export function OTSSummaryCards({ data, loading }: OTSSummaryCardsProps) {
   return (
     <Box
       display="grid"
-      gap="30px"
-      gridTemplateColumns="repeat(4, 1fr)"
+      gap={{ xs: '12px', sm: '16px', md: '30px' }}
+      gridTemplateColumns={{
+        xs: '1fr',
+        sm: '1fr 1fr',
+        md: 'repeat(4, 1fr)'
+      }}
     >
       {statsCards.map((card, index) => (
         <Box
@@ -35,19 +39,37 @@ export function OTSSummaryCards({ data, loading }: OTSSummaryCardsProps) {
           border={1}
           borderColor={theme.palette.grey[100]}
           padding="16px 12px"
-          sx={{ backgroundColor: 'common.white', borderRadius: 0 }}
+          sx={{
+            backgroundColor: 'common.white',
+            borderRadius: 0,
+            minWidth: 0,
+            overflow: 'hidden'
+          }}
         >
-          <Box alignItems="center" display="flex" mb="24px">
+          <Box alignItems="center" display="flex" mb="24px" minWidth={0}>
             <Image alt={card.title} height={24} src={card.icon} width={24} />
             <Body2
-              fontSize="18px"
               fontWeight={400}
               ml="8px"
+              sx={{
+                fontSize: { xs: '14px', sm: '18px' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: 0
+              }}
             >
               {card.title}
             </Body2>
           </Box>
-          <H2 color="text.primary" fontSize="32px">
+          <H2
+            color="text.primary"
+            sx={{
+              fontSize: { xs: '22px', sm: '28px', md: '32px' },
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere'
+            }}
+          >
             {loading ? '...' : card.value}
           </H2>
         </Box>

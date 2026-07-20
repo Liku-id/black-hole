@@ -240,7 +240,7 @@ function Tickets() {
               mt: 3
             }}
           >
-            <H3 color="text.secondary">
+            <H3 color="text.secondary" sx={{ textAlign: 'center', px: 2 }}>
               Select an event to view attendee details
             </H3>
           </Box>

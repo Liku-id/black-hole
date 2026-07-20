@@ -102,7 +102,7 @@ function OTSPage() {
         />
       ) : (
         <>
-          <Box mb="24px" width="100%" maxWidth="400px">
+          <Box mb="24px" width="100%" maxWidth={{ xs: '100%', sm: '400px' }}>
             <Select
               label="Select Event"
               placeholder="Select Event"
@@ -119,8 +119,25 @@ function OTSPage() {
             <Box>
               {/* Card 1: Header / Top Section */}
               <Box bgcolor="background.paper" p="16px 24px" mb="24px">
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb="16px">
-                  <Body1 color="text.primary" fontWeight={600}>
+                <Box
+                  display="flex"
+                  flexDirection={{ xs: 'column', sm: 'row' }}
+                  alignItems={{ xs: 'stretch', sm: 'center' }}
+                  justifyContent="space-between"
+                  gap={1.5}
+                  mb="16px"
+                >
+                  <Body1
+                    color="text.primary"
+                    fontWeight={600}
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: { xs: 'normal', sm: 'nowrap' },
+                      wordBreak: 'break-word',
+                      minWidth: 0
+                    }}
+                  >
                     {isApproved && selectedEventId
                       ? `On The Spot Ticket: ${events?.find(e => e.id === selectedEventId)?.name || 'Event'}`
                       : 'On The Spot Ticket'}
@@ -147,8 +164,8 @@ function OTSPage() {
                           </Body2>
                         </Stack>
 
-                        <Box borderBottom="1px solid" borderColor="grey.100">
-                          <Box display="flex" pb="12px" width="calc(65% - 12px)">
+                        <Box borderBottom="1px solid" borderColor="grey.100" sx={{ display: { xs: 'none', md: 'block' } }}>
+                          <Box display="flex" pb="12px" width="100%">
                             <Box sx={{ width: '5%' }}><Body2 color="text.secondary">No</Body2></Box>
                             <Box sx={{ width: '27%' }}><Body2 color="text.secondary">Ticket Type</Body2></Box>
                             <Box sx={{ width: '18%' }}><Body2 color="text.secondary">Price</Body2></Box>

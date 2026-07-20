@@ -24,29 +24,21 @@ export const SearchField = ({
     <Card>
       <Box display="flex" flexDirection="column" gap={3}>
         {/* Header row with Select Event title and Scan Ticket button */}
-        <Box alignItems="center" display="flex" justifyContent="space-between">
-          <H4
-            sx={{
-              color: 'text.primary'
-            }}
-          >
+        <Box
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
+          gap={1}
+        >
+          <H4 sx={{ color: 'text.primary', minWidth: 0 }}>
             Select Event
           </H4>
 
           <Button
             id="scan_ticket_button"
-            sx={{
-              width: '130px',
-              height: '46px',
-              fontSize: '14px',
-              fontWeight: 600,
-              borderRadius: '4px',
-              boxShadow: 'none',
-              '&:hover': {
-                boxShadow: 'none'
-              }
-            }}
             onClick={onScanTicket}
+            sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
           >
             Scan Ticket
           </Button>
@@ -66,7 +58,10 @@ export const SearchField = ({
               sx={{
                 '& .MuiOutlinedInput-root': {
                   height: '40px',
-                  fontSize: '16px',
+                  fontSize: '14px',
+                  alignItems: 'center',
+                  paddingTop: 0,
+                  paddingBottom: 0,
                   '& fieldset': {
                     borderColor: '#E2E8F0',
                     borderRadius: '8px'
@@ -79,7 +74,15 @@ export const SearchField = ({
                   }
                 },
                 '& .MuiInputBase-input': {
-                  py: 0
+                  py: 0,
+                  fontSize: '14px',
+                  lineHeight: '40px',
+                  height: '40px',
+                  boxSizing: 'border-box',
+                  '&::placeholder': {
+                    fontSize: '14px',
+                    opacity: 1
+                  }
                 }
               }}
             />
@@ -111,7 +114,14 @@ export const SearchField = ({
           )}
           sx={{
             '& .MuiAutocomplete-inputRoot': {
-              height: '40px'
+              height: '40px',
+              alignItems: 'center',
+              paddingTop: '0 !important',
+              paddingBottom: '0 !important'
+            },
+            '& .MuiAutocomplete-input': {
+              padding: '0 !important',
+              minWidth: 0
             },
             '& .MuiAutocomplete-listbox': {
               padding: 0

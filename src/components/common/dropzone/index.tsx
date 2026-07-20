@@ -7,8 +7,8 @@ import { Caption, Overline } from '@/components/common/typography';
 
 interface DropzoneProps {
   id?: string;
-  width?: string | number;
-  height?: string | number;
+  width?: any;
+  height?: any;
   onFileSelect?: (file: File) => void;
   onFileRemove?: () => void;
   accept?: Record<string, string[]>;
@@ -122,14 +122,17 @@ const Dropzone = ({
           )}
           <Box
             id="clear_icon"
-            height="24px"
+            height="40px"
             position="absolute"
-            right="16px"
+            right="8px"
             sx={{
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
-            top="16px"
-            width="24px"
+            top="8px"
+            width="40px"
             zIndex={1}
             onClick={handleRemoveFile}
           >
@@ -165,7 +168,7 @@ const Dropzone = ({
             flexDirection="column"
             height="100%"
             justifyContent="center"
-            paddingX="24px"
+            paddingX={{ xs: '12px', sm: '24px' }}
           >
             <Box marginBottom="16px">
               <Image
@@ -183,7 +186,7 @@ const Dropzone = ({
               Click or drag file to this area to upload{' '}
               {order === 1 ? 'thumbnail' : 'supporting'} image
             </Caption>
-            <Overline color="text.secondary" textAlign="center">
+            <Overline color="text.secondary" textAlign="center" sx={{ display: { xs: 'none', sm: 'block' } }}>
               Suggestion resolution: 630x354px, 300 DPI, size max: 2MB
             </Overline>
           </Box>

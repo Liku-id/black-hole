@@ -81,8 +81,8 @@ export function OrderSummary({
     <Box
       bgcolor="common.white"
       p="24px"
-      position="sticky"
-      top="24px"
+      position={{ xs: 'relative', md: 'sticky' }}
+      top={{ xs: 'auto', md: '24px' }}
     >
       <Body1 fontWeight={600} mb="24px">Order details</Body1>
 
@@ -90,7 +90,15 @@ export function OrderSummary({
         <Caption color="text.secondary">
           Total Payment: <Box component="span" fontWeight={700} color="text.primary">{totalQty} Ticket</Box>
         </Caption>
-        <H1 fontWeight={700} color="text.primary">
+        <H1
+        fontWeight={700}
+        color="text.primary"
+        sx={{
+          fontSize: { xs: '24px', sm: '32px' },
+          wordBreak: 'break-word',
+          overflowWrap: 'anywhere'
+        }}
+      >
           {formatPrice(grandTotal)}
         </H1>
       </Box>
@@ -172,7 +180,7 @@ export function OrderSummary({
         </Box>
       )}
 
-      <Box display="flex" justifyContent="center">
+      <Box display="flex" justifyContent="center" width="100%">
         <Button
           disabled={
             selectedItems.length === 0 ||
@@ -180,7 +188,7 @@ export function OrderSummary({
             (showPaymentSelection && (paymentMethodsLoading || !qrisMethod))
           }
           onClick={onCheckout}
-          sx={{ py: '12px' }}
+          sx={{ py: '12px', width: { xs: '100%', sm: 'auto' } }}
         >
           Continue
         </Button>

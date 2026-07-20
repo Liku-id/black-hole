@@ -16,7 +16,6 @@ import {
   CardHeader,
   Checkbox,
   Chip,
-  Divider,
   IconButton,
   Table,
   TableBody,
@@ -31,6 +30,7 @@ import {
 } from '@mui/material';
 import { ChangeEvent, FC, useState } from 'react';
 
+import { CollapsibleCardList } from '@/components/common';
 import { EventOrganizer } from '@/types/organizer';
 import { formatPhoneNumber, truncate, dateUtils } from '@/utils';
 
@@ -89,17 +89,128 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
     selectedOrganizers.length < organizers.length;
   const selectedAllOrganizers = selectedOrganizers.length === organizers.length;
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader title="Event Organizers" />
-        <Divider />
-        <Box display="flex" justifyContent="center" p={3}>
-          <Typography>Loading organizers...</Typography>
-        </Box>
-      </Card>
-    );
-  }
+  const getBankDetails = (organizer: EventOrganizer) => {
+    if (!organizer.bank_information) {
+      return 'No Bank Info';
+    }
+
+    return `${organizer.bank_information.bank.name.toUpperCase()} · ${organizer.bank_information.accountNumber} · ${organizer.bank_information.accountHolderName}`;
+  };
+
+  const renderActionButtons = () => (
+    <Box display="flex" gap={0.5}>
+      <Tooltip arrow title="View Details">
+        <IconButton
+          size="small"
+          sx={{
+            '&:hover': {
+              background: theme.palette.info.light,
+              transform: 'scale(1.1)'
+            },
+            color: theme.palette.info.main,
+            transition: 'all 0.2s ease-in-out'
+          }}
+        >
+          <VisibilityTwoToneIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip arrow title="Edit Organizer">
+        <IconButton
+          size="small"
+          sx={{
+            '&:hover': {
+              background: theme.palette.primary.light,
+              transform: 'scale(1.1)'
+            },
+            color: theme.palette.primary.main,
+            transition: 'all 0.2s ease-in-out'
+          }}
+        >
+          <EditTwoToneIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip arrow title="Delete Organizer">
+        <IconButton
+          size="small"
+          sx={{
+            '&:hover': {
+              background: theme.palette.error.light,
+              transform: 'scale(1.1)'
+            },
+            color: theme.palette.error.main,
+            transition: 'all 0.2s ease-in-out'
+          }}
+        >
+          <DeleteTwoToneIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+
+  const renderOrganizerDetails = (organizer: EventOrganizer) => [
+    { label: 'Organizer Name', value: organizer.name },
+    {
+      label: 'PIC Title',
+      value: organizer.pic_title || 'No title specified'
+    },
+    {
+      label: 'Description',
+      value: organizer.description
+        ? truncate(organizer.description, 30)
+        : '-'
+    },
+    { label: 'Email', value: organizer.email || '-' },
+    {
+      label: 'Phone',
+      value: formatPhoneNumber(organizer.phone_number)
+    },
+    {
+      label: 'Banking Details',
+      value: organizer.bank_information ? (
+        getBankDetails(organizer)
+      ) : (
+        <Chip
+          color="warning"
+          label="No Bank Info"
+          size="small"
+          sx={{ borderRadius: 1 }}
+          variant="outlined"
+        />
+      )
+    },
+    { label: 'NIK', value: organizer.nik || '-' },
+    { label: 'NPWP', value: organizer.npwp || '-' },
+    {
+      label: 'Created',
+      value: dateUtils.formatDateTimeWIB(organizer.created_at)
+    }
+  ];
+
+  const pagination = (
+    <Box
+      p={2}
+      sx={{
+        backgroundColor: theme.palette.grey[50],
+        borderTop: `1px solid ${theme.palette.divider}`
+      }}
+    >
+      <TablePagination
+        component="div"
+        count={organizers.length}
+        page={page}
+        rowsPerPage={limit}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        sx={{
+          '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
+            {
+              fontWeight: 500
+            }
+        }}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleLimitChange}
+      />
+    </Box>
+  );
 
   return (
     <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -126,7 +237,42 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
           </Typography>
         }
       />
-      <TableContainer sx={{ maxHeight: 800 }}>
+
+      <Box sx={{ display: { xs: 'block', lg: 'none' }, px: { xs: 1, sm: 2 } }}>
+        <CollapsibleCardList
+          items={paginatedOrganizers}
+          getKey={(organizer) => organizer.id}
+          loading={loading}
+          loadingMessage="Loading organizers..."
+          emptyMessage="No organizers found"
+          renderTitle={(organizer, index) =>
+            `${page * limit + index + 1}. ${organizer.name}`
+          }
+          renderSubtitle={(organizer) =>
+            organizer.pic_title || organizer.email || '-'
+          }
+          renderTitleMeta={(organizer) =>
+            !organizer.bank_information ? (
+              <Chip
+                color="warning"
+                label="No Bank Info"
+                size="small"
+                sx={{ borderRadius: 1 }}
+                variant="outlined"
+              />
+            ) : null
+          }
+          renderDetails={renderOrganizerDetails}
+          renderActions={renderActionButtons}
+        />
+      </Box>
+
+      <TableContainer
+        sx={{
+          display: { xs: 'none', lg: 'block' },
+          maxHeight: 800
+        }}
+      >
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -214,271 +360,222 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedOrganizers.map((organizer) => {
-              const isOrganizerSelected = selectedOrganizers.includes(
-                organizer.id
-              );
-              return (
-                <TableRow
-                  key={organizer.id}
-                  hover
-                  selected={isOrganizerSelected}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: `${theme.palette.primary.main}08`,
-                      transform: 'translateY(-1px)',
-                      transition: 'all 0.2s ease-in-out'
-                    },
-                    '&.Mui-selected': {
-                      backgroundColor: `${theme.palette.primary.main}12`
-                    },
-                    borderBottom: `1px solid ${theme.palette.divider}`
-                  }}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isOrganizerSelected}
-                      color="primary"
-                      value={isOrganizerSelected}
-                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                        handleSelectOneOrganizer(event, organizer.id)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box alignItems="center" display="flex">
-                      <Avatar
-                        sx={{
-                          mr: 2,
-                          width: 48,
-                          height: 48,
-                          bgcolor: theme.palette.primary.main,
-                          boxShadow: theme.shadows[2]
-                        }}
-                      >
-                        <BusinessIcon />
-                      </Avatar>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                  <Typography>Loading organizers...</Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedOrganizers.map((organizer) => {
+                const isOrganizerSelected = selectedOrganizers.includes(
+                  organizer.id
+                );
+                return (
+                  <TableRow
+                    key={organizer.id}
+                    hover
+                    selected={isOrganizerSelected}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: `${theme.palette.primary.main}08`,
+                        transform: 'translateY(-1px)',
+                        transition: 'all 0.2s ease-in-out'
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: `${theme.palette.primary.main}12`
+                      },
+                      borderBottom: `1px solid ${theme.palette.divider}`
+                    }}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={isOrganizerSelected}
+                        color="primary"
+                        value={isOrganizerSelected}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                          handleSelectOneOrganizer(event, organizer.id)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box alignItems="center" display="flex">
+                        <Avatar
+                          sx={{
+                            mr: 2,
+                            width: 48,
+                            height: 48,
+                            bgcolor: theme.palette.primary.main,
+                            boxShadow: theme.shadows[2]
+                          }}
+                        >
+                          <BusinessIcon />
+                        </Avatar>
+                        <Box>
+                          <Typography
+                            noWrap
+                            fontWeight="bold"
+                            variant="subtitle2"
+                          >
+                            {organizer.name}
+                          </Typography>
+                          <Box
+                            alignItems="center"
+                            display="flex"
+                            gap={0.5}
+                            mt={0.5}
+                          >
+                            <PersonIcon
+                              sx={{
+                                fontSize: 14,
+                                color: theme.palette.text.secondary
+                              }}
+                            />
+                            <Typography
+                              noWrap
+                              color="text.secondary"
+                              variant="caption"
+                            >
+                              {organizer.pic_title || 'No title specified'}
+                            </Typography>
+                          </Box>
+                          {organizer.description && (
+                            <Typography
+                              noWrap
+                              color="text.secondary"
+                              variant="caption"
+                            >
+                              {truncate(organizer.description, 30)}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
                       <Box>
-                        <Typography
-                          noWrap
-                          fontWeight="bold"
-                          variant="subtitle2"
-                        >
-                          {organizer.name}
-                        </Typography>
-                        <Box
-                          alignItems="center"
-                          display="flex"
-                          gap={0.5}
-                          mt={0.5}
-                        >
-                          <PersonIcon
+                        <Box alignItems="center" display="flex" gap={1} mb={1}>
+                          <EmailIcon
                             sx={{
-                              fontSize: 14,
-                              color: theme.palette.text.secondary
+                              fontSize: 16,
+                              color: theme.palette.info.main
+                            }}
+                          />
+                          <Typography noWrap variant="body2">
+                            {organizer.email || '-'}
+                          </Typography>
+                        </Box>{' '}
+                        <Box alignItems="center" display="flex" gap={1}>
+                          <PhoneIcon
+                            sx={{
+                              fontSize: 16,
+                              color: theme.palette.success.main
                             }}
                           />
                           <Typography
                             noWrap
                             color="text.secondary"
-                            variant="caption"
+                            variant="body2"
                           >
-                            {organizer.pic_title || 'No title specified'}
+                            {formatPhoneNumber(organizer.phone_number)}
                           </Typography>
                         </Box>
-                        {organizer.description && (
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      {organizer.bank_information ? (
+                        <Box>
+                          <Box
+                            alignItems="center"
+                            display="flex"
+                            gap={1}
+                            mb={1}
+                          >
+                            <AccountBalanceIcon
+                              sx={{
+                                fontSize: 16,
+                                color: theme.palette.primary.main
+                              }}
+                            />
+                            <Typography
+                              noWrap
+                              fontWeight="medium"
+                              variant="body2"
+                            >
+                              {organizer.bank_information.bank.name.toUpperCase()}
+                            </Typography>
+                          </Box>
+                          <Box alignItems="center" display="flex" gap={1}>
+                            <BadgeIcon
+                              sx={{
+                                fontSize: 14,
+                                color: theme.palette.text.secondary
+                              }}
+                            />
+                            <Typography
+                              noWrap
+                              color="text.secondary"
+                              variant="caption"
+                            >
+                              {organizer.bank_information.accountNumber}
+                            </Typography>
+                          </Box>
                           <Typography
                             noWrap
                             color="text.secondary"
                             variant="caption"
                           >
-                            {truncate(organizer.description, 30)}
+                            {organizer.bank_information.accountHolderName}
                           </Typography>
-                        )}
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Box alignItems="center" display="flex" gap={1} mb={1}>
-                        <EmailIcon
-                          sx={{ fontSize: 16, color: theme.palette.info.main }}
+                        </Box>
+                      ) : (
+                        <Chip
+                          color="warning"
+                          label="No Bank Info"
+                          size="small"
+                          sx={{ borderRadius: 1 }}
+                          variant="outlined"
                         />
-                        <Typography noWrap variant="body2">
-                          {organizer.email || '-'}
-                        </Typography>
-                      </Box>{' '}
-                      <Box alignItems="center" display="flex" gap={1}>
-                        <PhoneIcon
-                          sx={{
-                            fontSize: 16,
-                            color: theme.palette.success.main
-                          }}
-                        />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        <Box alignItems="center" display="flex" gap={1} mb={1}>
+                          <BadgeIcon
+                            sx={{
+                              fontSize: 16,
+                              color: theme.palette.secondary.main
+                            }}
+                          />
+                          <Typography noWrap fontWeight="medium" variant="body2">
+                            NIK: {organizer.nik || '-'}
+                          </Typography>
+                        </Box>
                         <Typography
                           noWrap
                           color="text.secondary"
                           variant="body2"
                         >
-                          {formatPhoneNumber(organizer.phone_number)}
+                          NPWP: {organizer.npwp || '-'}
                         </Typography>
                       </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    {organizer.bank_information ? (
+                    </TableCell>
+                    <TableCell>
                       <Box>
-                        <Box alignItems="center" display="flex" gap={1} mb={1}>
-                          <AccountBalanceIcon
-                            sx={{
-                              fontSize: 16,
-                              color: theme.palette.primary.main
-                            }}
-                          />
-                          <Typography
-                            noWrap
-                            fontWeight="medium"
-                            variant="body2"
-                          >
-                            {organizer.bank_information.bank.name.toUpperCase()}
-                          </Typography>
-                        </Box>
-                        <Box alignItems="center" display="flex" gap={1}>
-                          <BadgeIcon
-                            sx={{
-                              fontSize: 14,
-                              color: theme.palette.text.secondary
-                            }}
-                          />
-                          <Typography
-                            noWrap
-                            color="text.secondary"
-                            variant="caption"
-                          >
-                            {organizer.bank_information.accountNumber}
-                          </Typography>
-                        </Box>
-                        <Typography
-                          noWrap
-                          color="text.secondary"
-                          variant="caption"
-                        >
-                          {organizer.bank_information.accountHolderName}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Chip
-                        color="warning"
-                        label="No Bank Info"
-                        size="small"
-                        sx={{ borderRadius: 1 }}
-                        variant="outlined"
-                      />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Box alignItems="center" display="flex" gap={1} mb={1}>
-                        <BadgeIcon
-                          sx={{
-                            fontSize: 16,
-                            color: theme.palette.secondary.main
-                          }}
-                        />
                         <Typography noWrap fontWeight="medium" variant="body2">
-                          NIK: {organizer.nik || '-'}
+                          {dateUtils.formatDateTimeWIB(organizer.created_at)}
                         </Typography>
                       </Box>
-                      <Typography noWrap color="text.secondary" variant="body2">
-                        NPWP: {organizer.npwp || '-'}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Typography noWrap fontWeight="medium" variant="body2">
-                        {dateUtils.formatDateTimeWIB(organizer.created_at)}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Box display="flex" gap={0.5} justifyContent="flex-end">
-                      <Tooltip arrow title="View Details">
-                        <IconButton
-                          size="small"
-                          sx={{
-                            '&:hover': {
-                              background: theme.palette.info.light,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.info.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                        >
-                          <VisibilityTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip arrow title="Edit Organizer">
-                        <IconButton
-                          size="small"
-                          sx={{
-                            '&:hover': {
-                              background: theme.palette.primary.light,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.primary.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                        >
-                          <EditTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip arrow title="Delete Organizer">
-                        <IconButton
-                          size="small"
-                          sx={{
-                            '&:hover': {
-                              background: theme.palette.error.light,
-                              transform: 'scale(1.1)'
-                            },
-                            color: theme.palette.error.main,
-                            transition: 'all 0.2s ease-in-out'
-                          }}
-                        >
-                          <DeleteTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                    </TableCell>
+                    <TableCell align="right">{renderActionButtons()}</TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </TableContainer>
-      <Box
-        p={2}
-        sx={{
-          backgroundColor: theme.palette.grey[50],
-          borderTop: `1px solid ${theme.palette.divider}`
-        }}
-      >
-        <TablePagination
-          component="div"
-          count={organizers.length}
-          page={page}
-          rowsPerPage={limit}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          sx={{
-            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
-              {
-                fontWeight: 500
-              }
-          }}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
-        />
-      </Box>
+
+      {pagination}
     </Card>
   );
 };

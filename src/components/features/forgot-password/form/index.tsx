@@ -23,6 +23,9 @@ const ForgotPasswordCard = styled(Card)(
     backdrop-filter: blur(10px);
     border-radius: 0px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    ${theme.breakpoints.down('sm')} {
+      padding: 32px 16px;
+    }
 `
 );
 

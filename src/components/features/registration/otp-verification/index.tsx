@@ -21,6 +21,9 @@ const OTPCard = styled(Card)(
     backdrop-filter: blur(10px);
     border-radius: 0px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    ${theme.breakpoints.down('sm')} {
+      padding: 32px 16px;
+    }
 `
 );
 
@@ -36,6 +39,13 @@ const OTPInput = styled('input')(
     margin: 0 8px;
     outline: none;
     transition: all 0.2s ease;
+
+    ${theme.breakpoints.down('sm')} {
+      width: 40px;
+      height: 44px;
+      margin: 0 4px;
+      font-size: 18px;
+    }
 
     &:focus {
       border-color: ${theme.palette.primary.main};
@@ -234,7 +244,7 @@ const OTPVerificationForm: React.FC<OTPVerificationFormProps> = ({
               isLoading || (!canResend && otp.some((digit) => digit === ''))
             }
             sx={{
-              width: '322px',
+              width: { xs: '100%', sm: '322px' },
               height: '48px',
               display: 'block',
               margin: '0 auto'

@@ -25,4 +25,6 @@ export {
   StyledTableHead,
   StyledTableBody
 } from './table';
+export { default as CollapsibleCardList } from './collapsible-card-list';
+export type { CardDetailItem, CollapsibleCardListProps } from './collapsible-card-list';
 export { default as QRCode } from './qr-code';

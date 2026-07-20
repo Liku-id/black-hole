@@ -18,7 +18,7 @@ const PopupOverlay = styled(Box)<{ open: boolean }>(({ open }) => ({
   padding: '20px'
 }));
 
-const PopupContent = styled(Box)(() => ({
+const PopupContent = styled(Box)(({ theme }) => ({
   position: 'relative',
   backgroundColor: '#FFFFFF',
   borderRadius: 0,
@@ -26,7 +26,19 @@ const PopupContent = styled(Box)(() => ({
   maxWidth: '90%',
   maxHeight: '90vh',
   overflow: 'auto',
-  boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)'
+  boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
+  [theme.breakpoints.down('md')]: {
+    width: '80% !important',
+    height: 'auto !important',
+    maxHeight: '90vh',
+    borderRadius: '8px'
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '95% !important',
+    height: 'auto !important',
+    maxHeight: '90vh',
+    borderRadius: '8px'
+  }
 }));
 
 const PopupHeader = styled(Box)({
@@ -104,7 +116,7 @@ export const Popup: FC<PopupProps> = ({
         display="flex"
         flexDirection="column"
         height={height}
-        padding="16px 24px"
+        padding={{ xs: '16px 16px', sm: '16px 24px' }}
         width={width}
         onClick={(e) => e.stopPropagation()}
       >

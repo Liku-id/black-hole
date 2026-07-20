@@ -110,30 +110,39 @@ function TeamMember() {
       <Box>
         {/* Header */}
         <Box
-          alignItems="center"
           display="flex"
+          flexDirection="row"
+          alignItems="center"
           justifyContent="space-between"
+          gap={1}
           marginBottom="32px"
         >
-          <H2 color="text.primary" fontWeight={700}>
+          <H2 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
             Team Member
           </H2>
-          <Button onClick={handleAddTeamMember}>Add Team Member</Button>
+          <Button
+            onClick={handleAddTeamMember}
+            sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+          >
+            Add Team Member
+          </Button>
         </Box>
 
         {/* Card */}
         <Card sx={{ backgroundColor: 'common.white' }}>
           {/* Card Header */}
           <Box
-            alignItems="center"
             display="flex"
+            flexDirection={{ xs: 'column', sm: 'row' }}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
             justifyContent="space-between"
+            gap={2}
             paddingBottom="16px"
           >
             <Body1 color="text.primary" fontWeight={600}>
               Team Member List
             </Body1>
-            <Box sx={{ width: '220px' }}>
+            <Box sx={{ width: { xs: '100%', sm: '220px' } }}>
               <TextField
                 fullWidth
                 placeholder="Name"

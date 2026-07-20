@@ -1,9 +1,25 @@
-import { Box, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Table, TableCell, TableRow } from '@mui/material';
+import {
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Table,
+  TableCell,
+  TableRow
+} from '@mui/material';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Body2, Pagination, StyledTableContainer, StyledTableHead, StyledTableBody } from '@/components/common';
+import {
+  Body2,
+  CollapsibleCardList,
+  Pagination,
+  StyledTableContainer,
+  StyledTableHead,
+  StyledTableBody
+} from '@/components/common';
 import { StatusBadge } from '@/components/features/events/status-badge';
 import { useToast } from '@/contexts/ToastContext';
 import { eventsService } from '@/services/events';
@@ -20,7 +36,14 @@ interface OTSTableProps {
   onRefresh?: () => void;
 }
 
-const OTSTable = ({ data, loading, total = 0, currentPage = 0, onPageChange, onRefresh }: OTSTableProps) => {
+const OTSTable = ({
+  data,
+  loading,
+  total = 0,
+  currentPage = 0,
+  onPageChange,
+  onRefresh
+}: OTSTableProps) => {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedItem, setSelectedItem] = useState<OTSApproval | null>(null);
@@ -28,7 +51,10 @@ const OTSTable = ({ data, loading, total = 0, currentPage = 0, onPageChange, onR
   const [isApproving, setIsApproving] = useState(false);
   const { showSuccess, showError } = useToast();
 
-  const handleActionClick = (event: React.MouseEvent<HTMLButtonElement>, item: OTSApproval) => {
+  const handleActionClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    item: OTSApproval
+  ) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(item);
   };
@@ -40,7 +66,6 @@ const OTSTable = ({ data, loading, total = 0, currentPage = 0, onPageChange, onR
   const handleEventDetail = () => {
     handleCloseMenu();
     if (selectedItem) {
-      // Assuming event details uses the id
       router.push(`/events/${selectedItem.event.metaUrl}`);
     }
   };
@@ -83,17 +108,147 @@ const OTSTable = ({ data, loading, total = 0, currentPage = 0, onPageChange, onR
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" padding={4}>
-        <Body2>Loading...</Body2>
-      </Box>
-    );
-  }
+  const getEventName = (item: OTSApproval) =>
+    item.event?.name || item.eventName || item.event_id;
+
+  const renderActionCell = (item: OTSApproval) => (
+    <IconButton
+      size="small"
+      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+      onClick={(e) => handleActionClick(e, item)}
+    >
+      <Image alt="Options" height={24} src="/icon/options.svg" width={24} />
+    </IconButton>
+  );
+
+  const pagination = (
+    <Pagination
+      currentPage={currentPage}
+      total={total}
+      pageSize={10}
+      onPageChange={onPageChange || (() => {})}
+      loading={loading}
+    />
+  );
+
+  const actionMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleCloseMenu}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right'
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right'
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            backgroundColor: 'common.white',
+            boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
+            borderRadius: 1,
+            minWidth: 200,
+            mt: 1
+          }
+        }
+      }}
+    >
+      <MenuItem
+        onClick={handleEventDetail}
+        sx={{
+          padding: '12px 16px',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+          }
+        }}
+      >
+        <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+          <Image alt="Event Detail" src="/icon/eye.svg" height={18} width={18} />
+        </ListItemIcon>
+        <ListItemText
+          primary={
+            <Body2 color="text.primary" fontSize="14px" fontWeight="400">
+              Event Detail
+            </Body2>
+          }
+        />
+      </MenuItem>
+      {selectedItem?.status !== 'approved' &&
+        selectedItem?.status !== 'rejected' && (
+          <MenuItem
+            onClick={handleApproveClick}
+            sx={{
+              padding: '12px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
+              <Image
+                alt="Review Request"
+                src="/icon/edit.svg"
+                height={18}
+                width={18}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <Body2 color="text.primary" fontSize="14px" fontWeight="400">
+                  Review Request
+                </Body2>
+              }
+            />
+          </MenuItem>
+        )}
+    </Menu>
+  );
+
+  const approvalModal = (
+    <OTSApprovalModal
+      open={isModalOpen}
+      onClose={handleCloseModal}
+      onApprove={() => handleAction('approved')}
+      onReject={() => handleAction('rejected')}
+      eventName={selectedItem ? getEventName(selectedItem) : undefined}
+      loading={isApproving}
+    />
+  );
 
   return (
     <>
-      <StyledTableContainer>
+      <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
+        <CollapsibleCardList
+          items={data}
+          getKey={(item) => item.id}
+          loading={loading}
+          loadingMessage="Loading OTS requests..."
+          emptyMessage="No OTS requests found"
+          renderTitle={(item, index) => `${index + 1}. ${getEventName(item)}`}
+          renderDetails={(item) => [
+            {
+              label: 'Approval Status',
+              value: (
+                <StatusBadge
+                  status={item.status}
+                  displayName={
+                    item.status.toLowerCase() === 'approved'
+                      ? 'Approved'
+                      : undefined
+                  }
+                />
+              )
+            }
+          ]}
+          renderActions={renderActionCell}
+        />
+        {pagination}
+      </StyledTableContainer>
+
+      <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
         <Table>
           <StyledTableHead>
             <TableRow>
@@ -129,130 +284,28 @@ const OTSTable = ({ data, loading, total = 0, currentPage = 0, onPageChange, onR
                 </TableCell>
                 <TableCell>
                   <Body2 color="text.primary" fontSize="14px">
-                    {row.event?.name || row.eventName || row.event_id}
+                    {getEventName(row)}
                   </Body2>
                 </TableCell>
                 <TableCell>
                   <StatusBadge
                     status={row.status}
-                    displayName={row.status.toLowerCase() === 'approved' ? 'Approved' : undefined}
+                    displayName={
+                      row.status.toLowerCase() === 'approved'
+                        ? 'Approved'
+                        : undefined
+                    }
                   />
                 </TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    size="small"
-                    sx={{ color: 'text.secondary', cursor: 'pointer' }}
-                    onClick={(e) => handleActionClick(e, row)}
-                  >
-                    <Image
-                      alt="Options"
-                      height={24}
-                      src="/icon/options.svg"
-                      width={24}
-                    />
-                  </IconButton>
-                </TableCell>
+                <TableCell align="right">{renderActionCell(row)}</TableCell>
               </TableRow>
             ))}
           </StyledTableBody>
         </Table>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          total={total}
-          pageSize={10}
-          onPageChange={onPageChange || (() => { })}
-        />
+        {pagination}
       </StyledTableContainer>
-
-      {/* Action Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        slotProps={{
-          paper: {
-            sx: {
-              backgroundColor: 'common.white',
-              boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
-              borderRadius: 1,
-              minWidth: 200,
-              mt: 1
-            }
-          }
-        }}
-      >
-        <MenuItem
-          onClick={handleEventDetail}
-          sx={{
-            padding: '12px 16px',
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)'
-            }
-          }}
-        >
-          <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-            <Image
-              alt="Event Detail"
-              src="/icon/eye.svg"
-              height={18}
-              width={18}
-            />
-          </ListItemIcon>
-          <ListItemText
-            primary={
-              <Body2 color="text.primary" fontSize="14px" fontWeight="400">
-                Event Detail
-              </Body2>
-            }
-          />
-        </MenuItem>
-        {selectedItem?.status !== 'approved' && selectedItem?.status !== 'rejected' && (
-          <MenuItem
-            onClick={handleApproveClick}
-            sx={{
-              padding: '12px 16px',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.04)'
-              }
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
-              <Image
-                alt="Review Request"
-                src="/icon/edit.svg"
-                height={18}
-                width={18}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Body2 color="text.primary" fontSize="14px" fontWeight="400">
-                  Review Request
-                </Body2>
-              }
-            />
-          </MenuItem>
-        )}
-      </Menu>
-
-      <OTSApprovalModal
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        onApprove={() => handleAction('approved')}
-        onReject={() => handleAction('rejected')}
-        eventName={selectedItem?.event?.name || selectedItem?.eventName || selectedItem?.event_id}
-        loading={isApproving}
-      />
+      {actionMenu}
+      {approvalModal}
     </>
   );
 };
