@@ -63,7 +63,7 @@ describe('FinanceTransactionTable', () => {
     render(<FinanceTransactionTable loading={false} />);
     
     // Find the view button by its alt text on the image
-    const viewIcon = screen.getByAltText('View');
+    const viewIcon = screen.getAllByAltText('View')[0];
     const viewButton = viewIcon.closest('button');
     
     if (viewButton) {
