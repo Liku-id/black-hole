@@ -223,16 +223,15 @@ const Register: NextPage = () => {
                 </Grid>
               </Grid>
 
-              <Box mt="100px" mb="80px">
+              <Box mt={{ xs: '48px', md: '100px' }} mb={{ xs: '40px', md: '80px' }}>
                 <FeaturesSection />
               </Box>
 
               <Box
-                width="100vw"
+                width="100%"
                 position="relative"
-                left="50%"
                 marginTop="0"
-                sx={{ transform: 'translateX(-50%)' }}
+                overflow="hidden"
               >
                 <StripeText
                   direction="horizontal"

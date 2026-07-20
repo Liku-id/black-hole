@@ -367,7 +367,7 @@ const RegisterProfileForm: React.FC<RegisterProfileFormProps> = ({
               id="btn_rgs_signup"
               disabled={isLoading}
               sx={{
-                width: '322px',
+                width: { xs: '100%', sm: '322px' },
                 height: '48px',
                 margin: '0 auto',
                 display: 'block'

@@ -269,7 +269,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   id="btn_rgs_continue"
                   disabled={isFormDisabled}
                   sx={{
-                    width: '322px',
+                    width: { xs: '100%', sm: '322px' },
                     height: '48px',
                     margin: '0 auto',
                     display: 'block'
