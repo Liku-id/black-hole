@@ -6,13 +6,15 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   overflowX: 'auto',
   width: '100%',
   maxWidth: '100%',
+  WebkitOverflowScrolling: 'touch',
   '& .MuiTable-root': {
     borderCollapse: 'separate',
     borderSpacing: 0,
     width: '100%',
     tableLayout: 'fixed',
     [theme.breakpoints.down('md')]: {
-      tableLayout: 'auto'
+      tableLayout: 'auto',
+      minWidth: 640
     }
   }
 }));

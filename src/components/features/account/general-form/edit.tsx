@@ -465,10 +465,23 @@ export const OrganizerEditForm = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      height: 43
+                      gap: 1,
+                      minHeight: 43,
+                      height: 'auto',
+                      py: 1
                     }}
                   >
-                    <Body2 color="text.secondary">
+                    <Body2
+                      color="text.secondary"
+                      sx={{
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                      title={getProfilePictureDisplayText()}
+                    >
                       {getProfilePictureDisplayText()}
                     </Body2>
 
@@ -477,6 +490,7 @@ export const OrganizerEditForm = ({
                         id="clear_icon"
                         size="small"
                         onClick={handleImageRemove}
+                        sx={{ flexShrink: 0 }}
                       >
                         <Image
                           src="/icon/close.svg"
@@ -490,6 +504,7 @@ export const OrganizerEditForm = ({
                         id="profile_picture_field"
                         component="label"
                         disabled={uploadingImage}
+                        sx={{ flexShrink: 0 }}
                       >
                         <Image
                           src="/icon/upload.svg"
@@ -547,12 +562,18 @@ export const OrganizerEditForm = ({
             </Box>
           )}
 
-          <Box display="flex" gap={2} justifyContent="flex-end">
+          <Box
+            display="flex"
+            gap={2}
+            justifyContent={{ xs: 'stretch', sm: 'flex-end' }}
+            flexDirection={{ xs: 'column-reverse', sm: 'row' }}
+          >
             <Button
               id="save_data_button"
               type="submit"
               variant="primary"
               disabled={loading || uploadingImage}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               {loading ? 'Saving...' : 'Save Data'}
             </Button>
