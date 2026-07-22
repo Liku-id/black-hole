@@ -14,6 +14,7 @@ import {
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody,
+  CollapsibleCardList
 } from '@/components/common';
 import { AddNewRecipientModal } from '@/components/features/events/invitation/add-recipient';
 import { UploadCSVModal } from '@/components/features/events/invitation/upload-csv';
@@ -240,31 +241,59 @@ function CreateRecipientPage() {
         </Box>
 
         {/* Header */}
-        <Box 
-          display="flex" 
-          justifyContent="space-between" 
-          alignItems="center" 
+        <Box
+          display="flex"
+          flexDirection={{ xs: 'column', sm: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+          gap={{ xs: 2, sm: 0 }}
           mb={3}
         >
-          <H2 color="text.primary" fontWeight={700}>
+          <H2 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
             Recipient List
           </H2>
-            
-            <Button
-                variant="secondary"
-                onClick={() => setOpenUploadModal(true)}
-            >
-                Upload CSV
-            </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => setOpenUploadModal(true)}
+            sx={{ width: { xs: '100%', sm: 'fit-content' }, flexShrink: 0 }}
+          >
+            Upload CSV
+          </Button>
         </Box>
 
 
         {/* Recipient List Card */}
-        <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
-          <CardContent sx={{ padding: '24px' }}>
+        <Card sx={{ backgroundColor: 'common.white', borderRadius: 0, overflow: 'hidden' }}>
+          <CardContent sx={{ padding: { xs: '16px', sm: '24px' } }}>
             <H3 mb={3} fontWeight={700}>List Invitation</H3>
-            
-            <StyledTableContainer>
+
+            {/* Card list: mobile + tablet (< lg) */}
+            <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
+              <CollapsibleCardList
+                items={recipients}
+                getKey={(recipient) => String(recipient.id)}
+                emptyMessage="No recipients added yet."
+                renderTitle={(recipient, index) =>
+                  `${index + 1}. ${recipient.recipientName}`
+                }
+                renderSubtitle={(recipient) => recipient.email}
+                renderDetails={(recipient) => [
+                  { label: 'No Telp', value: recipient.phoneNumber },
+                  { label: 'Email', value: recipient.email },
+                  { label: 'Ticket Type', value: recipient.ticketTypeName },
+                  { label: 'Qty', value: recipient.ticketQty }
+                ]}
+                renderActions={(recipient) => (
+                  <IconButton onClick={(e) => handleMenuOpen(e, recipient.id)}>
+                    <Image src="/icon/options.svg" alt="options" width={24} height={24} />
+                  </IconButton>
+                )}
+              />
+            </Box>
+
+            {/* Table: desktop (lg+) */}
+            <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
               <Table>
                 <StyledTableHead>
                   <TableRow>
@@ -305,24 +334,30 @@ function CreateRecipientPage() {
               </Table>
             </StyledTableContainer>
 
-            <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
-                <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setEditingRecipient(undefined);
-                      setOpenAddModal(true);
-                    }}
-                    sx={{ width: 'fit-content' }}
-                >
-                    Add New Recipient
-                </Button>
-                <Button
-                    onClick={handleSendInvitation}
-                    disabled={recipients.length === 0 || sending}
-                    sx={{ width: 'fit-content' }}
-                >
-                    {sending ? 'Sending...' : 'Send Invitation'}
-                </Button>
+            <Box
+              display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
+              justifyContent="flex-end"
+              gap={2}
+              mt={3}
+            >
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setEditingRecipient(undefined);
+                  setOpenAddModal(true);
+                }}
+                sx={{ width: { xs: '100%', sm: 'fit-content' } }}
+              >
+                Add New Recipient
+              </Button>
+              <Button
+                onClick={handleSendInvitation}
+                disabled={recipients.length === 0 || sending}
+                sx={{ width: { xs: '100%', sm: 'fit-content' } }}
+              >
+                {sending ? 'Sending...' : 'Send Invitation'}
+              </Button>
             </Box>
 
           </CardContent>
