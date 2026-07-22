@@ -87,10 +87,10 @@ export const EventAssetsForm = ({
         <Grid item md={6} xs={12}>
           <Grid container spacing="16px">
             {Array.from({ length: 4 }).map((_, index) => (
-              <Grid key={index} item xs={6}>
+              <Grid key={index} item xs={12} sm={6}>
                 <Dropzone
                   accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
-                  height={{ xs: '120px', sm: '140px', md: '169px' }}
+                  height={{ xs: '160px', sm: '110px', md: '100px', lg: '169px' }}
                   order={index + 2}
                   width="100%"
                   onFileRemove={() => handleSupportingImageRemove(index)}

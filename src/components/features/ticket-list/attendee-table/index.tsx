@@ -821,9 +821,11 @@ export const AttendeeTable = ({
         PaperProps={{
           sx: {
             borderRadius: '4px',
-            padding: 2,
-            minWidth: '400px',
-            maxWidth: '500px'
+            padding: { xs: 2, sm: 2 },
+            margin: { xs: 2, sm: 'auto' },
+            width: { xs: 'calc(100% - 32px)', sm: 'auto' },
+            maxWidth: { xs: 'calc(100% - 32px)', sm: '500px' },
+            minWidth: { xs: 'unset', sm: '400px' }
           }
         }}
         onClose={handleCloseModals}
@@ -855,10 +857,15 @@ export const AttendeeTable = ({
           <Body1 sx={{ textAlign: 'left', mb: 4, mt: 2 }}>
             Are you sure you want to redeem this ticket?
           </Body1>
-          <Box display="flex" gap={2} justifyContent="flex-end">
+          <Box
+            display="flex"
+            gap={2}
+            justifyContent={{ xs: 'stretch', sm: 'flex-end' }}
+            flexDirection={{ xs: 'column-reverse', sm: 'row' }}
+          >
             <Button
               sx={{
-                minWidth: '81px',
+                minWidth: { xs: '100%', sm: '81px' },
                 height: '46px',
                 fontSize: '12px',
                 fontWeight: 500,
@@ -879,7 +886,7 @@ export const AttendeeTable = ({
             <Button
               disabled={redeemLoading}
               sx={{
-                minWidth: '102px',
+                minWidth: { xs: '100%', sm: '102px' },
                 height: '46px',
                 fontSize: '12px',
                 fontWeight: 500,

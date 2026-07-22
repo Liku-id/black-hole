@@ -599,7 +599,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   return (
     <Grid container spacing={3} marginBottom="30px">
       {/* Ongoing Events Section */}
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} lg={6}>
         <Box
           bgcolor="common.white"
           boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
@@ -607,6 +607,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           height="100%"
           position="relative"
           minHeight="209px"
+          sx={{ overflow: 'hidden' }}
         >
           <HeadSection
             title="Event On Going"
@@ -632,7 +633,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
       </Grid>
 
       {/* Past Events Section */}
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} lg={6}>
         <Box
           bgcolor="common.white"
           boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
@@ -640,6 +641,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           height="100%"
           position="relative"
           minHeight="209px"
+          sx={{ overflow: 'hidden' }}
         >
           <HeadSection
             title="Event Past"
