@@ -28,7 +28,8 @@ import {
   StyledTableContainer,
   StyledTableHead,
   StyledTableBody,
-  Pagination
+  Pagination,
+  CollapsibleCardList
 } from '@/components/common';
 import { StyledTextField } from '@/components/common/text-field/StyledTextField';
 import { EditInvitationLimitModal } from '@/components/features/events/invitation/edit-limit';
@@ -423,11 +424,18 @@ function InvitationPage() {
           )}
 
           {/* Action Buttons (Right) */}
-          <Box display="flex" gap={2} alignItems="center">
+          <Box
+            display="flex"
+            flexDirection={{ xs: 'column', sm: 'row' }}
+            gap={2}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
+            width={{ xs: '100%', md: 'auto' }}
+          >
             {canEditLimit && (
               <Button
                 variant="secondary"
                 onClick={() => setEditLimitOpen(true)}
+                sx={{ width: { xs: '100%', sm: 'fit-content' } }}
               >
                 Edit Limit
               </Button>
@@ -437,6 +445,7 @@ function InvitationPage() {
               onClick={() => {
                 router.push(`/events/${metaUrl}/invitation/create`);
               }}
+              sx={{ width: { xs: '100%', sm: 'fit-content' } }}
             >
               Add New Recipient
             </Button>
@@ -444,15 +453,19 @@ function InvitationPage() {
         </Box>
 
         {/* Invitation List */}
-        <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
-          <CardContent sx={{ padding: '24px' }}>
+        <Card sx={{ backgroundColor: 'common.white', borderRadius: 0, overflow: 'hidden' }}>
+          <CardContent sx={{ padding: { xs: '16px', sm: '24px' } }}>
             <Box
               mb={3}
               display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
               justifyContent="space-between"
-              alignItems="center"
+              alignItems={{ xs: 'stretch', sm: 'center' }}
+              gap={2}
             >
-              <H3 fontWeight={700}>Invitation List</H3>
+              <H3 fontWeight={700} sx={{ flexShrink: 0 }}>
+                Invitation List
+              </H3>
               <StyledTextField
                 InputProps={{
                   startAdornment: (
@@ -468,7 +481,8 @@ function InvitationPage() {
                 }}
                 placeholder="Search by name or email"
                 sx={{
-                  width: '300px',
+                  width: { xs: '100%', sm: '300px' },
+                  flexShrink: 0,
                   '& .MuiOutlinedInput-root': {
                     height: '40px',
                     backgroundColor: 'common.white'
@@ -479,7 +493,57 @@ function InvitationPage() {
               />
             </Box>
 
-            <StyledTableContainer>
+            {/* Card list: mobile + tablet (< lg) */}
+            <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
+              <CollapsibleCardList
+                items={invitations}
+                getKey={(invitation) => invitation.id}
+                loading={loading}
+                loadingMessage="Loading..."
+                emptyMessage="No invitations available"
+                renderTitle={(invitation, index) =>
+                  `${pagination.page * pagination.limit + index + 1}. ${invitation.name}`
+                }
+                renderSubtitle={(invitation) => invitation.email}
+                renderDetails={(invitation) => [
+                  { label: 'No Telp', value: invitation.phone_number },
+                  { label: 'Email', value: invitation.email },
+                  { label: 'Ticket Type', value: invitation.ticket_type_name },
+                  { label: 'Qty', value: invitation.ticket_qty }
+                ]}
+                renderActions={(invitation) => (
+                  <Box display="flex" gap={0.5}>
+                    <Tooltip title="Download Invitation">
+                      <IconButton
+                        onClick={() => handleDownload(invitation.id)}
+                      >
+                        <Image
+                          src="/icon/download.svg"
+                          alt="download"
+                          width={20}
+                          height={20}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Resend Invitation">
+                      <IconButton
+                        onClick={() => handleResend(invitation.id)}
+                      >
+                        <Image
+                          src="/icon/share.svg"
+                          alt="resend"
+                          width={20}
+                          height={20}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )}
+              />
+            </Box>
+
+            {/* Table: desktop (lg+) */}
+            <StyledTableContainer sx={{ display: { xs: 'none', lg: 'block' } }}>
               <Table>
                 <StyledTableHead>
                   <TableRow>

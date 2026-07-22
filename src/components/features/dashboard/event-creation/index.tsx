@@ -139,10 +139,10 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
       {/* Header */}
       <Box
         display="flex"
-        flexDirection="row"
-        alignItems="center"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
         justifyContent="space-between"
-        gap={1}
+        gap={{ xs: 2, sm: 1 }}
         px={2}
         py={2.5}
         sx={{ borderBottom: '1px solid', borderColor: 'grey.100' }}
@@ -154,7 +154,11 @@ const EventCreation = ({ eventOrganizerId }: EventCreationProps) => {
           id="create_new_event_button"
           onClick={() => router.push('/events/create')}
           disabled={!isOrganizerDataComplete}
-          sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+          sx={{
+            width: { xs: '100%', sm: 'fit-content' },
+            flexShrink: 0,
+            whiteSpace: 'nowrap'
+          }}
         >
           Create New Event
         </Button>
