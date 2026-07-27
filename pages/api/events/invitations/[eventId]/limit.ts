@@ -16,6 +16,10 @@ export default async function handler(
     try {
       const getHandler = apiRouteUtils.createGetHandler({
         endpoint: `/events/${eventId}/invitations/limit`,
+        transformQuery: (query) => {
+          const { eventId: _removedEventId, ...restQuery } = query;
+          return restQuery;
+        },
         timeout: 30000
       });
 

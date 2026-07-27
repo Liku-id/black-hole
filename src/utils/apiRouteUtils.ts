@@ -551,7 +551,8 @@ export const apiRouteUtils = {
             // Clear session on auth error
             try {
               const session = await getSession(req, res);
-              session.destroy();
+              clearSessionData(session);
+              await session.save();
             } catch (sessionError) {
               console.error('Session clear error:', sessionError);
             }
