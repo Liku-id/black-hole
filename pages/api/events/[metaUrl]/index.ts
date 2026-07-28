@@ -18,9 +18,11 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid metaUrl parameter' });
     }
 
+    const safeMetaUrl = encodeURIComponent(metaUrl);
+
     // Use apiRouteUtils pattern with dynamic endpoint and clean query transform
     const getHandler = apiRouteUtils.createGetHandler({
-      endpoint: `/events/${metaUrl}`,
+      endpoint: `/events/${safeMetaUrl}`,
       transformQuery: (query) => {
         const { metaUrl: _removedMetaUrl, ...restQuery } = query;
         return restQuery;
