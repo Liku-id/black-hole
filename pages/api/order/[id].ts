@@ -17,6 +17,8 @@ export default async function handler(
     endpoint: `/orders/${id}`,
     timeout: 30000,
     transformResponse: (data) => {
+      if (!data || typeof data !== 'object') return data;
+
       // Extract the order object based on standard Likuid backend envelope
       const order = data.order || data.data || data;
 
