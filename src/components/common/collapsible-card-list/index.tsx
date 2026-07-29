@@ -82,7 +82,24 @@ function CollapsibleCardList<T>({
               py={1.5}
               px={{ xs: 0.5, sm: 1 }}
               onClick={() => toggleExpand(key)}
-              sx={{ cursor: 'pointer', minWidth: 0 }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleExpand(key);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={isExpanded}
+              sx={{
+                cursor: 'pointer',
+                minWidth: 0,
+                '&:focus-visible': {
+                  outline: '2px solid',
+                  outlineColor: 'primary.main',
+                  borderRadius: '4px'
+                }
+              }}
             >
               <IconButton
                 size="small"

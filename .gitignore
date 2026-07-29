@@ -19,3 +19,6 @@ yarn-error.log*
 *.lcov
 .nyc_output
 coverage.lcov
+
+# TypeScript incremental build cache
+*.tsbuildinfo

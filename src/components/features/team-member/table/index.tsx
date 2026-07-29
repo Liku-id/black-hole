@@ -6,7 +6,6 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Box,
   IconButton
 } from '@mui/material';
 import Image from 'next/image';
@@ -54,89 +53,91 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
   onPageChange,
   onOpenDeleteModal
 }) => {
-  const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>(
-    {}
-  );
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [selectedMember, setSelectedMember] = useState<Staff | null>(null);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
-    memberId: string
+    member: Staff
   ) => {
-    setAnchorEl((prev) => ({ ...prev, [memberId]: event.currentTarget }));
+    setAnchorEl(event.currentTarget);
+    setSelectedMember(member);
   };
 
-  const handleMenuClose = (memberId: string) => {
-    setAnchorEl((prev) => ({ ...prev, [memberId]: null }));
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedMember(null);
   };
 
-  const handleDeleteClick = (member: Staff) => {
-    if (onOpenDeleteModal) {
-      onOpenDeleteModal(member);
+  const handleDeleteClick = () => {
+    if (onOpenDeleteModal && selectedMember) {
+      onOpenDeleteModal(selectedMember);
     }
-    handleMenuClose(member.id);
+    handleMenuClose();
   };
 
   const renderActionCell = (member: Staff) => (
-    <Box>
-      <IconButton
-        size="small"
-        id="hamburger_icon_button"
-        sx={{ color: 'text.secondary', cursor: 'pointer' }}
-        onClick={(e) => handleMenuOpen(e, member.id)}
-      >
-        <Image alt="Options" height={24} src="/icon/options.svg" width={24} />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl[member.id]}
-        open={Boolean(anchorEl[member.id])}
-        onClose={() => handleMenuClose(member.id)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        slotProps={{
-          paper: {
-            sx: {
-              backgroundColor: 'common.white',
-              boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
-              borderRadius: 1,
-              minWidth: 200,
-              mt: 1
-            }
+    <IconButton
+      size="small"
+      id="hamburger_icon_button"
+      sx={{ color: 'text.secondary', cursor: 'pointer' }}
+      onClick={(e) => handleMenuOpen(e, member)}
+    >
+      <Image alt="Options" height={24} src="/icon/options.svg" width={24} />
+    </IconButton>
+  );
+
+  const actionMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleMenuClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right'
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right'
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            backgroundColor: 'common.white',
+            boxShadow: '0 4px 20px 0 rgba(40, 72, 107, 0.15)',
+            borderRadius: 1,
+            minWidth: 200,
+            mt: 1
+          }
+        }
+      }}
+    >
+      <MenuItem
+        onClick={handleDeleteClick}
+        sx={{
+          padding: '12px 16px',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.04)'
           }
         }}
       >
-        <MenuItem
-          onClick={() => handleDeleteClick(member)}
-          sx={{
-            padding: '12px 16px',
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)'
-            }
-          }}
-        >
-          <ListItemIcon>
-            <Image
-              alt="Delete Team Member"
-              src="/icon/trash-v2.svg"
-              height={18}
-              width={18}
-            />
-          </ListItemIcon>
-          <ListItemText
-            primary={
-              <Body2 color="text.primary" fontWeight="400">
-                Delete Team Member
-              </Body2>
-            }
+        <ListItemIcon>
+          <Image
+            alt="Delete Team Member"
+            src="/icon/trash-v2.svg"
+            height={18}
+            width={18}
           />
-        </MenuItem>
-      </Menu>
-    </Box>
+        </ListItemIcon>
+        <ListItemText
+          primary={
+            <Body2 color="text.primary" fontWeight="400">
+              Delete Team Member
+            </Body2>
+          }
+        />
+      </MenuItem>
+    </Menu>
   );
 
   const pagination =
@@ -151,6 +152,7 @@ export const TeamMemberTable: FC<TeamMemberTableProps> = ({
 
   return (
     <>
+      {actionMenu}
       <StyledTableContainer sx={{ display: { xs: 'block', lg: 'none' } }}>
         <CollapsibleCardList
           items={teamMembers}

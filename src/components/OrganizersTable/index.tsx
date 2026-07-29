@@ -94,7 +94,9 @@ const OrganizersTable: FC<OrganizersTableProps> = ({
       return 'No Bank Info';
     }
 
-    return `${organizer.bank_information.bank.name.toUpperCase()} · ${organizer.bank_information.accountNumber} · ${organizer.bank_information.accountHolderName}`;
+    const bankName =
+      organizer.bank_information.bank?.name?.toUpperCase() || 'Unknown Bank';
+    return `${bankName} · ${organizer.bank_information.accountNumber} · ${organizer.bank_information.accountHolderName}`;
   };
 
   const renderActionButtons = () => (

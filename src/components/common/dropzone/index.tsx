@@ -1,14 +1,15 @@
 import { Box, SxProps, Theme } from '@mui/material';
+import type { ResponsiveStyleValue } from '@mui/system';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 import { Caption, Overline } from '@/components/common/typography';
 
-interface DropzoneProps {
+export interface DropzoneProps {
   id?: string;
-  width?: any;
-  height?: any;
+  width?: ResponsiveStyleValue<string | number>;
+  height?: ResponsiveStyleValue<string | number>;
   onFileSelect?: (file: File) => void;
   onFileRemove?: () => void;
   accept?: Record<string, string[]>;
@@ -117,7 +118,11 @@ const Dropzone = ({
               width={{ xs: '20px', sm: '24px' }}
               zIndex={2}
             >
-              <Caption color="common.white" fontWeight={600} sx={{ fontSize: { xs: '10px', sm: '12px' } }}>
+              <Caption
+                color="common.white"
+                fontWeight={600}
+                sx={{ fontSize: { xs: '10px', sm: '12px' } }}
+              >
                 {order}
               </Caption>
             </Box>
@@ -159,7 +164,11 @@ const Dropzone = ({
               width={{ xs: '20px', sm: '24px' }}
               zIndex={1}
             >
-              <Caption color="common.white" fontWeight={600} sx={{ fontSize: { xs: '10px', sm: '12px' } }}>
+              <Caption
+                color="common.white"
+                fontWeight={600}
+                sx={{ fontSize: { xs: '10px', sm: '12px' } }}
+              >
                 {order}
               </Caption>
             </Box>
@@ -170,11 +179,21 @@ const Dropzone = ({
             flexDirection="column"
             height="100%"
             justifyContent="center"
-            paddingX={{ xs: '8px', sm: isSupportingImage ? '12px' : '24px', lg: '24px' }}
+            paddingX={{
+              xs: '8px',
+              sm: isSupportingImage ? '12px' : '24px',
+              lg: '24px'
+            }}
             paddingY={{ xs: '8px', sm: isSupportingImage ? '6px' : 0 }}
             sx={{ overflow: 'hidden' }}
           >
-            <Box marginBottom={{ xs: '8px', sm: isSupportingImage ? '6px' : '16px', lg: '16px' }}>
+            <Box
+              marginBottom={{
+                xs: '8px',
+                sm: isSupportingImage ? '6px' : '16px',
+                lg: '16px'
+              }}
+            >
               <Image
                 alt="Upload"
                 height={24}
@@ -184,13 +203,24 @@ const Dropzone = ({
             </Box>
             <Caption
               color="text.primary"
-              marginBottom={{ xs: '4px', sm: isSupportingImage ? '4px' : '16px', lg: '16px' }}
+              marginBottom={{
+                xs: '4px',
+                sm: isSupportingImage ? '4px' : '16px',
+                lg: '16px'
+              }}
               textAlign="center"
               sx={{
-                fontSize: { xs: '10px', sm: isSupportingImage ? '11px' : '12px' },
+                fontSize: {
+                  xs: '10px',
+                  sm: isSupportingImage ? '11px' : '12px'
+                },
                 lineHeight: { xs: 1.3, sm: 1.4 },
                 display: '-webkit-box',
-                WebkitLineClamp: { xs: 3, md: isSupportingImage ? 2 : 'unset', lg: 'unset' },
+                WebkitLineClamp: {
+                  xs: 3,
+                  md: isSupportingImage ? 2 : 'unset',
+                  lg: 'unset'
+                },
                 WebkitBoxOrient: 'vertical',
                 overflow: 'hidden'
               }}

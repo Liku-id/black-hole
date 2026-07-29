@@ -18,7 +18,7 @@ export default async function handler(
     const body = req.body;
     const ticket = body?.tickets?.[0] || body;
 
-    if (!ticket || (!ticket.id && !ticket.ticketTypeId)) {
+    if (!ticket || (!ticket.id && !ticket.ticketTypeId && !ticket.groupTicketId)) {
       return res.status(400).json({ message: 'No tickets selected' });
     }
 
