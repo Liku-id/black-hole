@@ -324,6 +324,7 @@ export const EventDetailTicketTable: FC<EventDetailTicketTableProps> = ({
           }
           sessionRole={sessionRole}
           onSave={async (payload) => {
+            if (!selectedDiscountTicket) return;
             const activeDiscount = discounts.find(
               (d) => d.ticket_type_id === selectedDiscountTicket.id
             );

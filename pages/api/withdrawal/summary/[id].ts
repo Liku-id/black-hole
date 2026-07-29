@@ -18,8 +18,9 @@ export default async function handler(
     }
 
     // Use apiRouteUtils pattern with dynamic endpoint and clean query transform
+    const safeId = encodeURIComponent(id);
     const getHandler = apiRouteUtils.createGetHandler({
-      endpoint: `/withdrawal/summary/${id}`,
+      endpoint: `/withdrawal/summary/${safeId}`,
       transformQuery: (query) => {
         const { id: _removedId, ...restQuery } = query;
         return restQuery;

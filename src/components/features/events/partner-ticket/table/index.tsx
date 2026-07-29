@@ -135,7 +135,9 @@ const PartnerEventTable: FC<PartnerEventTableProps> = ({
             flexShrink: 0
           }}
           onClick={() => {
-            navigator.clipboard.writeText(partner.privateLink || '');
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(partner.privateLink || '');
+            }
           }}
         >
           <Image alt="Copy" height={16} src="/icon/copy.svg" width={16} />

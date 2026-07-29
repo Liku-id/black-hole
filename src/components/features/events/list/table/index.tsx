@@ -556,7 +556,7 @@ const EventsTable: FC<EventsTableProps> = ({
     return details;
   };
 
-  const colSpan = (isCompact ? 4 : 8) + (showAction ? 1 : 0);
+  const colSpan = (isCompact ? 5 : 7) + (showAction ? 1 : 0);
 
   return (
     <>

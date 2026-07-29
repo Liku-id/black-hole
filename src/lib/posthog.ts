@@ -1,7 +1,6 @@
 'use client';
 
-// eslint-disable-next-line import/no-unresolved
-import posthog from 'posthog-js';
+import posthogJs from 'posthog-js';
 import React, { useEffect, useState } from 'react';
 
 // Initialize PostHog
@@ -15,7 +14,7 @@ export const initPostHog = () => {
         return;
       }
       
-      posthog.init(posthogKey, {
+      posthogJs.init(posthogKey, {
         api_host: posthogHost,
         person_profiles: 'identified_only',
         debug: false,
@@ -55,7 +54,7 @@ export const usePostHog = () => {
 // Event tracking functions
 export const trackEvent = (eventName: string, properties?: Record<string, any>) => {
   if (typeof window !== 'undefined' && window.posthog && process.env.NODE_ENV !== 'development') {
-    posthog.capture(eventName, properties);
+    posthogJs.capture(eventName, properties);
   }
 };
 
@@ -66,21 +65,21 @@ export const identifyUser = (userId: string, name?: string, email?: string) => {
     if (name) properties.name = name;
     if (email) properties.email = email;
     
-    posthog.identify(userId, properties);
+    posthogJs.identify(userId, properties);
   }
 };
 
 // Set user properties
 export const setUserProperties = (properties: Record<string, any>) => {
   if (typeof window !== 'undefined' && window.posthog && process.env.NODE_ENV !== 'development') {
-    posthog.setPersonProperties(properties);
+    posthogJs.setPersonProperties(properties);
   }
 };
 
 // Reset user (logout)
 export const resetUser = () => {
   if (typeof window !== 'undefined' && window.posthog && process.env.NODE_ENV !== 'development') {
-    posthog.reset();
+    posthogJs.reset();
   }
 };
 
@@ -115,7 +114,7 @@ export const trackEventView = (eventId: string, eventName: string) => {
 // Track page views
 export const trackPageView = (pageName?: string) => {
   if (typeof window !== 'undefined' && window.posthog) {
-    posthog.capture('$pageview', {
+    posthogJs.capture('$pageview', {
       page: pageName || window.location.pathname
     });
   }
@@ -156,4 +155,4 @@ export const PostHogProvider = ({ children }: { children: React.ReactNode }) => 
   return children;
 };
 
-export default posthog;
+export default posthogJs;
