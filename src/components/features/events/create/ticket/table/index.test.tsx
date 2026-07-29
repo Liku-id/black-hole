@@ -47,7 +47,7 @@ describe('TicketTable', () => {
         />
       );
 
-      expect(screen.getByText('Loading tickets...')).toBeInTheDocument();
+      expect(screen.getAllByText('Loading tickets...').length).toBeGreaterThan(0);
     });
   });
 
@@ -92,7 +92,9 @@ describe('TicketTable', () => {
         />
       );
 
-      expect(screen.getByText(/No tickets found|Add your first ticket/i)).toBeInTheDocument();
+      expect(
+        screen.getAllByText(/No tickets found|Add your first ticket/i).length
+      ).toBeGreaterThan(0);
     });
   });
 
@@ -107,7 +109,7 @@ describe('TicketTable', () => {
       );
 
       // First click the Actions button to open the menu
-      const actionsButton = screen.getByAltText('Actions').closest('button');
+      const actionsButton = screen.getAllByAltText('Actions')[0].closest('button');
       if (actionsButton) {
         fireEvent.click(actionsButton);
         
@@ -129,7 +131,7 @@ describe('TicketTable', () => {
       );
 
       // First click the Actions button to open the menu
-      const actionsButton = screen.getByAltText('Actions').closest('button');
+      const actionsButton = screen.getAllByAltText('Actions')[0].closest('button');
       if (actionsButton) {
         fireEvent.click(actionsButton);
         

@@ -296,7 +296,7 @@ export const EventAssetsEditForm = ({
                   ? mainEventAsset?.asset.url
                   : undefined
               }
-              height="354px"
+              height={{ xs: '200px', sm: '280px', md: '354px' }}
               order={1}
               width="100%"
               onFileRemove={handleThumbnailRemove}
@@ -315,7 +315,7 @@ export const EventAssetsEditForm = ({
               const isRejected = isAssetRejected(assetId);
 
               return (
-                <Grid key={index} item xs={6}>
+                <Grid key={index} item xs={12} sm={6}>
                   <Box
                     sx={{
                       border: isRejected ? '2px solid' : 'none',
@@ -334,7 +334,7 @@ export const EventAssetsEditForm = ({
                           ? existingEventAsset?.asset.url
                           : undefined
                       }
-                      height="169px"
+                      height={{ xs: '160px', sm: '110px', md: '100px', lg: '169px' }}
                       order={index + 2}
                       width="100%"
                       onFileRemove={() => handleSupportingImageRemove(index)}

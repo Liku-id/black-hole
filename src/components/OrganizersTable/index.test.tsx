@@ -36,7 +36,7 @@ describe('OrganizersTable', () => {
         loading={true}
       />
     );
-    expect(screen.getByText('Loading organizers...')).toBeInTheDocument();
+    expect(screen.getAllByText('Loading organizers...').length).toBeGreaterThan(0);
   });
 
   it('renders organizers', () => {
@@ -45,8 +45,8 @@ describe('OrganizersTable', () => {
         organizers={mockOrganizers as any[]}
       />
     );
-    expect(screen.getByText('Org 1')).toBeInTheDocument();
-    expect(screen.getByText('Manager')).toBeInTheDocument();
-    expect(screen.getByText('BCA')).toBeInTheDocument();
+    expect(screen.getAllByText('Org 1').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Manager').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('BCA').length).toBeGreaterThan(0);
   });
 });

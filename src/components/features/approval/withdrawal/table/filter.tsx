@@ -24,7 +24,7 @@ const WithdrawalFilter = ({
         options={statusOptions}
         value={status}
         onChange={(value) => onStatusChange(value)}
-        sx={{ minWidth: 300 }}
+        sx={{ minWidth: { xs: '100%', sm: 240 }, maxWidth: '100%', width: { xs: '100%', sm: 'auto' } }}
       />
     </Box>
   );

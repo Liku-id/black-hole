@@ -15,7 +15,9 @@ const StyledQtyButton = styled(IconButton, {
 })<{ isIncrement?: boolean }>(({ theme, isIncrement }) => ({
   border: '1px solid',
   borderRadius: '4px',
-  padding: '4px',
+  padding: '8px',
+  minWidth: 36,
+  minHeight: 36,
   borderColor: isIncrement ? theme.palette.primary.main : theme.palette.grey[400],
   backgroundColor: isIncrement ? theme.palette.primary.main : 'transparent',
   color: isIncrement ? theme.palette.common.white : theme.palette.text.primary,
@@ -30,7 +32,6 @@ const StyledQtyButton = styled(IconButton, {
   },
 }));
 
-// Local helper for formatting description as HTML if not available globally
 const formatStrToHTML = (str: string) => {
   if (!str) return '';
   return str.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>');
@@ -62,6 +63,47 @@ export function TicketTypeCard({ index, ticketType, qty, onQtyChange }: TicketTy
     return 'AVAILABLE';
   }, [ticketType.sales_start_date, ticketType.sales_end_date]);
 
+  const qtyControls =
+    salesState === 'AVAILABLE' ? (
+      <>
+        <StyledQtyButton size="small" onClick={handleDecrement} disabled={qty <= 0}>
+          <RemoveIcon fontSize="inherit" style={{ fontSize: '14px' }} />
+        </StyledQtyButton>
+        <Box textAlign="center" minWidth="24px">
+          <Body2 color="text.primary" fontSize="14px" fontWeight={600}>
+            {qty}
+          </Body2>
+        </Box>
+        <StyledQtyButton
+          isIncrement
+          size="small"
+          onClick={handleIncrement}
+          disabled={qty >= maxBuy || qty >= remaining}
+        >
+          <AddIcon fontSize="inherit" style={{ fontSize: '14px' }} />
+        </StyledQtyButton>
+      </>
+    ) : (
+      <Body2
+        color={salesState === 'SOON' ? 'text.secondary' : 'error.main'}
+        fontWeight={600}
+        fontSize="14px"
+      >
+        {salesState}
+      </Body2>
+    );
+
+  const stockLabel = (
+    <Body2 color="text.primary" fontSize="12px">
+      {remaining}{' '}
+      {remaining <= 5 && remaining > 0 && (
+        <Box component="span" color="warning.main" whiteSpace="nowrap">
+          ⚠ low stock
+        </Box>
+      )}
+    </Body2>
+  );
+
   return (
     <Box
       bgcolor="common.white"
@@ -69,87 +111,75 @@ export function TicketTypeCard({ index, ticketType, qty, onQtyChange }: TicketTy
       borderColor={theme.palette.grey[100]}
       borderRadius="4px"
       mb="16px"
-      px="24px"
+      px={{ xs: '16px', md: '24px' }}
       py="16px"
     >
-      <Box display="flex" alignItems="center" mb={isExpanded ? '16px' : '0'}>
-        {/* No */}
+      {/* Desktop row */}
+      <Box
+        display={{ xs: 'none', md: 'flex' }}
+        alignItems="center"
+        mb={isExpanded ? '16px' : '0'}
+      >
         <Box width="5%">
           <Body2 color="text.primary">{index + 1}.</Body2>
         </Box>
-
-        {/* Ticket Type */}
-        <Box width="27%">
-          <Body2 color="text.primary" fontWeight={600}>{ticketType.name}</Body2>
+        <Box width="27%" minWidth={0} pr={1}>
+          <Body2
+            color="text.primary"
+            fontWeight={600}
+            sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+          >
+            {ticketType.name}
+          </Body2>
         </Box>
-
-        {/* Price */}
         <Box width="20%">
           <Body2 color="text.primary">{formatPrice(ticketType.price)}</Body2>
         </Box>
-
-        {/* Remaining Stock */}
         <Box width="23%" display="flex" alignItems="center" gap="6px">
-          <Body2 color="text.primary" fontSize="12px">
-            {remaining}{' '}
-            {remaining <= 5 && remaining > 0 && (
-              <Box
-                component="span"
-                color="warning.main"
-                whiteSpace="nowrap"
-              >
-                <Box component="span" color="warning.main">
-                  ⚠
-                </Box>{' '}
-                low stock
-              </Box>
-            )}
-          </Body2>
+          {stockLabel}
         </Box>
-
-        {/* Max Buy */}
         <Box width="13%">
           <Body2 color="text.primary">{maxBuy}</Body2>
         </Box>
-
-        {/* Buy Ticket — qty counter */}
         <Box width="12%" display="flex" alignItems="center" gap="8px">
-          {salesState === 'AVAILABLE' ? (
-            <>
-              <StyledQtyButton
-                size="small"
-                onClick={handleDecrement}
-                disabled={qty <= 0}
-              >
-                <RemoveIcon fontSize="inherit" style={{ fontSize: '14px' }} />
-              </StyledQtyButton>
-
-              <Box textAlign='center' minWidth="24px">
-                <Body2 color="text.primary" fontSize="14px" fontWeight={600}>{qty}</Body2>
-              </Box>
-
-              <StyledQtyButton
-                isIncrement
-                size="small"
-                onClick={handleIncrement}
-                disabled={qty >= maxBuy || qty >= remaining}
-              >
-                <AddIcon fontSize="inherit" style={{ fontSize: '14px' }} />
-              </StyledQtyButton>
-            </>
-          ) : (
-            <Body2
-              color={salesState === 'SOON' ? 'text.secondary' : 'error.main'}
-              fontWeight={600}
-              fontSize="14px"
-            >
-              {salesState}
-            </Body2>
-          )}
+          {qtyControls}
         </Box>
       </Box>
 
-      {/* Divider and Expand Toggle */}
+      {/* Mobile / tablet stacked */}
+      <Box display={{ xs: 'flex', md: 'none' }} flexDirection="column" gap={1.5} mb={isExpanded ? 2 : 0}>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1}>
+          <Box minWidth={0} flex={1}>
+            <Body2 color="text.secondary" fontSize="12px" mb={0.5}>
+              {index + 1}. Ticket Type
+            </Body2>
+            <Body2 color="text.primary" fontWeight={600} sx={{ wordBreak: 'break-word' }}>
+              {ticketType.name}
+            </Body2>
+          </Box>
+          <Body2 color="text.primary" fontWeight={700} flexShrink={0}>
+            {formatPrice(ticketType.price)}
+          </Body2>
+        </Box>
+        <Box display="flex" justifyContent="space-between" gap={2} flexWrap="wrap">
+          <Box>
+            <Body2 color="text.secondary" fontSize="12px" mb={0.5}>
+              Stock
+            </Body2>
+            {stockLabel}
+          </Box>
+          <Box>
+            <Body2 color="text.secondary" fontSize="12px" mb={0.5}>
+              Max Buy
+            </Body2>
+            <Body2 color="text.primary">{maxBuy}</Body2>
+          </Box>
+          <Box display="flex" alignItems="center" gap="8px" ml="auto">
+            {qtyControls}
+          </Box>
+        </Box>
+      </Box>
+
       <Divider sx={{ mt: isExpanded ? '0' : '16px' }} />
 
       <Box
@@ -170,7 +200,6 @@ export function TicketTypeCard({ index, ticketType, qty, onQtyChange }: TicketTy
         </Body2>
       </Box>
 
-      {/* Expandable Details Box */}
       <Collapse in={isExpanded}>
         <Box mt="16px">
           <Body2
@@ -184,4 +213,3 @@ export function TicketTypeCard({ index, ticketType, qty, onQtyChange }: TicketTy
     </Box>
   );
 }
-

@@ -17,9 +17,14 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid id parameter' });
     }
 
-    // Use apiRouteUtils pattern but with dynamic endpoint
+    // Use apiRouteUtils pattern with dynamic endpoint and clean query transform
+    const safeId = encodeURIComponent(id);
     const getHandler = apiRouteUtils.createGetHandler({
-      endpoint: `/withdrawal/summary/${id}`,
+      endpoint: `/withdrawal/summary/${safeId}`,
+      transformQuery: (query) => {
+        const { id: _removedId, ...restQuery } = query;
+        return restQuery;
+      },
       timeout: 10000
     });
 

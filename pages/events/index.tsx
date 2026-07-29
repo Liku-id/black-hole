@@ -194,12 +194,14 @@ function Events() {
       <Box>
         {/* Header */}
         <Box
-          alignItems="center"
           display="flex"
+          flexDirection={{ xs: 'column', sm: 'row' }}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
           justifyContent="space-between"
+          gap={{ xs: 2, sm: 1 }}
           marginBottom="24px"
         >
-          <H2 color="text.primary" fontWeight={700}>
+          <H2 color="text.primary" fontWeight={700} sx={{ minWidth: 0 }}>
             Events
           </H2>
           {userRole !== UserRole.GROUND_STAFF &&
@@ -208,6 +210,11 @@ function Events() {
                 id="create_event_button"
                 onClick={() => router.push('/events/create')}
                 disabled={!isOrganizerDataComplete}
+                sx={{
+                  width: { xs: '100%', sm: 'fit-content' },
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
+                }}
               >
                 Create New Event
               </Button>
@@ -216,14 +223,16 @@ function Events() {
 
         {/* Tabs Card */}
         <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
-          <CardContent sx={{ padding: '16px 24px' }}>
+          <CardContent sx={{ padding: { xs: '12px 16px', sm: '16px 24px' } }}>
             <Box
-              alignItems="center"
               display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
+              alignItems={{ xs: 'stretch', sm: 'center' }}
               justifyContent="space-between"
+              gap={2}
               mb={2}
             >
-              <Box flex="1" marginRight={4}>
+              <Box flex="1" mr={{ xs: 0, sm: 4 }} minWidth={0}>
                 <Tabs
                   activeTab={activeTab}
                   tabs={tabs}
@@ -231,20 +240,22 @@ function Events() {
                 />
               </Box>
 
-              <TextField
-                placeholder="Cari Event"
-                startComponent={
-                  <Image
-                    alt="Search"
-                    height={20}
-                    src="/icon/search.svg"
-                    width={20}
-                  />
-                }
-                sx={{ width: 300, flexShrink: 0 }}
-                value={searchValue}
-                onChange={handleSearchChange}
-              />
+              <Box width={{ xs: '100%', sm: 300 }} flexShrink={{ xs: 1, sm: 0 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Cari Event"
+                  startComponent={
+                    <Image
+                      alt="Search"
+                      height={20}
+                      src="/icon/search.svg"
+                      width={20}
+                    />
+                  }
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                />
+              </Box>
             </Box>
 
             {/* Events Table */}
@@ -255,6 +266,7 @@ function Events() {
                 onRefresh={mutate}
                 total={pagination?.totalRecords || 0}
                 currentPage={filters.page}
+                pageSize={filters.show}
                 onPageChange={handlePageChange}
               />
             )}
@@ -262,25 +274,32 @@ function Events() {
             {/* Empty State */}
             {!loading && events.length === 0 && !error && (
               <Box py={4} textAlign="center">
-                <Body1 gutterBottom color="text.secondary">
+                <Body1 color="text.secondary" sx={{ mb: 2.5 }}>
                   No events found
                 </Body1>
                 <Body2
                   color={
                     isOrganizerDataComplete ? 'text.secondary' : 'text.primary'
                   }
-                  sx={{ display: 'flex', justifyContent: 'center' }}
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 0.5
+                  }}
                 >
                   {!isOrganizerDataComplete ? (
                     <>
                       Please complete your registration data in the
                       <Box
+                        component="span"
                         onClick={() => router.push('/account')}
                         sx={{
                           textDecoration: 'underline',
                           cursor: 'pointer',
                           color: 'primary.main',
-                          paddingX: 0.75
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         Account menu

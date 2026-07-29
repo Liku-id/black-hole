@@ -62,7 +62,7 @@ function ResetPassword() {
         display="flex"
         justifyContent="center"
         minHeight="100vh"
-        p={3}
+        p={{ xs: 2, sm: 3 }}
         sx={{ bgcolor: 'primary.dark' }}
       >
         <Container maxWidth="sm">

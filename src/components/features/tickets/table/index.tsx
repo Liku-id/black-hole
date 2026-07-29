@@ -174,8 +174,8 @@ const TicketListTable: FC<TicketListTableProps> = ({
           </Typography>
         }
       />
-      <TableContainer sx={{ maxHeight: 800 }}>
-        <Table stickyHeader>
+      <TableContainer sx={{ maxHeight: 800, overflowX: 'auto' }}>
+        <Table stickyHeader sx={{ minWidth: { xs: 720, md: '100%' } }}>
           <TableHead>
             <TableRow>
               <TableCell
@@ -196,7 +196,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                 sx={{
                   backgroundColor: theme.palette.grey[50],
                   fontWeight: 600,
-                  minWidth: 280
+                  minWidth: { xs: 160, md: 280 }
                 }}
               >
                 <Typography fontWeight="bold" variant="subtitle2">
@@ -207,7 +207,7 @@ const TicketListTable: FC<TicketListTableProps> = ({
                 sx={{
                   backgroundColor: theme.palette.grey[50],
                   fontWeight: 600,
-                  minWidth: 200
+                  minWidth: { xs: 140, md: 200 }
                 }}
               >
                 <Typography fontWeight="bold" variant="subtitle2">

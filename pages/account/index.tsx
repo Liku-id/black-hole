@@ -175,18 +175,21 @@ function Account() {
             <Box
               sx={{
                 display: 'flex',
-                alignItems: 'center',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'stretch', sm: 'center' },
                 justifyContent: 'space-between',
+                gap: { xs: 2, sm: 0 },
                 my: 3
               }}
             >
-              <H4 gutterBottom color="text.primary">
+              <H4 gutterBottom color="text.primary" sx={{ mb: { xs: 1, sm: 0 } }}>
                 {isEditing ? 'Edit Account: ' : ''}
                 {activeLable}
               </H4>
               <Button
                 variant={isEditing ? 'secondary' : 'primary'}
                 onClick={() => setIsEditing(!isEditing)}
+                sx={{ width: { xs: '100%', sm: 'auto' } }}
               >
                 {isEditing ? 'Cancel' : `Edit ${activeLable}`}
               </Button>

@@ -102,7 +102,7 @@ describe('WithdrawalTable', () => {
         />
       );
 
-      const viewButton = screen.getByAltText('View').closest('button');
+      const viewButton = screen.getAllByAltText('View')[0].closest('button');
       if (viewButton) {
         fireEvent.click(viewButton);
 
@@ -121,7 +121,7 @@ describe('WithdrawalTable', () => {
         />
       );
 
-      const viewButton = screen.getByAltText('View').closest('button');
+      const viewButton = screen.getAllByAltText('View')[0].closest('button');
       if (viewButton) {
         fireEvent.click(viewButton);
 
@@ -145,7 +145,7 @@ describe('WithdrawalTable', () => {
         />
       );
 
-      expect(screen.getByText(/Showing/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Showing/i).length).toBeGreaterThan(0);
     });
   });
 

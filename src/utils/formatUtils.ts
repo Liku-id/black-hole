@@ -9,9 +9,9 @@ export const formatUtils = {
    * @returns Formatted price string
    */
   formatPrice: (price: string | number, currency: string = 'IDR'): string => {
-    const numPrice = typeof price === 'string' ? parseInt(price, 10) : price;
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
 
-    if (isNaN(numPrice)) return '';
+    if (typeof numPrice !== 'number' || !Number.isFinite(numPrice)) return '';
 
     const formatter = new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -29,7 +29,7 @@ export const formatUtils = {
    * @returns Formatted currency string
    */
   formatCurrency: (amount: number, currency: string = 'IDR'): string => {
-    if (typeof amount !== 'number') return '';
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return '';
 
     const formatter = new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -46,7 +46,7 @@ export const formatUtils = {
    * @returns Formatted number string
    */
   formatNumber: (number: number): string => {
-    if (typeof number !== 'number') return '';
+    if (typeof number !== 'number' || !Number.isFinite(number)) return '';
     return new Intl.NumberFormat('id-ID').format(number);
   },
 
@@ -57,7 +57,7 @@ export const formatUtils = {
    * @returns Formatted percentage string
    */
   formatPercentage: (value: number, decimals: number = 1): string => {
-    if (typeof value !== 'number') return '';
+    if (typeof value !== 'number' || !Number.isFinite(value)) return '';
     return `${(value * 100).toFixed(decimals)}%`;
   },
 
@@ -67,7 +67,7 @@ export const formatUtils = {
    * @returns Formatted file size string
    */
   formatFileSize: (bytes: number): string => {
-    if (typeof bytes !== 'number') return '';
+    if (typeof bytes !== 'number' || !Number.isFinite(bytes)) return '';
 
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let size = bytes;
@@ -147,29 +147,29 @@ export const formatUtils = {
     return role.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   },
 
-/**
- * Format large numbers with K, M, B suffixes
- * @param num - Number to format
- * @param decimals - Number of decimal places (default: 2)
- * @returns Formatted number string
- */
-formatLargeNumber: (num: number, decimals = 2): string => {
-  if (typeof num !== 'number' || isNaN(num)) return '0';
+  /**
+   * Format large numbers with K, M, B suffixes
+   * @param num - Number to format
+   * @param decimals - Number of decimal places (default: 2)
+   * @returns Formatted number string
+   */
+  formatLargeNumber: (num: number, decimals = 2): string => {
+    if (typeof num !== 'number' || !Number.isFinite(num)) return '0';
 
-  const format = (value: number, suffix: string) =>
-    parseFloat(value.toFixed(decimals)).toString() + suffix;
+    const format = (value: number, suffix: string) =>
+      parseFloat(value.toFixed(decimals)).toString() + suffix;
 
-  if (Math.abs(num) >= 1_000_000_000) {
-    return format(num / 1_000_000_000, 'B');
-  }
-  if (Math.abs(num) >= 1_000_000) {
-    return format(num / 1_000_000, 'M');
-  }
-  if (Math.abs(num) >= 1_000) {
-    return format(num / 1_000, 'K');
-  }
-  return num.toString();
-},
+    if (Math.abs(num) >= 1_000_000_000) {
+      return format(num / 1_000_000_000, 'B');
+    }
+    if (Math.abs(num) >= 1_000_000) {
+      return format(num / 1_000_000, 'M');
+    }
+    if (Math.abs(num) >= 1_000) {
+      return format(num / 1_000, 'K');
+    }
+    return num.toString();
+  },
 
 
   /**
@@ -178,7 +178,7 @@ formatLargeNumber: (num: number, decimals = 2): string => {
    * @returns Formatted currency string
    */
   formatAbbreviatedCurrency: (amount: number): string => {
-    if (typeof amount !== 'number') return 'Rp 0';
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return 'Rp 0';
 
     if (amount >= 1000000000) {
       return `Rp ${(amount / 1000000000).toFixed(1)}B`;
@@ -199,7 +199,7 @@ formatLargeNumber: (num: number, decimals = 2): string => {
    * @returns Formatted revenue string
    */
   formatEventRevenue: (amount: number): string => {
-    if (typeof amount !== 'number') return 'Rp 0';
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return 'Rp 0';
 
     // For very large numbers (9+ digits), use abbreviated format
     if (amount >= 1000000000) {
@@ -229,7 +229,7 @@ formatLargeNumber: (num: number, decimals = 2): string => {
    * @returns Full formatted revenue string
    */
   getFullRevenueAmount: (amount: number): string => {
-    if (typeof amount !== 'number') return 'Rp 0';
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return 'Rp 0';
     return `Rp ${formatUtils.formatNumber(amount)}`;
   }
 };

@@ -1,13 +1,15 @@
 import { Box, SxProps, Theme } from '@mui/material';
+import type { ResponsiveStyleValue } from '@mui/system';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 import { Caption, Overline } from '@/components/common/typography';
 
-interface DropzoneProps {
-  width?: string | number;
-  height?: string | number;
+export interface DropzoneProps {
+  id?: string;
+  width?: ResponsiveStyleValue<string | number>;
+  height?: ResponsiveStyleValue<string | number>;
   onFileSelect?: (file: File) => void;
   onFileRemove?: () => void;
   accept?: Record<string, string[]>;
@@ -20,6 +22,7 @@ interface DropzoneProps {
 }
 
 const Dropzone = ({
+  id,
   width = '100%',
   height = '200px',
   onFileSelect,
@@ -65,8 +68,11 @@ const Dropzone = ({
     onFileRemove?.();
   };
 
+  const isSupportingImage = order != null && order > 1;
+
   return (
     <Box
+      id={id}
       {...getRootProps()}
       border="1px solid"
       borderColor={error ? 'error.main' : 'grey.100'}
@@ -98,8 +104,8 @@ const Dropzone = ({
           />
           {order && (
             <Box
-              height="24px"
-              left="16px"
+              height={{ xs: '20px', sm: '24px' }}
+              left={{ xs: '8px', sm: '16px' }}
               position="absolute"
               sx={{
                 backgroundColor: 'primary.main',
@@ -108,24 +114,32 @@ const Dropzone = ({
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              top="16px"
-              width="24px"
+              top={{ xs: '8px', sm: '16px' }}
+              width={{ xs: '20px', sm: '24px' }}
               zIndex={2}
             >
-              <Caption color="common.white" fontWeight={600}>
+              <Caption
+                color="common.white"
+                fontWeight={600}
+                sx={{ fontSize: { xs: '10px', sm: '12px' } }}
+              >
                 {order}
               </Caption>
             </Box>
           )}
           <Box
-            height="24px"
+            id="clear_icon"
+            height="40px"
             position="absolute"
-            right="16px"
+            right="8px"
             sx={{
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
-            top="16px"
-            width="24px"
+            top="8px"
+            width="40px"
             zIndex={1}
             onClick={handleRemoveFile}
           >
@@ -139,18 +153,22 @@ const Dropzone = ({
               alignItems="center"
               borderRadius="50%"
               display="flex"
-              height="24px"
+              height={{ xs: '20px', sm: '24px' }}
               justifyContent="center"
-              left="16px"
+              left={{ xs: '8px', sm: '16px' }}
               position="absolute"
               sx={{
                 backgroundColor: 'primary.main'
               }}
-              top="16px"
-              width="24px"
+              top={{ xs: '8px', sm: '16px' }}
+              width={{ xs: '20px', sm: '24px' }}
               zIndex={1}
             >
-              <Caption color="common.white" fontWeight={600}>
+              <Caption
+                color="common.white"
+                fontWeight={600}
+                sx={{ fontSize: { xs: '10px', sm: '12px' } }}
+              >
                 {order}
               </Caption>
             </Box>
@@ -161,9 +179,21 @@ const Dropzone = ({
             flexDirection="column"
             height="100%"
             justifyContent="center"
-            paddingX="24px"
+            paddingX={{
+              xs: '8px',
+              sm: isSupportingImage ? '12px' : '24px',
+              lg: '24px'
+            }}
+            paddingY={{ xs: '8px', sm: isSupportingImage ? '6px' : 0 }}
+            sx={{ overflow: 'hidden' }}
           >
-            <Box marginBottom="16px">
+            <Box
+              marginBottom={{
+                xs: '8px',
+                sm: isSupportingImage ? '6px' : '16px',
+                lg: '16px'
+              }}
+            >
               <Image
                 alt="Upload"
                 height={24}
@@ -173,13 +203,45 @@ const Dropzone = ({
             </Box>
             <Caption
               color="text.primary"
-              marginBottom="16px"
+              marginBottom={{
+                xs: '4px',
+                sm: isSupportingImage ? '4px' : '16px',
+                lg: '16px'
+              }}
               textAlign="center"
+              sx={{
+                fontSize: {
+                  xs: '10px',
+                  sm: isSupportingImage ? '11px' : '12px'
+                },
+                lineHeight: { xs: 1.3, sm: 1.4 },
+                display: '-webkit-box',
+                WebkitLineClamp: {
+                  xs: 3,
+                  md: isSupportingImage ? 2 : 'unset',
+                  lg: 'unset'
+                },
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}
             >
-              Click or drag file to this area to upload{' '}
-              {order === 1 ? 'thumbnail' : 'supporting'} image
+              {order === 1
+                ? 'Click or drag file to upload thumbnail'
+                : 'Click or drag file to upload image'}
             </Caption>
-            <Overline color="text.secondary" textAlign="center">
+            <Overline
+              color="text.secondary"
+              textAlign="center"
+              sx={{
+                display: {
+                  xs: 'none',
+                  md: isSupportingImage ? 'none' : 'block',
+                  lg: 'block'
+                },
+                fontSize: isSupportingImage ? '10px' : undefined,
+                lineHeight: 1.3
+              }}
+            >
               Suggestion resolution: 630x354px, 300 DPI, size max: 2MB
             </Overline>
           </Box>

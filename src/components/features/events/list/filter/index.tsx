@@ -78,7 +78,7 @@ const EventsFilter: FC<EventsFilterProps> = ({ filters, onFiltersChange }) => {
           Filter Events
         </Typography>
         <Grid container spacing={2}>
-          <Grid item md={3} xs={12}>
+          <Grid item md={3} sm={6} xs={12}>
             <TextField
               fullWidth
               InputProps={{
@@ -95,7 +95,7 @@ const EventsFilter: FC<EventsFilterProps> = ({ filters, onFiltersChange }) => {
               onChange={(e) => handleFilterChange('name', e.target.value)}
             />
           </Grid>
-          <Grid item md={3} xs={12}>
+          <Grid item md={3} sm={6} xs={12}>
             <FormControl fullWidth size="small">
               <InputLabel>City</InputLabel>
               <Select
@@ -115,7 +115,7 @@ const EventsFilter: FC<EventsFilterProps> = ({ filters, onFiltersChange }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item md={3} xs={12}>
+          <Grid item md={3} sm={6} xs={12}>
             <TextField
               fullWidth
               InputLabelProps={{
@@ -128,7 +128,7 @@ const EventsFilter: FC<EventsFilterProps> = ({ filters, onFiltersChange }) => {
               onChange={(e) => handleDateChange('startDate', e.target.value)}
             />
           </Grid>
-          <Grid item md={3} xs={12}>
+          <Grid item md={3} sm={6} xs={12}>
             <TextField
               fullWidth
               InputLabelProps={{

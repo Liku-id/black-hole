@@ -70,7 +70,7 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
   const LoadingSkeleton = () => (
     <Grid container spacing={3} marginBottom={3.75}>
       {[1, 2, 3, 4].map((item) => (
-        <Grid item xs={12} sm={6} md={3} key={item}>
+        <Grid item xs={12} sm={6} lg={3} key={item}>
           <Box
             bgcolor="common.white"
             boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
@@ -138,10 +138,21 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
           alignItems="center"
           justifyContent="space-between"
           marginBottom={3.5}
+          gap={1}
+          minWidth={0}
         >
-          <Box display="flex" alignItems="center" gap={1}>
-            <Image alt={stat.title} height={22} src={stat.iconUrl} width={22} />
-            <Body2 color="text.primary" fontWeight={400}>
+          <Box display="flex" alignItems="center" gap={1} minWidth={0} flex={1}>
+            <Image alt={stat.title} height={22} src={stat.iconUrl} width={22} style={{ flexShrink: 0 }} />
+            <Body2
+              color="text.primary"
+              fontWeight={400}
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: 0
+              }}
+            >
               {stat.title}
             </Body2>
           </Box>
@@ -150,7 +161,8 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
             className="arrow-icon"
             sx={{
               transition: 'all 0.3s ease',
-              opacity: 0.6
+              opacity: 0.6,
+              flexShrink: 0
             }}
           >
             <Image
@@ -162,16 +174,56 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
           </Box>
         </Box>
 
-        <Box display="flex" alignItems="end" gap={0.5}>
-          <H2 color="text.primary" fontWeight={600}>
+        {stat.miniDesc ? (
+          <>
+            <Box
+              sx={{
+                display: { xs: 'flex', sm: 'none' },
+                alignItems: 'baseline',
+                gap: '4px'
+              }}
+            >
+              <H2
+                component="span"
+                color="text.primary"
+                fontWeight={600}
+                sx={{ fontSize: '20px', lineHeight: 1, display: 'inline' }}
+              >
+                {stat.value}
+              </H2>
+              <Body1
+                component="span"
+                color="text.secondary"
+                fontWeight={400}
+                sx={{ fontSize: '14px', lineHeight: 1, display: 'inline' }}
+              >
+                {stat.miniDesc}
+              </Body1>
+            </Box>
+            <Box
+              sx={{
+                display: { xs: 'none', sm: 'flex' },
+                alignItems: 'end',
+                gap: 0.5
+              }}
+            >
+              <H2 color="text.primary" fontWeight={600} sx={{ fontSize: '28px' }}>
+                {stat.value}
+              </H2>
+              <Body1 color="text.secondary" fontWeight={400} marginBottom={0.7}>
+                {stat.miniDesc}
+              </Body1>
+            </Box>
+          </>
+        ) : (
+          <H2
+            color="text.primary"
+            fontWeight={600}
+            sx={{ fontSize: { xs: '20px', sm: '28px' } }}
+          >
             {stat.value}
           </H2>
-          {stat.miniDesc && (
-            <Body1 color="text.secondary" fontWeight={400} marginBottom={0.7}>
-              {stat.miniDesc}
-            </Body1>
-          )}
-        </Box>
+        )}
       </Box>
     );
   };
@@ -183,7 +235,7 @@ const EventStatistic = ({ eventOrganizerId }: EventStatisticProps) => {
       ) : (
         <Grid container spacing={3} marginBottom={3.75}>
           {stats.map((stat) => (
-            <Grid item xs={12} sm={6} md={3} key={stat.id}>
+            <Grid item xs={12} sm={6} lg={3} key={stat.id}>
               <StatCard stat={stat} />
             </Grid>
           ))}

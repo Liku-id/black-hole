@@ -619,9 +619,11 @@ function EventDetail() {
 
       {/* Title and Submit Button */}
       <Box
-        alignItems="center"
         display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
         justifyContent="space-between"
+        gap={{ xs: 1.5, sm: 0 }}
         mb="21px"
       >
         <H2 color="text.primary" fontWeight={700}>
@@ -629,7 +631,12 @@ function EventDetail() {
         </H2>
         {eventDetail.eventStatus !== 'on_review' &&
           eventDetail.eventStatus !== 'done' && (
-            <Box display="flex" flexDirection="column" alignItems="flex-end">
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems={{ xs: 'stretch', sm: 'flex-end' }}
+              width={{ xs: '100%', sm: 'auto' }}
+            >
               {eventDetail.is_requested ? (
                 <Box
                   border="1px solid"

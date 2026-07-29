@@ -41,8 +41,8 @@ const Footer = () => {
           display="grid"
           p={{ xs: '56px 16px', lg: '56px' }}
           sx={{
-            gridTemplateColumns: { xs: '1fr', lg: '2fr 0.75fr 1fr 1.5fr' },
-            gap: { xs: '32px', lg: '108px' }
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '2fr 0.75fr 1fr 1.5fr' },
+            gap: { xs: '32px', md: '48px', lg: '108px' }
           }}
         >
           {/* Part 1: Logo and Text */}

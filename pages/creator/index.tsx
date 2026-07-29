@@ -70,17 +70,24 @@ function Creator() {
 
             <Box>
                 <Card sx={{ backgroundColor: 'common.white', borderRadius: 0 }}>
-                    <CardContent sx={{ padding: '16px 24px' }}>
+                    <CardContent sx={{ padding: { xs: '12px 16px', sm: '16px 24px' } }}>
                         {/* Header with Title and Search */}
                         <Box
-                            alignItems="center"
                             display="flex"
+                            flexDirection={{ xs: 'column', sm: 'row' }}
+                            alignItems={{ xs: 'stretch', sm: 'center' }}
                             justifyContent="space-between"
+                            gap={{ xs: 1.5, sm: 2 }}
                             borderBottom="0.5px solid "
                             borderColor="grey.100"
                             pb={2}
                         >
-                            <Body1 color="text.primary" fontSize="16px" fontWeight={700}>
+                            <Body1
+                                color="text.primary"
+                                fontSize="16px"
+                                fontWeight={700}
+                                sx={{ minWidth: 0 }}
+                            >
                                 Creators Details
                             </Body1>
 
@@ -94,7 +101,7 @@ function Creator() {
                                         width={20}
                                     />
                                 }
-                                sx={{ width: 300 }}
+                                sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0 }}
                                 value={searchValue}
                                 onChange={handleSearchChange}
                             />

@@ -185,12 +185,14 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
     return (
       <Box display="flex" flexDirection="column" gap={2}>
         {[1, 2].map((index) => (
-          <Box key={index} display="flex" gap="18px" padding="8px">
+          <Box key={index} display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap="18px" padding="8px">
             <Skeleton
               variant="rectangular"
-              width={207}
-              height={118}
-              sx={{ borderRadius: '4px' }}
+              sx={{
+                borderRadius: '4px',
+                width: { xs: '100%', sm: 207 },
+                height: { xs: 160, sm: 118 }
+              }}
             />
             <Box flex={1} display="flex" flexDirection="column" gap={1.5}>
               <Skeleton variant="text" width="70%" height={24} />
@@ -328,6 +330,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
       <>
         <Box
           display="flex"
+          flexDirection={{ xs: 'column', sm: 'row' }}
           gap="18px"
           minWidth={0}
           overflow="hidden"
@@ -345,20 +348,28 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
             }
           }}
         >
-          <Image
-            alt={event.name}
-            src={event.thumbnail || '/placeholder-event.jpg'}
-            width={207}
-            height={118}
-            style={{
+          <Box
+            sx={{
+              width: { xs: '100%', sm: '207px' },
+              height: { xs: '160px', sm: '118px' },
+              position: 'relative',
+              flexShrink: 0,
               borderRadius: '4px',
-              objectFit: 'cover',
-              flexShrink: 0
+              overflow: 'hidden'
             }}
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder-event.jpg';
-            }}
-          />
+          >
+            <Image
+              alt={event.name}
+              src={event.thumbnail || '/placeholder-event.jpg'}
+              fill
+              style={{
+                objectFit: 'cover'
+              }}
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder-event.jpg';
+              }}
+            />
+          </Box>
 
           <Box
             flex={1}
@@ -588,7 +599,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
   return (
     <Grid container spacing={3} marginBottom="30px">
       {/* Ongoing Events Section */}
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} lg={6}>
         <Box
           bgcolor="common.white"
           boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
@@ -596,6 +607,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           height="100%"
           position="relative"
           minHeight="209px"
+          sx={{ overflow: 'hidden' }}
         >
           <HeadSection
             title="Event On Going"
@@ -621,7 +633,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
       </Grid>
 
       {/* Past Events Section */}
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} lg={6}>
         <Box
           bgcolor="common.white"
           boxShadow="0 4px 20px 0 rgba(40, 72, 107, 0.05)"
@@ -629,6 +641,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
           height="100%"
           position="relative"
           minHeight="209px"
+          sx={{ overflow: 'hidden' }}
         >
           <HeadSection
             title="Event Past"

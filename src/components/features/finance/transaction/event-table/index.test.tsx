@@ -19,13 +19,17 @@ jest.mock('../detail-modal', () => ({
 }));
 
 // Mock common components
-jest.mock('@/components/common', () => ({
-  Body2: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  Pagination: () => <div data-testid="pagination">Pagination</div>,
-  StyledTableContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  StyledTableHead: ({ children }: { children: React.ReactNode }) => <thead>{children}</thead>,
-  StyledTableBody: ({ children }: { children: React.ReactNode }) => <tbody>{children}</tbody>
-}));
+jest.mock('@/components/common', () => {
+  const { CollapsibleCardListMock } = require('@/test-utils/collapsible-card-list-mock');
+  return {
+    Body2: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    CollapsibleCardList: CollapsibleCardListMock,
+    Pagination: () => <div data-testid="pagination">Pagination</div>,
+    StyledTableContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    StyledTableHead: ({ children }: { children: React.ReactNode }) => <thead>{children}</thead>,
+    StyledTableBody: ({ children }: { children: React.ReactNode }) => <tbody>{children}</tbody>
+  };
+});
 
 const mockTransactions = [
   {
@@ -58,7 +62,7 @@ describe('EventTransactionTable', () => {
   describe('Loading and Error States', () => {
     it('should display loading message', () => {
       render(<EventTransactionTable transactions={[]} loading={true} />);
-      expect(screen.getByText('Loading transactions...')).toBeInTheDocument();
+      expect(screen.getAllByText('Loading transactions...').length).toBeGreaterThan(0);
     });
 
     it('should display error message', () => {
@@ -74,7 +78,7 @@ describe('EventTransactionTable', () => {
 
     it('should display empty state', () => {
       render(<EventTransactionTable transactions={[]} loading={false} />);
-      expect(screen.getByText('No transactions found.')).toBeInTheDocument();
+      expect(screen.getAllByText('No transactions found.').length).toBeGreaterThan(0);
     });
   });
 
@@ -105,20 +109,19 @@ describe('EventTransactionTable', () => {
       );
 
       // Row 1 - Regular Ticket
-      expect(screen.getByText('User 1')).toBeInTheDocument();
-      expect(screen.getByText('VIP Ticket')).toBeInTheDocument();
-      expect(screen.getByText('2 Ticket')).toBeInTheDocument();
-      expect(screen.getByText('TRX-123')).toBeInTheDocument();
-      expect(screen.getByText('Credit Card')).toBeInTheDocument();
-      expect(screen.getByText('paid')).toBeInTheDocument();
+      expect(screen.getAllByText('User 1').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('VIP Ticket').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('2 Ticket').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('TRX-123').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Credit Card').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('paid').length).toBeGreaterThan(0);
 
-      // Row 2 - Group Ticket
-      expect(screen.getByText('User 2')).toBeInTheDocument();
-      expect(screen.getByText('Group Bundle')).toBeInTheDocument();
-      expect(screen.getByText(/1 Bundle \(5 Tickets\)/)).toBeInTheDocument();
-      expect(screen.getByText('TRX-456')).toBeInTheDocument();
-      expect(screen.getByText('Bank Transfer')).toBeInTheDocument();
-      expect(screen.getByText('pending')).toBeInTheDocument();
+      expect(screen.getAllByText('User 2').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Group Bundle').length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/1 Bundle \(5 Tickets\)/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText('TRX-456').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Bank Transfer').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('pending').length).toBeGreaterThan(0);
     });
   });
 
@@ -135,8 +138,8 @@ describe('EventTransactionTable', () => {
       expect(screen.queryByTestId('detail-modal')).not.toBeInTheDocument();
 
       // Click view button (first row)
-      const viewButtons = screen.getAllByRole('button');
-      fireEvent.click(viewButtons[0]);
+      const viewButton = screen.getAllByAltText('View')[0].closest('button');
+      fireEvent.click(viewButton!);
 
       // Modal should be open
       expect(screen.getByTestId('detail-modal')).toBeInTheDocument();
@@ -151,8 +154,8 @@ describe('EventTransactionTable', () => {
       );
 
       // Open modal
-      const viewButtons = screen.getAllByRole('button');
-      fireEvent.click(viewButtons[0]);
+      const viewButton = screen.getAllByAltText('View')[0].closest('button');
+      fireEvent.click(viewButton!);
       expect(screen.getByTestId('detail-modal')).toBeInTheDocument();
 
       // Close modal

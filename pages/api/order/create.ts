@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 
-import { getSession } from '@/lib/sessionHelpers';
+import { getSession, isAuthenticated } from '@/lib/sessionHelpers';
 import { apiRouteUtils } from '@/utils/apiRouteUtils';
 
 export default async function handler(
@@ -11,10 +11,14 @@ export default async function handler(
     // Get session to retrieve cashierId
     const session = await getSession(req, res);
 
-    const body = req.body;
-    const ticket = body.tickets?.[0] || body;
+    if (!isAuthenticated(session) || !session?.user?.id) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
 
-    if (!ticket.id && !ticket.ticketTypeId) {
+    const body = req.body;
+    const ticket = body?.tickets?.[0] || body;
+
+    if (!ticket || (!ticket.id && !ticket.ticketTypeId && !ticket.groupTicketId)) {
       return res.status(400).json({ message: 'No tickets selected' });
     }
 
@@ -22,7 +26,7 @@ export default async function handler(
       ticketTypeId: ticket.id || ticket.ticketTypeId,
       groupTicketId: ticket.groupTicketId,
       quantity: ticket.quantity,
-      cashierId: session?.user?.id,
+      cashierId: session.user.id,
     };
 
     req.body = payload;

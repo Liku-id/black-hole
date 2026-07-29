@@ -17,9 +17,14 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid eventId parameter' });
     }
 
-    // Use apiRouteUtils pattern but with dynamic endpoint
+    // Use apiRouteUtils pattern with dynamic endpoint and clean query transform
+    const safeEventId = encodeURIComponent(eventId);
     const getHandler = apiRouteUtils.createGetHandler({
-      endpoint: `/events/${eventId}/transactions`,
+      endpoint: `/events/${safeEventId}/transactions`,
+      transformQuery: (query) => {
+        const { eventId: _removedEventId, ...restQuery } = query;
+        return restQuery;
+      },
       timeout: 10000
     });
 
