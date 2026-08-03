@@ -12,6 +12,15 @@ describe('next.config images', () => {
     expect(hostnames).toContain('storage.googleapis.com');
   });
 
+  // Without a path, /_next/image would happily optimize any public bucket on
+  // GCS on someone else's behalf.
+  it('pins the GCS host to our buckets', () => {
+    const gcs = nextConfig.images.remotePatterns.find(
+      (pattern) => pattern.hostname === 'storage.googleapis.com'
+    );
+    expect(gcs.pathname).toBe('/wukong-*/**');
+  });
+
   it('still allows the S3 asset hosts until the production cutover is done', () => {
     expect(hostnames).toContain(
       'wukong-production-public.s3.ap-southeast-3.amazonaws.com'

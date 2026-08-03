@@ -50,10 +50,13 @@ const nextConfig = {
         hostname: 'wukong-production-public.s3.ap-southeast-3.amazonaws.com',
       },
       // GCS (GEN-3947). One host covers every bucket, and assets arrive as V4
-      // signed URLs so the query string carries a per-response signature.
+      // signed URLs so the query string carries a per-response signature. The
+      // path is pinned to our buckets: the host alone would turn /_next/image
+      // into an optimizer for every public bucket on GCS.
       {
         protocol: 'https',
         hostname: 'storage.googleapis.com',
+        pathname: '/wukong-*/**',
       }
     ],
     formats: ['image/webp', 'image/avif']
