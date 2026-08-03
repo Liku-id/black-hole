@@ -48,6 +48,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'wukong-production-public.s3.ap-southeast-3.amazonaws.com',
+      },
+      // GCS (GEN-3947). One host covers every bucket, and assets arrive as V4
+      // signed URLs so the query string carries a per-response signature.
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
       }
     ],
     formats: ['image/webp', 'image/avif']
