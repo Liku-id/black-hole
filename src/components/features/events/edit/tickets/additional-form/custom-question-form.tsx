@@ -1,6 +1,5 @@
 import { Box, Grid, IconButton } from '@mui/material';
 import Image from 'next/image';
-import React from 'react';
 
 import { Select, TextField, Checkbox, Body2, H4 } from '@/components/common';
 

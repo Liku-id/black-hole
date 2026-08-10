@@ -1,7 +1,6 @@
 import { Box, Container, styled, useTheme } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
 
 import { H3, Body1, Body2, H4 } from '@/components/common/typography';
 

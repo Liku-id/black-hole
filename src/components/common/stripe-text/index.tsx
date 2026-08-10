@@ -1,7 +1,6 @@
 'use client';
 
 import { Box, styled, keyframes } from '@mui/material';
-import React from 'react';
 
 import { H1 } from '../typography';
 

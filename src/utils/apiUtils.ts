@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import Router from 'next/router';
 
 let refreshTokenPromise: Promise<void> | null = null;
 
@@ -32,7 +33,7 @@ export const apiUtils = {
         typeof window !== 'undefined' &&
         window.location.pathname !== '/login'
       ) {
-        window.location.href = '/login';
+        Router.replace('/login');
       }
     } catch (error) {
       console.error('Failed to clear expired session:', error);
@@ -40,7 +41,7 @@ export const apiUtils = {
         typeof window !== 'undefined' &&
         window.location.pathname !== '/login'
       ) {
-        window.location.href = '/login';
+        Router.replace('/login');
       }
     }
   },

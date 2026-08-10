@@ -1,8 +1,11 @@
 # Stage 1: Build the application
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
+
+# Install necessary OS deps
+RUN apk add --no-cache libc6-compat
 
 # Copy package.json and lock file (if exists)
 COPY package*.json ./
@@ -20,7 +23,7 @@ COPY .env.development .env.development
 RUN npm run build
 
 # Stage 2: Run the application
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
