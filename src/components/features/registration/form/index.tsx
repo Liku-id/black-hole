@@ -1,5 +1,6 @@
 import { alpha, Box, Card, CardContent, styled } from '@mui/material';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -43,6 +44,7 @@ interface RegisterFormProps {
 const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmit: onFormSubmit
 }) => {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -294,7 +296,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             <Caption
               color="info.contrastText"
               sx={{ cursor: 'pointer' }}
-              onClick={() => (window.location.href = '/login')}
+              onClick={() => router.push('/login')}
             >
               Sign In
             </Caption>

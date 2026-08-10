@@ -2,7 +2,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box } from '@mui/material';
 import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import { activeOtsOrderAtom, ActiveOtsOrder } from '@/atoms/otsOrderAtom';

@@ -1,4 +1,5 @@
 import { Box, Container, Grid, styled } from '@mui/material';
+import type { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -16,7 +17,6 @@ import { registerService } from '@/services/auth/register';
 import { utmService } from '@/services/utm';
 import { RegisterRequest, RegisterProfileRequest } from '@/types/register';
 import { dateUtils, deviceUtils } from '@/utils';
-import type { NextPage } from 'next';
 
 const LogoWrapper = styled(Box)(
   ({ theme }) => `

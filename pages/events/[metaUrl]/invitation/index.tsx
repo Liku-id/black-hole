@@ -17,7 +17,7 @@ import jsPDF from 'jspdf';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
 import {

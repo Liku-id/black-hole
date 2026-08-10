@@ -1,6 +1,5 @@
 import { Box } from '@mui/material';
 import Image from 'next/image';
-import React from 'react';
 
 import { Button, TextArea, TextField } from '@/components/common';
 

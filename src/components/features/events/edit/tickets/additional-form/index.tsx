@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from '@mui/material';
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import { Body2, Select, Button, H4, Card } from '@/components/common';
 import { useToast } from '@/contexts/ToastContext';
