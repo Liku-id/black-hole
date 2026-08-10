@@ -1,6 +1,6 @@
 import { alpha, Box, Card, CardContent, styled } from '@mui/material';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -48,7 +48,6 @@ interface ResetPasswordFormProps {
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
-  const router = useRouter();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -200,15 +199,11 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
             textAlign="center"
           >
             <Caption color="text.primary">Need an account?</Caption>
-            <Caption
-              color="info.contrastText"
-              sx={{ cursor: 'pointer' }}
-              onClick={() => {
-                router.push('/register');
-              }}
-            >
-              Sign up
-            </Caption>
+            <Link href="/register" style={{ textDecoration: 'none' }}>
+              <Caption color="info.contrastText" sx={{ cursor: 'pointer' }}>
+                Sign up
+              </Caption>
+            </Link>
           </Box>
         </CardContent>
       </ResetPasswordCard>

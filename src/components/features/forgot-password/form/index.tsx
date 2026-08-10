@@ -1,6 +1,6 @@
 import { alpha, Box, Card, CardContent, styled } from '@mui/material';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -50,7 +50,6 @@ interface ForgotPasswordFormProps {
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onSubmit: onFormSubmit
 }) => {
-  const router = useRouter();
   const { showError } = useToast();
 
   const methods = useForm<ForgotPasswordFormData>({
@@ -142,13 +141,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             gap={1}
           >
             <Caption color="text.primary">Need an account?</Caption>
-            <Caption
-              color="info.contrastText"
-              sx={{ cursor: 'pointer' }}
-              onClick={() => router.push('/register')}
-            >
-              Sign up
-            </Caption>
+            <Link href="/register" style={{ textDecoration: 'none' }}>
+              <Caption color="info.contrastText" sx={{ cursor: 'pointer' }}>
+                Sign up
+              </Caption>
+            </Link>
           </Box>
         </CardContent>
       </ForgotPasswordCard>
