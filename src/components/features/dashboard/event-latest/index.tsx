@@ -364,7 +364,8 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
               alt={event.name}
               src={event.thumbnail || '/placeholder-event.jpg'}
               fill
-              unoptimized
+              sizes="(max-width: 600px) 100vw, 207px"
+              quality={75}
               style={{
                 objectFit: 'cover'
               }}
