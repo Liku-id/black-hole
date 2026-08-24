@@ -6,6 +6,17 @@ import { apiUtils } from '@/utils/apiUtils';
 
 // Event Submissions Service
 class EventSubmissionsService {
+  async updateNicepaySubMerchant(
+    eventOrganizerId: string,
+    subMerchantId: string
+  ): Promise<any> {
+    return apiUtils.put(
+      `/api/event-organizers/${eventOrganizerId}/payment-gateways/nicepay`,
+      { sub_merchant_id: subMerchantId },
+      'Failed to save NICEPAY sub-merchant I-MID'
+    );
+  }
+
   async getEventSubmissions(
     filters?: EventSubmissionsFilters
   ): Promise<EventSubmissionsResponse> {

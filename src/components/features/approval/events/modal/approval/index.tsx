@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import type { ReactNode } from 'react';
 
 import { Body2, Button } from '@/components/common';
 import Modal from '@/components/common/modal';
@@ -12,6 +13,7 @@ interface ApprovalModalProps {
   error?: string | null;
   title?: string;
   message?: string;
+  children?: ReactNode;
 }
 
 export const ApprovalModal = ({
@@ -22,7 +24,8 @@ export const ApprovalModal = ({
   loading = false,
   error,
   title,
-  message
+  message,
+  children
 }: ApprovalModalProps) => {
   const defaultTitle = 'Approve Event Submission';
   const defaultMessage = `Are you sure you want to approve the event "${eventName || 'this event'}"?`;
@@ -42,15 +45,14 @@ export const ApprovalModal = ({
           </Box>
         </Box>
       }
-      height={error ? 280 : 240}
+      height={children ? 360 : error ? 280 : 240}
       open={open}
       title={title || defaultTitle}
       width={520}
       onClose={onClose}
     >
-      <Body2 color="text.secondary">
-        {message || defaultMessage}
-      </Body2>
+      <Body2 color="text.secondary">{message || defaultMessage}</Body2>
+      {children}
     </Modal>
   );
 };

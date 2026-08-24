@@ -5,7 +5,15 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { withAuth } from '@/components/Auth/withAuth';
-import { Card, Caption, H3, Button, Tabs, Body2 } from '@/components/common';
+import {
+  Card,
+  Caption,
+  H3,
+  Button,
+  Tabs,
+  Body2,
+  TextField
+} from '@/components/common';
 import { EventsSubmissionsInfo } from '@/components/features/approval/events/detail';
 import { ApprovalModal } from '@/components/features/approval/events/modal/approval';
 import { RejectModal } from '@/components/features/approval/events/modal/reject';
@@ -21,6 +29,8 @@ import { eventsService } from '@/services/events';
 import { eventSubmissionsService } from '@/services/events-submissions';
 import { ticketsService } from '@/services/tickets';
 import { User } from '@/types/auth';
+
+const NICEPAY_SUB_MERCHANT_PATTERN = /^[A-Z0-9]{1,20}$/;
 
 function ApprovalDetail() {
   const { user } = useAuth();
@@ -64,6 +74,7 @@ function ApprovalDetail() {
   const [globalApprovalLoading, setGlobalApprovalLoading] = useState(false);
   const [isSubmitReviewConfirmOpen, setIsSubmitReviewConfirmOpen] =
     useState(false);
+  const [nicepaySubMerchantId, setNicepaySubMerchantId] = useState('');
 
   const { submission, loading, error, mutate } = useEventsSubmissionDetail(
     id as string
@@ -71,10 +82,26 @@ function ApprovalDetail() {
 
   const [discounts, setDiscounts] = useState<Discount[]>([]);
 
+  const isNicepayProvider =
+    process.env.NEXT_PUBLIC_PAYMENT_GATEWAY_PROVIDER == 'NICEPAY';
+  const existingNicepaySubMerchantId = (
+    submission?.event?.eventOrganizer?.nicepay_sub_merchant_id ||
+    submission?.event?.eventOrganizer?.nicepaySubMerchantId ||
+    ''
+  )
+    .trim()
+    .toUpperCase();
+
+  useEffect(() => {
+    setNicepaySubMerchantId(existingNicepaySubMerchantId);
+  }, [existingNicepaySubMerchantId]);
+
   const fetchDiscounts = async () => {
     if (!submission?.event?.id) return;
     try {
-      const res = await discountsService.getDiscountsByEvent(submission.event.id);
+      const res = await discountsService.getDiscountsByEvent(
+        submission.event.id
+      );
       setDiscounts(res?.body?.discounts || []);
     } catch (error) {
       console.error('Failed to fetch discounts:', error);
@@ -146,12 +173,14 @@ function ApprovalDetail() {
     // Ticket Status - Priority: pending > rejected > approved
     // Check regular tickets, group tickets, and discounts
     let ticketStatus: 'rejected' | 'approved' | 'pending' | undefined;
-    
+
     const allTickets = [
       ...(event.ticketTypes || []),
-      ...(event.group_tickets && event.group_tickets.length > 0 ? event.group_tickets : [])
+      ...(event.group_tickets && event.group_tickets.length > 0
+        ? event.group_tickets
+        : [])
     ];
-    
+
     // Only calculate status if there are tickets or discounts to check
     if (allTickets.length > 0 || discounts.length > 0) {
       const hasPendingTicket = allTickets.some(
@@ -168,8 +197,12 @@ function ApprovalDetail() {
         (d: any) => d.status === 'rejected'
       );
 
-      const allTicketsApproved = allTickets.every((tt: any) => tt.status === 'approved');
-      const allDiscountsApproved = discounts.every((d: any) => d.status === 'approved');
+      const allTicketsApproved = allTickets.every(
+        (tt: any) => tt.status === 'approved'
+      );
+      const allDiscountsApproved = discounts.every(
+        (d: any) => d.status === 'approved'
+      );
 
       if (hasPendingTicket || hasPendingDiscount) {
         ticketStatus = 'pending';
@@ -227,6 +260,10 @@ function ApprovalDetail() {
 
   const allSectionsReviewed = areAllSectionsReviewed();
   const finalAction = getFinalAction();
+  const requiresNicepaySubMerchant =
+    isNicepayProvider &&
+    !existingNicepaySubMerchantId &&
+    finalAction === 'approve';
 
   useEffect(() => {
     if (user) {
@@ -382,6 +419,25 @@ function ApprovalDetail() {
           ? submission.event.id
           : (id as string);
 
+      if (requiresNicepaySubMerchant) {
+        const normalizedSubMerchantId = nicepaySubMerchantId
+          .trim()
+          .toUpperCase();
+        if (!NICEPAY_SUB_MERCHANT_PATTERN.test(normalizedSubMerchantId)) {
+          throw new Error(
+            'NICEPAY sub-merchant I-MID must contain 1-20 uppercase letters or numbers'
+          );
+        }
+        const eventOrganizerId = submission.event.eventOrganizer?.id;
+        if (!eventOrganizerId) {
+          throw new Error('Event organizer ID not found');
+        }
+        await eventSubmissionsService.updateNicepaySubMerchant(
+          eventOrganizerId,
+          normalizedSubMerchantId
+        );
+      }
+
       await eventSubmissionsService.approveOrRejectEvent(eventIdToUse, action);
 
       setIsSubmitReviewConfirmOpen(false);
@@ -422,7 +478,7 @@ function ApprovalDetail() {
         // Use regular ticket approval service
         await ticketsService.approveTicketType(ticketId);
       }
-      
+
       showSuccess('Ticket approved successfully');
       await mutate();
     } catch (e) {
@@ -471,7 +527,7 @@ function ApprovalDetail() {
           rejected_reason: rejectedReason
         });
       }
-      
+
       setIsTicketRejectOpen(false);
       setPendingTicketReject(null);
       showSuccess('Ticket rejected');
@@ -725,7 +781,10 @@ function ApprovalDetail() {
                 }
 
                 // Hide buttons if tab status is already 'approved' or 'rejected'
-                if (tabStatuses.assets === 'approved' || tabStatuses.assets === 'rejected') {
+                if (
+                  tabStatuses.assets === 'approved' ||
+                  tabStatuses.assets === 'rejected'
+                ) {
                   return null;
                 }
 
@@ -974,7 +1033,30 @@ function ApprovalDetail() {
             ? 'All sections have been approved.'
             : 'One or more sections have been rejected.'
         } Do you want to continue?`}
-      />
+      >
+        {requiresNicepaySubMerchant ? (
+          <Box mt={2}>
+            <TextField
+              fullWidth
+              required
+              disabled={globalApprovalLoading}
+              error={
+                nicepaySubMerchantId.length > 0 &&
+                !NICEPAY_SUB_MERCHANT_PATTERN.test(nicepaySubMerchantId)
+              }
+              helperText="I-MID sub-merchant provided by NICEPAY, for example SMASHWK001"
+              inputProps={{ maxLength: 20 }}
+              label="NICEPAY Sub-merchant I-MID"
+              value={nicepaySubMerchantId}
+              onChange={(event) =>
+                setNicepaySubMerchantId(
+                  event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')
+                )
+              }
+            />
+          </Box>
+        ) : null}
+      </ApprovalModal>
     </DashboardLayout>
   );
 }

@@ -127,6 +127,7 @@ export interface EventOrganizer {
   nik: string;
   npwp: string;
   xenplatform_id: string;
+  nicepay_sub_merchant_id?: string;
   organizer_type: string;
   npwp_address: string;
   ktp_address: string;
