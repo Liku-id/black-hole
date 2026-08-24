@@ -23,9 +23,38 @@ describe('EventSubmissionsService', () => {
   const mockApiUtilsPost = apiUtils.post as jest.MockedFunction<
     typeof apiUtils.post
   >;
+  const mockApiUtilsPut = apiUtils.put as jest.MockedFunction<
+    typeof apiUtils.put
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('updateNicepaySubMerchant', () => {
+    it('should save the NICEPAY sub-merchant I-MID for an event organizer', async () => {
+      const mockResponse = {
+        statusCode: 200,
+        message: 'NICEPAY sub-merchant I-MID updated successfully',
+        body: {
+          nicepay_sub_merchant_id: 'SMASHWK001'
+        }
+      };
+
+      mockApiUtilsPut.mockResolvedValue(mockResponse);
+
+      const result = await eventSubmissionsService.updateNicepaySubMerchant(
+        'eo-1',
+        'SMASHWK001'
+      );
+
+      expect(mockApiUtilsPut).toHaveBeenCalledWith(
+        '/api/event-organizers/eo-1/payment-gateways/nicepay',
+        { sub_merchant_id: 'SMASHWK001' },
+        'Failed to save NICEPAY sub-merchant I-MID'
+      );
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('getEventSubmissions', () => {
@@ -207,11 +236,10 @@ describe('EventSubmissionsService', () => {
 
       mockApiUtilsPost.mockResolvedValue(mockResponse);
 
-      const result =
-        await eventSubmissionsService.approveOrRejectSubmission(
-          'event-1',
-          payload
-        );
+      const result = await eventSubmissionsService.approveOrRejectSubmission(
+        'event-1',
+        payload
+      );
 
       expect(mockApiUtilsPost).toHaveBeenCalledWith(
         '/api/events-submissions/event-1/approval',
@@ -241,11 +269,10 @@ describe('EventSubmissionsService', () => {
 
       mockApiUtilsPost.mockResolvedValue(mockResponse);
 
-      const result =
-        await eventSubmissionsService.approveOrRejectSubmission(
-          'event-1',
-          payload
-        );
+      const result = await eventSubmissionsService.approveOrRejectSubmission(
+        'event-1',
+        payload
+      );
 
       expect(mockApiUtilsPost).toHaveBeenCalledWith(
         '/api/events-submissions/event-1/approval',
