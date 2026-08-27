@@ -32,6 +32,7 @@ const nextConfig = {
 
   // Image optimization (Next.js built-in)
   images: {
+    minimumCacheTTL: 86400,
     remotePatterns: [
       {
         protocol: 'https',

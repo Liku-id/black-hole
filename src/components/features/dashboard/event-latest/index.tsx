@@ -42,6 +42,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
     () => ({
       status: 'EVENT_STATUS_ON_GOING',
       name: '',
+      show: 2,
       ...(eventOrganizerId && { event_organizer_id: eventOrganizerId })
     }),
     [eventOrganizerId]
@@ -51,6 +52,7 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
     () => ({
       status: 'EVENT_STATUS_DONE',
       name: '',
+      show: 2,
       ...(eventOrganizerId && { event_organizer_id: eventOrganizerId })
     }),
     [eventOrganizerId]
@@ -362,6 +364,8 @@ const EventLatestView = ({ eventOrganizerId }: EventLatestViewProps) => {
               alt={event.name}
               src={event.thumbnail || '/placeholder-event.jpg'}
               fill
+              sizes="(max-width: 600px) 100vw, 207px"
+              quality={75}
               style={{
                 objectFit: 'cover'
               }}
