@@ -27,11 +27,12 @@ describe('WithdrawalDetailModal', () => {
     updatedAt: '2024-01-15',
     deletedAt: '',
     feeSnapshot: [],
+    withdrawalFee: 50000,
     bankId: 'bank1',
     accountNumber: '1234567890',
     accountHolderName: 'John Doe',
     bankName: 'Bank BCA'
-  };
+  } as any;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -176,22 +177,29 @@ describe('WithdrawalDetailModal', () => {
   });
 
   describe('Empty Data Handling', () => {
-    it('should display "-" for missing fields', () => {
+    it('should display "-" for missing fields and handle missing fee/amount fields', () => {
       const incompleteWithdrawal: WithdrawalListItem = {
         ...mockWithdrawal,
         withdrawalId: '',
         withdrawalName: '',
         eventName: '',
+        totalFee: 0,
+        withdrawalFee: '',
+        amountReceived: '',
         bankName: '',
         accountNumber: '',
-        accountHolderName: ''
+        accountHolderName: '',
+        createdAt: '',
+        status: '',
+        approvedBy: '',
+        approvedAt: ''
       };
 
       render(
         <WithdrawalDetailModal
           open={true}
-          onClose={mockOnClose}
           withdrawal={incompleteWithdrawal}
+          onClose={mockOnClose}
         />
       );
 
@@ -200,4 +208,3 @@ describe('WithdrawalDetailModal', () => {
     });
   });
 });
-

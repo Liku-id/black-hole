@@ -95,6 +95,10 @@ describe('BankEditForm', () => {
     });
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('Form Rendering', () => {
     it('should render form title', async () => {
       render(
@@ -189,13 +193,13 @@ describe('BankEditForm', () => {
       );
 
       await waitFor(() => {
-        const accountNumberField = screen.getByPlaceholderText(/Bank Account Number/i);
+        const accountNumberField =
+          screen.getByPlaceholderText(/Bank Account Number/i);
         expect(accountNumberField).toHaveValue('1234567890');
       });
 
-      const holderNameField = screen.getByPlaceholderText(
-        /Account Holder name/i
-      );
+      const holderNameField =
+        screen.getByPlaceholderText(/Account Holder name/i);
       expect(holderNameField).toHaveValue('John Doe');
     });
 
@@ -213,13 +217,13 @@ describe('BankEditForm', () => {
       );
 
       await waitFor(() => {
-        const accountNumberField = screen.getByPlaceholderText(/Bank Account Number/i);
+        const accountNumberField =
+          screen.getByPlaceholderText(/Bank Account Number/i);
         expect(accountNumberField).toHaveValue('');
       });
 
-      const holderNameField = screen.getByPlaceholderText(
-        /Account Holder name/i
-      );
+      const holderNameField =
+        screen.getByPlaceholderText(/Account Holder name/i);
       expect(holderNameField).toHaveValue('');
     });
   });
@@ -255,14 +259,15 @@ describe('BankEditForm', () => {
       await waitFor(() => {
         expect(screen.getByText(/Bank Information/i)).toBeInTheDocument();
       });
-      
+
       // Check for placeholder text (might be in select component)
       // The placeholder could be "please wait..." or "Choose Bank"
-      const placeholder = screen.queryByText(/please wait/i) || 
-                         screen.queryByText(/Choose Bank/i) ||
-                         screen.queryByPlaceholderText(/please wait/i) ||
-                         screen.queryByPlaceholderText(/Choose Bank/i);
-      
+      const placeholder =
+        screen.queryByText(/please wait/i) ||
+        screen.queryByText(/Choose Bank/i) ||
+        screen.queryByPlaceholderText(/please wait/i) ||
+        screen.queryByPlaceholderText(/Choose Bank/i);
+
       // If placeholder not found, at least verify form is rendered
       if (!placeholder) {
         expect(screen.getByText(/Bank Name/i)).toBeInTheDocument();
@@ -317,6 +322,28 @@ describe('BankEditForm', () => {
         screen.getByText('Failed to update bank information')
       ).toBeInTheDocument();
     });
+
+    it('logs console.error when onSubmit throws synchronously', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockOnSubmit.mockImplementationOnce(() => {
+        throw new Error('Sync failure');
+      });
+
+      render(
+        <BankEditForm
+          eventOrganizer={mockEventOrganizer}
+          onSubmit={mockOnSubmit}
+        />
+      );
+
+      fireEvent.click(screen.getByText('Save Bank Account'));
+
+      await waitFor(() => {
+        expect(console.error).toHaveBeenCalledWith(
+          'Failed to submit bank form:',
+          expect.any(Error)
+        );
+      });
+    });
   });
 });
-

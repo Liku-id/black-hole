@@ -1,6 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
 
+import { useAuth } from '@/contexts/AuthContext';
+import { eventsService } from '@/services/events';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
+import { UserRole } from '@/types/auth';
 import { Event } from '@/types/event';
 
 import EventsTable from './index';
@@ -10,266 +14,343 @@ jest.mock('next/image', () => ({
   default: (props: any) => <img {...props} />
 }));
 
-// Mock next/router
 jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
-// Mock AuthContext
 jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
-    user: { id: '1', name: 'Test User', role: 'admin' },
-    isAuthenticated: true,
-    login: jest.fn(),
-    logout: jest.fn()
-  }))
+  useAuth: jest.fn()
+}));
+
+jest.mock('@/services/events', () => ({
+  eventsService: {
+    duplicateEvent: jest.fn(),
+    deleteEvent: jest.fn()
+  }
 }));
 
 const mockPush = jest.fn();
-const mockRouter = {
-  push: mockPush,
-  pathname: '/',
-  query: {},
-  asPath: '/'
-};
+const mockUseAuth = useAuth as jest.Mock;
+const mockDuplicateEvent = eventsService.duplicateEvent as jest.Mock;
+const mockDeleteEvent = eventsService.deleteEvent as jest.Mock;
 
 describe('EventsTable', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+      pathname: '/',
+      query: {},
+      asPath: '/'
+    });
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: '1',
+        name: 'Admin User',
+        role: { id: 'r1', name: UserRole.ADMIN }
+      },
+      isAuthenticated: true
+    });
+  });
+
+  const makeEvent = (overrides: Partial<Event> = {}): Event => ({
+    id: '1',
+    name: 'Test Event 1',
+    metaUrl: 'test-event-1',
+    startDate: '2024-01-15',
+    endDate: '2024-01-20',
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
+    deletedAt: '',
+    eventStatus: 'on_going',
+    eventType: 'concert',
+    eventOrganizerId: 'org1',
+    eventOrganizerName: 'Test Organizer',
+    description: 'Test description',
+    address: 'Test Address',
+    mapLocationUrl: 'https://maps.google.com',
+    soldTickets: '100',
+    totalRevenue: '5000000',
+    city: { id: 'city1', name: 'Jakarta', province: 'DKI Jakarta' } as any,
+    paymentMethods: [],
+    lowestPriceTicketType: {
+      sales_start_date: '2024-01-10'
+    } as any,
+    eventAssets: [],
+    eventCountByStatus: {} as any,
+    eventUpdateRequestStatus: null,
+    ...overrides
   });
 
   const mockEvents: Event[] = [
-    {
-      id: '1',
-      name: 'Test Event 1',
-      metaUrl: 'test-event-1',
-      startDate: '2024-01-15',
-      endDate: '2024-01-20',
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
-      deletedAt: '',
-      eventStatus: 'on_going',
-      eventType: 'concert',
-      eventOrganizerId: 'org1',
-      eventOrganizerName: 'Test Organizer',
-      description: 'Test description',
-      address: 'Test Address',
-      mapLocationUrl: 'https://maps.google.com',
-      soldTickets: '100',
-      totalRevenue: '5000000',
-      city: { id: 'city1', name: 'Jakarta', province: 'DKI Jakarta' } as any,
-      paymentMethods: [],
-      lowestPriceTicketType: {
-        sales_start_date: '2024-01-10'
-      } as any,
-      eventAssets: [],
-      eventCountByStatus: {} as any,
-      eventUpdateRequestStatus: null
-    },
-    {
+    makeEvent(),
+    makeEvent({
       id: '2',
-      name: 'Test Event 2',
-      metaUrl: 'test-event-2',
-      startDate: '2024-02-15',
-      endDate: '2024-02-20',
-      createdAt: '2024-01-05',
-      updatedAt: '2024-01-05',
-      deletedAt: '',
-      eventStatus: 'approved',
-      eventType: 'festival',
-      eventOrganizerId: 'org2',
-      eventOrganizerName: 'Test Organizer 2',
-      description: 'Test description 2',
-      address: 'Test Address 2',
-      mapLocationUrl: 'https://maps.google.com',
-      soldTickets: '50',
-      totalRevenue: '2500000',
-      city: { id: 'city2', name: 'Bandung', province: 'Jawa Barat' } as any,
-      paymentMethods: [],
+      name: 'Draft Event',
+      metaUrl: 'draft-event',
+      eventStatus: 'draft',
+      soldTickets: '0',
+      totalRevenue: '0',
       lowestPriceTicketType: null as any,
-      eventAssets: [],
-      eventCountByStatus: {} as any,
-      eventUpdateRequestStatus: null
-    }
+      eventUpdateRequestStatus: 'draft'
+    })
   ];
 
-  describe('Loading State', () => {
-    it('should display loading message when loading is true', () => {
-      render(
-        <EventsTable
-          events={[]}
-          loading={true}
-        />
-      );
+  it('renders loading and empty states across compact and full views', () => {
+    const { rerender } = renderWithProviders(
+      <EventsTable events={[]} loading={true} />
+    );
+    expect(screen.getAllByText('Loading events...').length).toBeGreaterThan(0);
 
-      expect(screen.getAllByText('Loading events...').length).toBeGreaterThan(0);
-    });
+    rerender(<EventsTable events={[]} loading={false} isCompact={true} />);
+    expect(screen.getAllByText('No events found').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Submitted Date')).not.toBeInTheDocument();
   });
 
-  describe('Table Rendering', () => {
-    it('should render table headers', () => {
-      render(
-        <EventsTable
-          events={mockEvents}
-          loading={false}
-        />
-      );
+  it('renders update request status icons for draft, pending, and rejected statuses', () => {
+    renderWithProviders(
+      <EventsTable
+        events={[
+          makeEvent({ id: 'e1', eventUpdateRequestStatus: 'draft' }),
+          makeEvent({ id: 'e2', eventUpdateRequestStatus: 'pending' }),
+          makeEvent({ id: 'e3', eventUpdateRequestStatus: 'rejected' }),
+          makeEvent({ id: 'e4', eventUpdateRequestStatus: 'approved' as any })
+        ]}
+      />
+    );
 
-      expect(screen.getByText('No.')).toBeInTheDocument();
-      expect(screen.getByText('Event Name')).toBeInTheDocument();
-      expect(screen.getByText('Event Date')).toBeInTheDocument();
-      expect(screen.getByText('Ticket Sold')).toBeInTheDocument();
-      expect(screen.getByText('Total Revenue')).toBeInTheDocument();
-      expect(screen.getByText('Action')).toBeInTheDocument();
-    });
-
-    it('should render event data', () => {
-      render(
-        <EventsTable
-          events={mockEvents}
-          loading={false}
-        />
-      );
-
-      expect(screen.getByText('Test Event 1')).toBeInTheDocument();
-      expect(screen.getByText('Test Event 2')).toBeInTheDocument();
-    });
-
-    it('should not render Submitted Date and Start Selling Date when isCompact is true', () => {
-      render(
-        <EventsTable
-          events={mockEvents}
-          loading={false}
-          isCompact={true}
-        />
-      );
-
-      expect(screen.queryByText('Submitted Date')).not.toBeInTheDocument();
-      expect(screen.queryByText('Start Selling Date')).not.toBeInTheDocument();
-    });
-
-    it('should render Submitted Date and Start Selling Date when isCompact is false', () => {
-      render(
-        <EventsTable
-          events={mockEvents}
-          loading={false}
-          isCompact={false}
-        />
-      );
-
-      expect(screen.getByText('Submitted Date')).toBeInTheDocument();
-      expect(screen.getByText('Start Selling Date')).toBeInTheDocument();
-    });
+    expect(screen.getAllByTestId('InfoIcon').length).toBeGreaterThanOrEqual(3);
   });
 
-  describe('Empty State', () => {
-    it('should display "No events found" when events array is empty', () => {
-      render(
-        <EventsTable
-          events={[]}
-          loading={false}
-        />
-      );
+  it('navigates from all action menu items for on_going event and hides action column when showAction is false', async () => {
+    const { rerender } = renderWithProviders(
+      <EventsTable events={[mockEvents[0]]} loading={false} />
+    );
 
-      expect(screen.getAllByText('No events found').length).toBeGreaterThan(0);
-    });
+    const openMenu = () => {
+      fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    };
+
+    openMenu();
+    await waitFor(() =>
+      expect(
+        screen.getByRole('menuitem', { name: /Event Detail/i })
+      ).toBeInTheDocument()
+    );
+    fireEvent.click(screen.getByRole('menuitem', { name: /Event Detail/i }));
+    expect(mockPush).toHaveBeenCalledWith('/events/test-event-1');
+
+    openMenu();
+    fireEvent.click(
+      screen.getByRole('menuitem', { name: /Attendee Tickets/i })
+    );
+    expect(mockPush).toHaveBeenCalledWith('/tickets?event=1');
+
+    openMenu();
+    fireEvent.click(
+      screen.getByRole('menuitem', { name: /Event Transaction/i })
+    );
+    expect(mockPush).toHaveBeenCalledWith('/finance/event-transactions/1');
+
+    openMenu();
+    fireEvent.click(screen.getByRole('menuitem', { name: /Partner Ticket/i }));
+    expect(mockPush).toHaveBeenCalledWith(
+      '/events/test-event-1/partner-ticket'
+    );
+
+    openMenu();
+    fireEvent.click(
+      screen.getByRole('menuitem', { name: /Invitation Ticket/i })
+    );
+    expect(mockPush).toHaveBeenCalledWith('/events/test-event-1/invitation');
+
+    rerender(<EventsTable events={mockEvents} showAction={false} />);
+    expect(screen.queryByText('Action')).not.toBeInTheDocument();
   });
 
-  describe('Action Buttons', () => {
-    it('should navigate to event detail when view button is clicked', async () => {
-      render(
-        <EventsTable
-          events={[mockEvents[0]]}
-          loading={false}
-        />
-      );
-
-      // Click the Options button to open menu
-      const optionsButton = screen.getAllByAltText('Options')[0].closest('button');
-      if (optionsButton) {
-        fireEvent.click(optionsButton);
-
-        await waitFor(() => {
-          expect(
-            screen.getAllByRole('menuitem', { name: /Event Detail/i }).length
-          ).toBeGreaterThan(0);
-        });
-
-        fireEvent.click(
-          screen.getAllByRole('menuitem', { name: /Event Detail/i })[0]
-        );
-        expect(mockPush).toHaveBeenCalledWith('/events/test-event-1');
+  it('restricts menu items and status icons for FINANCE and GROUND_STAFF roles', () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'fin-1',
+        role: { id: 'rf', name: UserRole.FINANCE }
       }
     });
 
-    it('should navigate to tickets page when attendee button is clicked for on_going event', async () => {
-      render(
-        <EventsTable
-          events={[mockEvents[0]]}
-          loading={false}
-        />
-      );
+    const { rerender } = renderWithProviders(
+      <EventsTable
+        events={[makeEvent({ id: '1', eventUpdateRequestStatus: 'pending' })]}
+      />
+    );
+    expect(screen.queryByTestId('InfoIcon')).not.toBeInTheDocument();
 
-      // Click the Options button to open menu
-      const optionsButton = screen.getAllByAltText('Options')[0].closest('button');
-      if (optionsButton) {
-        fireEvent.click(optionsButton);
+    fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    expect(
+      screen.queryByRole('menuitem', { name: /Attendee Tickets/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('menuitem', { name: /Event Transaction/i })
+    ).toBeInTheDocument();
 
-        await waitFor(() => {
-          expect(
-            screen.getAllByRole('menuitem', { name: /Attendee Tickets/i }).length
-          ).toBeGreaterThan(0);
-        });
-
-        fireEvent.click(
-          screen.getAllByRole('menuitem', { name: /Attendee Tickets/i })[0]
-        );
-        expect(mockPush).toHaveBeenCalledWith('/tickets?event=1');
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'gs-1',
+        role: { id: 'rg', name: UserRole.GROUND_STAFF }
       }
     });
-
-    it('should render options button for events', async () => {
-      render(
-        <EventsTable
-          events={[mockEvents[1]]}
-          loading={false}
-        />
-      );
-
-      // Just verify the options button exists
-      const optionsButton = screen.getAllByAltText('Options')[0];
-      expect(optionsButton).toBeInTheDocument();
-    });
-
-    it('should not render action column when showAction is false', () => {
-      render(
-        <EventsTable
-          events={mockEvents}
-          loading={false}
-          showAction={false}
-        />
-      );
-
-      expect(screen.queryByText('Action')).not.toBeInTheDocument();
-    });
+    rerender(
+      <EventsTable
+        events={[makeEvent({ id: '2', eventUpdateRequestStatus: 'rejected' })]}
+      />
+    );
+    expect(screen.queryByTestId('InfoIcon')).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    expect(
+      screen.queryByRole('menuitem', { name: /Event Transaction/i })
+    ).not.toBeInTheDocument();
   });
 
-  describe('Pagination', () => {
-    it('should render pagination when total is provided', () => {
-      render(
-        <EventsTable
-          events={mockEvents}
-          loading={false}
-          total={20}
-          currentPage={0}
-          pageSize={10}
-          onPageChange={jest.fn()}
-        />
-      );
+  it('handles duplicate event confirm success, API error, message error, fallback error, and modal close', async () => {
+    const onRefresh = jest.fn();
+    mockDuplicateEvent
+      .mockRejectedValueOnce({ response: { data: { message: 'API dup err' } } })
+      .mockRejectedValueOnce(new Error('Network dup err'))
+      .mockRejectedValueOnce({})
+      .mockResolvedValueOnce({});
 
-      expect(screen.getAllByText(/Showing/i).length).toBeGreaterThan(0);
-    });
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    renderWithProviders(
+      <EventsTable events={[mockEvents[0]]} onRefresh={onRefresh} />
+    );
+
+    fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    fireEvent.click(screen.getByRole('menuitem', { name: /Duplicate Event/i }));
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Yes, Duplicate Event/i })
+    );
+    await waitFor(() =>
+      expect(screen.getByText('API dup err')).toBeInTheDocument()
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Yes, Duplicate Event/i })
+    );
+    await waitFor(() =>
+      expect(screen.getByText('Network dup err')).toBeInTheDocument()
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Yes, Duplicate Event/i })
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByText('Failed to duplicate event. Please try again.')
+      ).toBeInTheDocument()
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Yes, Duplicate Event/i })
+    );
+    await waitFor(() =>
+      expect(screen.getByText('Duplicate Event Success!')).toBeInTheDocument()
+    );
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /Okay/i }));
+    expect(
+      screen.queryByText('Duplicate Event Success!')
+    ).not.toBeInTheDocument();
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles delete event errors and success', async () => {
+    const onRefresh = jest.fn();
+    mockDeleteEvent
+      .mockRejectedValueOnce({ response: { data: { message: 'API del err' } } })
+      .mockRejectedValueOnce(new Error('Network del err'))
+      .mockRejectedValueOnce({})
+      .mockResolvedValueOnce({});
+
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    renderWithProviders(
+      <EventsTable events={[mockEvents[1]]} onRefresh={onRefresh} />
+    );
+
+    fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    fireEvent.click(screen.getByRole('menuitem', { name: /Delete Event/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: /Yes, Delete Event/i }));
+    await waitFor(() =>
+      expect(screen.getByText('API del err')).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Yes, Delete Event/i }));
+    await waitFor(() =>
+      expect(screen.getByText('Network del err')).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Yes, Delete Event/i }));
+    await waitFor(() =>
+      expect(
+        screen.getByText('Failed to delete event. Please try again.')
+      ).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Yes, Delete Event/i }));
+    await waitFor(() =>
+      expect(screen.getByText('Delete Event Success!')).toBeInTheDocument()
+    );
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /Okay/i }));
+    expect(screen.queryByText('Delete Event Success!')).not.toBeInTheDocument();
+
+    consoleSpy.mockRestore();
+  });
+
+  it('closes delete modal when Cancel is clicked', () => {
+    renderWithProviders(<EventsTable events={[mockEvents[1]]} />);
+
+    fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    fireEvent.click(screen.getByRole('menuitem', { name: /Delete Event/i }));
+    expect(
+      screen.getByText('Are you sure you want to delete this event?')
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+    expect(
+      screen.queryByText('Are you sure you want to delete this event?')
+    ).not.toBeInTheDocument();
+  });
+
+  it('triggers pagination onPageChange and closes menu via Escape key', async () => {
+    const onPageChange = jest.fn();
+    renderWithProviders(
+      <EventsTable
+        events={mockEvents}
+        total={25}
+        currentPage={0}
+        pageSize={10}
+        onPageChange={onPageChange}
+      />
+    );
+
+    const nextBtns = screen.getAllByTestId('KeyboardArrowRightIcon');
+    fireEvent.click(nextBtns[0].closest('button')!);
+    expect(onPageChange).toHaveBeenCalledWith(1);
+
+    fireEvent.click(screen.getAllByAltText('Options')[0].closest('button')!);
+    const menu = await screen.findByRole('menu');
+    fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    );
   });
 });
-

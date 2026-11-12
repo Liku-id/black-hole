@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { FormFieldRenderer } from '../form-field-renderer';
 
@@ -12,42 +12,36 @@ describe('FormFieldRenderer', () => {
 
   describe('Form Type Rendering', () => {
     it('should render TEXT field type', () => {
-      render(
-        <FormFieldRenderer
-          formType="TEXT"
-          isDisabled={false}
-        />
-      );
+      render(<FormFieldRenderer formType="TEXT" isDisabled={false} />);
 
       expect(screen.getByText('Short Answer Text')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Example: Full Name')).toBeDisabled();
     });
 
     it('should render PARAGRAPH field type', () => {
-      // Skip test for PARAGRAPH due to TextArea rendering issues in test environment
-      // The component works correctly in production
-      expect(true).toBe(true);
+      render(<FormFieldRenderer formType="PARAGRAPH" isDisabled={false} />);
+
+      expect(screen.getByText('Paragraph Answer')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(
+          'Example: Please provide your dietary restrictions or special requirements for the event.'
+        )
+      ).toBeDisabled();
     });
 
     it('should render NUMBER field type', () => {
-      render(
-        <FormFieldRenderer
-          formType="NUMBER"
-          isDisabled={false}
-        />
-      );
+      render(<FormFieldRenderer formType="NUMBER" isDisabled={false} />);
 
       expect(screen.getByText('Number Answer')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Example: 25')).toBeDisabled();
     });
 
     it('should render DATE field type', () => {
-      render(
-        <FormFieldRenderer
-          formType="DATE"
-          isDisabled={false}
-        />
-      );
+      render(<FormFieldRenderer formType="DATE" isDisabled={false} />);
 
       expect(screen.getByText('Date Answer')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Day/Month/Year')).toBeDisabled();
+      expect(screen.getByAltText('calendar')).toBeInTheDocument();
     });
 
     it('should render DROPDOWN field type with options', () => {
@@ -64,6 +58,7 @@ describe('FormFieldRenderer', () => {
 
       expect(screen.getByPlaceholderText('Option 1')).toBeInTheDocument();
       expect(screen.getByPlaceholderText('Option 2')).toBeInTheDocument();
+      expect(screen.getAllByAltText('radio')).toHaveLength(2);
     });
 
     it('should render CHECKBOX field type with options', () => {
@@ -80,11 +75,26 @@ describe('FormFieldRenderer', () => {
 
       expect(screen.getByPlaceholderText('Option 1')).toBeInTheDocument();
       expect(screen.getByPlaceholderText('Option 2')).toBeInTheDocument();
+      expect(screen.getAllByAltText('checkbox')).toHaveLength(2);
+    });
+
+    it('should render empty container when options prop is omitted for DROPDOWN', () => {
+      render(<FormFieldRenderer formType="DROPDOWN" isDisabled={false} />);
+
+      expect(screen.queryByPlaceholderText(/Option/)).not.toBeInTheDocument();
+    });
+
+    it('should return null for unsupported formType', () => {
+      const { container } = render(
+        <FormFieldRenderer formType={'UNKNOWN' as any} isDisabled={false} />
+      );
+
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
   describe('Options Handling', () => {
-    it('should call onOptionChange when option value changes', () => {
+    it('should call onOptionChange when option value changes with default isExistingForm', () => {
       render(
         <FormFieldRenderer
           formType="DROPDOWN"
@@ -99,7 +109,38 @@ describe('FormFieldRenderer', () => {
       const optionInput = screen.getByPlaceholderText('Option 1');
       fireEvent.change(optionInput, { target: { value: 'Updated Option' } });
 
-      expect(mockOnOptionChange).toHaveBeenCalledWith('question1', 0, 'Updated Option', false);
+      expect(mockOnOptionChange).toHaveBeenCalledWith(
+        'question1',
+        0,
+        'Updated Option',
+        false
+      );
+    });
+
+    it('should pass isExistingForm=true when specified', () => {
+      render(
+        <FormFieldRenderer
+          formType="CHECKBOX"
+          options={['Option 1']}
+          isDisabled={false}
+          questionId="form1"
+          isExistingForm={true}
+          onOptionChange={mockOnOptionChange}
+          onAddOption={mockOnAddOption}
+        />
+      );
+
+      const optionInput = screen.getByPlaceholderText('Option 1');
+      fireEvent.change(optionInput, { target: { value: 'Updated Existing' } });
+      expect(mockOnOptionChange).toHaveBeenCalledWith(
+        'form1',
+        0,
+        'Updated Existing',
+        true
+      );
+
+      fireEvent.click(screen.getByText('Add new option'));
+      expect(mockOnAddOption).toHaveBeenCalledWith('form1', true);
     });
 
     it('should call onAddOption when Add new option button is clicked', () => {
@@ -127,6 +168,18 @@ describe('FormFieldRenderer', () => {
           options={['Option 1']}
           isDisabled={true}
           questionId="question1"
+        />
+      );
+
+      expect(screen.queryByText('Add new option')).not.toBeInTheDocument();
+    });
+
+    it('should not show Add new option button when questionId or onAddOption is missing', () => {
+      render(
+        <FormFieldRenderer
+          formType="DROPDOWN"
+          options={['Option 1']}
+          isDisabled={false}
         />
       );
 
@@ -164,4 +217,3 @@ describe('FormFieldRenderer', () => {
     });
   });
 });
-

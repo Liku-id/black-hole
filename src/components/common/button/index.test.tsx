@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import { CustomButton } from './index';
 
@@ -8,7 +7,7 @@ describe('CustomButton', () => {
     render(<CustomButton>Click me</CustomButton>);
     const button = screen.getByRole('button', { name: /click me/i });
     expect(button).toBeInTheDocument();
-    // Check default primary styles implicitly by class or computed style if needed, 
+    // Check default primary styles implicitly by class or computed style if needed,
     // but usually existence is enough for unit test unless visual regression.
   });
 

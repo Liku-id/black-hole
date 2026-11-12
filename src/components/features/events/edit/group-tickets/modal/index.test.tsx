@@ -1,57 +1,82 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { GroupTicketCreateModal } from './index';
 
-// Mock dependencies
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: any) => <img {...props} />
 }));
 
-// Mock TicketDateModal
 jest.mock('../../../create/ticket/date-modal', () => ({
   TicketDateModal: ({ open, title, onClose, onSave }: any) => {
     if (!open) return null;
     return (
       <div role="dialog" aria-label={title}>
         <h2>{title}</h2>
-        <button onClick={onClose}>Close</button>
-        <button onClick={() => onSave({
-          date: '2023-12-31',
-          time: '12:00',
-          timeZone: 'WIB',
-          formattedDate: '2023-12-31 12:00 WIB'
-        })}>Save Date</button>
+        <button type="button" onClick={onClose}>
+          Close Date Modal
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            onSave({
+              date: '2026-12-31',
+              time: '12:00',
+              timeZone: '+07:00',
+              formattedDate: 'Dec 31, 2026, 12:00 WIB'
+            })
+          }
+        >
+          Save Date
+        </button>
       </div>
     );
   }
 }));
 
-// Mock Common Components
-// Mock Common Components
 jest.mock('@/components/common', () => {
   const { useFormContext } = require('react-hook-form');
   return {
-    Modal: ({ children, title, open, onClose, footer }: any) => open ? (
-      <div role="dialog" aria-label={title}>
-        <h2>{title}</h2>
-        <button onClick={onClose} aria-label="close">X</button>
-        <div data-testid="modal-content">{children}</div>
-        <div data-testid="modal-footer">{footer}</div>
-      </div>
-    ) : null,
-    Button: (props: any) => <button type={props.type} onClick={props.onClick} disabled={props.disabled}>{props.children}</button>,
-    TextField: ({ name, label, placeholder, rules, InputProps, onClick }: any) => {
-      const { register, formState: { errors } } = useFormContext();
+    Modal: ({ children, title, open, onClose, footer }: any) =>
+      open ? (
+        <div role="dialog" aria-label={title}>
+          <h2>{title}</h2>
+          <button type="button" onClick={onClose} aria-label="close">
+            X
+          </button>
+          <div data-testid="modal-content">{children}</div>
+          <div data-testid="modal-footer">{footer}</div>
+        </div>
+      ) : null,
+    Button: (props: any) => (
+      <button
+        type={props.type || 'button'}
+        onClick={props.onClick}
+        disabled={props.disabled}
+      >
+        {props.children}
+      </button>
+    ),
+    TextField: ({
+      name,
+      label,
+      placeholder,
+      rules,
+      InputProps,
+      onClick
+    }: any) => {
+      const {
+        register,
+        formState: { errors }
+      } = useFormContext();
       const error = errors[name];
       return (
         <div>
           <label htmlFor={name}>{label}</label>
-          <input 
-            id={name} 
-            placeholder={placeholder} 
-            {...register(name, rules)} 
+          <input
+            id={name}
+            placeholder={placeholder}
+            {...register(name, rules)}
             readOnly={InputProps?.readOnly}
             onClick={onClick}
             aria-invalid={error ? 'true' : 'false'}
@@ -61,30 +86,45 @@ jest.mock('@/components/common', () => {
       );
     },
     TextArea: ({ name, label, placeholder, rules }: any) => {
-      const { register, formState: { errors } } = useFormContext();
+      const {
+        register,
+        formState: { errors }
+      } = useFormContext();
       const error = errors[name];
       return (
         <div>
           <label htmlFor={name}>{label}</label>
-          <textarea id={name} placeholder={placeholder} {...register(name, rules)} />
+          <textarea
+            id={name}
+            placeholder={placeholder}
+            {...register(name, rules)}
+          />
           {error && <span role="alert">{error.message as string}</span>}
         </div>
       );
     },
     Select: ({ name, label, options, rules }: any) => {
-      const { register, formState: { errors } } = useFormContext();
+      const {
+        register,
+        formState: { errors }
+      } = useFormContext();
       const error = errors[name];
       return (
         <div>
           <label htmlFor={name}>{label}</label>
           <select id={name} {...register(name, rules)}>
-            {options?.map((opt: any) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+            <option value="">Select</option>
+            {options?.map((opt: any) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
           {error && <span role="alert">{error.message as string}</span>}
         </div>
       );
     },
-    Body2: ({ children }: any) => <div>{children}</div>,
+    Body2: ({ children }: any) => <div>{children}</div>
   };
 });
 
@@ -93,7 +133,7 @@ describe('GroupTicketCreateModal', () => {
   const mockOnSubmit = jest.fn();
   const mockTicketTypes = [
     { id: 't1', name: 'VIP', price: 100 },
-    { id: 't2', name: 'Regular', price: 50 },
+    { id: 't2', name: 'Regular', price: 50 }
   ];
 
   const defaultProps = {
@@ -102,91 +142,87 @@ describe('GroupTicketCreateModal', () => {
     onSubmit: mockOnSubmit,
     ticketTypes: mockTicketTypes as any,
     eventStatus: 'draft',
+    eventEndDate: '2026-12-31T23:59:59Z'
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly', () => {
+  it('submits complete valid form and closes modal', async () => {
+    mockOnSubmit.mockResolvedValue(undefined);
     render(<GroupTicketCreateModal {...defaultProps} />);
-    
-    expect(screen.getByText('Group Ticket')).toBeInTheDocument();
-    expect(screen.getByLabelText('Ticket Type*')).toBeInTheDocument();
-    expect(screen.getByLabelText(/G. Ticket Name*/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Ticket Type*'), {
+      target: { value: 't1' }
+    });
+    fireEvent.change(screen.getByLabelText(/G. Ticket Name*/i), {
+      target: { value: 'My Group Ticket' }
+    });
+    fireEvent.change(screen.getByLabelText(/Bundle Qty*/i), {
+      target: { value: '5' }
+    });
+    fireEvent.change(screen.getByLabelText(/G. Ticket Description*/i), {
+      target: { value: 'Description here' }
+    });
+    fireEvent.change(screen.getByLabelText(/G. Ticket Price*/i), {
+      target: { value: '100000' }
+    });
+    fireEvent.change(screen.getByLabelText(/Ticket Type Qty*/i), {
+      target: { value: '10' }
+    });
+    fireEvent.change(screen.getByLabelText(/Max. G. Ticket Per User*/i), {
+      target: { value: '2' }
+    });
+
+    // Open start date modal -> close via Close first, then reopen and Save Date
+    fireEvent.click(screen.getByLabelText(/Sales Start Date*/i));
+    expect(screen.getByText('Sales Start Date')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close Date Modal' }));
+    expect(screen.queryByText('Sales Start Date')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText(/Sales Start Date*/i));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Date' }));
+
+    // Open end date modal -> close via Close first, then reopen and Save Date
+    fireEvent.click(screen.getByLabelText(/Sales End Date*/i));
+    expect(screen.getByText('Sales End Date')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close Date Modal' }));
+    expect(screen.queryByText('Sales End Date')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText(/Sales End Date*/i));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Date' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ticketTypeId: 't1',
+          name: 'My Group Ticket',
+          bundleQuantity: '5',
+          salesStartDate: 'Dec 31, 2026, 12:00 WIB',
+          salesEndDate: 'Dec 31, 2026, 12:00 WIB'
+        })
+      );
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('handles form submission with valid data', async () => {
+  it('validates required fields and handles submission errors', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
     render(<GroupTicketCreateModal {...defaultProps} />);
-    
-    // Fill in the form
-    // Note: Depends on how your Select, TextField components are implemented (MUI or custom)
-    // Assuming they label inputs correctly.
-    
-    // Select Ticket Type
-    // The Select component might use MUI Select.
-    // Let's try to locate by label and interact.
-    
-    // We might need to handle the Select component interaction specifically if it's a controlled hidden input or MUISelect.
-    // For now, let's try userEvent on inputs.
 
-    // 1. Ticket Type - might be tricky if it's a custom Select. 
-    // Usually MUI Select creates a combobox or listbox.
-    // For simplicity in this generated test, we might struggle with complex Selects without shallower mocks.
-    // But let's try filling simple text fields first.
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(
+      await screen.findByText('Ticket name is required')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Ticket type is required')).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText(/G. Ticket Name*/i), 'My Group Ticket');
-    await userEvent.type(screen.getByLabelText(/Bundle Qty*/i), '5');
-    await userEvent.type(screen.getByLabelText(/G. Ticket Description*/i), 'Description here');
-    await userEvent.type(screen.getByLabelText(/G. Ticket Price*/i), '100000');
-    await userEvent.type(screen.getByLabelText(/Ticket Type Qty*/i), '10');
-    await userEvent.type(screen.getByLabelText(/Max. G. Ticket Per User*/i), '2');
-    
-    // Select Dates (opens modal)
-    await userEvent.click(screen.getByLabelText(/Sales Start Date*/i));
-    await userEvent.click(screen.getByRole('button', { name: 'Save Date' })); // In mocked TicketDateModal
-    
-    await userEvent.click(screen.getByLabelText(/Sales End Date*/i));
-    // Since the first modal closed, we expect the second one to be queryable
-    // There might be the main modal and the date modal.
-    // We need to click "Save Date" again.
-    
-    // The active dialog should be the date one.
-    const saveDateButtons = screen.getAllByRole('button', { name: 'Save Date' });
-    if (saveDateButtons.length > 0) {
-        await userEvent.click(saveDateButtons.at(-1)!); 
-    }
-
-    // Ticket Type Select (MUI) - often difficult to test without getting the `role="button"` for the select.
-    // If it's a standard HTML select, `selectOptions` works. 
-    // If it's MUI, we click the trigger and then the option.
-    // Let's try filling it directly if `Select` component allows, 
-    // or assume we need to skip strictly selecting it if it's too complex for this run.
-    // BUT validations will fail.
-    
-    // Attempt to select:
-    // const selectTrigger = screen.getByLabelText(/Ticket Type*/i); // might not target the clickable div
-    // Use placeholder match or something if needed.
-    // Assuming we can skip full form submission in "happy path" without seeing the implementation of Select too closely? 
-    // No, we need it. 
-    
-    // If I can't effectively select the option, I mock the Select component to a standard input or easy dropdown.
-    
-  });
-
-  it('validates required fields', async () => {
-    render(<GroupTicketCreateModal {...defaultProps} />);
-    
-    const saveButton = screen.getByRole('button', { name: 'Save' });
-    await userEvent.click(saveButton);
-    
-    // Expect error messages
-    expect(await screen.findByText('Ticket name is required')).toBeInTheDocument();
-    // Add other expectations
-  });
-
-  it('populates form when editingTicket is provided', async () => {
+    // Test onSubmit rejection with editingTicket prefilled
+    mockOnSubmit.mockRejectedValueOnce(new Error('API failed'));
     const editingTicket = {
       id: '1',
       ticketTypeId: 't1',
@@ -196,16 +232,84 @@ describe('GroupTicketCreateModal', () => {
       quantity: 50,
       bundleQuantity: 3,
       maxOrderQuantity: 1,
-      salesStartDate: '2023-01-01 10:00',
-      salesEndDate: '2023-01-02 10:00',
+      salesStartDate: '2026-01-01 10:00',
+      salesEndDate: '2026-01-02 10:00',
+      status: 'rejected',
+      rejectedReason: 'Price too low'
     };
 
-    render(<GroupTicketCreateModal {...defaultProps} editingTicket={editingTicket as any} />);
+    render(
+      <GroupTicketCreateModal
+        {...defaultProps}
+        eventStatus="rejected"
+        editingTicket={editingTicket as any}
+      />
+    );
+
+    expect(await screen.findByText('Rejection Reason:')).toBeInTheDocument();
+    expect(screen.getByText('Price too low')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Existing Ticket')).toBeInTheDocument();
+
+    const saveButtons = screen.getAllByRole('button', { name: 'Save' });
+    fireEvent.click(saveButtons[saveButtons.length - 1]);
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('Existing Ticket')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Existing Desc')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('150000')).toBeInTheDocument();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to create group ticket:',
+        expect.any(Error)
+      );
     });
+
+    consoleSpy.mockRestore();
+  });
+
+  it('hides rejection reason when blank or status is not rejected and closes on Cancel', () => {
+    const { rerender } = render(
+      <GroupTicketCreateModal
+        {...defaultProps}
+        eventStatus="on_going"
+        editingTicket={{
+          id: '1',
+          ticketTypeId: 't1',
+          name: 'T1',
+          description: 'D',
+          price: 10,
+          quantity: 10,
+          bundleQuantity: 2,
+          maxOrderQuantity: 2,
+          salesStartDate: '2026-01-01',
+          salesEndDate: '2026-01-02',
+          status: 'rejected',
+          rejectedReason: '   '
+        }}
+      />
+    );
+
+    expect(screen.queryByText('Rejection Reason:')).not.toBeInTheDocument();
+
+    rerender(
+      <GroupTicketCreateModal
+        {...defaultProps}
+        eventStatus="approved"
+        editingTicket={{
+          id: '1',
+          ticketTypeId: 't1',
+          name: 'T1',
+          description: 'D',
+          price: 10,
+          quantity: 10,
+          bundleQuantity: 2,
+          maxOrderQuantity: 2,
+          salesStartDate: '2026-01-01',
+          salesEndDate: '2026-01-02',
+          status: 'rejected',
+          rejectedReason: 'Ignored'
+        }}
+      />
+    );
+    expect(screen.queryByText('Rejection Reason:')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import { TicketDetailModal } from './index';
 
@@ -19,9 +18,7 @@ const mockAttendee = {
   transactionNumber: 'TRX123',
   date: '2023-01-01',
   redeemStatus: 'issued',
-  attendeeData: [
-    { field: 'Dietary', value: ['Vegetarian'] }
-  ]
+  attendeeData: [{ field: 'Dietary', value: ['Vegetarian'] }]
 };
 
 describe('TicketDetailModal', () => {
@@ -46,7 +43,7 @@ describe('TicketDetailModal', () => {
         attendee={mockAttendee as any}
       />
     );
-    
+
     fireEvent.click(screen.getByText('Additional Question'));
     expect(screen.getByText('Dietary')).toBeInTheDocument();
     expect(screen.getByText('Vegetarian')).toBeInTheDocument();

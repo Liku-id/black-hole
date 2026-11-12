@@ -182,8 +182,12 @@ describe('TransactionsService', () => {
       jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor);
 
       // Mock appendChild and removeChild
-      jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchor);
-      jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchor);
+      jest
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockAnchor);
+      jest
+        .spyOn(document.body, 'removeChild')
+        .mockImplementation(() => mockAnchor);
 
       // Mock URL methods
       mockCreateObjectURL = jest.fn().mockReturnValue('blob:mock-url');
@@ -234,7 +238,9 @@ describe('TransactionsService', () => {
 
       expect(mockCreateObjectURL).toHaveBeenCalled();
       expect(mockAnchor.click).toHaveBeenCalled();
-      expect(mockAnchor.download).toMatch(/^transactions_Test_Event_2024_\d{8}_\d{6}\.csv$/);
+      expect(mockAnchor.download).toMatch(
+        /^transactions_Test_Event_2024_\d{8}_\d{6}\.csv$/
+      );
     });
 
     it('should export transactions with minimal parameters', async () => {
@@ -257,7 +263,9 @@ describe('TransactionsService', () => {
         timeout: 30000
       });
 
-      expect(mockAnchor.download).toMatch(/^transactions_all_events_\d{8}_\d{6}\.csv$/);
+      expect(mockAnchor.download).toMatch(
+        /^transactions_all_events_\d{8}_\d{6}\.csv$/
+      );
     });
 
     it('should export transactions with partial parameters', async () => {
@@ -296,7 +304,9 @@ describe('TransactionsService', () => {
         'Event@Name#with$Special%Characters!'
       );
 
-      expect(mockAnchor.download).toMatch(/^transactions_EventNamewithSpecialCharacters_/);
+      expect(mockAnchor.download).toMatch(
+        /^transactions_EventNamewithSpecialCharacters_/
+      );
     });
 
     it('should use default content-type when not provided', async () => {
@@ -372,7 +382,10 @@ describe('TransactionsService', () => {
         headers: {}
       } as any);
 
-      await transactionsService.exportTransactions(request, 'Event    With    Spaces');
+      await transactionsService.exportTransactions(
+        request,
+        'Event    With    Spaces'
+      );
 
       expect(mockAnchor.download).toMatch(/^transactions_Event_With_Spaces_/);
     });
@@ -491,6 +504,29 @@ describe('TransactionsService', () => {
       await expect(
         transactionsService.getTransactionSummary('event-1')
       ).rejects.toThrow('Not found');
+    });
+  });
+
+  describe('getTransactionDetails', () => {
+    it('fetches transaction details and handles errors', async () => {
+      mockApiUtilsGet.mockResolvedValueOnce({
+        statusCode: 0,
+        body: { id: 'tx-1' }
+      });
+      await expect(
+        transactionsService.getTransactionDetails('tx-1')
+      ).resolves.toEqual({ statusCode: 0, body: { id: 'tx-1' } });
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/transaction/tx-1',
+        {},
+        'Failed to fetch transaction details'
+      );
+
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('tx detail err'));
+      await expect(
+        transactionsService.getTransactionDetails('tx-1')
+      ).rejects.toThrow('tx detail err');
     });
   });
 });

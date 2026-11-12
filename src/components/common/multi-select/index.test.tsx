@@ -1,55 +1,98 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FormProvider, useForm } from 'react-hook-form';
+
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 
 import { MultiSelect } from './index';
-
-// Mock StyledTextField
-jest.mock('../text-field/StyledTextField', () => ({
-  StyledTextField: (props: any) => <input data-testid="multiselect-input" onClick={props.onClick} value={props.value} readOnly />
-}));
 
 describe('MultiSelect', () => {
   const options = [
     { label: 'Option 1', value: 'opt1' },
-    { label: 'Option 2', value: 'opt2' },
+    { label: 'Option 2', value: 'opt2' }
   ];
 
-  it('renders correctly', () => {
-    render(
-      <MultiSelect
-        options={options}
-        value={[]}
-        onChange={() => {}}
-      />
-    );
-    expect(screen.getByTestId('multiselect-input')).toBeInTheDocument();
-  });
-
-  it('opens menu and selects option', () => {
+  it('renders simple MultiSelect with label, rejected icon, helperText, and handles select/deselect/close', () => {
     const handleChange = jest.fn();
-    render(
+    const { container, rerender } = renderWithProviders(
       <MultiSelect
+        label="Categories"
+        placeholder="Select items"
+        isRejected
+        error
+        helperText="Pick at least one"
         options={options}
         value={[]}
         onChange={handleChange}
       />
     );
-    const input = screen.getByTestId('multiselect-input');
-    fireEvent.click(input);
-    const option1 = screen.getByText('Option 1');
-    fireEvent.click(option1);
-    expect(handleChange).toHaveBeenCalledWith(['opt1']);
-  });
 
-  it('displays selected values', () => {
-    render(
+    expect(screen.getByText('Categories')).toBeInTheDocument();
+    expect(screen.getByText('Pick at least one')).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-testid="ErrorOutlineIcon"]')
+    ).toBeInTheDocument();
+
+    const input = screen.getByPlaceholderText('Select items');
+    fireEvent.click(input);
+
+    fireEvent.click(screen.getByText('Option 1'));
+    expect(handleChange).toHaveBeenCalledWith(['opt1']);
+
+    rerender(
       <MultiSelect
+        label="Categories"
+        placeholder="Select items"
         options={options}
-        value={['opt1', 'opt2']}
-        onChange={() => {}}
+        value={['opt1', 'unknown']}
+        onChange={handleChange}
       />
     );
-    const input = screen.getByTestId('multiselect-input') as HTMLInputElement;
-    expect(input.value).toBe('Option 1, Option 2');
+    expect(
+      (screen.getByPlaceholderText('Select items') as HTMLInputElement).value
+    ).toBe('Option 1, unknown');
+
+    fireEvent.click(screen.getByText('Option 1'));
+    expect(handleChange).toHaveBeenCalledWith(['unknown']);
+
+    fireEvent.keyDown(screen.getByRole('menu'), {
+      key: 'Escape',
+      code: 'Escape'
+    });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('integrates with React Hook Form via FormMultiSelect and validates errors', async () => {
+    const RHFWrapper = () => {
+      const methods = useForm<{ tags: string[] }>({
+        defaultValues: { tags: [] }
+      });
+      return (
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(() => {})}>
+            <MultiSelect
+              name="tags"
+              label="Tags"
+              placeholder="Choose tags"
+              rules={{ required: 'Tags required' }}
+              options={options}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        </FormProvider>
+      );
+    };
+
+    render(<RHFWrapper />);
+
+    fireEvent.click(screen.getByText('Submit'));
+    await waitFor(() => {
+      expect(screen.getByText('Tags required')).toBeInTheDocument();
+    });
+
+    const input = screen.getByPlaceholderText('Choose tags');
+    fireEvent.click(input);
+    fireEvent.click(screen.getByText('Option 2'));
+
+    expect((input as HTMLInputElement).value).toBe('Option 2');
   });
 });

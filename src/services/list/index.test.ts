@@ -12,7 +12,9 @@ jest.mock('@/utils/apiUtils', () => ({
 }));
 
 describe('ListService', () => {
-  const mockApiUtilsGet = apiUtils.get as jest.MockedFunction<typeof apiUtils.get>;
+  const mockApiUtilsGet = apiUtils.get as jest.MockedFunction<
+    typeof apiUtils.get
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -56,57 +58,85 @@ describe('ListService', () => {
   describe('getPaymentMethods', () => {
     it('should successfully fetch and group payment methods', async () => {
       const mockPaymentMethods: PaymentMethod[] = [
-        { 
-          id: '1', 
-          name: 'BCA Virtual Account', 
-          type: 'va', 
-          logo: '', 
-          bankId: '1', 
-          requestType: 'POST', 
-          paymentCode: 'bca_va', 
-          paymentMethodFee: 4000, 
-          channelProperties: {}, 
-          rules: [], 
-          bank: { id: '1', name: 'BCA', channelCode: 'BCA', channelType: 'VA', minAmount: 10000, maxAmount: 10000000 } 
+        {
+          id: '1',
+          name: 'BCA Virtual Account',
+          type: 'va',
+          logo: '',
+          bankId: '1',
+          requestType: 'POST',
+          paymentCode: 'bca_va',
+          paymentMethodFee: 4000,
+          channelProperties: {},
+          rules: [],
+          bank: {
+            id: '1',
+            name: 'BCA',
+            channelCode: 'BCA',
+            channelType: 'VA',
+            minAmount: 10000,
+            maxAmount: 10000000
+          }
         },
-        { 
-          id: '2', 
-          name: 'BNI Virtual Account', 
-          type: 'va', 
-          logo: '', 
-          bankId: '2', 
-          requestType: 'POST', 
-          paymentCode: 'bni_va', 
-          paymentMethodFee: 4000, 
-          channelProperties: {}, 
-          rules: [], 
-          bank: { id: '2', name: 'BNI', channelCode: 'BNI', channelType: 'VA', minAmount: 10000, maxAmount: 10000000 } 
+        {
+          id: '2',
+          name: 'BNI Virtual Account',
+          type: 'va',
+          logo: '',
+          bankId: '2',
+          requestType: 'POST',
+          paymentCode: 'bni_va',
+          paymentMethodFee: 4000,
+          channelProperties: {},
+          rules: [],
+          bank: {
+            id: '2',
+            name: 'BNI',
+            channelCode: 'BNI',
+            channelType: 'VA',
+            minAmount: 10000,
+            maxAmount: 10000000
+          }
         },
-        { 
-          id: '3', 
-          name: 'GoPay', 
-          type: 'ewallet', 
-          logo: '', 
-          bankId: '3', 
-          requestType: 'POST', 
-          paymentCode: 'gopay', 
-          paymentMethodFee: 2000, 
-          channelProperties: {}, 
-          rules: [], 
-          bank: { id: '3', name: 'GoPay', channelCode: 'GOPAY', channelType: 'EWALLET', minAmount: 1000, maxAmount: 5000000 } 
+        {
+          id: '3',
+          name: 'GoPay',
+          type: 'ewallet',
+          logo: '',
+          bankId: '3',
+          requestType: 'POST',
+          paymentCode: 'gopay',
+          paymentMethodFee: 2000,
+          channelProperties: {},
+          rules: [],
+          bank: {
+            id: '3',
+            name: 'GoPay',
+            channelCode: 'GOPAY',
+            channelType: 'EWALLET',
+            minAmount: 1000,
+            maxAmount: 5000000
+          }
         },
-        { 
-          id: '4', 
-          name: 'OVO', 
-          type: 'ewallet', 
-          logo: '', 
-          bankId: '4', 
-          requestType: 'POST', 
-          paymentCode: 'ovo', 
-          paymentMethodFee: 2000, 
-          channelProperties: {}, 
-          rules: [], 
-          bank: { id: '4', name: 'OVO', channelCode: 'OVO', channelType: 'EWALLET', minAmount: 1000, maxAmount: 5000000 } 
+        {
+          id: '4',
+          name: 'OVO',
+          type: 'ewallet',
+          logo: '',
+          bankId: '4',
+          requestType: 'POST',
+          paymentCode: 'ovo',
+          paymentMethodFee: 2000,
+          channelProperties: {},
+          rules: [],
+          bank: {
+            id: '4',
+            name: 'OVO',
+            channelCode: 'OVO',
+            channelType: 'EWALLET',
+            minAmount: 1000,
+            maxAmount: 5000000
+          }
         }
       ];
 
@@ -125,7 +155,7 @@ describe('ListService', () => {
         {},
         'Failed to fetch payment methods'
       );
-      
+
       expect(result.statusCode).toBe(200);
       expect(result.message).toBe('Success');
       expect(result.body).toHaveProperty('Virtual Account');
@@ -136,18 +166,25 @@ describe('ListService', () => {
 
     it('should group VA type as Virtual Account', async () => {
       const mockPaymentMethods: PaymentMethod[] = [
-        { 
-          id: '1', 
-          name: 'Mandiri Virtual Account', 
-          type: 'va', 
-          logo: '', 
-          bankId: '1', 
-          requestType: 'POST', 
-          paymentCode: 'mandiri_va', 
-          paymentMethodFee: 4000, 
-          channelProperties: {}, 
-          rules: [], 
-          bank: { id: '1', name: 'Mandiri', channelCode: 'MANDIRI', channelType: 'VA', minAmount: 10000, maxAmount: 10000000 } 
+        {
+          id: '1',
+          name: 'Mandiri Virtual Account',
+          type: 'va',
+          logo: '',
+          bankId: '1',
+          requestType: 'POST',
+          paymentCode: 'mandiri_va',
+          paymentMethodFee: 4000,
+          channelProperties: {},
+          rules: [],
+          bank: {
+            id: '1',
+            name: 'Mandiri',
+            channelCode: 'MANDIRI',
+            channelType: 'VA',
+            minAmount: 10000,
+            maxAmount: 10000000
+          }
         }
       ];
 
@@ -183,18 +220,25 @@ describe('ListService', () => {
 
     it('should use default values if statusCode or message not provided', async () => {
       const mockPaymentMethods: PaymentMethod[] = [
-        { 
-          id: '1', 
-          name: 'BCA Virtual Account', 
-          type: 'va', 
-          logo: '', 
-          bankId: '1', 
-          requestType: 'POST', 
-          paymentCode: 'bca_va', 
-          paymentMethodFee: 4000, 
-          channelProperties: {}, 
-          rules: [], 
-          bank: { id: '1', name: 'BCA', channelCode: 'BCA', channelType: 'VA', minAmount: 10000, maxAmount: 10000000 } 
+        {
+          id: '1',
+          name: 'BCA Virtual Account',
+          type: 'va',
+          logo: '',
+          bankId: '1',
+          requestType: 'POST',
+          paymentCode: 'bca_va',
+          paymentMethodFee: 4000,
+          channelProperties: {},
+          rules: [],
+          bank: {
+            id: '1',
+            name: 'BCA',
+            channelCode: 'BCA',
+            channelType: 'VA',
+            minAmount: 10000,
+            maxAmount: 10000000
+          }
         }
       ];
 
@@ -210,11 +254,33 @@ describe('ListService', () => {
       expect(result.message).toBe('Success');
     });
 
+    it('groups qris, payment_link, free, and missing-type payment methods', async () => {
+      const mockResponse = {
+        statusCode: 200,
+        message: 'Success',
+        body: [
+          { id: '1', name: 'QRIS', type: 'qris' },
+          { id: '2', name: 'Link', type: 'payment_link' },
+          { id: '3', name: 'Free', type: 'free' },
+          { id: '4', name: 'Unknown', type: '' }
+        ]
+      };
+      mockApiUtilsGet.mockResolvedValueOnce(mockResponse);
+
+      const result = await listService.getPaymentMethods();
+      expect(result.body).toHaveProperty('QRIS');
+      expect(result.body).toHaveProperty('Payment Link');
+      expect(result.body).toHaveProperty('Free');
+      expect(result.body).toHaveProperty('Other');
+    });
+
     it('should handle error when fetching payment methods', async () => {
       const mockError = new Error('Failed to fetch');
       mockApiUtilsGet.mockRejectedValue(mockError);
 
-      await expect(listService.getPaymentMethods()).rejects.toThrow('Failed to fetch');
+      await expect(listService.getPaymentMethods()).rejects.toThrow(
+        'Failed to fetch'
+      );
       expect(mockApiUtilsGet).toHaveBeenCalledWith(
         '/api/list/payment-method',
         {},

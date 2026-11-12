@@ -35,6 +35,11 @@ describe('EventsService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('getEvents', () => {
@@ -49,7 +54,7 @@ describe('EventsService', () => {
             onGoing: 0,
             onReview: 0,
             done: 0,
-            rejected: 0,
+            rejected: 0
           },
           pagination: {
             totalRecords: 0,
@@ -79,7 +84,10 @@ describe('EventsService', () => {
         show: 20,
         page: 2,
         name: 'Concert',
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
         cityId: 'city-1',
+        event_organizer_id: 'eo-1',
         status: 'published'
       };
 
@@ -93,7 +101,7 @@ describe('EventsService', () => {
             onGoing: 0,
             onReview: 0,
             done: 0,
-            rejected: 0,
+            rejected: 0
           },
           pagination: {
             totalRecords: 0,
@@ -116,7 +124,10 @@ describe('EventsService', () => {
           limit: '20',
           page: '2',
           name: 'Concert',
+          startDate: '2026-01-01',
+          endDate: '2026-01-31',
           cityId: 'city-1',
+          event_organizer_id: 'eo-1',
           status: 'published'
         }),
         'Failed to fetch events'
@@ -135,9 +146,7 @@ describe('EventsService', () => {
       expect(mockApiUtilsGet).toHaveBeenCalledWith(
         '/api/events',
         expect.objectContaining({
-          'status[0]': 'draft',
-          'status[1]': 'published',
-          'status[2]': 'cancelled'
+          status: ['draft', 'published', 'cancelled']
         }),
         'Failed to fetch events'
       );
@@ -532,6 +541,232 @@ describe('EventsService', () => {
         );
         expect(result).toEqual(mockResponse);
       });
+
+      it('handles errors in asset and approval methods', async () => {
+        mockApiUtilsPost.mockRejectedValue(new Error('post err'));
+        mockApiUtilsPut.mockRejectedValue(new Error('put err'));
+        mockApiUtilsDelete.mockRejectedValue(new Error('del err'));
+
+        await expect(
+          eventsService.createEventAsset({
+            eventId: 'e1',
+            assetId: 'a1',
+            order: 1
+          })
+        ).rejects.toThrow('post err');
+        await expect(
+          eventsService.updateEventAsset('ea1', {
+            eventId: 'e1',
+            assetId: 'a1',
+            order: 1
+          })
+        ).rejects.toThrow('put err');
+        await expect(eventsService.deleteEventAsset('ea1')).rejects.toThrow(
+          'del err'
+        );
+        await expect(
+          eventsService.approveOrRejectEventDetail('e1', { status: 'approved' })
+        ).rejects.toThrow('post err');
+        await expect(eventsService.batchApproveAssets('e1')).rejects.toThrow(
+          'post err'
+        );
+        await expect(
+          eventsService.batchRejectAssets('e1', ['a1'], 'bad')
+        ).rejects.toThrow('post err');
+      });
+    });
+  });
+
+  describe('Invitation operations', () => {
+    it('getInvitations fetches with and without params and rethrows errors', async () => {
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0, body: {} });
+      await eventsService.getInvitations('ev-1');
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/events/invitations/ev-1',
+        { event_id: 'ev-1' },
+        'Failed to fetch invitations'
+      );
+
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0, body: {} });
+      await eventsService.getInvitations('ev-1', {
+        page: 2,
+        limit: 25,
+        search: 'alice',
+        ticket_type_id: 'tt-1',
+        status: 'sent'
+      });
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/events/invitations/ev-1',
+        {
+          event_id: 'ev-1',
+          page: 2,
+          limit: 25,
+          search: 'alice',
+          ticket_type_id: 'tt-1',
+          status: 'sent'
+        },
+        'Failed to fetch invitations'
+      );
+
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('inv err'));
+      await expect(eventsService.getInvitations('ev-1')).rejects.toThrow(
+        'inv err'
+      );
+    });
+
+    it('sendInvitations and resendInvitation handle success and error', async () => {
+      mockApiUtilsPost.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.sendInvitations('ev-1', { recipients: [] } as any);
+      expect(mockApiUtilsPost).toHaveBeenCalledWith(
+        '/api/events/invitations/ev-1',
+        { recipients: [] },
+        'Failed to send invitations'
+      );
+
+      mockApiUtilsPost.mockRejectedValueOnce(new Error('send err'));
+      await expect(
+        eventsService.sendInvitations('ev-1', {} as any)
+      ).rejects.toThrow('send err');
+
+      mockApiUtilsPost.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.resendInvitation('inv-1');
+      expect(mockApiUtilsPost).toHaveBeenCalledWith(
+        '/api/ticket-invitations/inv-1/resend',
+        {},
+        'Failed to resend invitation'
+      );
+
+      mockApiUtilsPost.mockRejectedValueOnce(new Error('resend err'));
+      await expect(eventsService.resendInvitation('inv-1')).rejects.toThrow(
+        'resend err'
+      );
+    });
+
+    it('getTicketInvitationsById, getInvitationLimit, and updateInvitationLimit handle success and error', async () => {
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.getTicketInvitationsById('ti-1');
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/ticket-invitations/ti-1',
+        {},
+        'Failed to fetch ticket invitation'
+      );
+
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('ti err'));
+      await expect(
+        eventsService.getTicketInvitationsById('ti-1')
+      ).rejects.toThrow('ti err');
+
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.getInvitationLimit('ev-1');
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/events/invitations/ev-1/limit',
+        {},
+        'Failed to fetch invitation limit'
+      );
+
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('limit err'));
+      await expect(eventsService.getInvitationLimit('ev-1')).rejects.toThrow(
+        'limit err'
+      );
+
+      mockApiUtilsPut.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.updateInvitationLimit('ev-1', 100);
+      expect(mockApiUtilsPut).toHaveBeenCalledWith(
+        '/api/events/invitations/ev-1/limit',
+        { invitation_limit: 100 },
+        'Failed to update invitation limit'
+      );
+
+      mockApiUtilsPut.mockRejectedValueOnce(new Error('upd limit err'));
+      await expect(
+        eventsService.updateInvitationLimit('ev-1', 100)
+      ).rejects.toThrow('upd limit err');
+    });
+  });
+
+  describe('OTS operations', () => {
+    it('getOTSApprovals handles empty and full params plus errors', async () => {
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0, body: {} });
+      await eventsService.getOTSApprovals();
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/events/on-the-spot-sales',
+        {},
+        'Failed to fetch OTS approvals'
+      );
+
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0, body: {} });
+      await eventsService.getOTSApprovals({
+        page: 1,
+        limit: 10,
+        event_id: 'ev-1',
+        status: ['pending', 'approved']
+      });
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/events/on-the-spot-sales',
+        {
+          page: '1',
+          limit: '10',
+          event_id: 'ev-1',
+          status: ['pending', 'approved']
+        },
+        'Failed to fetch OTS approvals'
+      );
+
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('ots err'));
+      await expect(eventsService.getOTSApprovals()).rejects.toThrow('ots err');
+    });
+
+    it('requestOTSActivation, updateOTSStatus, getOTSTransactions, and getOTSSummary handle success and error', async () => {
+      mockApiUtilsPost.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.requestOTSActivation('ev-1');
+      expect(mockApiUtilsPost).toHaveBeenCalledWith(
+        '/api/events/on-the-spot-sales/request',
+        { event_id: 'ev-1' },
+        'Failed to request OTS activation'
+      );
+      mockApiUtilsPost.mockRejectedValueOnce(new Error('req ots err'));
+      await expect(eventsService.requestOTSActivation('ev-1')).rejects.toThrow(
+        'req ots err'
+      );
+
+      mockApiUtilsPost.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.updateOTSStatus('ots-1', 'approved');
+      expect(mockApiUtilsPost).toHaveBeenCalledWith(
+        '/api/events/on-the-spot-sales/status',
+        { id: 'ots-1', status: 'approved' },
+        'Failed to update OTS status'
+      );
+      mockApiUtilsPost.mockRejectedValueOnce(new Error('upd ots err'));
+      await expect(
+        eventsService.updateOTSStatus('ots-1', 'rejected')
+      ).rejects.toThrow('upd ots err');
+
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.getOTSTransactions('ev-1', {
+        page: 1,
+        status: 'paid'
+      });
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/transactions/ev-1',
+        { page: 1, status: 'paid' },
+        'Failed to fetch OTS transactions'
+      );
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('tx err'));
+      await expect(eventsService.getOTSTransactions('ev-1')).rejects.toThrow(
+        'tx err'
+      );
+
+      mockApiUtilsGet.mockResolvedValueOnce({ statusCode: 0 });
+      await eventsService.getOTSSummary('ev-1');
+      expect(mockApiUtilsGet).toHaveBeenCalledWith(
+        '/api/ots/summary',
+        { eventId: 'ev-1' },
+        'Failed to fetch OTS summary'
+      );
+      mockApiUtilsGet.mockRejectedValueOnce(new Error('sum err'));
+      await expect(eventsService.getOTSSummary('ev-1')).rejects.toThrow(
+        'sum err'
+      );
     });
   });
 });

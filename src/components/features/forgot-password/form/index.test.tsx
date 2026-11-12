@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import React from 'react';
 
 import ForgotPasswordForm from './index';
 
@@ -29,16 +28,18 @@ describe('ForgotPasswordForm', () => {
   it('submits form', async () => {
     const handleSubmit = jest.fn();
     render(<ForgotPasswordForm onSubmit={handleSubmit} />);
-    
-    fireEvent.change(screen.getByPlaceholderText('Email address'), { target: { value: 'test@example.com' } });
-    
+
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
+      target: { value: 'test@example.com' }
+    });
+
     const submitBtn = screen.getByText('Send Link');
     await waitFor(() => expect(submitBtn).not.toBeDisabled());
-    
+
     fireEvent.click(submitBtn);
-    
+
     await waitFor(() => {
-        expect(handleSubmit).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(handleSubmit).toHaveBeenCalledWith({ email: 'test@example.com' });
     });
   });
 });

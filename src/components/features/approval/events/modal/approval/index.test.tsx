@@ -50,7 +50,9 @@ describe('ApprovalModal', () => {
       );
 
       expect(
-        screen.getByText(/Are you sure you want to approve the event "Test Event"/i)
+        screen.getByText(
+          /Are you sure you want to approve the event "Test Event"/i
+        )
       ).toBeInTheDocument();
     });
 
@@ -64,8 +66,27 @@ describe('ApprovalModal', () => {
       );
 
       expect(
-        screen.getByText(/Are you sure you want to approve the event "this event"/i)
+        screen.getByText(
+          /Are you sure you want to approve the event "this event"/i
+        )
       ).toBeInTheDocument();
+    });
+    it('should display custom title, message, and children when provided', () => {
+      render(
+        <ApprovalModal
+          message="Custom approve prompt"
+          open={true}
+          title="Custom Approve Title"
+          onClose={mockOnClose}
+          onConfirm={mockOnConfirm}
+        >
+          <span>Extra Content</span>
+        </ApprovalModal>
+      );
+
+      expect(screen.getByText('Custom Approve Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom approve prompt')).toBeInTheDocument();
+      expect(screen.getByText('Extra Content')).toBeInTheDocument();
     });
   });
 
@@ -146,4 +167,3 @@ describe('ApprovalModal', () => {
     });
   });
 });
-

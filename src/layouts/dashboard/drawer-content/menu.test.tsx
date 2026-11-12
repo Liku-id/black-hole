@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import { MenuList } from './menu';
 
@@ -15,21 +14,23 @@ jest.mock('next/router', () => ({
 
 jest.mock('../styles', () => ({
   StyledList: ({ children }: any) => <ul>{children}</ul>,
-  StyledMenuItem: ({ children, onClick }: any) => <li onClick={onClick}>{children}</li>,
-  StyledSubMenuItem: ({ children, onClick }: any) => <div onClick={onClick}>{children}</div>,
+  StyledMenuItem: ({ children, onClick }: any) => (
+    <li onClick={onClick}>{children}</li>
+  ),
+  StyledSubMenuItem: ({ children, onClick }: any) => (
+    <div onClick={onClick}>{children}</div>
+  ),
   StyledListItemIcon: ({ children }: any) => <span>{children}</span>
 }));
 
 const menuItems = [
   { text: 'Dashboard', icon: '/icon.svg', path: '/dashboard', id: 'dash' },
-  { 
-      text: 'Account', 
-      icon: '/icon.svg', 
-      path: '/account', 
-      id: 'acc',
-      subMenu: [
-          { text: 'Sub', path: '/account/sub', id: 'sub' }
-      ]
+  {
+    text: 'Account',
+    icon: '/icon.svg',
+    path: '/account',
+    id: 'acc',
+    subMenu: [{ text: 'Sub', path: '/account/sub', id: 'sub' }]
   }
 ];
 
@@ -63,15 +64,15 @@ describe('MenuList', () => {
 
   it('navigates on click', () => {
     render(
-        <MenuList
-          menuItems={menuItems}
-          accountMenuOpen={false}
-          onAccountMenuToggle={() => {}}
-          isMenuItemActive={() => false}
-          isSubMenuItemActive={() => false}
-        />
-      );
-      fireEvent.click(screen.getByText('Dashboard'));
-      expect(mockPush).toHaveBeenCalledWith('/dashboard');
+      <MenuList
+        menuItems={menuItems}
+        accountMenuOpen={false}
+        onAccountMenuToggle={() => {}}
+        isMenuItemActive={() => false}
+        isSubMenuItemActive={() => false}
+      />
+    );
+    fireEvent.click(screen.getByText('Dashboard'));
+    expect(mockPush).toHaveBeenCalledWith('/dashboard');
   });
 });

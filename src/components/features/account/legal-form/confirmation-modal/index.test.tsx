@@ -6,7 +6,7 @@ import { ConfirmationModal } from './index';
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: any) => <img {...props} />
 }));
 
 describe('ConfirmationModal', () => {
@@ -19,7 +19,7 @@ describe('ConfirmationModal', () => {
     title: 'Test Title',
     declaration: 'I agree to the terms',
     confirmButtonText: 'Confirm',
-    loading: false,
+    loading: false
   };
 
   beforeEach(() => {
@@ -28,7 +28,7 @@ describe('ConfirmationModal', () => {
 
   it('renders correctly with default props', () => {
     render(<ConfirmationModal {...defaultProps} />);
-    
+
     expect(screen.getByText('Test Title')).toBeInTheDocument();
     expect(screen.getByText('I agree to the terms')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
@@ -37,49 +37,73 @@ describe('ConfirmationModal', () => {
 
   it('button is disabled initially', () => {
     render(<ConfirmationModal {...defaultProps} />);
-    
+
     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
     expect(confirmButton).toBeDisabled();
   });
 
   it('enables button when checkbox is checked', async () => {
     render(<ConfirmationModal {...defaultProps} />);
-    
+
     const checkbox = screen.getByRole('checkbox');
     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
-    
+
     await userEvent.click(checkbox);
-    
+
     expect(checkbox).toBeChecked();
     expect(confirmButton).toBeEnabled();
   });
 
   it('calls onConfirm when button is clicked', async () => {
     render(<ConfirmationModal {...defaultProps} />);
-    
+
     const checkbox = screen.getByRole('checkbox');
     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
-    
+
     await userEvent.click(checkbox);
     await userEvent.click(confirmButton);
-    
+
     expect(mockOnConfirm).toHaveBeenCalledTimes(1);
   });
 
   it('shows loading state properly', () => {
     render(<ConfirmationModal {...defaultProps} loading={true} />);
-    
+
     const confirmButton = screen.getByRole('button', { name: 'Saving...' });
     expect(confirmButton).toBeDisabled();
     expect(screen.getByText('Saving...')).toBeInTheDocument();
   });
 
+  it('uses default confirmButtonText when prop is omitted and handles unchecking', async () => {
+    render(
+      <ConfirmationModal
+        declaration="I agree to the terms"
+        open={true}
+        title="Confirm!"
+        onClose={mockOnClose}
+        onConfirm={mockOnConfirm}
+      />
+    );
+
+    const checkbox = screen.getByRole('checkbox');
+    const confirmBtn = screen.getByRole('button', {
+      name: 'Confirm and Save'
+    });
+    expect(confirmBtn).toBeDisabled();
+
+    await userEvent.click(checkbox);
+    expect(confirmBtn).toBeEnabled();
+
+    await userEvent.click(checkbox);
+    expect(confirmBtn).toBeDisabled();
+  });
+
   it('calls onClose when close button is clicked', async () => {
     render(<ConfirmationModal {...defaultProps} />);
-    
+
     const closeButton = screen.getByRole('button', { name: /close/i }); // Assuming img alt is "Close"
     await userEvent.click(closeButton);
-    
+
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 });

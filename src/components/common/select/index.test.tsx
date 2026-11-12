@@ -1,48 +1,83 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FormProvider, useForm } from 'react-hook-form';
+
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 
 import { CustomSelect } from './index';
 
-// Mock StyledTextField
-jest.mock('../text-field/StyledTextField', () => ({
-  StyledTextField: (props: any) => (
-    <input 
-      data-testid="select-input" 
-      readOnly
-      onClick={props.onClick}
-      value={props.value}
-    />
-  )
-}));
-
 describe('CustomSelect', () => {
   const options = [
-    { label: 'Option 1', value: 'opt1' },
-    { label: 'Option 2', value: 'opt2' },
+    { label: 'Option 1', value: 'opt1', icon: '/icon/ticket.svg' },
+    { label: 'Option 2', value: 'opt2' }
   ];
 
-  it('renders correctly', () => {
-    render(
-      <CustomSelect
-        options={options}
-        value=""
-        onChange={() => {}}
-      />
-    );
-    expect(screen.getByTestId('select-input')).toBeInTheDocument();
-  });
-
-  it('opens menu and selects option', () => {
+  it('renders simple CustomSelect with label, isRejected, icons, selection, and menu close', () => {
     const handleChange = jest.fn();
-    render(
+    const { container } = renderWithProviders(
       <CustomSelect
+        label="Category"
+        placeholder="Pick one"
+        isRejected
+        error
+        helperText="Invalid selection"
         options={options}
-        value=""
+        value="opt1"
         onChange={handleChange}
       />
     );
-    fireEvent.click(screen.getByTestId('select-input'));
-    fireEvent.click(screen.getByText('Option 1'));
-    expect(handleChange).toHaveBeenCalledWith('opt1');
+
+    expect(screen.getByText('Category')).toBeInTheDocument();
+    expect(screen.getByText('Invalid selection')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Option 1')).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-testid="ErrorOutlineIcon"]')
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByPlaceholderText('Pick one'));
+    expect(screen.getByAltText('Option 1')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Option 2'));
+    expect(handleChange).toHaveBeenCalledWith('opt2');
+
+    // Open and close with Escape
+    fireEvent.click(screen.getByPlaceholderText('Pick one'));
+    fireEvent.keyDown(screen.getByRole('menu'), {
+      key: 'Escape',
+      code: 'Escape'
+    });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('integrates with React Hook Form via FormSelect and validates errors', async () => {
+    const RHFWrapper = () => {
+      const methods = useForm({
+        defaultValues: { category: '' }
+      });
+      return (
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(() => {})}>
+            <CustomSelect
+              name="category"
+              label="Category"
+              placeholder="Select category"
+              rules={{ required: 'Category is required' }}
+              options={options}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        </FormProvider>
+      );
+    };
+
+    render(<RHFWrapper />);
+
+    fireEvent.click(screen.getByText('Submit'));
+    await waitFor(() => {
+      expect(screen.getByText('Category is required')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByPlaceholderText('Select category'));
+    fireEvent.click(screen.getByText('Option 2'));
+    expect(screen.getByDisplayValue('Option 2')).toBeInTheDocument();
   });
 });

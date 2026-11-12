@@ -60,11 +60,13 @@ describe('CreatorTypeModal', () => {
       );
 
       // Find the option by id attribute
-      const individualOption = container.querySelector('[id="individual_creator"]');
-      
+      const individualOption = container.querySelector(
+        '[id="individual_creator"]'
+      );
+
       if (individualOption) {
         fireEvent.click(individualOption);
-        
+
         // Wait for state update
         await waitFor(() => {
           const continueButton = screen.getByText('Continue');
@@ -86,11 +88,13 @@ describe('CreatorTypeModal', () => {
       );
 
       // Find the option by id attribute
-      const institutionalOption = container.querySelector('[id="institution_creator"]');
-      
+      const institutionalOption = container.querySelector(
+        '[id="institution_creator"]'
+      );
+
       if (institutionalOption) {
         fireEvent.click(institutionalOption);
-        
+
         // Wait for state update
         await waitFor(() => {
           const continueButton = screen.getByText('Continue');
@@ -127,7 +131,9 @@ describe('CreatorTypeModal', () => {
       );
 
       // Select individual creator
-      const individualOption = screen.getByText('Individual Creator').closest('div');
+      const individualOption = screen
+        .getByText('Individual Creator')
+        .closest('div');
       if (individualOption) {
         fireEvent.click(individualOption);
       }
@@ -136,6 +142,25 @@ describe('CreatorTypeModal', () => {
       fireEvent.click(continueButton);
 
       expect(mockOnContinue).toHaveBeenCalledWith('individual');
+    });
+
+    it('should select institutional via Radio onChange and call onContinue with institutional', () => {
+      render(
+        <CreatorTypeModal
+          open={true}
+          onClose={mockOnClose}
+          onContinue={mockOnContinue}
+        />
+      );
+
+      const radios = screen.getAllByRole('radio');
+      fireEvent.click(radios[1]);
+
+      const continueButton = screen.getByText('Continue');
+      expect(continueButton).toBeEnabled();
+      fireEvent.click(continueButton);
+
+      expect(mockOnContinue).toHaveBeenCalledWith('institutional');
     });
 
     it('should show loading state when loading is true', () => {
@@ -179,7 +204,7 @@ describe('CreatorTypeModal', () => {
       // Find close button by id or by clicking the icon
       const closeImage = screen.getByAltText('Close');
       const closeButton = closeImage.closest('button');
-      
+
       if (closeButton) {
         fireEvent.click(closeButton);
         expect(mockOnClose).toHaveBeenCalled();
@@ -187,4 +212,3 @@ describe('CreatorTypeModal', () => {
     });
   });
 });
-

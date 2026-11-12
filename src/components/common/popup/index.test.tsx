@@ -1,17 +1,28 @@
-import { render, screen } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { Popup } from './index';
 
 describe('Popup', () => {
-  it('renders when open', () => {
-    render(
-      <Popup open={true} title="Test Popup" onClose={() => {}}>
+  it('renders when open with footer and custom titleSize and locks body scroll', () => {
+    const { unmount } = render(
+      <Popup
+        open={true}
+        title="Test Popup"
+        titleSize="18px"
+        footer={<div>Footer Content</div>}
+        onClose={() => {}}
+      >
         <div>Popup Content</div>
       </Popup>
     );
+
     expect(screen.getByText('Test Popup')).toBeInTheDocument();
     expect(screen.getByText('Popup Content')).toBeInTheDocument();
+    expect(screen.getByText('Footer Content')).toBeInTheDocument();
+    expect(document.body.style.overflow).toBe('hidden');
+
+    unmount();
+    expect(document.body.style.overflow).toBe('unset');
   });
 
   it('does not render when closed', () => {
@@ -21,21 +32,31 @@ describe('Popup', () => {
       </Popup>
     );
     expect(screen.queryByText('Test Popup')).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe('unset');
   });
 
-  it('calls onClose when overlay clicked', () => {
+  it('closes on overlay click and Escape key, but stops propagation inside content', () => {
     const handleClose = jest.fn();
-    render(
+    const { container } = render(
       <Popup open={true} title="Test Popup" onClose={handleClose}>
         <div>Popup Content</div>
       </Popup>
     );
-    // Overlay is the outer box. We can try to click it.
-    // The component structure is PopupOverlay -> PopupContent.
-    // Clicking Content should stop propagation.
-    // Clicking Overlay should trigger onClose.
-    
-    // We can't easily grab StyledComponent by testId unless we add it. 
-    // But Render returns container, we can click the first child.
+
+    // Click inside content should NOT call onClose
+    fireEvent.click(screen.getByText('Popup Content'));
+    expect(handleClose).not.toHaveBeenCalled();
+
+    // Click on overlay should call onClose
+    fireEvent.click(container.firstChild as HTMLElement);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+
+    // Non-Escape key does not close
+    fireEvent.keyDown(document, { key: 'Enter' });
+    expect(handleClose).toHaveBeenCalledTimes(1);
+
+    // Escape key calls onClose
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(handleClose).toHaveBeenCalledTimes(2);
   });
 });

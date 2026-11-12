@@ -1,47 +1,74 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { Pagination } from './index';
 
-// Mock Select
-jest.mock('@/components/common/select', () => (props: any) => (
-    <select 
-      data-testid="page-size-select" 
-      value={props.value} 
-      onChange={(e) => props.onChange(e.target.value)}
-    >
-      {props.options.map((opt: any) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
-    </select>
-));
-
 describe('Pagination', () => {
-  it('renders current page info', () => {
-    render(
+  it('returns null when loading is true', () => {
+    const { container } = render(
       <Pagination
         total={100}
         currentPage={0}
         pageSize={10}
+        loading={true}
         onPageChange={() => {}}
       />
     );
-    expect(screen.getByText(/showing 1 to 10 of 100 entries/i)).toBeInTheDocument();
-    expect(screen.getByText('1')).toBeInTheDocument(); // Current page number button
+    expect(container.firstChild).toBeNull();
   });
 
-  it('handles next page click', () => {
+  it('renders current page info, page size selector with custom & default options, and page navigation', () => {
     const handlePageChange = jest.fn();
-    render(
+    const handlePageSizeChange = jest.fn();
+
+    const { rerender } = render(
       <Pagination
         total={100}
-        currentPage={0}
+        currentPage={1}
         pageSize={10}
+        pageSizeOptions={[5, 10, 20]}
         onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     );
-    const nextBtn = screen.getByTestId('KeyboardArrowRightIcon').closest('button');
-    if (nextBtn) fireEvent.click(nextBtn);
-    expect(handlePageChange).toHaveBeenCalledWith(1);
+
+    expect(
+      screen.getByText(/showing 11 to 20 of 100 entries/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('of 10')).toBeInTheDocument();
+
+    const prevBtn = screen
+      .getByTestId('KeyboardArrowLeftIcon')
+      .closest('button')!;
+    const nextBtn = screen
+      .getByTestId('KeyboardArrowRightIcon')
+      .closest('button')!;
+
+    fireEvent.click(prevBtn);
+    expect(handlePageChange).toHaveBeenCalledWith(0);
+
+    fireEvent.click(nextBtn);
+    expect(handlePageChange).toHaveBeenCalledWith(2);
+
+    // Open Select menu from Pagination to change page size
+    fireEvent.click(screen.getByDisplayValue('10'));
+    fireEvent.click(screen.getByText('20'));
+    expect(handlePageSizeChange).toHaveBeenCalledWith(20);
+
+    // Default pageSizeOptions & total = 0 & showInfo = false
+    rerender(
+      <Pagination
+        total={0}
+        currentPage={0}
+        pageSize={10}
+        showInfo={false}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+    );
+
+    expect(screen.queryByText(/showing/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByDisplayValue('10'));
+    expect(screen.getByText('25')).toBeInTheDocument();
   });
 });

@@ -1,9 +1,11 @@
 import { Table, TableRow, TableCell } from '@mui/material';
 import { render } from '@testing-library/react';
-import React from 'react';
 
-import { StyledTableContainer, StyledTableHead, StyledTableBody } from './index';
-
+import {
+  StyledTableContainer,
+  StyledTableHead,
+  StyledTableBody
+} from './index';
 
 describe('Table Components', () => {
   it('renders table structure correctly', () => {

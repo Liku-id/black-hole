@@ -49,7 +49,9 @@ describe('RejectModal', () => {
       );
 
       expect(
-        screen.getByText(/Are you sure you want to reject this event submission/i)
+        screen.getByText(
+          /Are you sure you want to reject this event submission/i
+        )
       ).toBeInTheDocument();
     });
 
@@ -65,7 +67,9 @@ describe('RejectModal', () => {
 
       expect(screen.getByText('Rejected fields:')).toBeInTheDocument();
       // Check for field labels (they might be in a single string)
-      const rejectedFieldsText = screen.getByText(/Event Name|Event Description|Address/i);
+      const rejectedFieldsText = screen.getByText(
+        /Event Name|Event Description|Address/i
+      );
       expect(rejectedFieldsText).toBeInTheDocument();
     });
 
@@ -93,6 +97,25 @@ describe('RejectModal', () => {
 
       expect(
         screen.getByPlaceholderText('Enter rejection reason')
+      ).toBeInTheDocument();
+    });
+    it('should use custom fieldDisplayMap, fallback raw field names, and custom title/message', () => {
+      render(
+        <RejectModal
+          fieldDisplayMap={{ custom_field: 'Custom Field Label' }}
+          message="Custom reject prompt"
+          open={true}
+          rejectedFields={['custom_field', 'unknown_field']}
+          title="Custom Reject Title"
+          onClose={mockOnClose}
+          onConfirm={mockOnConfirm}
+        />
+      );
+
+      expect(screen.getByText('Custom Reject Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom reject prompt')).toBeInTheDocument();
+      expect(
+        screen.getByText('Custom Field Label, unknown_field')
       ).toBeInTheDocument();
     });
   });
@@ -136,7 +159,9 @@ describe('RejectModal', () => {
       );
 
       const reasonInput = screen.getByPlaceholderText('Enter rejection reason');
-      fireEvent.change(reasonInput, { target: { value: 'Test rejection reason' } });
+      fireEvent.change(reasonInput, {
+        target: { value: 'Test rejection reason' }
+      });
 
       const yesButton = screen.getByText('Yes');
       fireEvent.click(yesButton);
@@ -208,4 +233,3 @@ describe('RejectModal', () => {
     });
   });
 });
-

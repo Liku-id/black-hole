@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { useUpdateEventOrganizerGeneral } from '@/hooks/features/organizers/useUpdateEventOrganizerGeneral';
 import { EventOrganizer } from '@/types/organizer';
@@ -22,6 +22,10 @@ describe('GeneralForm', () => {
       isPending: false,
       error: null
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   const mockEventOrganizer: EventOrganizer = {
@@ -70,13 +74,7 @@ describe('GeneralForm', () => {
 
   describe('Loading State', () => {
     it('should display loading message when loading is true', () => {
-      render(
-        <GeneralForm
-          eventOrganizer={null}
-          loading={true}
-          mode="view"
-        />
-      );
+      render(<GeneralForm eventOrganizer={null} loading={true} mode="view" />);
 
       expect(screen.getByText('Loading organizer data...')).toBeInTheDocument();
     });
@@ -101,13 +99,7 @@ describe('GeneralForm', () => {
 
   describe('No Data State', () => {
     it('should display "No organizer data found" when eventOrganizer is null', () => {
-      render(
-        <GeneralForm
-          eventOrganizer={null}
-          loading={false}
-          mode="view"
-        />
-      );
+      render(<GeneralForm eventOrganizer={null} loading={false} mode="view" />);
 
       expect(screen.getByText('No organizer data found')).toBeInTheDocument();
     });
@@ -151,7 +143,9 @@ describe('GeneralForm', () => {
         />
       );
 
-      expect(screen.getByText('https://instagram.com/test')).toBeInTheDocument();
+      expect(
+        screen.getByText('https://instagram.com/test')
+      ).toBeInTheDocument();
       expect(screen.getByText('https://tiktok.com/@test')).toBeInTheDocument();
       expect(screen.getByText('https://twitter.com/test')).toBeInTheDocument();
     });
@@ -198,7 +192,9 @@ describe('GeneralForm', () => {
 
       // Check if form fields are rendered (they should be in edit mode)
       // The actual form fields are in OrganizerEditForm component
-      expect(screen.queryByText('Loading organizer data...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Loading organizer data...')
+      ).not.toBeInTheDocument();
     });
 
     it('should call onRefresh after successful update', async () => {
@@ -214,9 +210,49 @@ describe('GeneralForm', () => {
         />
       );
 
-      // The actual form submission would be tested in OrganizerEditForm test
-      // This test just ensures the component structure is correct
-      expect(mockUseUpdateEventOrganizerGeneral).toHaveBeenCalled();
+      fireEvent.click(await screen.findByText('Save Data'));
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalledWith({
+          eoId: '1',
+          payload: expect.objectContaining({
+            name: 'Test Organizer',
+            description: 'Test description'
+          })
+        });
+        expect(mockOnRefresh).toHaveBeenCalled();
+      });
+    });
+
+    it('should display error message when updateOrganizer rejects with Error or string', async () => {
+      mockMutate.mockRejectedValueOnce(new Error('General update error'));
+
+      const { rerender } = render(
+        <GeneralForm
+          eventOrganizer={mockEventOrganizer}
+          loading={false}
+          mode="edit"
+        />
+      );
+
+      fireEvent.click(await screen.findByText('Save Data'));
+      expect(
+        await screen.findByText('General update error')
+      ).toBeInTheDocument();
+
+      mockMutate.mockRejectedValueOnce('Unknown rejection');
+      rerender(
+        <GeneralForm
+          eventOrganizer={mockEventOrganizer}
+          loading={false}
+          mode="edit"
+        />
+      );
+
+      fireEvent.click(await screen.findByText('Save Data'));
+      expect(
+        await screen.findByText('Failed to update organizer')
+      ).toBeInTheDocument();
     });
   });
 
@@ -231,13 +267,19 @@ describe('GeneralForm', () => {
       );
 
       // Social media should be parsed and displayed
-      expect(screen.getByText('https://instagram.com/test')).toBeInTheDocument();
+      expect(
+        screen.getByText('https://instagram.com/test')
+      ).toBeInTheDocument();
     });
 
-    it('should handle invalid JSON in social_media_url gracefully', () => {
+    it('should handle invalid JSON in social_media_url and fallback to comma-separated URLs', () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
       const organizerWithInvalidSocial: EventOrganizer = {
         ...mockEventOrganizer,
-        social_media_url: 'invalid-json'
+        social_media_url:
+          'https://tiktok.com/@a, https://instagram.com/b, https://twitter.com/c, https://other.com/d',
+        asset: null
       };
 
       render(
@@ -248,8 +290,34 @@ describe('GeneralForm', () => {
         />
       );
 
-      // Should fallback to "No social media links" or handle gracefully
-      expect(screen.queryByText('Loading organizer data...')).not.toBeInTheDocument();
+      expect(screen.getByText('https://tiktok.com/@a')).toBeInTheDocument();
+      expect(screen.getByText('https://instagram.com/b')).toBeInTheDocument();
+      expect(screen.getByText('https://twitter.com/c')).toBeInTheDocument();
+      expect(screen.getByText('https://other.com/d')).toBeInTheDocument();
+      expect(
+        screen.getByText('No profile picture uploaded')
+      ).toBeInTheDocument();
+    });
+
+    it('should use provided organizerDetail override in view mode when supplied', () => {
+      render(
+        <GeneralForm
+          eventOrganizer={mockEventOrganizer}
+          loading={false}
+          mode="view"
+          organizerDetail={{
+            id: 'override-1',
+            name: 'Overridden Name',
+            phoneNumber: '+62811111111',
+            email: 'override@example.com',
+            address: 'Override Addr',
+            socialMedia: [],
+            aboutOrganizer: 'Override bio'
+          }}
+        />
+      );
+
+      expect(screen.getByText('Overridden Name')).toBeInTheDocument();
     });
 
     it('should extract profile picture name from asset key', () => {
@@ -280,4 +348,3 @@ describe('GeneralForm', () => {
     });
   });
 });
-

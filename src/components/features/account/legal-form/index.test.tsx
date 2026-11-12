@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { useUpdateEventOrganizerLegal } from '@/hooks/features/organizers/useUpdateEventOrganizerLegal';
 import { EventOrganizer } from '@/types/organizer';
@@ -33,11 +33,16 @@ const mockUseUpdateEventOrganizerLegal =
 describe('LegalForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     mockUseUpdateEventOrganizerLegal.mockReturnValue({
       mutate: mockMutate,
       isPending: false,
       error: null
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   const mockEventOrganizer: EventOrganizer = {
@@ -90,15 +95,11 @@ describe('LegalForm', () => {
 
   describe('Loading State', () => {
     it('should display loading message when loading is true', () => {
-      render(
-        <LegalForm
-          eventOrganizer={null}
-          loading={true}
-          mode="view"
-        />
-      );
+      render(<LegalForm eventOrganizer={null} loading={true} mode="view" />);
 
-      expect(screen.getByText('Loading legal information...')).toBeInTheDocument();
+      expect(
+        screen.getByText('Loading legal information...')
+      ).toBeInTheDocument();
     });
   });
 
@@ -121,15 +122,11 @@ describe('LegalForm', () => {
 
   describe('No Data State', () => {
     it('should display "No legal information found" when eventOrganizer is null', () => {
-      render(
-        <LegalForm
-          eventOrganizer={null}
-          loading={false}
-          mode="view"
-        />
-      );
+      render(<LegalForm eventOrganizer={null} loading={false} mode="view" />);
 
-      expect(screen.getByText('No legal information found')).toBeInTheDocument();
+      expect(
+        screen.getByText('No legal information found')
+      ).toBeInTheDocument();
     });
   });
 
@@ -144,7 +141,9 @@ describe('LegalForm', () => {
       );
 
       // The actual detail fields are in LegalFormDetailInfo component
-      expect(screen.queryByText('Loading legal information...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Loading legal information...')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -159,7 +158,9 @@ describe('LegalForm', () => {
       );
 
       // The actual form fields are in LegalEditForm component
-      expect(screen.queryByText('Loading legal information...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Loading legal information...')
+      ).not.toBeInTheDocument();
     });
 
     it('should call onRefresh after successful update', async () => {
@@ -175,7 +176,22 @@ describe('LegalForm', () => {
         />
       );
 
-      expect(mockUseUpdateEventOrganizerLegal).toHaveBeenCalled();
+      fireEvent.click(screen.getByText('Save Legal Document'));
+      expect(await screen.findByText('Confirm!')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('checkbox'));
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm and Save' }));
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalledWith({
+          eoId: '1',
+          payload: expect.objectContaining({
+            npwp_photo_id: 'npwp1',
+            ktp_photo_id: 'ktp1'
+          })
+        });
+        expect(mockOnRefresh).toHaveBeenCalled();
+      });
     });
 
     it('should handle update error state', () => {
@@ -193,8 +209,7 @@ describe('LegalForm', () => {
         />
       );
 
-      // Error should be passed to LegalEditForm
-      expect(screen.queryByText('Loading legal information...')).not.toBeInTheDocument();
+      expect(screen.getByText('Update failed')).toBeInTheDocument();
     });
 
     it('should not call mutate if eventOrganizer id is missing', async () => {
@@ -211,30 +226,31 @@ describe('LegalForm', () => {
         />
       );
 
-      // Should not crash
-      expect(screen.queryByText('Loading legal information...')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByText('Save Legal Document'));
+      expect(await screen.findByText('Confirm!')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('checkbox'));
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm and Save' }));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Confirm!')).not.toBeInTheDocument();
+      });
+      expect(mockMutate).not.toHaveBeenCalled();
     });
   });
 
   describe('Default Mode', () => {
     it('should default to edit mode when mode is not specified', () => {
-      render(
-        <LegalForm
-          eventOrganizer={mockEventOrganizer}
-          loading={false}
-        />
-      );
+      render(<LegalForm eventOrganizer={mockEventOrganizer} loading={false} />);
 
-      // Should render edit form (default behavior)
-      expect(screen.queryByText('Loading legal information...')).not.toBeInTheDocument();
+      expect(screen.getByText('Save Legal Document')).toBeInTheDocument();
     });
   });
 
   describe('Error Handling', () => {
-    it('should handle update error and set error state', async () => {
+    it('should handle Error instance from updateLegal and display message', async () => {
       const mockOnRefresh = jest.fn();
-      const updateError = new Error('Update failed');
-      mockMutate.mockRejectedValue(updateError);
+      mockMutate.mockRejectedValueOnce(new Error('Update failed'));
 
       render(
         <LegalForm
@@ -245,9 +261,36 @@ describe('LegalForm', () => {
         />
       );
 
-      // Error should be handled internally
-      expect(mockUseUpdateEventOrganizerLegal).toHaveBeenCalled();
+      fireEvent.click(screen.getByText('Save Legal Document'));
+      expect(await screen.findByText('Confirm!')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('checkbox'));
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm and Save' }));
+
+      expect(await screen.findByText('Update failed')).toBeInTheDocument();
+      expect(mockOnRefresh).not.toHaveBeenCalled();
+    });
+
+    it('should handle non-Error rejection from updateLegal with fallback message', async () => {
+      mockMutate.mockRejectedValueOnce('Unknown failure');
+
+      render(
+        <LegalForm
+          eventOrganizer={mockEventOrganizer}
+          loading={false}
+          mode="edit"
+        />
+      );
+
+      fireEvent.click(screen.getByText('Save Legal Document'));
+      expect(await screen.findByText('Confirm!')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('checkbox'));
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm and Save' }));
+
+      expect(
+        await screen.findByText('Failed to update legal information')
+      ).toBeInTheDocument();
     });
   });
 });
-
