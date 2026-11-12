@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,17 +6,19 @@ import { useFilteredEvents } from '@/hooks';
 
 import EventLatestView from './index';
 
-// Mock next/navigation
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => <img {...props} />
+}));
+
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
 
-// Mock hooks
 jest.mock('@/hooks', () => ({
   useFilteredEvents: jest.fn()
 }));
 
-// Mock OrganizerRegStatus component
 jest.mock('../organizer-status', () => {
   const React = require('react');
   return {
@@ -25,7 +27,6 @@ jest.mock('../organizer-status', () => {
   };
 });
 
-// Mock AuthContext
 jest.mock('@/contexts/AuthContext', () => ({
   useAuth: jest.fn()
 }));
@@ -48,9 +49,7 @@ describe('EventLatestView', () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     mockUseAuth.mockReturnValue({
-      user: {
-        role: { name: 'admin' }
-      } as any,
+      user: { role: { name: 'admin' } } as any,
       accessToken: null,
       refreshToken: null,
       isLoading: false,
@@ -63,162 +62,197 @@ describe('EventLatestView', () => {
     });
   });
 
-  const mockEvents = [
+  const sampleOngoing = [
     {
-      id: '1',
-      name: 'Ongoing Event 1',
-      startDate: '2024-01-15',
-      endDate: '2024-01-20',
-      eventStatus: 'on_going',
-      totalTicketsSold: 100,
-      totalRevenue: 5000000
+      id: 'ev-1',
+      name: 'Ongoing Concert',
+      metaUrl: 'ongoing-concert',
+      address: 'Jakarta',
+      date: '2026-05-15T10:00:00Z',
+      time: '10:00',
+      totalRevenue: 5000000,
+      thumbnail: '/thumb1.jpg'
     },
     {
-      id: '2',
-      name: 'Past Event 1',
-      startDate: '2024-01-01',
-      endDate: '2024-01-05',
-      eventStatus: 'done',
-      totalTicketsSold: 50,
-      totalRevenue: 2500000
+      id: 'ev-2',
+      name: 'Second Ongoing Event',
+      metaUrl: 'second-ongoing',
+      address: 'Bandung',
+      date: '2026-05-20T12:00:00Z',
+      time: '12:00',
+      totalRevenue: 1500000,
+      thumbnail: ''
     }
   ];
 
-  describe('Rendering', () => {
-    it('should render component', () => {
-      mockUseFilteredEvents
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        })
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        });
+  const samplePast = [
+    {
+      id: 'ev-3',
+      name: 'Past Festival',
+      metaUrl: 'past-festival',
+      address: 'Bali',
+      date: '2025-01-10T10:00:00Z',
+      time: '10:00',
+      totalRevenue: 2500000,
+      thumbnail: '/thumb3.jpg'
+    }
+  ];
 
-      const { container } = render(<EventLatestView />);
+  it('renders Ongoing and Past event cards, opens menu items, navigates sections, and triggers image fallbacks', async () => {
+    mockUseFilteredEvents
+      .mockReturnValueOnce({
+        events: sampleOngoing as any,
+        loading: false,
+        error: null,
+        mutate: jest.fn()
+      })
+      .mockReturnValueOnce({
+        events: samplePast as any,
+        loading: false,
+        error: null,
+        mutate: jest.fn()
+      });
 
-      // Component should render
-      expect(container.firstChild).toBeInTheDocument();
-    });
+    render(<EventLatestView eventOrganizerId="org-1" />);
 
-    it('should render Ongoing Events section', () => {
-      // Mock both calls - first for ongoing, second for past
-      mockUseFilteredEvents
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        })
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        });
+    expect(screen.getByText('Ongoing Concert')).toBeInTheDocument();
+    expect(screen.getByText('Second Ongoing Event')).toBeInTheDocument();
+    expect(screen.getByText('Past Festival')).toBeInTheDocument();
 
-      const { container } = render(<EventLatestView />);
-      
-      // Just verify component rendered
-      expect(container.firstChild).toBeInTheDocument();
-    });
+    // Section header arrows
+    const arrowIcons = screen.getAllByAltText('arrow');
+    fireEvent.click(arrowIcons[0]);
+    expect(mockPush).toHaveBeenCalledWith(
+      '/events?status=EVENT_STATUS_ON_GOING'
+    );
+    fireEvent.click(arrowIcons[1]);
+    expect(mockPush).toHaveBeenCalledWith('/events?status=EVENT_STATUS_DONE');
 
-    it('should render Past Events section', () => {
-      // Mock both calls - first for ongoing, second for past
-      mockUseFilteredEvents
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        })
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        });
+    // Open menu on first card and navigate all 3 actions
+    const optionsIcons = screen.getAllByAltText('options');
+    fireEvent.click(optionsIcons[0].closest('button')!);
+    fireEvent.click(screen.getByText('Event Detail'));
+    expect(mockPush).toHaveBeenCalledWith('/events/ongoing-concert');
 
-      const { container } = render(<EventLatestView />);
-      
-      // Just verify component rendered
-      expect(container.firstChild).toBeInTheDocument();
-    });
+    fireEvent.click(optionsIcons[0].closest('button')!);
+    fireEvent.click(screen.getByText('Attendee Tickets'));
+    expect(mockPush).toHaveBeenCalledWith('/tickets?event=ev-1');
+
+    fireEvent.click(optionsIcons[0].closest('button')!);
+    fireEvent.click(screen.getByText('Event Transactions'));
+    expect(mockPush).toHaveBeenCalledWith('/finance/event-transactions/ev-1');
+
+    // Open and close menu with Escape + image onError handlers
+    fireEvent.click(optionsIcons[0].closest('button')!);
+    const menu = await screen.findByRole('menu');
+    fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    );
+
+    const thumb = screen.getByAltText('Ongoing Concert') as HTMLImageElement;
+    fireEvent.error(thumb);
+    expect(thumb.src).toContain('/placeholder-event.jpg');
+    fireEvent.error(arrowIcons[0]);
+    fireEvent.error(optionsIcons[0]);
+    fireEvent.error(screen.getAllByAltText('Jakarta')[0]);
   });
 
-  describe('Loading State', () => {
-    it('should handle loading state for ongoing events', () => {
-      mockUseFilteredEvents
-        .mockReturnValueOnce({
-          events: [],
-          loading: true,
-          error: null,
-          mutate: jest.fn()
-        })
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        });
+  it('renders empty state for admin and OrganizerRegStatus for event organizer', () => {
+    mockUseFilteredEvents
+      .mockReturnValueOnce({
+        events: [],
+        loading: false,
+        error: null,
+        mutate: jest.fn()
+      })
+      .mockReturnValueOnce({
+        events: [],
+        loading: false,
+        error: null,
+        mutate: jest.fn()
+      });
 
-      const { container } = render(<EventLatestView />);
+    render(<EventLatestView />);
+    expect(screen.getByText('no ongoing events')).toBeInTheDocument();
+    expect(screen.getByText('no past events')).toBeInTheDocument();
+    fireEvent.error(screen.getAllByAltText('empty events')[0]);
 
-      // Component should render even when loading
-      expect(container.firstChild).toBeInTheDocument();
+    // Organizer role -> shows OrganizerRegStatus
+    mockUseAuth.mockReturnValue({
+      user: {
+        role: { name: 'event_organizer_pic' },
+        organizer_type: 'individual'
+      } as any,
+      accessToken: null,
+      refreshToken: null,
+      isLoading: false,
+      isAuthenticated: true,
+      login: jest.fn(),
+      logout: jest.fn(),
+      clearError: jest.fn(),
+      refreshUserData: jest.fn(),
+      error: null
     });
+    mockUseFilteredEvents
+      .mockReturnValueOnce({
+        events: [],
+        loading: false,
+        error: null,
+        mutate: jest.fn()
+      })
+      .mockReturnValueOnce({
+        events: [],
+        loading: false,
+        error: null,
+        mutate: jest.fn()
+      });
+
+    render(<EventLatestView />);
+    expect(screen.getByText('OrganizerRegStatus')).toBeInTheDocument();
   });
 
-  describe('Error State', () => {
-    it('should handle error state', () => {
-      mockUseFilteredEvents
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: 'Failed to load',
-          mutate: jest.fn()
-        })
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        });
+  it('renders loading skeletons and handles retry clicks on ongoing & past errors', () => {
+    const refetchOngoing = jest.fn();
+    const refetchPast = jest.fn();
 
-      const { container } = render(<EventLatestView />);
+    mockUseFilteredEvents
+      .mockReturnValueOnce({
+        events: [],
+        loading: true,
+        error: null,
+        mutate: jest.fn()
+      })
+      .mockReturnValueOnce({
+        events: [],
+        loading: true,
+        error: null,
+        mutate: jest.fn()
+      });
 
-      // Component should still render
-      expect(container.firstChild).toBeInTheDocument();
-    });
-  });
+    const { rerender } = render(<EventLatestView />);
+    expect(screen.getByText('Event On Going')).toBeInTheDocument();
 
-  describe('Navigation', () => {
-    it('should render component with navigation capability', () => {
-      // Mock both calls - first for ongoing, second for past
-      mockUseFilteredEvents
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        })
-        .mockReturnValueOnce({
-          events: [],
-          loading: false,
-          error: null,
-          mutate: jest.fn()
-        });
+    mockUseFilteredEvents
+      .mockReturnValueOnce({
+        events: [],
+        loading: false,
+        error: 'Ongoing failed',
+        mutate: refetchOngoing
+      })
+      .mockReturnValueOnce({
+        events: [],
+        loading: false,
+        error: 'Past failed',
+        mutate: refetchPast
+      });
 
-      const { container } = render(<EventLatestView />);
-
-      // Component should render
-      expect(container.firstChild).toBeInTheDocument();
-    });
+    rerender(<EventLatestView />);
+    const retryIcons = screen.getAllByAltText('retry');
+    fireEvent.error(retryIcons[0]);
+    fireEvent.click(retryIcons[0].closest('button')!);
+    fireEvent.click(retryIcons[1].closest('button')!);
+    expect(refetchOngoing).toHaveBeenCalledTimes(1);
+    expect(refetchPast).toHaveBeenCalledTimes(1);
   });
 });
-

@@ -1,25 +1,46 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
+import { useAuth } from '@/contexts/AuthContext';
+import { usePaymentMethods } from '@/hooks';
+import { UserRole } from '@/types/auth';
 import { EventDetail } from '@/types/event';
 
 import { EventsSubmissionsInfo } from './index';
 
-// Mock AuthContext
 jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
-    user: {
-      id: '1',
-      name: 'Test User',
-      role: { name: 'event_organizer_pic' },
-      eventOrganizerId: 'org1'
-    },
-    isAuthenticated: true,
-    login: jest.fn(),
-    logout: jest.fn()
-  }))
+  useAuth: jest.fn()
 }));
 
+jest.mock('@/hooks', () => ({
+  usePaymentMethods: jest.fn()
+}));
+
+const mockUseAuth = useAuth as jest.Mock;
+const mockUsePaymentMethods = usePaymentMethods as jest.Mock;
+
 describe('EventsSubmissionsInfo', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: '1',
+        name: 'Test User',
+        role: { name: UserRole.EVENT_ORGANIZER_PIC },
+        eventOrganizerId: 'org1'
+      },
+      isAuthenticated: true
+    });
+    mockUsePaymentMethods.mockReturnValue({
+      paymentMethods: {
+        'Virtual Account': [
+          { id: 'pm1', name: 'Bank Transfer', type: 'va' },
+          { id: 'pm2', name: 'Credit Card', type: 'cc' },
+          { id: 'pm_link', name: 'Payment Link', type: 'payment_link' }
+        ]
+      }
+    });
+  });
+
   const mockEventDetail: EventDetail = {
     id: '1',
     name: 'Test Event',
@@ -38,47 +59,15 @@ describe('EventsSubmissionsInfo', () => {
     deletedAt: null,
     ticketTypes: [],
     tickets: [],
-    city: {
-      id: 'city1',
-      name: 'Jakarta'
-    },
+    city: { id: 'city1', name: 'Jakarta' },
     eventOrganizer: {} as any,
     paymentMethods: [
-      {
-        id: 'pm1',
-        name: 'Bank Transfer',
-        type: 'Virtual Account',
-        logo: 'logo.png',
-        bankId: 'bank1',
-        requestType: 'VA',
-        paymentCode: 'BCA_VA',
-        channelProperties: {},
-        rules: [],
-        bank: {
-          id: 'bank1',
-          name: 'BCA',
-          channelCode: 'BCA',
-          channelType: 'VIRTUAL_ACCOUNT',
-          minAmount: 10000,
-          maxAmount: 50000000
-        }
-      },
-      {
-        id: 'pm2',
-        name: 'Credit Card',
-        type: 'Credit Card',
-        logo: 'logo.png',
-        bankId: 'bank2',
-        requestType: 'CC',
-        paymentCode: 'CC',
-        channelProperties: {},
-        rules: [],
-        bank: null
-      }
+      { id: 'pm1', name: 'Bank Transfer', type: 'Virtual Account' } as any,
+      { id: 'pm2', name: 'Credit Card', type: 'Credit Card' } as any
     ],
     adminFee: 5,
     tax: 10,
-    feeThresholds: [],
+    feeThresholds: [{ platformFee: '3' }] as any,
     eventAssets: [],
     is_requested: false,
     rejectedReason: null,
@@ -88,169 +77,158 @@ describe('EventsSubmissionsInfo', () => {
     group_tickets: []
   };
 
-  describe('Basic Rendering', () => {
-    it('should render all event fields', () => {
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={mockEventDetail}
-        />
-      );
+  it('renders event fields, formatting branches, and payment link combinations', () => {
+    const { rerender } = render(
+      <EventsSubmissionsInfo eventDetail={mockEventDetail} />
+    );
 
-      expect(screen.getByText('Event Name*')).toBeInTheDocument();
-      expect(screen.getByText('Test Event')).toBeInTheDocument();
-      expect(screen.getByText('Event Type*')).toBeInTheDocument();
-      expect(screen.getByText('Concert')).toBeInTheDocument();
-      expect(screen.getByText('Address*')).toBeInTheDocument();
-      expect(screen.getByText('Test Address')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Test Event')).toBeInTheDocument();
+    expect(screen.getByText('Bank Transfer / Credit Card')).toBeInTheDocument();
+    expect(screen.getByText('5%')).toBeInTheDocument();
+    expect(screen.getByText('No')).toBeInTheDocument();
+    expect(screen.queryByText('Platform Fee')).not.toBeInTheDocument();
 
-    it('should render event description', () => {
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={mockEventDetail}
-        />
-      );
+    // Payment link only -> All Payment Methods; empty paymentMethods -> ''; adminFee >= 100 -> Rp
+    rerender(
+      <EventsSubmissionsInfo
+        eventDetail={{
+          ...mockEventDetail,
+          adminFee: 5000,
+          login_required: true,
+          websiteUrl: '',
+          city: null as any,
+          paymentMethods: [
+            { id: 'pm_link', name: 'Payment Link', type: 'payment_link' } as any
+          ]
+        }}
+      />
+    );
+    expect(
+      screen.getByText('Payment Link (All Payment Methods)')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Rp 5000')).toBeInTheDocument();
+    expect(screen.getByText('Yes')).toBeInTheDocument();
 
-      expect(screen.getByText('Event Description*')).toBeInTheDocument();
-      expect(screen.getByText('Test description')).toBeInTheDocument();
-    });
-
-    it('should render payment methods', () => {
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={mockEventDetail}
-        />
-      );
-
-      expect(screen.getByText('Payment Method*')).toBeInTheDocument();
-      expect(screen.getByText(/Bank Transfer|Credit Card/i)).toBeInTheDocument();
-    });
+    // Payment link + sub methods + rejection reason
+    rerender(
+      <EventsSubmissionsInfo
+        eventDetail={{
+          ...mockEventDetail,
+          rejectedReason: 'Invalid address details',
+          rejectedFields: ['address', 'start_date'],
+          paymentMethods: [
+            {
+              id: 'pm_link',
+              name: 'Payment Link',
+              type: 'payment_link'
+            } as any,
+            { id: 'pm1', name: 'BCA VA', type: 'va' } as any
+          ]
+        }}
+      />
+    );
+    expect(screen.getByText('Payment Link (BCA VA)')).toBeInTheDocument();
+    expect(screen.getByText('Rejection Reason:')).toBeInTheDocument();
+    expect(screen.getByText('Invalid address details')).toBeInTheDocument();
   });
 
-  describe('Field Changes Display', () => {
-    it('should display new value when field has changes', () => {
-      const eventUpdateRequest = {
-        id: '1',
-        eventId: '1',
-        name: 'Updated Event Name',
-        description: 'Updated description',
-        status: 'pending',
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01',
-        eventDetailStatus: 'pending',
-        ticketStatus: 'pending',
-        assetStatus: 'pending',
-        rejectedReason: null,
-        rejectedFields: null,
-        eventType: 'concert',
-        address: 'Test Address',
-        mapLocationUrl: 'https://maps.google.com',
-        metaUrl: 'test-event'
-      } as any;
-
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={mockEventDetail}
-          eventUpdateRequest={eventUpdateRequest}
-        />
-      );
-
-      // Should show the updated value with arrow indicator (→)
-      // The new value is displayed with an arrow prefix
-      const updatedValue = screen.queryByText(/→.*Updated Event Name/i) || 
-                          screen.queryByText(/Updated Event Name/i);
-      expect(updatedValue).toBeInTheDocument();
-    });
-  });
-
-  describe('Reject Mode', () => {
-    it('should render checkboxes in reject mode', () => {
-      const mockOnToggleField = jest.fn();
-
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={mockEventDetail}
-          rejectMode={true}
-          selectedFields={[]}
-          onToggleField={mockOnToggleField}
-        />
-      );
-
-      // Checkboxes should be rendered for fields that can be rejected
-      const checkboxes = screen.getAllByRole('checkbox');
-      expect(checkboxes.length).toBeGreaterThan(0);
-    });
-
-    it('should call onToggleField when checkbox is clicked', () => {
-      const mockOnToggleField = jest.fn();
-
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={mockEventDetail}
-          rejectMode={true}
-          selectedFields={[]}
-          onToggleField={mockOnToggleField}
-        />
-      );
-
-      const checkboxes = screen.getAllByRole('checkbox');
-      if (checkboxes.length > 0) {
-        fireEvent.click(checkboxes[0]);
-        expect(mockOnToggleField).toHaveBeenCalled();
+  it('displays Admin/BD Platform Fee and all eventUpdateRequest diffs', () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 'admin-1',
+        name: 'Admin',
+        role: { name: UserRole.ADMIN }
       }
     });
 
-    it('should not show checkboxes for admin_fee and tax when eventStatus is on_going', () => {
-      const ongoingEvent: EventDetail = {
-        ...mockEventDetail,
-        eventStatus: 'on_going'
-      };
+    const eventUpdateRequest = {
+      id: 'req-1',
+      eventId: '1',
+      name: 'Updated Event Name',
+      eventType: 'Workshop',
+      description: 'Updated description',
+      address: 'New Street 12',
+      mapLocationUrl: 'https://maps.google.com/new',
+      websiteUrl: 'https://updated.com',
+      termAndConditions: 'Updated Terms',
+      startDate: '2025-02-15T10:00:00Z',
+      endDate: '2025-02-16T22:00:00Z',
+      cityId: 'city2',
+      city: { id: 'city2', name: 'Bandung' },
+      paymentMethodIds: ['pm_link'],
+      adminFee: 7500,
+      tax: 15,
+      feeThresholds: [{ platformFee: '2500' }],
+      login_required: true,
+      rejectedReason: 'Update rejected for date & payment',
+      rejectedFields: ['name', 'city']
+    } as any;
 
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={ongoingEvent}
-          rejectMode={true}
-          selectedFields={[]}
-        />
-      );
+    const { rerender } = render(
+      <EventsSubmissionsInfo
+        eventDetail={{
+          ...mockEventDetail,
+          eventStatus: 'on_going',
+          rejectedFields: ['address'],
+          rejectedReason: 'Ignored EO reason'
+        }}
+        eventUpdateRequest={eventUpdateRequest}
+      />
+    );
 
-      // Admin fee and tax should not have checkboxes for on_going events
-      expect(screen.getByText('Admin Fee*')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Platform Fee')).toBeInTheDocument();
+    expect(screen.getByText('3%')).toBeInTheDocument();
+    expect(screen.getByText('→ Updated Event Name')).toBeInTheDocument();
+    expect(screen.getByText('→ Bandung')).toBeInTheDocument();
+    expect(
+      screen.getByText('→ Payment Link (All Payment Methods)')
+    ).toBeInTheDocument();
+    expect(screen.getByText(/→ Rp 2,500/)).toBeInTheDocument();
+    expect(screen.getByText('→ Yes')).toBeInTheDocument();
+    expect(
+      screen.getByText('Update rejected for date & payment')
+    ).toBeInTheDocument();
+
+    // Check % platform fee + missing feeThresholds
+    rerender(
+      <EventsSubmissionsInfo
+        eventDetail={{
+          ...mockEventDetail,
+          eventStatus: 'approved',
+          feeThresholds: [],
+          login_required: true
+        }}
+        eventUpdateRequest={{
+          ...eventUpdateRequest,
+          feeThresholds: [{ platformFee: '10' }],
+          login_required: false,
+          rejectedFields: null
+        }}
+      />
+    );
+    expect(screen.getByText('→ 10%')).toBeInTheDocument();
+    expect(screen.getByText('→ No')).toBeInTheDocument();
   });
 
-  describe('Empty Data Handling', () => {
-    it('should display "-" for missing city name', () => {
-      const eventWithoutCity: EventDetail = {
-        ...mockEventDetail,
-        city: null as any
-      };
+  it('handles rejectMode checkboxes including checked state and array keys', () => {
+    const mockOnToggleField = jest.fn();
 
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={eventWithoutCity}
-        />
-      );
+    render(
+      <EventsSubmissionsInfo
+        eventDetail={mockEventDetail}
+        rejectMode={true}
+        selectedFields={['name', 'start_date']}
+        onToggleField={mockOnToggleField}
+      />
+    );
 
-      expect(screen.getByText('City*')).toBeInTheDocument();
-      expect(screen.getByText('-')).toBeInTheDocument();
-    });
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes[0]).toBeChecked();
+    fireEvent.click(checkboxes[0]);
+    expect(mockOnToggleField).toHaveBeenCalledWith('name', false);
 
-    it('should display "-" for missing website URL', () => {
-      const eventWithoutWebsite: EventDetail = {
-        ...mockEventDetail,
-        websiteUrl: ''
-      };
-
-      render(
-        <EventsSubmissionsInfo
-          eventDetail={eventWithoutWebsite}
-        />
-      );
-
-      expect(screen.getByText('Website URL*')).toBeInTheDocument();
-      expect(screen.getByText('-')).toBeInTheDocument();
-    });
+    // Toggle unchecked checkbox
+    fireEvent.click(checkboxes[1]);
+    expect(mockOnToggleField).toHaveBeenCalledWith('event_type', true);
   });
 });
-

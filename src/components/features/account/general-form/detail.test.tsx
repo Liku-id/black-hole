@@ -74,6 +74,19 @@ describe('OrganizerDetailInfo', () => {
 
       expect(screen.getByText('Phone Number*')).toBeInTheDocument();
     });
+
+    it('should display default +62 when phoneNumber is undefined or empty', () => {
+      render(
+        <OrganizerDetailInfo
+          organizerDetail={{
+            ...mockOrganizerDetail,
+            phoneNumber: undefined as any
+          }}
+        />
+      );
+
+      expect(screen.getByText('+62')).toBeInTheDocument();
+    });
   });
 
   describe('Social Media Display', () => {
@@ -81,7 +94,9 @@ describe('OrganizerDetailInfo', () => {
       render(<OrganizerDetailInfo organizerDetail={mockOrganizerDetail} />);
 
       expect(screen.getByText('Social Media*')).toBeInTheDocument();
-      expect(screen.getByText('https://instagram.com/test')).toBeInTheDocument();
+      expect(
+        screen.getByText('https://instagram.com/test')
+      ).toBeInTheDocument();
       expect(screen.getByText('https://tiktok.com/@test')).toBeInTheDocument();
       expect(screen.getByText('https://twitter.com/test')).toBeInTheDocument();
     });
@@ -92,9 +107,7 @@ describe('OrganizerDetailInfo', () => {
         socialMedia: []
       };
 
-      render(
-        <OrganizerDetailInfo organizerDetail={organizerWithoutSocial} />
-      );
+      render(<OrganizerDetailInfo organizerDetail={organizerWithoutSocial} />);
 
       expect(screen.getByText('No social media links')).toBeInTheDocument();
     });
@@ -105,9 +118,7 @@ describe('OrganizerDetailInfo', () => {
         socialMedia: undefined as any
       };
 
-      render(
-        <OrganizerDetailInfo organizerDetail={organizerWithoutSocial} />
-      );
+      render(<OrganizerDetailInfo organizerDetail={organizerWithoutSocial} />);
 
       expect(screen.getByText('No social media links')).toBeInTheDocument();
     });
@@ -131,7 +142,9 @@ describe('OrganizerDetailInfo', () => {
         <OrganizerDetailInfo organizerDetail={organizerWithoutPictName} />
       );
 
-      expect(screen.getByText('No profile picture uploaded')).toBeInTheDocument();
+      expect(
+        screen.getByText('No profile picture uploaded')
+      ).toBeInTheDocument();
     });
 
     it('should render profile picture image when profilePicture is provided', () => {
@@ -151,9 +164,7 @@ describe('OrganizerDetailInfo', () => {
         profilePicture: undefined
       };
 
-      render(
-        <OrganizerDetailInfo organizerDetail={organizerWithoutPicture} />
-      );
+      render(<OrganizerDetailInfo organizerDetail={organizerWithoutPicture} />);
 
       const profileImages = screen.queryAllByAltText('Profile Picture');
       expect(profileImages.length).toBe(0);
@@ -177,4 +188,3 @@ describe('OrganizerDetailInfo', () => {
     });
   });
 });
-

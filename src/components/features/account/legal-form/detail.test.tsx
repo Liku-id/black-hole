@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { EventOrganizer } from '@/types/organizer';
 
@@ -157,9 +157,7 @@ describe('LegalFormDetailInfo', () => {
         npwp: ''
       };
 
-      render(
-        <LegalFormDetailInfo organizerDetail={organizerWithoutNpwp} />
-      );
+      render(<LegalFormDetailInfo organizerDetail={organizerWithoutNpwp} />);
 
       expect(screen.getByText('-')).toBeInTheDocument();
     });
@@ -184,7 +182,9 @@ describe('LegalFormDetailInfo', () => {
 
       render(<LegalFormDetailInfo organizerDetail={organizerWithoutKtp} />);
 
-      expect(screen.getByText(/No ktp image\* image available/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/No ktp image\* image available/i)
+      ).toBeInTheDocument();
     });
 
     it('should display "No npwp image* image available" when NPWP photo is missing', () => {
@@ -221,6 +221,45 @@ describe('LegalFormDetailInfo', () => {
       expect(npwpImage).toBeInTheDocument();
       expect(npwpImage).toHaveAttribute('src', 'https://example.com/npwp.jpg');
     });
+
+    it('should display fallback text when document image fails to load', () => {
+      render(
+        <LegalFormDetailInfo organizerDetail={mockEventOrganizerIndividual} />
+      );
+
+      const ktpImage = screen.getByAltText('KTP Document');
+      fireEvent.error(ktpImage);
+
+      expect(screen.getByText('Image not available')).toBeInTheDocument();
+      expect(ktpImage).toHaveStyle('display: none');
+    });
+
+    it('should display "-" for missing individual and institutional optional fields', () => {
+      const { rerender } = render(
+        <LegalFormDetailInfo
+          organizerDetail={{
+            ...mockEventOrganizerIndividual,
+            pic_name: '',
+            ktp_address: '',
+            pic_title: ''
+          }}
+        />
+      );
+
+      expect(screen.getAllByText('-').length).toBeGreaterThanOrEqual(3);
+
+      rerender(
+        <LegalFormDetailInfo
+          organizerDetail={{
+            ...mockEventOrganizerInstitutional,
+            npwp: '',
+            npwp_address: '',
+            full_name: ''
+          }}
+        />
+      );
+
+      expect(screen.getAllByText('-').length).toBe(3);
+    });
   });
 });
-

@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import { SearchField } from './index';
 
@@ -10,14 +9,14 @@ jest.mock('@mui/material', () => {
     ...actual,
     Autocomplete: (props: any) => (
       <div data-testid="autocomplete">
-         <input 
-            onChange={(e) => {
-                 const val = e.target.value;
-                 const option = props.options.find((o:any) => o.label === val);
-                 props.onChange(null, option || null);
-            }} 
-            placeholder={props.placeholder}
-         />
+        <input
+          onChange={(e) => {
+            const val = e.target.value;
+            const option = props.options.find((o: any) => o.label === val);
+            props.onChange(null, option || null);
+          }}
+          placeholder={props.placeholder}
+        />
       </div>
     )
   };
@@ -28,12 +27,12 @@ describe('SearchField', () => {
 
   it('renders correctly', () => {
     render(
-       <SearchField
-         eventOptions={options}
-         selectedEvent=""
-         onEventChange={() => {}}
-         onScanTicket={() => {}}
-       />
+      <SearchField
+        eventOptions={options}
+        selectedEvent=""
+        onEventChange={() => {}}
+        onScanTicket={() => {}}
+      />
     );
     expect(screen.getByText('Select Event')).toBeInTheDocument();
     expect(screen.getByText('Scan Ticket')).toBeInTheDocument();
@@ -43,12 +42,12 @@ describe('SearchField', () => {
   it('calls onScanTicket', () => {
     const handleScan = jest.fn();
     render(
-       <SearchField
-         eventOptions={options}
-         selectedEvent=""
-         onEventChange={() => {}}
-         onScanTicket={handleScan}
-       />
+      <SearchField
+        eventOptions={options}
+        selectedEvent=""
+        onEventChange={() => {}}
+        onScanTicket={handleScan}
+      />
     );
     fireEvent.click(screen.getByText('Scan Ticket'));
     expect(handleScan).toHaveBeenCalled();

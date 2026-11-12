@@ -6,29 +6,31 @@ import { GroupTicketTable } from './index';
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: any) => <img {...props} />
 }));
 
 // Mock utils
 jest.mock('@/utils', () => ({
   formatPrice: (price: number) => `Rp ${price}`,
   dateUtils: {
-    formatDateTimeWIB: (date: string) => date ? `Formatted ${date}` : '-',
-  },
+    formatDateTimeWIB: (date: string) => (date ? `Formatted ${date}` : '-')
+  }
 }));
 
 // Mock StatusBadge
 jest.mock('../../../status-badge', () => ({
-  StatusBadge: ({ displayName }: any) => <div data-testid="status-badge">{displayName}</div>,
+  StatusBadge: ({ displayName }: any) => (
+    <div data-testid="status-badge">{displayName}</div>
+  )
 }));
 
 describe('GroupTicketTable', () => {
   const mockOnDelete = jest.fn();
   const mockOnEdit = jest.fn();
-  
+
   const mockTicketTypes = [
     { id: 't1', name: 'VIP' },
-    { id: 't2', name: 'Regular' },
+    { id: 't2', name: 'Regular' }
   ];
 
   const mockTickets = [
@@ -43,7 +45,7 @@ describe('GroupTicketTable', () => {
       maxOrderQuantity: 2,
       salesStartDate: '2023-01-01',
       salesEndDate: '2023-01-02',
-      status: 'approved',
+      status: 'approved'
     },
     {
       id: '2',
@@ -56,8 +58,8 @@ describe('GroupTicketTable', () => {
       maxOrderQuantity: 4,
       salesStartDate: '2023-02-01',
       salesEndDate: '2023-02-02',
-      status: 'pending',
-    },
+      status: 'pending'
+    }
   ];
 
   const defaultProps = {
@@ -65,7 +67,7 @@ describe('GroupTicketTable', () => {
     eventStatus: 'draft',
     ticketTypes: mockTicketTypes as any,
     onDelete: mockOnDelete,
-    onEdit: mockOnEdit,
+    onEdit: mockOnEdit
   };
 
   beforeEach(() => {
@@ -74,7 +76,7 @@ describe('GroupTicketTable', () => {
 
   it('renders table headers correctly', () => {
     render(<GroupTicketTable {...defaultProps} />);
-    
+
     expect(screen.getByText('No.')).toBeInTheDocument();
     expect(screen.getByText('Ticket Type')).toBeInTheDocument();
     expect(screen.getByText('G. Ticket Name')).toBeInTheDocument();
@@ -89,14 +91,16 @@ describe('GroupTicketTable', () => {
 
   it('renders rows data correctly', () => {
     render(<GroupTicketTable {...defaultProps} />);
-    
+
     // Row 1
     expect(screen.getAllByText('1.').length).toBeGreaterThan(0);
     expect(screen.getAllByText('VIP').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Group VIP').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Rp 100000').length).toBeGreaterThan(0);
     expect(screen.getAllByText('5 Ticket').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Formatted 2023-01-01').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Formatted 2023-01-01').length).toBeGreaterThan(
+      0
+    );
     expect(screen.getAllByText('approved').length).toBeGreaterThan(0);
 
     expect(screen.getAllByText('2.').length).toBeGreaterThan(0);
@@ -108,21 +112,21 @@ describe('GroupTicketTable', () => {
 
   it('shows empty state when no tickets', () => {
     render(<GroupTicketTable {...defaultProps} groupTickets={[]} />);
-    
+
     expect(screen.getAllByText(/No tickets found/i).length).toBeGreaterThan(0);
   });
 
   it('opens menu and calls actions', async () => {
     render(<GroupTicketTable {...defaultProps} />);
-    
+
     // Click action button for first row
     const actionButtons = screen.getAllByAltText('Actions');
     await userEvent.click(actionButtons[0].closest('button')!);
-    
+
     // Check menu items
     const editMenu = screen.getByText('Edit');
     const deleteMenu = screen.getByText('Delete');
-    
+
     expect(editMenu).toBeInTheDocument();
     expect(deleteMenu).toBeInTheDocument();
 
@@ -140,18 +144,11 @@ describe('GroupTicketTable', () => {
   it('hides actions for approved tickets in ongoing event', () => {
     // Override eventStatus to on_going
     render(<GroupTicketTable {...defaultProps} eventStatus="on_going" />);
-    
+
     // First ticket is approved, second is pending
     // Should see action button for pending, perhaps not for approved?
     // Logic: if (eventStatus === 'approved' || eventStatus === 'on_going') && ticket.status === 'approved' -> return false
-    
-    const actionButtons = screen.getAllByRole('button');
-    // We expect only 1 action button for the pending ticket (2nd row)
-    // Wait, the component renders "-" text if no action.
-    
-    // The second row corresponds to the pending ticket, which should have actions.
-    // The first row corresponds to the approved ticket, which should have NO actions ("-").
-    
+
     expect(screen.getAllByText('-').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByAltText('Actions').length).toBeGreaterThanOrEqual(1);
   });

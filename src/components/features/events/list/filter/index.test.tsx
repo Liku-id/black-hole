@@ -1,15 +1,14 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { useCities } from '@/hooks/list/useCities';
 
 import EventsFilter from './index';
 
-// Mock hooks
 jest.mock('@/hooks/list/useCities', () => ({
   useCities: jest.fn()
 }));
 
-const mockUseCities = useCities as jest.MockedFunction<typeof useCities>;
+const mockUseCities = useCities as jest.Mock;
 
 describe('EventsFilter', () => {
   const mockOnFiltersChange = jest.fn();
@@ -37,172 +36,68 @@ describe('EventsFilter', () => {
     });
   });
 
-  describe('Rendering', () => {
-    it('should render filter title', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+  it('renders fields and updates name, cityId, startDate, and endDate filters', () => {
+    render(
+      <EventsFilter
+        filters={{
+          ...mockFilters,
+          name: 'Initial',
+          startDate: '2025-05-01T10:00:00.000Z',
+          endDate: '2025-05-02T10:00:00.000Z'
+        }}
+        onFiltersChange={mockOnFiltersChange}
+      />
+    );
 
-      expect(screen.getByText('Filter Events')).toBeInTheDocument();
+    expect(screen.getByText('Filter Events')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter event name...')).toHaveValue(
+      'Initial'
+    );
+
+    // Search change
+    fireEvent.change(screen.getByPlaceholderText('Enter event name...'), {
+      target: { value: 'Music' }
     });
+    expect(mockOnFiltersChange).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Music', page: 1 })
+    );
 
-    it('should render search field', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+    // City select change (MUI Select renders button/combobox)
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByRole('option', { name: 'Bandung' }));
+    expect(mockOnFiltersChange).toHaveBeenCalledWith(
+      expect.objectContaining({ cityId: 'city2', page: 1 })
+    );
 
-      expect(screen.getByLabelText('Search Event Name')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter event name...')).toBeInTheDocument();
+    // Start & end date change (valid & cleared)
+    fireEvent.change(screen.getByLabelText('Start Date'), {
+      target: { value: '2025-06-01T12:00' }
     });
+    expect(mockOnFiltersChange).toHaveBeenCalledWith(
+      expect.objectContaining({ startDate: expect.any(String), page: 1 })
+    );
 
-    it('should render city select', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      // Material-UI Select uses InputLabel - find by text content
-      const cityLabels = screen.queryAllByText('City');
-      expect(cityLabels.length).toBeGreaterThan(0);
+    fireEvent.change(screen.getByLabelText('End Date'), {
+      target: { value: '' }
     });
-
-    it('should render start date and end date fields', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      expect(screen.getByLabelText('Start Date')).toBeInTheDocument();
-      expect(screen.getByLabelText('End Date')).toBeInTheDocument();
-    });
+    expect(mockOnFiltersChange).toHaveBeenCalledWith(
+      expect.objectContaining({ endDate: '', page: 1 })
+    );
   });
 
-  describe('City Selection', () => {
-    it('should render city filter field', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+  it('disables city select while cities are loading', () => {
+    mockUseCities.mockReturnValue({ cities: [], loading: true });
 
-      // Verify city label exists (may appear multiple times)
-      const cityLabels = screen.queryAllByText('City');
-      expect(cityLabels.length).toBeGreaterThan(0);
-    });
+    render(
+      <EventsFilter
+        filters={mockFilters}
+        onFiltersChange={mockOnFiltersChange}
+      />
+    );
 
-    it('should handle city selection', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      // Component should render
-      expect(screen.getByText('Filter Events')).toBeInTheDocument();
-      const cityLabels = screen.queryAllByText('City');
-      expect(cityLabels.length).toBeGreaterThan(0);
-    });
-
-    it('should show loading state when cities are loading', () => {
-      mockUseCities.mockReturnValue({
-        cities: [],
-        loading: true
-      });
-
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      // Just verify component rendered
-      expect(screen.getByText('Filter Events')).toBeInTheDocument();
-    });
-  });
-
-  describe('Search Functionality', () => {
-    it('should call onFiltersChange when search value changes', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      const searchField = screen.getByPlaceholderText('Enter event name...');
-      fireEvent.change(searchField, { target: { value: 'Test Event' } });
-
-      expect(mockOnFiltersChange).toHaveBeenCalledWith({
-        ...mockFilters,
-        name: 'Test Event',
-        page: 1
-      });
-    });
-
-    it('should display current search value', () => {
-      render(
-        <EventsFilter
-          filters={{ ...mockFilters, name: 'Existing Search' }}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      const searchField = screen.getByPlaceholderText('Enter event name...');
-      expect(searchField).toHaveValue('Existing Search');
-    });
-  });
-
-  describe('Date Filtering', () => {
-    it('should call onFiltersChange when start date changes', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      const startDateField = screen.getByLabelText('Start Date');
-      fireEvent.change(startDateField, {
-        target: { value: '2024-01-15T10:00' }
-      });
-
-      expect(mockOnFiltersChange).toHaveBeenCalled();
-      const callArgs = mockOnFiltersChange.mock.calls[0][0];
-      expect(callArgs.startDate).toBeTruthy();
-      expect(callArgs.page).toBe(1);
-    });
-
-    it('should call onFiltersChange when end date changes', () => {
-      render(
-        <EventsFilter
-          filters={mockFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
-
-      const endDateField = screen.getByLabelText('End Date');
-      fireEvent.change(endDateField, {
-        target: { value: '2024-01-20T18:00' }
-      });
-
-      expect(mockOnFiltersChange).toHaveBeenCalled();
-      const callArgs = mockOnFiltersChange.mock.calls[0][0];
-      expect(callArgs.endDate).toBeTruthy();
-      expect(callArgs.page).toBe(1);
-    });
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
   });
 });
-

@@ -11,7 +11,13 @@ jest.mock('@/hooks', () => ({
 
 // Mock the AnalyticCard component
 jest.mock('./card', () => {
-  return function MockAnalyticCard({ title, value }: { title: string; value: string }) {
+  return function MockAnalyticCard({
+    title,
+    value
+  }: {
+    title: string;
+    value: string;
+  }) {
     return (
       <div data-testid="analytic-card">
         <div>{title}</div>
@@ -21,10 +27,10 @@ jest.mock('./card', () => {
   };
 });
 
-
-const mockUseEventOrganizerSummary = useEventOrganizerSummary as jest.MockedFunction<
-  typeof useEventOrganizerSummary
->;
+const mockUseEventOrganizerSummary =
+  useEventOrganizerSummary as jest.MockedFunction<
+    typeof useEventOrganizerSummary
+  >;
 
 describe('FinanceAnalytic', () => {
   beforeEach(() => {
@@ -62,7 +68,7 @@ describe('FinanceAnalytic', () => {
 
       expect(screen.getByText('Total Balance')).toBeInTheDocument();
       expect(screen.getByText('Total Available Balance')).toBeInTheDocument();
-      expect(screen.getByText('Total Platform Fee')).toBeInTheDocument();
+      expect(screen.getByText('Total Admin Fee')).toBeInTheDocument();
       expect(screen.getByText('Total Amount Pending')).toBeInTheDocument();
 
       // Check formatted values

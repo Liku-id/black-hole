@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import { CustomAccordion } from './index';
 
@@ -22,7 +21,7 @@ describe('CustomAccordion', () => {
     expect(screen.getByText('Visible Content')).toBeVisible();
   });
 
-  it('toggles content on click', () => {
+  it('toggles content on click in uncontrolled mode', () => {
     render(
       <CustomAccordion title="Test Accordion">
         <div>Content</div>
@@ -31,11 +30,40 @@ describe('CustomAccordion', () => {
     const summary = screen.getByRole('button');
     fireEvent.click(summary);
     expect(screen.getByText('Content')).toBeVisible();
-    
-    // Toggle back
+
     fireEvent.click(summary);
-    // In MUI Accordion, content is usually still in DOM but hidden or collapsed.
-    // We check if the button aria-expanded changes.
     expect(summary).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('supports controlled mode and disabled state', () => {
+    const handleChange = jest.fn();
+    const { rerender } = render(
+      <CustomAccordion
+        title="Controlled"
+        expanded={false}
+        onChange={handleChange}
+      >
+        <div>Body</div>
+      </CustomAccordion>
+    );
+
+    const summary = screen.getByRole('button');
+    fireEvent.click(summary);
+    expect(handleChange).toHaveBeenCalledWith(expect.anything(), true);
+
+    rerender(
+      <CustomAccordion
+        title="Controlled"
+        expanded={true}
+        disabled={true}
+        onChange={handleChange}
+      >
+        <div>Body</div>
+      </CustomAccordion>
+    );
+
+    handleChange.mockClear();
+    fireEvent.click(summary);
+    expect(handleChange).not.toHaveBeenCalled();
   });
 });

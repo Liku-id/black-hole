@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { assetsService } from '@/services';
 import { EventOrganizer } from '@/types/organizer';
@@ -63,6 +63,10 @@ describe('OrganizerEditForm', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('Form Rendering', () => {
     it('should render all form fields', async () => {
       render(
@@ -100,9 +104,7 @@ describe('OrganizerEditForm', () => {
       );
 
       await waitFor(() => {
-        expect(
-          screen.getByPlaceholderText(/tiktok/i)
-        ).toBeInTheDocument();
+        expect(screen.getByPlaceholderText(/tiktok/i)).toBeInTheDocument();
       });
       expect(screen.getByPlaceholderText(/instagram/i)).toBeInTheDocument();
       expect(screen.getByPlaceholderText(/twitter/i)).toBeInTheDocument();
@@ -232,7 +234,7 @@ describe('OrganizerEditForm', () => {
     });
   });
 
-  describe('Error Handling', () => {
+  describe('Error Handling & Extended Interactions', () => {
     it('should display error message when error is provided', () => {
       render(
         <OrganizerEditForm
@@ -242,8 +244,190 @@ describe('OrganizerEditForm', () => {
         />
       );
 
-      expect(screen.getByText('Failed to update organizer')).toBeInTheDocument();
+      expect(
+        screen.getByText('Failed to update organizer')
+      ).toBeInTheDocument();
+    });
+
+    it('handles invalid JSON in social_media_url and missing organizer fields cleanly', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      render(
+        <OrganizerEditForm
+          eventOrganizer={{
+            ...mockEventOrganizer,
+            name: '',
+            email: '',
+            phone_number: '',
+            address: '',
+            description: '',
+            social_media_url: 'invalid-json{',
+            asset: null
+          }}
+          onSubmit={mockOnSubmit}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('max 2 MB • File type: .jpeg / .jpg / .png')
+        ).toBeInTheDocument();
+      });
+      expect(console.warn).toHaveBeenCalled();
+    });
+
+    it('deletes tiktok, instagram, and twitter social links and submits empty socialMediaObj', async () => {
+      const { container } = render(
+        <OrganizerEditForm
+          eventOrganizer={mockEventOrganizer}
+          onSubmit={mockOnSubmit}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          container.querySelector('#tiktok_delete_icon')
+        ).toBeInTheDocument();
+      });
+
+      fireEvent.click(container.querySelector('#tiktok_delete_icon')!);
+      fireEvent.click(container.querySelector('#instagram_delete_icon')!);
+      fireEvent.click(container.querySelector('#x_delete_icon')!);
+
+      await waitFor(() => {
+        expect(
+          container.querySelector('#tiktok_delete_icon')
+        ).not.toBeInTheDocument();
+        expect(
+          container.querySelector('#instagram_delete_icon')
+        ).not.toBeInTheDocument();
+        expect(
+          container.querySelector('#x_delete_icon')
+        ).not.toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('Save Data'));
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            social_media_url: '{}'
+          })
+        );
+      });
+    });
+
+    it('removes existing profile picture, validates >2MB file, uploads new file, and submits new asset_id', async () => {
+      const { container } = render(
+        <OrganizerEditForm
+          eventOrganizer={mockEventOrganizer}
+          onSubmit={mockOnSubmit}
+        />
+      );
+
+      // Initially shows filename from key
+      expect(await screen.findByText('profile-image.jpg')).toBeInTheDocument();
+      expect(screen.getByAltText('Profile preview')).toBeInTheDocument();
+
+      // Remove existing image
+      fireEvent.click(container.querySelector('#clear_icon')!);
+
+      expect(
+        await screen.findByText('max 2 MB • File type: .jpeg / .jpg / .png')
+      ).toBeInTheDocument();
+      expect(screen.queryByAltText('Profile preview')).not.toBeInTheDocument();
+
+      // Try >2MB file
+      const largeFile = new File(['large'], 'huge.png', {
+        type: 'image/png'
+      });
+      Object.defineProperty(largeFile, 'size', { value: 3 * 1024 * 1024 });
+      const fileInput = container.querySelector(
+        '#profile-picture-upload'
+      ) as HTMLInputElement;
+
+      fireEvent.change(fileInput, { target: { files: [largeFile] } });
+      expect(
+        await screen.findByText('File size must be less than 2MB')
+      ).toBeInTheDocument();
+
+      // Upload valid <=2MB file
+      const validFile = new File(['hello'], 'new-avatar.png', {
+        type: 'image/png'
+      });
+      (assetsService.uploadAsset as jest.Mock).mockResolvedValueOnce({
+        body: { asset: { id: 'new-asset-99' } }
+      });
+
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      expect(await screen.findByText('new-avatar.png')).toBeInTheDocument();
+      expect(await screen.findByAltText('Profile preview')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('Save Data'));
+
+      await waitFor(() => {
+        expect(assetsService.uploadAsset).toHaveBeenCalledWith(validFile);
+        expect(mockOnSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            asset_id: 'new-asset-99'
+          })
+        );
+      });
+    });
+
+    it('shows error when profile picture asset upload fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      (assetsService.uploadAsset as jest.Mock).mockRejectedValueOnce(
+        new Error('Upload failure')
+      );
+
+      const { container } = render(
+        <OrganizerEditForm
+          eventOrganizer={{ ...mockEventOrganizer, asset: null }}
+          onSubmit={mockOnSubmit}
+        />
+      );
+
+      const validFile = new File(['hello'], 'avatar.png', {
+        type: 'image/png'
+      });
+      const fileInput = container.querySelector(
+        '#profile-picture-upload'
+      ) as HTMLInputElement;
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      expect(await screen.findByText('avatar.png')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('Save Data'));
+
+      expect(
+        await screen.findByText('Failed to upload image. Please try again.')
+      ).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+
+    it('catches synchronous error thrown by onSubmit during form submit', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockOnSubmit.mockImplementationOnce(() => {
+        throw new Error('Sync submit error');
+      });
+
+      render(
+        <OrganizerEditForm
+          eventOrganizer={mockEventOrganizer}
+          onSubmit={mockOnSubmit}
+        />
+      );
+
+      fireEvent.click(screen.getByText('Save Data'));
+
+      await waitFor(() => {
+        expect(console.error).toHaveBeenCalledWith(
+          'Error in form submission:',
+          expect.any(Error)
+        );
+      });
     });
   });
 });
-

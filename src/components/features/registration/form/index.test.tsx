@@ -1,27 +1,26 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+import { registerService } from '@/services/auth/register';
 
 import RegisterForm from './index';
 
-// Mock Dependencies
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: any) => <img {...props} />
 }));
 
 const mockShowError = jest.fn();
 jest.mock('@/contexts/ToastContext', () => ({
   useToast: () => ({
-    showError: mockShowError,
-  }),
+    showError: mockShowError
+  })
 }));
 
-const mockCheckAvailability = jest.fn();
 jest.mock('@/services/auth/register', () => ({
   registerService: {
-    checkAvailability: (...args: any) => mockCheckAvailability(...args),
-  },
+    checkAvailability: jest.fn()
+  }
 }));
 
 jest.mock('@/utils/validationUtils', () => ({
@@ -30,45 +29,71 @@ jest.mock('@/utils/validationUtils', () => ({
     emailValidator: () => true,
     phoneNumberValidator: () => true,
     passwordValidator: () => true,
-    confirmPasswordValidator: (val: string, pass: string) => val === pass || 'Passwords do not match',
-  },
+    confirmPasswordValidator: (val: string, pass: string) =>
+      val === pass || 'Passwords do not match'
+  }
 }));
 
 jest.mock('@/components/common', () => {
-    const { useFormContext } = require('react-hook-form');
-    return {
-        Button: (props: any) => <button type={props.type} onClick={props.onClick} disabled={props.disabled}>{props.children}</button>,
-        TextField: ({ name, label, placeholder, rules, type }: any) => {
-            const { register, formState: { errors } } = useFormContext();
-            return (
-                <div>
-                    <label htmlFor={name}>{label}</label>
-                    <input id={name} type={type} placeholder={placeholder} {...register(name, rules)} />
-                    {errors[name] && <span>{errors[name].message}</span>}
-                </div>
-            );
-        },
-        PhoneField: ({ name, label, placeholder, rules, type }: any) => {
-            const { register, formState: { errors } } = useFormContext();
-            return (
-                <div>
-                    <label htmlFor={name}>{label}</label>
-                    <input id={name} type={type} placeholder={placeholder} {...register(name, rules)} />
-                    {errors[name] && <span>{errors[name].message}</span>}
-                </div>
-            );
-        },
-        H2: ({ children }: any) => <h2>{children}</h2>,
-        Body2: ({ children }: any) => <div>{children}</div>,
-        Caption: ({ children }: any) => <span>{children}</span>,
-    };
+  const { useFormContext } = require('react-hook-form');
+  return {
+    Button: (props: any) => (
+      <button
+        type={props.type}
+        onClick={props.onClick}
+        disabled={props.disabled}
+      >
+        {props.children}
+      </button>
+    ),
+    TextField: ({ name, label, placeholder, rules, type, InputProps }: any) => {
+      const {
+        register,
+        formState: { errors }
+      } = useFormContext();
+      return (
+        <div>
+          <label htmlFor={name}>{label}</label>
+          <input
+            id={name}
+            type={type}
+            placeholder={placeholder}
+            {...register(name, rules)}
+          />
+          {InputProps?.endAdornment}
+          {errors[name] && <span>{errors[name].message}</span>}
+        </div>
+      );
+    },
+    PhoneField: ({ name, label, placeholder, rules, type }: any) => {
+      const {
+        register,
+        formState: { errors }
+      } = useFormContext();
+      return (
+        <div>
+          <label htmlFor={name}>{label}</label>
+          <input
+            id={name}
+            type={type}
+            placeholder={placeholder}
+            {...register(name, rules)}
+          />
+          {errors[name] && <span>{errors[name].message}</span>}
+        </div>
+      );
+    },
+    H2: ({ children }: any) => <h2>{children}</h2>,
+    Body2: ({ children }: any) => <div>{children}</div>,
+    Caption: ({ children }: any) => <span>{children}</span>
+  };
 });
 
 const theme = createTheme();
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -76,9 +101,11 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: jest.fn(),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
+    dispatchEvent: jest.fn()
+  }))
 });
+
+const mockCheckAvailability = registerService.checkAvailability as jest.Mock;
 
 describe('RegisterForm', () => {
   const mockOnSubmit = jest.fn();
@@ -87,45 +114,44 @@ describe('RegisterForm', () => {
     jest.clearAllMocks();
   });
 
-  it('renders form fields', () => {
+  const fillValidForm = () => {
+    fireEvent.change(screen.getByLabelText(/Organizer Name/i), {
+      target: { value: 'Test Org' }
+    });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' }
+    });
+    fireEvent.change(screen.getByLabelText(/Phone Number/i), {
+      target: { value: '8123456789' }
+    });
+    fireEvent.change(screen.getByLabelText(/^Password$/i), {
+      target: { value: 'Password123' }
+    });
+    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+      target: { value: 'Password123' }
+    });
+  };
+
+  it('renders fields and toggles password and confirm password visibility', () => {
     render(
       <ThemeProvider theme={theme}>
         <RegisterForm onSubmit={mockOnSubmit} />
       </ThemeProvider>
     );
-    
-    expect(screen.getByLabelText(/Organizer Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Phone Number/i)).toBeInTheDocument(); // PhoneField might have different label structure, but 'Phone Number' text should be there
-    expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Confirm Password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+
+    const passInput = screen.getByLabelText(/^Password$/i);
+    const confirmInput = screen.getByLabelText(/Confirm Password/i);
+    expect(passInput).toHaveAttribute('type', 'password');
+    expect(confirmInput).toHaveAttribute('type', 'password');
+
+    const toggles = screen.getAllByAltText('Toggle password visibility');
+    fireEvent.click(toggles[0]);
+    fireEvent.click(toggles[1]);
+    expect(passInput).toHaveAttribute('type', 'text');
+    expect(confirmInput).toHaveAttribute('type', 'text');
   });
 
-  it('validates passwords match', async () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <RegisterForm onSubmit={mockOnSubmit} />
-      </ThemeProvider>
-    );
-    
-    // Fill form
-    await userEvent.type(screen.getByLabelText(/Organizer Name/i), 'Test Org');
-    await userEvent.type(screen.getByLabelText(/Email address/i), 'test@example.com');
-    // Phone input might need specific handling if it's a complex component.
-    // Assuming it has an input.
-    const phoneInput = screen.getByLabelText(/Phone Number/i);
-    await userEvent.type(phoneInput, '8123456789');
-
-    await userEvent.type(screen.getByLabelText(/^Password$/i), 'Password123');
-    await userEvent.type(screen.getByLabelText(/Confirm Password/i), 'PasswordMismatch');
-    
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    
-    expect(await screen.findByText('Passwords do not match')).toBeInTheDocument();
-  });
-
-  it('submits when availability check passes', async () => {
+  it('validates passwords match and submits when availability check passes', async () => {
     mockCheckAvailability.mockResolvedValue({ body: { isValid: true } });
 
     render(
@@ -133,45 +159,110 @@ describe('RegisterForm', () => {
         <RegisterForm onSubmit={mockOnSubmit} />
       </ThemeProvider>
     );
-    
-    await userEvent.type(screen.getByLabelText(/Organizer Name/i), 'Test Org');
-    await userEvent.type(screen.getByLabelText(/Email address/i), 'test@example.com');
-    await userEvent.type(screen.getByLabelText(/Phone Number/i), '8123456789');
-    await userEvent.type(screen.getByLabelText(/^Password$/i), 'Password123');
-    await userEvent.type(screen.getByLabelText(/Confirm Password/i), 'Password123');
-    
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    
+
+    fireEvent.change(screen.getByLabelText(/Organizer Name/i), {
+      target: { value: 'Test Org' }
+    });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' }
+    });
+    fireEvent.change(screen.getByLabelText(/Phone Number/i), {
+      target: { value: '8123456789' }
+    });
+    fireEvent.change(screen.getByLabelText(/^Password$/i), {
+      target: { value: 'Password123' }
+    });
+    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+      target: { value: 'Mismatch' }
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(
+      await screen.findByText('Passwords do not match')
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Confirm Password/i), {
+      target: { value: 'Password123' }
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
     await waitFor(() => {
-        expect(mockCheckAvailability).toHaveBeenCalled();
-        expect(mockOnSubmit).toHaveBeenCalled();
+      expect(mockCheckAvailability).toHaveBeenCalledTimes(1);
+      expect(mockOnSubmit).toHaveBeenCalled();
     });
   });
 
-  it('shows error when availability check fails', async () => {
-    mockCheckAvailability.mockResolvedValue({ 
-        body: { isValid: false },
-        message: 'email is already registered'
-    });
-
+  it('handles email, phone, combined, generic, and rejected availability check errors', async () => {
     render(
       <ThemeProvider theme={theme}>
         <RegisterForm onSubmit={mockOnSubmit} />
       </ThemeProvider>
     );
-    
-    // Fill minimal valid form
-    await userEvent.type(screen.getByLabelText(/Organizer Name/i), 'Test Org');
-    await userEvent.type(screen.getByLabelText(/Email address/i), 'test@example.com');
-    await userEvent.type(screen.getByLabelText(/Phone Number/i), '8123456789');
-    await userEvent.type(screen.getByLabelText(/^Password$/i), 'Password123');
-    await userEvent.type(screen.getByLabelText(/Confirm Password/i), 'Password123');
-    
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    
-    await waitFor(() => {
-        expect(mockShowError).toHaveBeenCalledWith('This email is already registered');
-        expect(mockOnSubmit).not.toHaveBeenCalled();
+
+    fillValidForm();
+
+    // 1. Both email & phone unavailable
+    mockCheckAvailability.mockResolvedValueOnce({
+      body: { isValid: false },
+      message: 'Email and Phone already taken'
     });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockShowError).toHaveBeenCalledWith(
+        'Email and phone number are already registered'
+      );
+    });
+
+    // 2. Email only unavailable
+    mockCheckAvailability.mockResolvedValueOnce({
+      body: { isValid: false },
+      message: 'email already exists'
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockShowError).toHaveBeenCalledWith(
+        'This email is already registered'
+      );
+    });
+
+    // 3. Phone only unavailable
+    mockCheckAvailability.mockResolvedValueOnce({
+      body: { isValid: false },
+      message: 'phone already exists'
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockShowError).toHaveBeenCalledWith(
+        'This phone number is already registered'
+      );
+    });
+
+    // 4. Generic unavailability fallback
+    mockCheckAvailability.mockResolvedValueOnce({
+      body: { isValid: false },
+      message: 'Validation failed'
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockShowError).toHaveBeenCalledWith(
+        'Email or phone number is not available to use'
+      );
+    });
+
+    // 5. Rejected Error instance
+    mockCheckAvailability.mockRejectedValueOnce(new Error('Network down'));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockShowError).toHaveBeenCalledWith('Network down');
+    });
+
+    // 6. Rejected non-Error fallback
+    mockCheckAvailability.mockRejectedValueOnce('unknown');
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockShowError).toHaveBeenCalledWith('Availability check failed');
+    });
+
+    expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 });

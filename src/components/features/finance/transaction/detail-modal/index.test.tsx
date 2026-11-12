@@ -1,11 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import { TransactionDetailModal } from './index';
 
 // Mock common components
 jest.mock('@/components/common', () => ({
-  Modal: ({ children, title, footer, open }: any) => 
+  Modal: ({ children, title, footer, open }: any) =>
     open ? (
       <div data-testid="modal">
         <div>{title}</div>
@@ -14,12 +13,16 @@ jest.mock('@/components/common', () => ({
       </div>
     ) : null,
   Body2: ({ children }: any) => <span>{children}</span>,
-  Button: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>
+  Button: ({ children, onClick }: any) => (
+    <button onClick={onClick}>{children}</button>
+  )
 }));
 
 // Mock StatusBadge
 jest.mock('@/components/features/events/status-badge', () => ({
-  StatusBadge: ({ status }: { status: string }) => <div data-testid="status-badge">{status}</div>
+  StatusBadge: ({ status }: { status: string }) => (
+    <div data-testid="status-badge">{status}</div>
+  )
 }));
 
 const mockTransaction = {
@@ -29,8 +32,8 @@ const mockTransaction = {
   ticketType: { name: 'VIP', price: 100000 },
   orderQuantity: 2,
   transactionNumber: 'TRX-123',
-  paymentBreakdown: { 
-    basedPrice: 200000, 
+  paymentBreakdown: {
+    basedPrice: 200000,
     tax: 20000,
     totalPrice: 228000 // based + tax + admin + payment method fee
   },
@@ -43,10 +46,10 @@ const mockTransaction = {
 describe('TransactionDetailModal', () => {
   it('should not render when open is false', () => {
     render(
-      <TransactionDetailModal 
-        open={false} 
-        onClose={jest.fn()} 
-        transaction={mockTransaction as any} 
+      <TransactionDetailModal
+        open={false}
+        onClose={jest.fn()}
+        transaction={mockTransaction as any}
       />
     );
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
@@ -54,10 +57,10 @@ describe('TransactionDetailModal', () => {
 
   it('should not render when transaction is null', () => {
     render(
-      <TransactionDetailModal 
-        open={true} 
-        onClose={jest.fn()} 
-        transaction={null} 
+      <TransactionDetailModal
+        open={true}
+        onClose={jest.fn()}
+        transaction={null}
       />
     );
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
@@ -65,10 +68,10 @@ describe('TransactionDetailModal', () => {
 
   it('should render transaction details correctly', () => {
     render(
-      <TransactionDetailModal 
-        open={true} 
-        onClose={jest.fn()} 
-        transaction={mockTransaction as any} 
+      <TransactionDetailModal
+        open={true}
+        onClose={jest.fn()}
+        transaction={mockTransaction as any}
       />
     );
 
@@ -88,7 +91,7 @@ describe('TransactionDetailModal', () => {
     // Payment Fee: 3000 (fixed)
     // Tax: 20000
     // Total: 200000 + 20000 + 5000 + 3000 = 228000
-    
+
     expect(screen.getByText('Rp 5.000')).toBeInTheDocument(); // Admin Fee
     expect(screen.getByText('Rp 3.000')).toBeInTheDocument(); // Transaction Fee
     expect(screen.getByText('Rp 20.000')).toBeInTheDocument(); // Tax
@@ -106,10 +109,10 @@ describe('TransactionDetailModal', () => {
     // Payment Fee: 0.5 < 1, so (0.5/100) * 100000 = 500
 
     render(
-      <TransactionDetailModal 
-        open={true} 
-        onClose={jest.fn()} 
-        transaction={percentageFeeTransaction as any} 
+      <TransactionDetailModal
+        open={true}
+        onClose={jest.fn()}
+        transaction={percentageFeeTransaction as any}
       />
     );
 
@@ -127,10 +130,10 @@ describe('TransactionDetailModal', () => {
     };
 
     render(
-      <TransactionDetailModal 
-        open={true} 
-        onClose={jest.fn()} 
-        transaction={groupTransaction as any} 
+      <TransactionDetailModal
+        open={true}
+        onClose={jest.fn()}
+        transaction={groupTransaction as any}
       />
     );
 
@@ -142,7 +145,7 @@ describe('TransactionDetailModal', () => {
     expect(screen.getByText('5 Tickets')).toBeInTheDocument();
     expect(screen.getByText('Total Tickets')).toBeInTheDocument();
     expect(screen.getByText('10 Tickets')).toBeInTheDocument(); // 2 * 5
-    
+
     // Price per bundle: 500000 / 2 = 250000
     expect(screen.getByText('Rp 250.000')).toBeInTheDocument();
   });
@@ -150,10 +153,10 @@ describe('TransactionDetailModal', () => {
   it('should call onClose when back button is clicked', () => {
     const onClose = jest.fn();
     render(
-      <TransactionDetailModal 
-        open={true} 
-        onClose={onClose} 
-        transaction={mockTransaction as any} 
+      <TransactionDetailModal
+        open={true}
+        onClose={onClose}
+        transaction={mockTransaction as any}
       />
     );
 

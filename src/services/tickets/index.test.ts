@@ -11,6 +11,7 @@ jest.mock('@/utils/apiUtils', () => ({
     get: jest.fn(),
     post: jest.fn(),
     put: jest.fn(),
+    patch: jest.fn(),
     delete: jest.fn(),
     handleAxiosError: jest.fn()
   }
@@ -28,16 +29,24 @@ describe('TicketsService', () => {
   const mockApiUtilsPut = apiUtils.put as jest.MockedFunction<
     typeof apiUtils.put
   >;
+  const mockApiUtilsPatch = apiUtils.patch as jest.MockedFunction<
+    typeof apiUtils.patch
+  >;
   const mockApiUtilsDelete = apiUtils.delete as jest.MockedFunction<
     typeof apiUtils.delete
   >;
 
-  // mockAxios is available but not used in these tests
-  // Keeping the mock setup for potential future use
-  axios as jest.Mocked<typeof axios>;
+  const mockedAxios = axios as unknown as jest.Mock;
+  const mockedIsAxiosError = jest.fn();
+  (axios as any).isAxiosError = mockedIsAxiosError;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('getTickets', () => {
@@ -695,6 +704,175 @@ describe('TicketsService', () => {
             status: 'approved'
           })
         ).rejects.toThrow('Approval failed');
+      });
+    });
+
+    describe('getTicketTypesByEvent', () => {
+      it('supports ticketTypes, data, body, direct array, non-array fallback, and errors', async () => {
+        mockApiUtilsGet.mockResolvedValueOnce({
+          body: { ticketTypes: [{ id: 'tt-1' }] }
+        });
+        await expect(
+          ticketsService.getTicketTypesByEvent('ev-1')
+        ).resolves.toEqual([{ id: 'tt-1' }]);
+
+        mockApiUtilsGet.mockResolvedValueOnce({
+          body: { data: [{ id: 'tt-2' }] }
+        });
+        await expect(
+          ticketsService.getTicketTypesByEvent('ev-1')
+        ).resolves.toEqual([{ id: 'tt-2' }]);
+
+        mockApiUtilsGet.mockResolvedValueOnce({ body: [{ id: 'tt-3' }] });
+        await expect(
+          ticketsService.getTicketTypesByEvent('ev-1')
+        ).resolves.toEqual([{ id: 'tt-3' }]);
+
+        mockApiUtilsGet.mockResolvedValueOnce([{ id: 'tt-4' }]);
+        await expect(
+          ticketsService.getTicketTypesByEvent('ev-1')
+        ).resolves.toEqual([{ id: 'tt-4' }]);
+
+        mockApiUtilsGet.mockResolvedValueOnce({ body: {} });
+        await expect(
+          ticketsService.getTicketTypesByEvent('ev-1')
+        ).resolves.toEqual([]);
+
+        mockApiUtilsGet.mockRejectedValueOnce(new Error('tt err'));
+        await expect(
+          ticketsService.getTicketTypesByEvent('ev-1')
+        ).rejects.toThrow('tt err');
+      });
+    });
+
+    describe('visibility toggles', () => {
+      it('updateTicketTypeVisibility and updateGroupTicketVisibility call patch and handle errors', async () => {
+        mockApiUtilsPatch.mockResolvedValueOnce(undefined);
+        await ticketsService.updateTicketTypeVisibility('tt-1', false);
+        expect(mockApiUtilsPatch).toHaveBeenCalledWith(
+          '/api/tickets/ticket-types/visibility',
+          { id: 'tt-1', is_public: false },
+          'Failed to update ticket visibility'
+        );
+
+        mockApiUtilsPatch.mockRejectedValueOnce(new Error('vis err'));
+        await expect(
+          ticketsService.updateTicketTypeVisibility('tt-1', true)
+        ).rejects.toThrow('vis err');
+
+        mockApiUtilsPatch.mockResolvedValueOnce(undefined);
+        await ticketsService.updateGroupTicketVisibility('gt-1', true);
+        expect(mockApiUtilsPatch).toHaveBeenCalledWith(
+          '/api/group-tickets/visibility',
+          { id: 'gt-1', is_public: true },
+          'Failed to update group ticket visibility'
+        );
+
+        mockApiUtilsPatch.mockRejectedValueOnce(new Error('gt vis err'));
+        await expect(
+          ticketsService.updateGroupTicketVisibility('gt-1', false)
+        ).rejects.toThrow('gt vis err');
+      });
+    });
+
+    describe('getDistinctAdditionalFormFields', () => {
+      it('fetches distinct fields and handles errors', async () => {
+        mockApiUtilsGet.mockResolvedValueOnce({
+          statusCode: 0,
+          additionalForms: []
+        });
+        await expect(
+          ticketsService.getDistinctAdditionalFormFields('ev-1')
+        ).resolves.toEqual({ statusCode: 0, additionalForms: [] });
+        expect(mockApiUtilsGet).toHaveBeenCalledWith(
+          '/api/tickets/additional-forms/distinct/event/ev-1'
+        );
+
+        mockApiUtilsGet.mockRejectedValueOnce(new Error('distinct err'));
+        await expect(
+          ticketsService.getDistinctAdditionalFormFields('ev-1')
+        ).rejects.toThrow('distinct err');
+      });
+    });
+
+    describe('exportTickets', () => {
+      it('throws when eventId is empty', async () => {
+        await expect(ticketsService.exportTickets('')).rejects.toThrow(
+          'Event ID is required for ticket export'
+        );
+      });
+
+      it('exports tickets with and without optional filters and cleans up DOM', async () => {
+        const mockAnchor = {
+          href: '',
+          download: '',
+          click: jest.fn()
+        } as any;
+        jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor);
+        jest
+          .spyOn(document.body, 'appendChild')
+          .mockImplementation(() => mockAnchor);
+        jest
+          .spyOn(document.body, 'removeChild')
+          .mockImplementation(() => mockAnchor);
+        const createUrl = jest.fn().mockReturnValue('blob:tickets-url');
+        const revokeUrl = jest.fn();
+        global.URL.createObjectURL = createUrl;
+        global.URL.revokeObjectURL = revokeUrl;
+        jest.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+          fn();
+          return 0 as any;
+        });
+
+        mockedAxios.mockResolvedValueOnce({
+          data: 'col1\nval1',
+          headers: { 'content-type': 'text/csv' }
+        });
+
+        await ticketsService.exportTickets(
+          'ev-1',
+          'Rock Fest!',
+          ' tt-1,tt-2 ',
+          'valid' as TicketStatus
+        );
+        expect(mockedAxios).toHaveBeenCalledWith(
+          expect.objectContaining({
+            params: {
+              event_id: 'ev-1',
+              ticket_type_ids: 'tt-1,tt-2',
+              ticket_status: 'valid'
+            }
+          })
+        );
+        expect(mockAnchor.download).toMatch(/^attendees_ticket_Rock_Fest_/);
+        expect(mockAnchor.click).toHaveBeenCalledTimes(1);
+        expect(revokeUrl).toHaveBeenCalledWith('blob:tickets-url');
+
+        mockedAxios.mockResolvedValueOnce({
+          data: 'col1',
+          headers: {}
+        });
+        await ticketsService.exportTickets('ev-1');
+        expect(mockAnchor.download).toMatch(/^attendees_ticket_unknown_event_/);
+      });
+
+      it('handles AxiosError and generic errors during export', async () => {
+        const axiosErr = { isAxiosError: true };
+        mockedAxios.mockRejectedValueOnce(axiosErr);
+        mockedIsAxiosError.mockReturnValueOnce(true);
+        (apiUtils.handleAxiosError as jest.Mock).mockReturnValueOnce(
+          new Error('handled axios')
+        );
+
+        await expect(ticketsService.exportTickets('ev-1')).rejects.toThrow(
+          'handled axios'
+        );
+
+        mockedAxios.mockRejectedValueOnce(new Error('non-axios'));
+        mockedIsAxiosError.mockReturnValueOnce(false);
+        await expect(ticketsService.exportTickets('ev-1')).rejects.toThrow(
+          'non-axios'
+        );
       });
     });
   });

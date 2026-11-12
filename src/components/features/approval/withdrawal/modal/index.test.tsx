@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 
 import WithdrawalActionModal from './index';
 
@@ -13,14 +12,12 @@ jest.mock('@/components/common', () => ({
     </div>
   ),
   TextField: ({ value, onChange, label }: any) => (
-    <input 
-      aria-label={label}
-      value={value}
-      onChange={onChange}
-    />
+    <input aria-label={label} value={value} onChange={onChange} />
   ),
   Button: ({ children, onClick, disabled }: any) => (
-    <button onClick={onClick} disabled={disabled}>{children}</button>
+    <button onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
   ),
   Overline: ({ children }: any) => <div>{children}</div>
 }));
@@ -46,19 +43,19 @@ describe('WithdrawalActionModal', () => {
         onAction={handleAction}
       />
     );
-    
+
     const rejectBtn = screen.getByText('Reject').closest('button');
     expect(rejectBtn).toBeDisabled();
-    
+
     const input = screen.getByLabelText('Rejection Reason');
     fireEvent.change(input, { target: { value: 'Reason' } });
-    
+
     expect(rejectBtn).not.toBeDisabled();
-    
-    if(rejectBtn) fireEvent.click(rejectBtn);
+
+    if (rejectBtn) fireEvent.click(rejectBtn);
     expect(handleAction).toHaveBeenCalledWith({
-        action: 'reject',
-        rejectionReason: 'Reason'
+      action: 'reject',
+      rejectionReason: 'Reason'
     });
   });
 
@@ -71,18 +68,36 @@ describe('WithdrawalActionModal', () => {
         onAction={handleAction}
       />
     );
-    
+
     const approveBtn = screen.getByText('Approve').closest('button');
     expect(approveBtn).not.toBeDisabled();
-    if(approveBtn) fireEvent.click(approveBtn);
+    if (approveBtn) fireEvent.click(approveBtn);
     expect(handleAction).toHaveBeenCalledWith({
-        action: 'approve',
-        rejectionReason: undefined
+      action: 'approve',
+      rejectionReason: undefined
     });
 
     // If reason is typed, approve should be disabled
-    const input = screen.getByLabelText('Rejection Reason');
-    fireEvent.change(input, { target: { value: 'Reason' } });
+    fireEvent.change(screen.getByLabelText('Rejection Reason'), {
+      target: { value: 'Incomplete documents' }
+    });
     expect(approveBtn).toBeDisabled();
+  });
+
+  it('displays error message and disables buttons while loading', () => {
+    const handleAction = jest.fn();
+    render(
+      <WithdrawalActionModal
+        errorMessage="Action failed"
+        loading={true}
+        open={true}
+        onAction={handleAction}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Action failed')).toBeInTheDocument();
+    expect(screen.getByText('Approve').closest('button')).toBeDisabled();
+    expect(screen.getByText('Reject').closest('button')).toBeDisabled();
   });
 });

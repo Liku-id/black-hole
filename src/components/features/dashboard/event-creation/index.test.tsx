@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useRouter } from 'next/router';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,23 +6,37 @@ import { useEvents } from '@/hooks/features/events/useEvents';
 
 import EventCreation from './index';
 
-// Mock next/router
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => <img {...props} />
+}));
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
-// Mock hooks
 jest.mock('@/hooks/features/events/useEvents', () => ({
   useEvents: jest.fn()
 }));
 
-// Mock EventsTable component
 jest.mock('@/components/features/events/list/table', () => ({
   __esModule: true,
-  default: () => <div>EventsTable</div>
+  default: ({ onPageChange, onRefresh }: any) => (
+    <div data-testid="events-table">
+      <button
+        type="button"
+        data-testid="mock-page-change"
+        onClick={() => onPageChange(2)}
+      >
+        Next Page
+      </button>
+      <button type="button" data-testid="mock-refresh" onClick={onRefresh}>
+        Refresh
+      </button>
+    </div>
+  )
 }));
 
-// Mock AuthContext
 jest.mock('@/contexts/AuthContext', () => ({
   useAuth: jest.fn()
 }));
@@ -41,6 +55,7 @@ const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 describe('EventCreation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     mockUseAuth.mockReturnValue({
       user: {
@@ -62,206 +77,133 @@ describe('EventCreation', () => {
       refreshUserData: jest.fn(),
       error: null
     });
-  });
-
-  describe('Rendering', () => {
-    it('should render Events title', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: null,
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
-
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-    });
-
-    it('should render tabs', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: {
-          onGoing: 5,
-          approved: 3,
-          done: 2
-        },
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
-
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        // Tabs might take time to render, check for Events title first
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-      
-      // Check for tabs (they might be rendered)
-      const ongoingTab = screen.queryByText('Ongoing');
-      const upcomingTab = screen.queryByText('Upcoming');
-      const pastTab = screen.queryByText('Past');
-      
-      // At least one should be present if tabs are rendered
-      if (ongoingTab || upcomingTab || pastTab) {
-        expect(ongoingTab || upcomingTab || pastTab).toBeInTheDocument();
-      }
-    });
-
-    it('should render search field', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: null,
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
-
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        // Wait for component to render
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-      
-      // Search field might be rendered
-      const searchField = screen.queryByPlaceholderText(/Search/i);
-      // If search field exists, verify it
-      if (searchField) {
-        expect(searchField).toBeInTheDocument();
-      }
-    });
-
-    it('should render create event button', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: null,
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
-
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        // Wait for component to render
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-      
-      // Create button should be rendered
-      const createButton = screen.queryByText(/Create Event/i);
-      if (createButton) {
-        expect(createButton).toBeInTheDocument();
-      }
+    mockUseEvents.mockReturnValue({
+      events: [],
+      eventCountByStatus: { onGoing: 5, approved: 3, done: 2 } as any,
+      loading: false,
+      error: null,
+      mutate: jest.fn(),
+      pagination: { totalRecords: 10 } as any
     });
   });
 
-  describe('Tab Navigation', () => {
-    it('should change active tab when tab is clicked', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: {
-          onGoing: 5,
-          approved: 3,
-          done: 2
-        },
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
-
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-
-      // Try to find and click tab if it exists
-      const upcomingTab = screen.queryByText('Upcoming');
-      if (upcomingTab) {
-        fireEvent.click(upcomingTab);
-        expect(upcomingTab).toBeInTheDocument();
-      }
-    });
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
-  describe('Search Functionality', () => {
-    it('should update search value when typing', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: null,
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
+  it('navigates on Create New Event buttons, switches tabs, and debounces search', () => {
+    render(<EventCreation />);
 
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-      
-      const searchField = screen.queryByPlaceholderText(/Search/i);
-      if (searchField) {
-        fireEvent.change(searchField, { target: { value: 'Test Event' } });
-        expect(searchField).toHaveValue('Test Event');
-      }
+    // Both Create New Event buttons (header & empty state) enabled for complete individual EO
+    const createButtons = screen.getAllByRole('button', {
+      name: 'Create New Event'
     });
+    expect(createButtons).toHaveLength(2);
+    fireEvent.click(createButtons[0]);
+    fireEvent.click(createButtons[1]);
+    expect(mockPush).toHaveBeenCalledTimes(2);
+    expect(mockPush).toHaveBeenCalledWith('/events/create');
+
+    // Switch tab
+    fireEvent.click(screen.getByText(/Upcoming/i));
+    expect(mockUseEvents).toHaveBeenLastCalledWith(
+      expect.objectContaining({ status: 'EVENT_STATUS_APPROVED', page: 0 })
+    );
+
+    // Search debounce (1000ms)
+    const searchInput = screen.getByPlaceholderText('Cari Event');
+    fireEvent.change(searchInput, { target: { value: 'Rock Concert' } });
+    expect(searchInput).toHaveValue('Rock Concert');
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(mockUseEvents).toHaveBeenLastCalledWith(
+      expect.objectContaining({ name: 'Rock Concert', page: 0 })
+    );
   });
 
-  describe('Create Event Button', () => {
-    it('should navigate to create event page when clicked', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: null,
-        loading: false,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
-
-      render(<EventCreation />);
-
-      await waitFor(() => {
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-      
-      const createButton = screen.queryByText(/Create Event/i);
-      if (createButton) {
-        fireEvent.click(createButton);
-        expect(mockPush).toHaveBeenCalledWith('/events/create');
-      }
+  it('handles EventsTable pagination, error state, and organizer completeness checks', () => {
+    mockUseEvents.mockReturnValue({
+      events: [{ id: 'e1', name: 'Event 1' }] as any,
+      eventCountByStatus: null,
+      loading: false,
+      error: null,
+      mutate: jest.fn(),
+      pagination: { totalRecords: 20 } as any
     });
+
+    // Incomplete individual EO -> button disabled
+    mockUseAuth.mockReturnValue({
+      user: {
+        organizer_type: 'individual',
+        ktp_photo_id: 'ktp1'
+      } as any
+    } as any);
+
+    const { rerender } = render(<EventCreation />);
+    expect(
+      screen.getByRole('button', { name: 'Create New Event' })
+    ).toBeDisabled();
+
+    // EventsTable pagination callback
+    fireEvent.click(screen.getByTestId('mock-page-change'));
+    expect(mockUseEvents).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 2 })
+    );
+
+    // Institutional complete EO -> enabled
+    mockUseAuth.mockReturnValue({
+      user: {
+        organizer_type: 'institutional',
+        npwp_photo_id: 'n1',
+        npwp: '123',
+        npwp_address: 'Jl. Sudirman',
+        full_name: 'PT Maju'
+      } as any
+    } as any);
+    rerender(<EventCreation eventOrganizerId="org-99" />);
+    expect(
+      screen.getByRole('button', { name: 'Create New Event' })
+    ).toBeEnabled();
+    expect(mockUseEvents).toHaveBeenLastCalledWith(
+      expect.objectContaining({ event_organizer_id: 'org-99' })
+    );
+
+    // Unknown organizer_type + error state
+    mockUseAuth.mockReturnValue({
+      user: { organizer_type: 'other' } as any
+    } as any);
+    mockUseEvents.mockReturnValue({
+      events: [],
+      eventCountByStatus: null,
+      loading: false,
+      error: 'Connection refused',
+      mutate: jest.fn(),
+      pagination: null
+    });
+    rerender(<EventCreation />);
+    expect(
+      screen.getByRole('button', { name: 'Create New Event' })
+    ).toBeDisabled();
+    expect(screen.getByText('Failed to load events')).toBeInTheDocument();
+    expect(screen.getByText('Connection refused')).toBeInTheDocument();
   });
 
-  describe('Loading State', () => {
-    it('should handle loading state', async () => {
-      mockUseEvents.mockReturnValue({
-        events: [],
-        eventCountByStatus: null,
-        loading: true,
-        error: null,
-        mutate: jest.fn(),
-        pagination: null
-      });
+  it('disables button for non-organizer and renders non-empty missing organizer_type cleanly', () => {
+    mockUseAuth.mockReturnValue({
+      user: { role: { name: 'admin' } } as any
+    } as any);
+    const { rerender } = render(<EventCreation />);
+    expect(
+      screen.getAllByRole('button', { name: 'Create New Event' })[0]
+    ).toBeDisabled();
 
-      render(<EventCreation />);
-
-      // Component should render even when loading
-      await waitFor(() => {
-        expect(screen.getByText('Events')).toBeInTheDocument();
-      });
-    });
+    mockUseAuth.mockReturnValue({
+      user: { organizer_type: '' } as any
+    } as any);
+    rerender(<EventCreation />);
+    expect(
+      screen.getAllByRole('button', { name: 'Create New Event' })[0]
+    ).toBeDisabled();
   });
 });
-

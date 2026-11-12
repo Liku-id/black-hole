@@ -33,12 +33,12 @@ describe('SubmissionsTable', () => {
         startDate: '2024-01-15',
         eventStatus: 'published',
         metaUrl: 'test-event-1'
-      },
+      } as any,
       createdAt: '2024-01-10',
       eventUpdateRequest: {
         id: 'req1',
         status: 'pending'
-      }
+      } as any
     },
     {
       id: '2',
@@ -48,11 +48,11 @@ describe('SubmissionsTable', () => {
         startDate: '2024-02-20',
         eventStatus: 'draft',
         metaUrl: 'test-event-2'
-      },
+      } as any,
       createdAt: '2024-01-12',
       eventUpdateRequest: null
     }
-  ];
+  ] as any;
 
   describe('Loading State', () => {
     it('should display loading message when loading is true', () => {
@@ -132,24 +132,73 @@ describe('SubmissionsTable', () => {
   });
 
   describe('Pagination', () => {
-    it('should render pagination when total is provided', () => {
-      render(
+    it('should render pagination and invoke onPageChange cleanly', () => {
+      const mockOnPageChange = jest.fn();
+      const { rerender } = render(
         <SubmissionsTable
           activeTab="current_event"
-          submissions={mockSubmissions}
-          loading={false}
-          total={20}
           currentPage={0}
+          loading={false}
           pageSize={10}
+          submissions={mockSubmissions}
+          total={20}
+          onPageChange={mockOnPageChange}
         />
       );
 
       // Pagination component should be rendered
       expect(screen.getAllByText(/Showing/i).length).toBeGreaterThan(0);
+
+      // Click next page button in Pagination (first instance = mobile/collapsible wrapper)
+      const nextButtons = screen.getAllByTestId('KeyboardArrowRightIcon');
+      fireEvent.click(nextButtons[0].closest('button')!);
+      expect(mockOnPageChange).toHaveBeenCalledWith(1);
+
+      // Without onPageChange callback
+      rerender(
+        <SubmissionsTable
+          activeTab="current_event"
+          currentPage={0}
+          loading={false}
+          pageSize={10}
+          submissions={mockSubmissions}
+          total={20}
+        />
+      );
+      expect(() =>
+        fireEvent.click(
+          screen.getAllByTestId('KeyboardArrowRightIcon')[0].closest('button')!
+        )
+      ).not.toThrow();
     });
   });
 
   describe('Empty Data Handling', () => {
+    it('should render fallback "-" when submission fields are missing', () => {
+      const emptySubmission: EventSubmission = {
+        id: '3',
+        event: {
+          id: 'event3',
+          name: '',
+          startDate: '',
+          eventStatus: '',
+          metaUrl: ''
+        } as any,
+        createdAt: '',
+        eventUpdateRequest: null
+      } as any;
+
+      render(
+        <SubmissionsTable
+          activeTab="current_event"
+          loading={false}
+          submissions={[emptySubmission]}
+        />
+      );
+
+      expect(screen.getAllByText('-').length).toBeGreaterThan(0);
+    });
+
     it('should render table with empty submissions array', () => {
       render(
         <SubmissionsTable
@@ -165,4 +214,3 @@ describe('SubmissionsTable', () => {
     });
   });
 });
-

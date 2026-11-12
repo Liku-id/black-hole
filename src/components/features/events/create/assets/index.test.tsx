@@ -1,52 +1,59 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { EventAssetsForm } from './index';
+
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => <img {...props} />
+}));
 
 describe('EventAssetsForm', () => {
   const mockOnFilesChange = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    global.URL.createObjectURL = jest.fn(() => 'blob:mock-preview');
+    global.URL.revokeObjectURL = jest.fn();
   });
 
-  describe('Rendering', () => {
-    it('should render event thumbnail label', () => {
-      render(<EventAssetsForm onFilesChange={mockOnFilesChange} />);
+  it('selects and removes thumbnail and supporting images and notifies parent', async () => {
+    const { container } = render(
+      <EventAssetsForm onFilesChange={mockOnFilesChange} showError={true} />
+    );
 
-      expect(screen.getByText('Event Thumbnail*')).toBeInTheDocument();
+    expect(screen.getByText('Event Thumbnail*')).toBeInTheDocument();
+
+    const inputs = container.querySelectorAll('input[type="file"]');
+    const thumbFile = new File(['thumb'], 'thumb.jpg', { type: 'image/jpeg' });
+    const suppFile = new File(['supp'], 'supp.jpg', { type: 'image/jpeg' });
+
+    await act(async () => {
+      fireEvent.change(inputs[0], { target: { files: [thumbFile] } });
+    });
+    expect(mockOnFilesChange).toHaveBeenCalledWith({
+      thumbnail: thumbFile,
+      supportingImages: [null, null, null, null]
     });
 
-    it('should render component structure', () => {
-      const { container } = render(<EventAssetsForm onFilesChange={mockOnFilesChange} />);
-
-      // Component should render
-      expect(screen.getByText('Event Thumbnail*')).toBeInTheDocument();
-      expect(container.firstChild).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.change(inputs[1], { target: { files: [suppFile] } });
     });
-  });
-
-  describe('Component Functionality', () => {
-    it('should render without errors', () => {
-      render(<EventAssetsForm onFilesChange={mockOnFilesChange} />);
-
-      expect(screen.getByText('Event Thumbnail*')).toBeInTheDocument();
+    expect(mockOnFilesChange).toHaveBeenCalledWith({
+      thumbnail: thumbFile,
+      supportingImages: [suppFile, null, null, null]
     });
 
-    it('should handle onFilesChange callback', () => {
-      render(<EventAssetsForm onFilesChange={mockOnFilesChange} />);
-
-      // Component should render
-      expect(screen.getByText('Event Thumbnail*')).toBeInTheDocument();
+    const removeIcons = container.querySelectorAll('#clear_icon');
+    fireEvent.click(removeIcons[0]);
+    expect(mockOnFilesChange).toHaveBeenCalledWith({
+      thumbnail: null,
+      supportingImages: [suppFile, null, null, null]
     });
-  });
 
-  describe('Error State', () => {
-    it('should pass error prop to thumbnail dropzone when showError is true', () => {
-      render(<EventAssetsForm onFilesChange={mockOnFilesChange} showError={true} />);
-
-      // Component should render
-      expect(screen.getByText('Event Thumbnail*')).toBeInTheDocument();
+    fireEvent.click(container.querySelectorAll('#clear_icon')[0]);
+    expect(mockOnFilesChange).toHaveBeenLastCalledWith({
+      thumbnail: null,
+      supportingImages: [null, null, null, null]
     });
   });
 });
-

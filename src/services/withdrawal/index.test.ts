@@ -43,7 +43,7 @@ describe('WithdrawalService', () => {
     it('should successfully fetch withdrawal summaries', async () => {
       const filters: PaginationFilters = {
         page: 1,
-        show: 10,
+        show: 10
       };
 
       const mockResponse: WithdrawalSummariesResponse = {
@@ -57,7 +57,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -95,7 +95,7 @@ describe('WithdrawalService', () => {
             page: 2,
             hasNext: false,
             hasPrev: false,
-            limit: 20,
+            limit: 20
           }
         }
       };
@@ -202,7 +202,7 @@ describe('WithdrawalService', () => {
     it('should successfully fetch withdrawals with minimal filters', async () => {
       const filters = {
         page: 1,
-        show: 10,
+        show: 10
       };
 
       const mockResponse: WithdrawalListResponse = {
@@ -216,7 +216,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -254,7 +254,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -281,6 +281,15 @@ describe('WithdrawalService', () => {
       await expect(
         withdrawalService.getWithdrawals({ page: 1, show: 10 })
       ).rejects.toThrow('Network error');
+
+      const badFilters = {
+        get show() {
+          throw new Error('sync filter error');
+        }
+      } as any;
+      await expect(
+        withdrawalService.getWithdrawals(badFilters)
+      ).rejects.toThrow('sync filter error');
     });
   });
 
@@ -480,7 +489,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -517,18 +526,17 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
 
       mockApiUtilsGet.mockResolvedValue(mockResponse);
 
-      await withdrawalService.getWithdrawalHistory(
-        undefined,
-        'org-1',
-        { page: 1, show: 10 }
-      );
+      await withdrawalService.getWithdrawalHistory(undefined, 'org-1', {
+        page: 1,
+        show: 10
+      });
 
       expect(mockApiUtilsGet).toHaveBeenCalledWith(
         '/api/withdrawal/history',
@@ -553,7 +561,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -562,7 +570,7 @@ describe('WithdrawalService', () => {
 
       await withdrawalService.getWithdrawalHistory('event-1', 'org-1', {
         page: 1,
-        show: 10,
+        show: 10
       });
 
       expect(mockApiUtilsGet).toHaveBeenCalledWith(
@@ -589,7 +597,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -626,7 +634,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };
@@ -635,7 +643,7 @@ describe('WithdrawalService', () => {
 
       await withdrawalService.getWithdrawalHistory('event-1', '   ', {
         page: 1,
-        show: 10,
+        show: 10
       });
 
       expect(mockApiUtilsGet).toHaveBeenCalledWith(
@@ -659,7 +667,7 @@ describe('WithdrawalService', () => {
             page: 1,
             hasNext: false,
             hasPrev: false,
-            limit: 10,
+            limit: 10
           }
         }
       };

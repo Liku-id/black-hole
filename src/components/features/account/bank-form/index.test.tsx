@@ -1,12 +1,20 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { useUpdateEventOrganizerBank } from '@/hooks/features/organizers/useUpdateEventOrganizerBank';
 import { EventOrganizer } from '@/types/organizer';
 
 import BankForm from './index';
 
-// Mock the hook
+// Mock the hooks
 jest.mock('@/hooks/features/organizers/useUpdateEventOrganizerBank');
+jest.mock('@/hooks/features/organizers/useBanks', () => ({
+  useBanks: jest.fn(() => ({
+    data: { banks: [] },
+    loading: false,
+    error: null,
+    mutate: jest.fn()
+  }))
+}));
 
 const mockMutate = jest.fn();
 const mockUseUpdateEventOrganizerBank =
@@ -22,6 +30,10 @@ describe('BankForm', () => {
       isPending: false,
       error: null
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   const mockEventOrganizer: EventOrganizer = {
@@ -75,15 +87,11 @@ describe('BankForm', () => {
 
   describe('Loading State', () => {
     it('should display loading message when loading is true', () => {
-      render(
-        <BankForm
-          eventOrganizer={null}
-          loading={true}
-          mode="view"
-        />
-      );
+      render(<BankForm eventOrganizer={null} loading={true} mode="view" />);
 
-      expect(screen.getByText('Loading bank information...')).toBeInTheDocument();
+      expect(
+        screen.getByText('Loading bank information...')
+      ).toBeInTheDocument();
     });
   });
 
@@ -106,13 +114,7 @@ describe('BankForm', () => {
 
   describe('No Data State', () => {
     it('should display "No bank information found" when eventOrganizer is null', () => {
-      render(
-        <BankForm
-          eventOrganizer={null}
-          loading={false}
-          mode="view"
-        />
-      );
+      render(<BankForm eventOrganizer={null} loading={false} mode="view" />);
 
       expect(screen.getByText('No bank information found')).toBeInTheDocument();
     });
@@ -145,7 +147,9 @@ describe('BankForm', () => {
       );
 
       // The actual form fields are in BankEditForm component
-      expect(screen.queryByText('Loading bank information...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Loading bank information...')
+      ).not.toBeInTheDocument();
     });
 
     it('should call onRefresh after successful update', async () => {
@@ -161,7 +165,41 @@ describe('BankForm', () => {
         />
       );
 
-      expect(mockUseUpdateEventOrganizerBank).toHaveBeenCalled();
+      fireEvent.click(await screen.findByText('Save Bank Account'));
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalledWith({
+          eoId: '1',
+          payload: {
+            bank_id: 'bank-id-1',
+            account_number: '1234567890',
+            account_holder_name: 'John Doe'
+          }
+        });
+        expect(mockOnRefresh).toHaveBeenCalled();
+      });
+    });
+
+    it('should catch error when updateBank rejects', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockMutate.mockRejectedValueOnce(new Error('Bank update failed'));
+
+      render(
+        <BankForm
+          eventOrganizer={mockEventOrganizer}
+          loading={false}
+          mode="edit"
+        />
+      );
+
+      fireEvent.click(await screen.findByText('Save Bank Account'));
+
+      await waitFor(() => {
+        expect(console.error).toHaveBeenCalledWith(
+          'Failed to update bank information:',
+          expect.any(Error)
+        );
+      });
     });
 
     it('should not call mutate if eventOrganizer id is missing', async () => {
@@ -178,23 +216,22 @@ describe('BankForm', () => {
         />
       );
 
-      // Should not crash, but also should not call mutate
-      expect(screen.queryByText('Loading bank information...')).not.toBeInTheDocument();
+      fireEvent.click(await screen.findByText('Save Bank Account'));
+
+      await waitFor(() => {
+        expect(mockMutate).not.toHaveBeenCalled();
+      });
     });
   });
 
   describe('Default Mode', () => {
     it('should default to edit mode when mode is not specified', () => {
-      render(
-        <BankForm
-          eventOrganizer={mockEventOrganizer}
-          loading={false}
-        />
-      );
+      render(<BankForm eventOrganizer={mockEventOrganizer} loading={false} />);
 
       // Should render edit form (default behavior)
-      expect(screen.queryByText('Loading bank information...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Loading bank information...')
+      ).not.toBeInTheDocument();
     });
   });
 });
-

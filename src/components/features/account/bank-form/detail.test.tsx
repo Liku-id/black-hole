@@ -123,21 +123,19 @@ describe('BankFormDetailInfo', () => {
       expect(screen.getByText('Bank Account Holder Name')).toBeInTheDocument();
     });
 
-    it('should display "-" when bank name is missing', () => {
+    it('should display "-" when bank name is missing or bank object is undefined', () => {
       const organizerWithoutBankName: EventOrganizer = {
         ...mockEventOrganizer,
         bank_information: {
           ...mockEventOrganizer.bank_information!,
-          bank: {
-            ...mockEventOrganizer.bank_information!.bank,
-            name: ''
-          }
+          bank: undefined as any
         }
       };
 
       render(<BankFormDetailInfo organizerDetail={organizerWithoutBankName} />);
 
       expect(screen.getByText('Bank Name')).toBeInTheDocument();
+      expect(screen.getByText('-')).toBeInTheDocument();
     });
   });
 
@@ -151,4 +149,3 @@ describe('BankFormDetailInfo', () => {
     });
   });
 });
-

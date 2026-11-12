@@ -1,12 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 
 import Breadcrumb from './index';
 
 describe('Breadcrumb', () => {
   const steps = [
     { label: 'Home', active: false },
-    { label: 'Profile', active: true },
+    { label: 'Profile', active: true }
   ];
 
   it('renders all steps', () => {
